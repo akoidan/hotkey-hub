@@ -9,7 +9,7 @@
     "test": "ts-node ./src/main.ts",
     "build": "electron-packager . l2 --platform=win32 --arch=x64",
     "start": "electron index.js",
-    "readme": "ts-node show-readme.ts"
+    "readme": "ts-node ./src/show-readme.ts"
   },
   "devDependencies": {
     "electron": "^30.0.6",

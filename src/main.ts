@@ -8,7 +8,7 @@ import {
   ConfigData, ConfigUrl, Receiver
 } from '@/types';
 import { Api } from '@/clients';
-
+import "@/show-readme"
 
 class ShortCutSender {
 

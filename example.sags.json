@@ -1,8 +1,8 @@
 {
   "urls": {
     "bish": [ "192.168.100.9"],
-    "sags": ["192.168.100.14", "192.168.100.27", "192.168.100.33"],
-    "wc": ["192.168.100.36"]
+    "sags": ["192.168.100.14", "192.168.100.36", "192.168.100.33"],
+    "wc": ["192.168.100.27"]
   },
   "combinations": [
     {
@@ -30,11 +30,11 @@
     {
       "receivers": [
         {
-          "destination": "bish",
-          "keySend": "4"
+          "destination": "wc",
+          "keySend": "1"
         }
       ],
-      "name": "paralych",
+      "name": "WC Fear",
       "shortCut": "Alt+3",
       "circular": false
     },
@@ -52,11 +52,11 @@
     {
       "receivers": [
         {
-          "destination": "wc",
-          "keySend": "1"
+          "destination": "bish",
+          "keySend": "4"
         }
       ],
-      "name": "WC Fear",
+      "name": "paralych",
       "shortCut": "Alt+5",
       "circular": false
     },
@@ -68,6 +68,10 @@
         },
         {
           "destination": "bish",
+          "keySend": "F6"
+        },
+        {
+          "destination": "wc",
           "keySend": "F6"
         }
       ],
@@ -154,7 +158,7 @@
         },
         {
           "destination": "bish",
-          "keySend": "F3"
+          "keySend": "F10"
         },
         {
           "destination": "bish",
@@ -162,8 +166,8 @@
           "run":  {"Name": "alt_tab"}
         }
       ],
-      "name": "Not used",
-      "shortCut": "alt+'",
+      "name": "Mass TP",
+      "shortCut": "alt+/",
       "circular": false
     },
     {
@@ -192,6 +196,10 @@
       "receivers": [
         {
           "destination": "bish",
+          "keySend": "F6"
+        },
+        {
+          "destination": "wc",
           "keySend": "F6"
         }
       ],
