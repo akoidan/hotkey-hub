@@ -5,7 +5,7 @@ import {
 import { ConfigReader } from '@/config';
 import {
   ConfigCombination,
-  ConfigData, ConfigUrl, Receiver
+  ConfigData, Receiver, ReceiverId, ReceiverSimple,
 } from '@/types';
 import { Api } from '@/clients';
 import "@/show-readme"
@@ -19,9 +19,10 @@ class ShortCutSender {
   async sendKeyToApi(comb: ConfigCombination) {
     console.log(`${comb.shortCut} pressed`);
 
+    // but same as receiver but destination would be an ip
     const receivers: Receiver[] = [];
     comb.receivers.forEach(rec => {
-      this.config.urls[rec.destination as keyof ConfigUrl].forEach(dest => {
+      this.config.aliases[rec.destination].forEach(dest => {
         receivers.push({
           ...rec,
           destination: dest,
@@ -45,25 +46,20 @@ class ShortCutSender {
   }
 
   async runCommand(currRec: Receiver) {
-    if (currRec.keySend) {
-      await this.ids[currRec.destination].sendKey(currRec.keySend);
+    if ((currRec as ReceiverSimple).keySend) {
+      await this.ids[currRec.destination].sendKey((currRec as ReceiverSimple).keySend);
     } else {
-      await this.ids[currRec.destination].sendCustomKey(currRec.id, currRec.run);
+      await this.ids[currRec.destination].sendCustomKey((currRec as ReceiverId).id, (currRec as ReceiverId).run);
     }
   }
 
   async createApi() {
-    await Promise.all(Object.entries(this.config.urls).map(([key, value]) => {
-      const values = Array.isArray(value) ? value : [value];
-      values.map((url, index) => {
-        const api = new Api(url, `${key}-${index}`);
-        this.ids[url] = api;
-        return api.connect();
-      })
-    }).flatMap(a => a));
+    await Promise.all(Object.entries(this.config.ips).map(([name, ip]) => {
+      const api = new Api(ip, name);
+      this.ids[name] = api;
+      return api.connect();
+    }));
   }
-
-
 
   async start() {
     await app.whenReady();
@@ -89,10 +85,7 @@ class ShortCutSender {
     }
 
   }
-
 }
-
-
 
 new ShortCutSender().start();
 

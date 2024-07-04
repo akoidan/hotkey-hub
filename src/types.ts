@@ -1,41 +1,60 @@
-import * as yup from 'yup';
-import { InferType } from 'yup';
+import { z, ZodIssueCode } from 'zod';
 
+// Define the schema for the 'ips' part with dynamic keys
+const ipsSchema = z.record(z.string().ip());
 
-const urlsSchema = yup.object({
-  sags: yup.array().of(yup.string()).optional(),
-  bish: yup.array().of(yup.string()).optional(),
-  sorc: yup.array().of(yup.string()).optional(),
-  ee: yup.array().of(yup.string()).optional(),
-  tyrs: yup.array().of(yup.string()).optional(),
-}).required();
+// Define the schema for the 'mapping' part with dynamic keys
+const aliasesSchema = z.record(z.array(z.string()));
 
-const receiverSchema = yup.object({
-  destination: yup.string().optional(),
-  id: yup.string().optional(),
-  run: yup.object().optional(),
-  keySend: yup.string().optional(),
-}).required();
-const keySendSchema = yup.string();
-const combinationSchema = yup.object({
-  receivers: yup.array().of(receiverSchema),
-  name: yup.string().nullable().optional(),
-  shortCut: yup.string().required(),
-  circular: yup.boolean().optional(),
-  noDelay: yup.boolean().optional(),
-}).required();
-
-
-export const rootSchema = yup.object({
-  urls: urlsSchema,
-  combinations: yup.array().of(combinationSchema).required()
+// Define the schema for the 'receivers' part within 'combinations'
+const receiverSchemaSimple = z.object({
+  destination: z.string(),
+  keySend: z.string(),
 });
 
-export type KeySend = InferType<typeof keySendSchema>;
+const receiverSchemaId = z.object({
+  destination: z.string(),
+  id: z.string(),
+  run: z.any(),
+});
 
-export type ConfigCombination = InferType<typeof combinationSchema>
-export type ConfigUrl = InferType<typeof urlsSchema>
-export type Receiver = InferType<typeof receiverSchema>
-export type ConfigData = InferType<typeof rootSchema>;
+const receiverSchema = z.union([receiverSchemaSimple, receiverSchemaId]);
+
+// Define the schema for the 'combinations' part
+const combinationSchema = z.object({
+  receivers: z.array(receiverSchema),
+  name: z.string(),
+  shortCut: z.string(),
+  circular: z.boolean().optional(),
+});
+
+// Define the full schema for the provided JSON structure
+export const fullSchema = z.object({
+  ips: ipsSchema,
+  aliases: aliasesSchema,
+  combinations: z.array(combinationSchema),
+}).superRefine((data, ctx) => {
+  // Ensure mapping values are arrays of keys from ips
+  const ipsKeys = new Set(Object.keys(data.ips));
+  Object.entries(data.aliases).forEach(([key, value]) => {
+    value.forEach((v) => {
+      if (!ipsKeys.has(v)) {
+        ctx.addIssue({
+          code: ZodIssueCode.custom,
+          path: ["aliases", key],
+          message: `"${v}" is not a valid key from ips`,
+        });
+      }
+    });
+  });
+});
+
+// Generate TypeScript type
+export type ConfigData = z.infer<typeof fullSchema>;
+export type KeySend = string;
+export type ConfigCombination = z.infer<typeof combinationSchema>
+export type ReceiverSimple = z.infer<typeof receiverSchemaSimple>
+export type ReceiverId = z.infer<typeof receiverSchemaId>
+export type Receiver = z.infer<typeof receiverSchema>
 
 

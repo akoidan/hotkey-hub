@@ -2,7 +2,7 @@ import { promises as fs, } from 'fs';
 import { sep } from 'path';
 import {
   ConfigData,
-  rootSchema
+  fullSchema
 } from '@/types';
 
 export class ConfigReader {
@@ -22,12 +22,12 @@ export class ConfigReader {
   async getConfig(): Promise<ConfigData> {
     const config = [process.cwd(), 'config.json'].join(sep);
     if (!await this.pathExists(config)) {
-      console.log(`Config ${JSON.stringify(rootSchema.describe(), null, 2)}`);
+      console.log(`Config ${JSON.stringify(fullSchema.describe, null, 2)}`);
       throw Error(`Cannot read from config from '${config}'`)
     }
     console.log(`Reading config from ${config}`);
     const conf = JSON.parse(await fs.readFile(config, 'utf-8')) as ConfigData;
-    await rootSchema.validate(conf);
+    fullSchema.parse(conf);
     return conf;
   }
 }
