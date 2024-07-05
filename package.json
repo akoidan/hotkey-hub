@@ -6,20 +6,19 @@
   "author": "akoidan <deathangel908@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "test": "ts-node ./src/main.ts",
     "build": "electron-packager . l2 --platform=win32 --arch=x64",
-    "start": "electron index.js",
-    "readme": "ts-node ./src/show-readme.ts"
+    "start": "electron index.js"
   },
   "devDependencies": {
     "electron-packager": "^17.1.2",
-    "typescript": "^5.4.5",
     "ts-node": "^10.9.2",
-    "tsconfig-paths": "^4.2.0"
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.4.5",
+    "@types/uuid": "^10.0.0"
   },
   "dependencies": {
     "electron": "^30.0.6",
-    "zod": "^3.23.8",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "zod": "^3.23.8"
   }
 }

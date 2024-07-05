@@ -1,12 +1,9 @@
 import { z, ZodIssueCode } from 'zod';
 
-// Define the schema for the 'ips' part with dynamic keys
 const ipsSchema = z.record(z.string().ip());
 
-// Define the schema for the 'mapping' part with dynamic keys
 const aliasesSchema = z.record(z.array(z.string()));
 
-// Define the schema for the 'receivers' part within 'combinations'
 const receiverSchemaSimple = z.object({
   destination: z.string(),
   keySend: z.string(),
@@ -53,6 +50,8 @@ export const fullSchema = z.object({
 export type ConfigData = z.infer<typeof fullSchema>;
 export type KeySend = string;
 export type ConfigCombination = z.infer<typeof combinationSchema>
+export type Ips = z.infer<typeof ipsSchema>
+export type Aliases = z.infer<typeof aliasesSchema>
 export type ReceiverSimple = z.infer<typeof receiverSchemaSimple>
 export type ReceiverId = z.infer<typeof receiverSchemaId>
 export type Receiver = z.infer<typeof receiverSchema>

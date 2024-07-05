@@ -1,6 +1,6 @@
 import {KeySend} from '@/types';
 
-const {v4: uuidv4} = require('uuid');
+import { v4} from 'uuid';
 
 export class Api {
 
@@ -10,9 +10,9 @@ export class Api {
     private url: string;
 
     constructor(url: string, private name: string) {
-        this.password = uuidv4();
+        this.password = v4();
         this.url = `http://${url}:9510`
-        this.myGuid = `web-${uuidv4()}`;
+        this.myGuid = `web-${v4()}`;
     }
 
     async makeRequest(url: string, method: 'POST' | 'GET', body?: any): Promise<any> {
@@ -23,7 +23,7 @@ export class Api {
         if (this.id) {
             allHeaders['Ur-Connection-Id'] = this.id;
         }
-        console.log(`${this.name} ${method}:${fulUrl}  ${JSON.stringify(body)} ${JSON.stringify(allHeaders)}`);
+        console.debug(`${this.name} ${method}:${fulUrl}  ${JSON.stringify(body)} ${JSON.stringify(allHeaders)}`);
         let res: Response = null as Response;
         try {
             res = await fetch(fulUrl, {
@@ -36,7 +36,7 @@ export class Api {
         }
 
         const data = await res.text();
-        console.log(`${this.name} ${method}:${fulUrl} ${data.replace(/[\n\s]+/g, ' ')}`);
+        console.debug(`${this.name} ${method}:${fulUrl} ${data.replace(/[\n\s]+/g, ' ')}`);
         let resData = null;
         try {
             resData = JSON.parse(data);
@@ -49,20 +49,17 @@ export class Api {
         return resData;
     }
 
-    startPolling(): void {
-        setInterval(async () => {
-            await this.makeRequest(
-                `/client/request`,
-                'POST', {
-                    "KeepAlive": true,
-                    "Source": this.myGuid
-                })
-        }, 60000)
-
+    async refreshToken(): Promise<void> {
+        await this.makeRequest(
+            `/client/request`,
+            'POST', {
+                "KeepAlive": true,
+                "Source": this.myGuid
+            })
     }
 
     async connect(): Promise<void> {
-        console.log(`Connecting to ${this.url} ${this.name}`);
+        console.debug(`Connecting to ${this.url} ${this.name}`);
         const data = await this.makeRequest(`/client/connect`, 'GET');
         this.id = data.id;
         await this.makeRequest(`/client/request`, 'POST', {
@@ -86,7 +83,7 @@ export class Api {
             "Request": 1,
             "Source": this.myGuid,
         })
-        this.startPolling();
+      console.log(`Connected to ${this.url} ${this.name}`);
     }
 
     async sendCustomKey(id: string, run: any): Promise<void> {
@@ -101,7 +98,7 @@ export class Api {
                 "Run": run,
                 "Source": this.myGuid,
             });
-        console.log(`key ${id} is sent to ${this.name}`);
+        console.debug(`key ${id} is sent to ${this.name}`);
         return res;
     }
 
