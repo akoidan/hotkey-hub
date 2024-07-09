@@ -94,10 +94,6 @@
         {
           "destination": "sags",
           "keySend": "F9"
-        },
-        {
-          "destination": "sags",
-          "keySend": "f10"
         }
       ],
       "name": "archers buff",
@@ -166,7 +162,7 @@
     {
       "receivers": [
         {
-          "destination": "sags",
+          "destination": "bish",
           "keySend": "F8"
         }
       ],
@@ -206,7 +202,7 @@
         },
         {
           "destination": "bish",
-          "keySend": "F10"
+          "keySend": "F12"
         },
         {
           "destination": "bish",
