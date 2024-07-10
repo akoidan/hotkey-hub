@@ -20,6 +20,7 @@ const receiverSchema = z.union([receiverSchemaSimple, receiverSchemaId]);
 // Define the schema for the 'combinations' part
 const combinationSchema = z.object({
   receivers: z.array(receiverSchema),
+  shuffle: z.boolean().optional(),
   name: z.string(),
   shortCut: z.string(),
   circular: z.boolean().optional(),

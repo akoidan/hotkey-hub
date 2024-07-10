@@ -46,6 +46,10 @@ export class Logic {
         })
       })
     })
+    if (comb.shuffle) {
+      this.shuffle(receivers);
+    }
+
     // const receivers: string[] = comb.receivers.map(rec => this.config.urls[rec as keyof ConfigUrl]).flatMap(a => a);
     if (comb.circular && receivers.length > 0) {
       await this.runCommand(receivers[this.activeFighterIndex]);
@@ -60,5 +64,16 @@ export class Logic {
         await new Promise(resolve => setTimeout(resolve, Math.round(Math.random() * 100)));
       }
     }
+  }
+
+  /**
+   * Fisher-Yates (Knuth) shuffle
+   */
+  private shuffle<T>(array: T[]): T[]  {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
   }
 }

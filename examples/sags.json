@@ -38,6 +38,7 @@
           "keySend": "F4"
         }
       ],
+      "shuffle": true,
       "name": "attack",
       "shortCut": "Alt+2"
     },
@@ -86,8 +87,29 @@
           "keySend": "F6"
         }
       ],
+      "shuffle": true,
       "name": "come to me",
       "shortCut": "Alt+6"
+    },
+    {
+      "receivers": [
+        {
+          "destination": "bish",
+          "id": "l2.CustomKeys",
+          "run":  {"Name": "alt_tab"}
+        },
+        {
+          "destination": "bish",
+          "keySend": "5"
+        },
+        {
+          "destination": "bish",
+          "id": "l2.CustomKeys",
+          "run":  {"Name": "alt_tab"}
+        }
+      ],
+      "name": "Songs",
+      "shortCut": "Alt+7"
     },
     {
       "receivers": [
@@ -96,6 +118,7 @@
           "keySend": "F9"
         }
       ],
+      "shuffle": true,
       "name": "archers buff",
       "shortCut": "Alt+9"
     },
@@ -172,7 +195,7 @@
     {
       "receivers": [
         {
-          "destination": "sags",
+          "destination": "bish",
           "keySend": "F10"
         }
       ],
@@ -190,6 +213,7 @@
           "keySend": "F6"
         }
       ],
+      "shuffle": true,
       "name": "bish to me",
       "shortCut": "Alt+z"
     },
