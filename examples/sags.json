@@ -1,11 +1,12 @@
 {
   "ips": {
-    "touchpad": "192.168.100.36",
+    "touchpad": "192.168.100.39",
     "msi": "192.168.100.14",
     "lenovo": "192.168.100.33",
     "desktop": "192.168.100.9",
     "asus": "192.168.100.27"
   },
+  "delay": 100,
   "aliases": {
     "sags": [
       "touchpad",
@@ -110,6 +111,65 @@
       ],
       "name": "Songs",
       "shortCut": "Alt+7"
+    },
+    {
+      "receivers": [
+        {
+          "destination": "sags",
+          "keySend": "V"
+        },
+        {
+          "destination": "bish",
+          "keySend": "V"
+        },
+        {
+          "destination": "bish",
+          "id": "l2.CustomKeys",
+          "run":  {"Name": "alt_tab"},
+          "delay": 200
+        },
+        {
+          "destination": "bish",
+          "keySend": "V"
+        },
+        {
+          "destination": "bish",
+          "id": "l2.CustomKeys",
+          "run":  {"Name": "alt_tab_tab"},
+          "delay": 300
+        },
+        {
+          "destination": "bish",
+          "keySend": "V"
+        },
+        {
+          "destination": "wc",
+          "keySend": "V"
+        },
+        {
+          "destination": "wc",
+          "id": "l2.CustomKeys",
+          "run":  {"Name": "alt_tab"},
+          "delay": 200
+        },
+        {
+          "destination": "wc",
+          "keySend": "V"
+        },
+        {
+          "destination": "wc",
+          "id": "l2.CustomKeys",
+          "delay": 300,
+          "run":  {"Name": "alt_tab_tab"}
+        },
+        {
+          "destination": "wc",
+          "keySend": "V"
+        }
+      ],
+      "name": "Run Wolves",
+      "delay": 100,
+      "shortCut": "Alt+8"
     },
     {
       "receivers": [

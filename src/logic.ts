@@ -1,4 +1,11 @@
-import {Aliases, ConfigCombination, Ips, Receiver, ReceiverId, ReceiverSimple} from "@/types";
+import {
+  Aliases,
+  ConfigCombination,
+  Ips,
+  Receiver,
+  ReceiverId,
+  ReceiverSimple
+} from "@/types";
 import {Api} from "@/clients";
 
 export class Logic {
@@ -6,6 +13,7 @@ export class Logic {
   constructor(
       private ips: Ips,
       private aliases: Aliases,
+      private delay: number,
   ) {
 
   }
@@ -61,7 +69,14 @@ export class Logic {
     } else {
       for (let i = 0; i < receivers.length; i++) {
         await this.runCommand(receivers[i]);
-        await new Promise(resolve => setTimeout(resolve, Math.round(Math.random() * 100)));
+        let delay = comb.delay;
+        if (receivers[i].delay !== undefined) {
+          delay = receivers[i].delay;
+        }
+        if (delay === undefined) {
+          delay = Math.round(Math.random() * this.delay)
+        }
+        await new Promise(resolve => setTimeout(resolve, delay));
       }
     }
   }
@@ -69,7 +84,7 @@ export class Logic {
   /**
    * Fisher-Yates (Knuth) shuffle
    */
-  private shuffle<T>(array: T[]): T[]  {
+  private shuffle<T>(array: T[]): T[] {
     for (let i = array.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [array[i], array[j]] = [array[j], array[i]];
