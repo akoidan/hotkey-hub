@@ -12,7 +12,7 @@ async function start(): Promise<void> {
   try {
     const configReader = new ConfigReader();
     const config = await configReader.getConfig();
-    const logic = new Logic(config.ips, config.aliases);
+    const logic = new Logic(config.ips, config.aliases, config.delay);
     await logic.createApi();
     config.combinations.forEach((comb: ConfigCombination)  => {
       const ret = globalShortcut.register(comb.shortCut, () => logic.sendKeyToApi(comb))

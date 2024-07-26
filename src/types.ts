@@ -7,11 +7,13 @@ const aliasesSchema = z.record(z.array(z.string()));
 const receiverSchemaSimple = z.object({
   destination: z.string(),
   keySend: z.string(),
+  delay: z.number().optional(),
 });
 
 const receiverSchemaId = z.object({
   destination: z.string(),
   id: z.string(),
+  delay: z.number().optional(),
   run: z.any(),
 });
 
@@ -21,6 +23,7 @@ const receiverSchema = z.union([receiverSchemaSimple, receiverSchemaId]);
 const combinationSchema = z.object({
   receivers: z.array(receiverSchema),
   shuffle: z.boolean().optional(),
+  delay: z.number().optional(),
   name: z.string(),
   shortCut: z.string(),
   circular: z.boolean().optional(),
@@ -30,6 +33,7 @@ const combinationSchema = z.object({
 export const fullSchema = z.object({
   ips: ipsSchema,
   aliases: aliasesSchema,
+  delay: z.number(),
   combinations: z.array(combinationSchema),
 }).superRefine((data, ctx) => {
   // Ensure mapping values are arrays of keys from ips
