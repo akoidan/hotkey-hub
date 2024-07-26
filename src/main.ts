@@ -1,6 +1,7 @@
 import {app, globalShortcut} from 'electron'
 import {ConfigReader} from '@/config';
 import {Logic} from "@/logic";
+import { ConfigCombination } from '@/types';
 
 
 async function start(): Promise<void> {
@@ -13,7 +14,7 @@ async function start(): Promise<void> {
     const config = await configReader.getConfig();
     const logic = new Logic(config.ips, config.aliases);
     await logic.createApi();
-    config.combinations.forEach(comb => {
+    config.combinations.forEach((comb: ConfigCombination)  => {
       const ret = globalShortcut.register(comb.shortCut, () => logic.sendKeyToApi(comb))
       if (!ret) {
         throw Error('registration failed')

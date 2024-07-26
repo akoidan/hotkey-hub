@@ -8,15 +8,14 @@
   },
   "aliases": {
     "sags": [
-      "touchpad",
       "lenovo",
       "msi"
     ],
     "bish": [
-      "desktop"
+      "asus"
     ],
     "wc": [
-      "asus"
+      "touchpad"
     ]
   },
   "combinations": [
