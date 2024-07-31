@@ -6,6 +6,7 @@
     "desktop": "192.168.100.9",
     "asus": "192.168.100.27"
   },
+  "delay": 100,
   "aliases": {
     "se": [ "desktop"],
     "tyrs": ["touchpad", "lenovo", "msi"],
@@ -229,7 +230,7 @@
         },
         {
           "destination": "tyrs",
-          "keySend": "F10"
+          "keySend": "F11"
         },
         {
           "destination": "se",
@@ -237,7 +238,15 @@
         },
         {
           "destination": "se",
-          "keySend": "F10"
+          "keySend": "F11"
+        },
+         {
+          "destination": "craft",
+          "keySend": "3"
+        },
+        {
+          "destination": "craft",
+          "keySend": "F11"
         }
       ],
       "name": "Tyrs use form and kostochka",
@@ -263,7 +272,11 @@
           "keySend": "9"
         },
         {
-          "destination": "se",
+          "destination": "craft",
+          "keySend": "8"
+        },
+        {
+          "destination": "craft",
           "keySend": "9"
         }
       ],

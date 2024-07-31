@@ -66,12 +66,12 @@
     {
       "receivers": [
         {
-          "destination": "bish",
-          "keySend": "F11"
+          "destination": "wc",
+          "keySend": "3"
         }
       ],
-      "name": "paralych",
-      "shortCut": "Alt+5"
+      "name": "WC Madness",
+      "shortCut": "alt+5"
     },
     {
       "receivers": [
@@ -212,6 +212,36 @@
       "name": "restore life",
       "shortCut": "Alt+e"
     },
+     {
+      "receivers": [
+         {
+          "destination": "bish",
+          "id": "l2.CustomKeys",
+          "run":  {"Name": "alt_tab"}
+        },
+        {
+          "destination": "bish",
+          "keySend": "F9"
+        },
+         {
+          "destination": "bish",
+          "id": "l2.CustomKeys",
+          "run":  {"Name": "alt_tab"}
+        }
+      ],
+      "name": "EE mass",
+      "shortCut": "Alt+R"
+    },
+    {
+      "receivers": [
+        {
+          "destination": "bish",
+          "keySend": "F11"
+        }
+      ],
+      "name": "paralych",
+      "shortCut": "Alt+T"
+    },
     {
       "receivers": [
         {
@@ -296,6 +326,26 @@
       ],
       "name": "Mass TP",
       "shortCut": "alt+/"
+    },
+    {
+      "receivers": [
+        {
+          "destination": "bish",
+          "id": "l2.CustomKeys",
+          "run":  {"Name": "alt_tab"}
+        },
+        {
+          "destination": "bish",
+          "keySend": "F12"
+        },
+        {
+          "destination": "bish",
+          "id": "l2.CustomKeys",
+          "run":  {"Name": "alt_tab"}
+        }
+      ],
+      "name": "Mass TP",
+      "shortCut": "alt+0"
     }
   ]
 }
