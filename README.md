@@ -20,3 +20,10 @@ yarn # install packages
 yarn start
 ```
 
+
+alt+5
+alt+g
+alt+9
+viky
+alt+e
+song dance
