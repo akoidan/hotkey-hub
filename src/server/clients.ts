@@ -1,4 +1,4 @@
-import {KeySend} from '@/types';
+import {KeySend} from '@/server/types';
 
 import { v4} from 'uuid';
 

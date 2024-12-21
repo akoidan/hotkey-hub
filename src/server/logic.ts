@@ -5,8 +5,8 @@ import {
   Receiver,
   ReceiverId,
   ReceiverSimple
-} from "@/types";
-import {Api} from "@/clients";
+} from "@/server/types";
+import {Api} from "@/server/clients";
 
 export class Logic {
 

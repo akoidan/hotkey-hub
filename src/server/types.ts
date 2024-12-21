@@ -38,13 +38,25 @@ export const fullSchema = z.object({
 }).superRefine((data, ctx) => {
   // Ensure mapping values are arrays of keys from ips
   const ipsKeys = new Set(Object.keys(data.ips));
+  const alisesKeys = new Set(Object.keys(data.aliases));
   Object.entries(data.aliases).forEach(([key, value]) => {
     value.forEach((v) => {
       if (!ipsKeys.has(v)) {
         ctx.addIssue({
           code: ZodIssueCode.custom,
           path: ["aliases", key],
-          message: `"${v}" is not a valid key from ips`,
+          message: `"${v}" is not a valid key from ips, valid are ${JSON.stringify(Array.from(ipsKeys))}`,
+        });
+      }
+    });
+  });
+   Object.entries(data.combinations).forEach(([key, value]) => {
+    value.receivers.forEach((v) => {
+      if (!alisesKeys.has(v.destination)) {
+        ctx.addIssue({
+          code: ZodIssueCode.custom,
+          path: ["combinations", "receivers", "destination"],
+          message: `"${v.destination}" is not a valid key from destination, valid are ${JSON.stringify(Array.from(alisesKeys))}`,
         });
       }
     });

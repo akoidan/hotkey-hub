@@ -1,0 +1,63 @@
+{
+  "ips": {
+    "touchpad": "192.168.100.39",
+    "msi": "192.168.100.14",
+    "lenovo": "192.168.100.33",
+    "desktop": "192.168.100.9",
+    "asus": "192.168.100.52"
+  },
+  "delay": 200,
+  "aliases": {
+    "sws": [
+      "desktop"
+    ],
+    "bd": [
+      "msi"
+    ],
+    "ee": [
+      "touchpad"
+    ],
+   "se": [
+      "lenovo"
+    ],
+    "pp": [
+      "asus"
+    ],
+    "all": ["desktop", "msi", "lenovo", "touchpad", "asus"]
+  },
+  "combinations": [
+    {
+      "receivers": [
+        {
+          "destination": "sws",
+          "keySend": "4"
+        }
+      ],
+      "name": "songs",
+      "shortCut": "Alt+9",
+      "circular": false
+    },
+    {
+      "receivers": [
+        {
+          "destination": "bd",
+          "keySend": "4"
+        }
+      ],
+      "name": "dances",
+      "shortCut": "Alt+-",
+      "circular": false
+    },
+     {
+      "receivers": [
+        {
+          "destination": "all",
+          "keySend": "F6"
+        }
+      ],
+      "name": "to me",
+      "shortCut": "Alt+6",
+      "circular": false
+    }
+  ]
+}

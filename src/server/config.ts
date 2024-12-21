@@ -1,6 +1,6 @@
-import {ConfigData, fullSchema} from '@/types';
+import {ConfigData, fullSchema} from '@/server/types';
 
-import conf from '../config.json';
+import conf from '@/config.json';
 
 export class ConfigReader {
   async getConfig(): Promise<ConfigData> {
