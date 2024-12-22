@@ -1,4 +1,4 @@
-import {ConfigData, fullSchema} from '@/server/types';
+import {ConfigData, fullSchema} from '@/types';
 
 import conf from '@/config.json';
 

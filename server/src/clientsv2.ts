@@ -1,4 +1,4 @@
-import { FetchClient } from '@/server/http-client';
+import { FetchClient } from '@/http-client';
 
 
 export class ApiV2 {

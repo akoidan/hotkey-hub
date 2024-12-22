@@ -1,8 +1,4 @@
-import {
-  Key,
-  keyboard
-} from '@nut-tree-fork/nut-js';
-import { z } from 'zod';
+import { Key } from '@nut-tree-fork/nut-js';
 // @ts-expect-error
 import KeyboardAction from "@nut-tree-fork/libnut/dist/lib/libnut-keyboard.class.js";
 

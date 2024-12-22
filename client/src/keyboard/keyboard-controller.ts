@@ -4,8 +4,8 @@ import {
   Get,
   Post
 } from '@nestjs/common';
-import { KeyboardService } from '@/client/keyboard/keyboard-service';
-import { SendEvent } from '@/client/keyboard/keyboard-dto';
+import { KeyboardService } from './keyboard-service';
+import { SendEvent } from './keyboard-dto';
 
 @Controller()
 export class KeyboardController {

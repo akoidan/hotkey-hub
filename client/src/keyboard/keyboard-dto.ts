@@ -1,4 +1,4 @@
-import { possibleKeys } from '@/client/keyboard/keyboard-nut-types';
+import { possibleKeys } from './keyboard-nut-types';
 import {
   IsIn,
   IsString

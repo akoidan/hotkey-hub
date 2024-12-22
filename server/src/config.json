@@ -1,0 +1,24 @@
+{
+  "ips": {
+    "local": "192.168.100.14"
+  },
+  "delay": 200,
+  "aliases": {
+    "se": [
+      "local"
+    ]
+  },
+  "combinations": [
+    {
+      "receivers": [
+        {
+          "destination": "se",
+          "keySend": "e"
+        }
+      ],
+      "name": "song/dance",
+      "shortCut": "Alt+4",
+      "circular": false
+    }
+  ]
+}

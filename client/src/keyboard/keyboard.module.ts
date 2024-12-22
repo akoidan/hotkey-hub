@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { KeyboardController } from '@/client/keyboard/keyboard-controller';
-import { KeyboardService } from '@/client/keyboard/keyboard-service';
+import { KeyboardController } from './keyboard-controller';
+import { KeyboardService } from './keyboard-service';
 import { LoggerModule } from 'nestjs-pino';
 
 @Module({

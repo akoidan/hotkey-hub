@@ -5,7 +5,7 @@ import {
   Key,
   keyboard
 } from "@nut-tree-fork/nut-js";
-import { invertedMap } from '@/client/keyboard/keyboard-nut-types';
+import { invertedMap } from './keyboard-nut-types';
 import { PinoLogger, InjectPinoLogger } from 'nestjs-pino';
 
 @Injectable()

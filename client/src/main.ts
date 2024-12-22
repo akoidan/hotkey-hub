@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { KeyboardModule } from '@/client/keyboard/keyboard.module';
+import { KeyboardModule } from './keyboard/keyboard.module';
 import { Logger } from 'nestjs-pino';
 import { ValidationPipe } from '@nestjs/common';
 
@@ -10,4 +10,7 @@ async function bootstrap() {
   await app.listen(5000);
 }
 
-bootstrap();
+bootstrap().catch(e => {
+  console.error(e);
+  process.exit(98) // force electron to close
+});

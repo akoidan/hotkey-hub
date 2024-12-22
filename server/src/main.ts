@@ -1,7 +1,7 @@
 import {app, globalShortcut} from 'electron'
-import {ConfigReader} from '@/server/config';
-import {Logic} from "@/server/logic";
-import { ConfigCombination } from '@/server/types';
+import { ConfigReader } from '@/config-reader';
+import {Logic} from "@/logic";
+import { ConfigCombination } from '@/types';
 
 
 async function start(): Promise<void> {
@@ -28,4 +28,3 @@ async function start(): Promise<void> {
 }
 
 start();
-
