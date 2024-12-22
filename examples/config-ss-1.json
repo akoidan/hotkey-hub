@@ -8,22 +8,28 @@
   },
   "delay": 200,
   "aliases": {
-    "sws": [
+    "se": [
       "desktop"
     ],
     "bd": [
-      "msi"
+      "asus"
     ],
     "ee": [
       "touchpad"
     ],
-   "se": [
+    "sws": [
+      "msi"
+    ],
+    "cardinal": [
       "lenovo"
     ],
-    "pp": [
+    "all": [
+      "desktop",
+      "msi",
+      "lenovo",
+      "touchpad",
       "asus"
-    ],
-    "all": ["desktop", "msi", "lenovo", "touchpad", "asus"]
+    ]
   },
   "combinations": [
     {
@@ -31,24 +37,51 @@
         {
           "destination": "sws",
           "keySend": "4"
+        },
+        {
+          "destination": "bd",
+          "keySend": "4"
         }
       ],
-      "name": "songs",
+      "name": "song/dance",
+      "shortCut": "Alt+4",
+      "circular": false
+    },
+    {
+      "receivers": [
+        {
+          "destination": "cardinal",
+          "keySend": "4"
+        },
+        {
+          "destination": "ee",
+          "keySend": "4"
+        },
+        {
+          "destination": "se",
+          "keySend": "4"
+        }
+      ],
+      "name": "all buff",
       "shortCut": "Alt+9",
       "circular": false
     },
     {
       "receivers": [
         {
-          "destination": "bd",
-          "keySend": "4"
+          "destination": "se",
+          "keySend": "F3"
+        },
+        {
+          "destination": "ee",
+          "keySend": "F3"
         }
       ],
-      "name": "dances",
-      "shortCut": "Alt+-",
-      "circular": false
+      "name": "mana",
+      "shortCut": "Alt+3",
+      "circular": true
     },
-     {
+    {
       "receivers": [
         {
           "destination": "all",

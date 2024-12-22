@@ -1,41 +1,36 @@
 import {
-  Aliases,
   ConfigCombination,
-  Ips,
   Receiver,
   ReceiverId,
   ReceiverSimple
 } from "@/server/types";
-import {Api} from "@/server/clients";
+import { ApiV2 } from '@/server/clientsv2';
 
 export class Logic {
 
   constructor(
-      private ips: Ips,
-      private aliases: Aliases,
+      private ips: Record<string, string>,
+      private aliases: Record<string,string[]>,
       private delay: number,
   ) {
 
   }
 
   private activeFighterIndex: number = 0;
-  private ids: Record<string, Api> = {};
+  private ids: Record<string, ApiV2> = {};
 
   async createApi() {
-    await Promise.all(Object.entries(this.ips).map(([name, ip]) => {
-      const api = new Api(ip, name);
+    await Promise.all(Object.entries(this.ips).map(async ([name, ip]) => {
+      const api = new ApiV2(ip, name);
       this.ids[name] = api;
-      const resPromise = api.connect();
-      setInterval(async () => {
-        await api.refreshToken();
-      }, 60000);
+      const resPromise = await api.ping();
       return resPromise;
     }));
   }
 
   async runCommand(currRec: Receiver) {
     if ((currRec as ReceiverSimple).keySend) {
-      await this.ids[currRec.destination].sendKey((currRec as ReceiverSimple).keySend);
+      await this.ids[currRec.destination].sendKey((currRec as ReceiverSimple).keySend); // TODO
     } else {
       await this.ids[currRec.destination].sendCustomKey((currRec as ReceiverId).id, (currRec as ReceiverId).run);
     }

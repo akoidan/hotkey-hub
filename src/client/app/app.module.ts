@@ -1,10 +1,17 @@
 import { Module } from '@nestjs/common';
-import { AppController } from '@/client/app/app.controller';
-import { AppService } from '@/client/app/app.service';
+import { AppController } from '@/client/app/app-controller';
+import { KeyboardService } from '@/client/app/keyboard-service';
+import { DevtoolsModule } from '@nestjs/devtools-integration'
 
 @Module({
-  imports: [],
+  imports: [
+    DevtoolsModule.register({
+      http: true,
+      port: 8000,
+    }),
+  ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [KeyboardService],
 })
-export class AppModule {}
+export class AppModule {
+}
