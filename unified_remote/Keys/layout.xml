@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<layout>
-    <row>
-        <button text="Ctrl F2" ontap="ctrl_f2"/>
-    </row>
-    <row>
-        <button text="Alt Tab" ontap="alt_tab"/>
-    </row>
-</layout>

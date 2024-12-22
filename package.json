@@ -6,11 +6,10 @@
   "author": "akoidan <deathangel908@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "build:client": "nest build",
-    "build:run": "node dist/client/main.js",
-    "start:client": "nest start --debug --watch",
-    "build:server": "electron-packager . l2 --platform=win32 --arch=x64",
-    "start:server": "electron index.js"
+    "client:start": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register src/client/main.ts",
+    "client:build": "electron-packager . MyApp --platform=win32 --arch=x64 --out=dist --overwrite",
+    "server:build": "electron-packager . l2 --platform=win32 --arch=x64",
+    "server:start": "electron index.js"
   },
   "devDependencies": {
     "@types/uuid": "^10.0.0",
@@ -30,7 +29,10 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "electron": "^30.0.6",
+    "nestjs-pino": "^4.1.0",
     "nestjs-zod": "^4.2.0",
+    "pino-http": "^10.3.0",
+    "pino-pretty": "^13.0.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.1.0",
     "uuid": "^9.0.1",

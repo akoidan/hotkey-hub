@@ -1,0 +1,13 @@
+import { NestFactory } from '@nestjs/core';
+import { KeyboardModule } from '@/client/keyboard/keyboard.module';
+import { Logger } from 'nestjs-pino';
+import { ValidationPipe } from '@nestjs/common';
+
+async function bootstrap() {
+  const app = await NestFactory.create(KeyboardModule, { bufferLogs: true });
+  app.useGlobalPipes(new ValidationPipe());
+  app.useLogger(app.get(Logger));
+  await app.listen(5000);
+}
+
+bootstrap();

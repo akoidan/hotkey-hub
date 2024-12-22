@@ -1,150 +1,74 @@
-import {
-  IsArray,
-  IsBoolean,
-  IsDefined,
-  IsIP,
-  IsNumber,
-  IsObject,
-  IsOptional,
-  IsString,
-  ValidateNested,
-  ValidateIf
-} from 'class-validator';
-import { Type, Transform } from 'class-transformer';
+import { z, ZodIssueCode } from 'zod';
 
-// Schema for Aliases
-class Aliases {
-  @IsArray()
-  @IsString({ each: true })
-  aliases: string[];
-}
+const ipsSchema = z.record(z.string().ip());
 
-// Simple Receiver Schema
-class ReceiverSimple {
-  @IsString()
-  destination: string;
+const aliasesSchema = z.record(z.array(z.string()));
 
-  @IsString()
-  keySend: string;
+const receiverSchemaSimple = z.object({
+  destination: z.string(),
+  keySend: z.string(),
+  delay: z.number().optional(),
+});
 
-  @IsOptional()
-  @IsNumber()
-  delay?: number;
-}
+const receiverSchemaId = z.object({
+  destination: z.string(),
+  id: z.string(),
+  delay: z.number().optional(),
+  run: z.any(),
+});
 
-// ID Receiver Schema
-class ReceiverId {
-  @IsString()
-  destination: string;
+const receiverSchema = z.union([receiverSchemaSimple, receiverSchemaId]);
 
-  @IsString()
-  id: string;
+// Define the schema for the 'combinations' part
+const combinationSchema = z.object({
+  receivers: z.array(receiverSchema),
+  shuffle: z.boolean().optional(),
+  delay: z.number().optional(),
+  name: z.string(),
+  shortCut: z.string(),
+  circular: z.boolean().optional(),
+});
 
-  @IsOptional()
-  @IsNumber()
-  delay?: number;
-
-  @IsDefined()
-  run: any;
-}
-
-export type Receiver = ReceiverSimple | ReceiverId;
-
-// Combination Receiver Schema
-class ConfigCombination {
-  @ValidateNested({ each: true })
-  @Type(() => ReceiverSimple || ReceiverId)
-  @IsArray()
-  receivers: Receiver[];
-
-  @IsOptional()
-  @IsBoolean()
-  shuffle?: boolean;
-
-  @IsOptional()
-  @IsNumber()
-  delay?: number;
-
-  @IsString()
-  name: string;
-
-  @IsString()
-  shortCut: string;
-
-  @IsOptional()
-  @IsBoolean()
-  circular?: boolean;
-}
-
-// IP validation class
-export class IpValue {
-  @IsIP(4)
-  value!: string;
-}
-
-// Transform decorator for IPs
-export function TransformToIpRecord() {
-  return Transform(({ value }) => {
-    if (typeof value !== 'object') return value;
-    const result: Record<string, IpValue> = {};
-    for (const [key, ip] of Object.entries(value)) {
-      result[key] = { value: ip };
-    }
-    return result;
+// Define the full schema for the provided JSON structure
+export const fullSchema = z.object({
+  ips: ipsSchema,
+  aliases: aliasesSchema,
+  delay: z.number(),
+  combinations: z.array(combinationSchema),
+}).superRefine((data, ctx) => {
+  // Ensure mapping values are arrays of keys from ips
+  const ipsKeys = new Set(Object.keys(data.ips));
+  const alisesKeys = new Set(Object.keys(data.aliases));
+  Object.entries(data.aliases).forEach(([key, value]) => {
+    value.forEach((v) => {
+      if (!ipsKeys.has(v)) {
+        ctx.addIssue({
+          code: ZodIssueCode.custom,
+          path: ["aliases", key],
+          message: `"${v}" is not a valid key from ips, valid are ${JSON.stringify(Array.from(ipsKeys))}`,
+        });
+      }
+    });
   });
-}
-
-// Full Configuration Schema
-class ConfigData {
-  @IsObject()
-  @ValidateNested()
-  @TransformToIpRecord()
-  @Type(() => IpValue)
-  ips!: Record<string, IpValue>;
-
-  @IsObject()
-  @ValidateNested()
-  @Type(() => Aliases)
-  aliases: Record<string, string[]>;
-
-  @IsNumber()
-  delay: number;
-
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => ConfigCombination)
-  combinations: ConfigCombination[];
-
-  // Custom validation logic
-  validate() {
-    const ipsKeys = new Set(Object.keys(this.ips));
-    const aliasesKeys = new Set(Object.keys(this.aliases));
-
-    // Validate aliases
-    Object.entries(this.aliases).forEach(([key, values]) => {
-      values.forEach((value) => {
-        if (!ipsKeys.has(value)) {
-          throw new Error(`Alias '${value}' is not a valid key from ips. Valid keys: ${JSON.stringify([...ipsKeys])}`);
-        }
-      });
+   Object.entries(data.combinations).forEach(([key, value]) => {
+    value.receivers.forEach((v) => {
+      if (!alisesKeys.has(v.destination)) {
+        ctx.addIssue({
+          code: ZodIssueCode.custom,
+          path: ["combinations", "receivers", "destination"],
+          message: `"${v.destination}" is not a valid key from destination, valid are ${JSON.stringify(Array.from(alisesKeys))}`,
+        });
+      }
     });
+  });
+});
 
-    // Validate combinations
-    this.combinations.forEach((combination) => {
-      combination.receivers.forEach((receiver) => {
-        if (!aliasesKeys.has(receiver.destination)) {
-          throw new Error(`Destination '${receiver.destination}' is not a valid key from aliases. Valid keys: ${JSON.stringify([...aliasesKeys])}`);
-        }
-      });
-    });
-  }
-}
-
-export {
-  Aliases,
-  ReceiverSimple,
-  ReceiverId,
-  ConfigCombination,
-  ConfigData,
-  IpValue,
-};
+// Generate TypeScript type
+export type ConfigData = z.infer<typeof fullSchema>;
+export type KeySend = string;
+export type ConfigCombination = z.infer<typeof combinationSchema>
+export type Ips = z.infer<typeof ipsSchema>
+export type Aliases = z.infer<typeof aliasesSchema>
+export type ReceiverSimple = z.infer<typeof receiverSchemaSimple>
+export type ReceiverId = z.infer<typeof receiverSchemaId>
+export type Receiver = z.infer<typeof receiverSchema>

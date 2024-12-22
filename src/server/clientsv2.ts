@@ -1,29 +1,19 @@
-import { Key } from '@nut-tree-fork/nut-js';
+import { FetchClient } from '@/server/http-client';
 
 
-export interface Api {
-  ping(): Promise<void>;
-
-  sendKey(key: string): Promise<void>;
-
-  sendCustomKey(id: string, run: string): Promise<void>;
-}
-
-export class ApiV2 implements Api {
+export class ApiV2 {
+  private client: FetchClient;
 
   constructor(private url: string, private name: string) {
+    this.client = new FetchClient(`http://${url}:5000`);
   }
 
   async ping(): Promise<void> {
-    const res = await fetch(`http://${this.url}/ping`);
-    const text = await res.text();
-    if (text !== 'pong') {
-      throw new Error(`Invalid response: ${text}`);
-    }
+    return this.client.get('ping');
   }
 
-  async sendKey(key: string): Promise<void> {
-    throw new Error('Method not implemented.');
+  async sendKey(request: { key: string }): Promise<void> {
+    return this.client.post('send-event', { payload: request });
   }
 
   async sendCustomKey(id: string, run: string): Promise<void> {

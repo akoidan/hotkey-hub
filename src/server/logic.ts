@@ -1,5 +1,7 @@
 import {
+  Aliases,
   ConfigCombination,
+  Ips,
   Receiver,
   ReceiverId,
   ReceiverSimple
@@ -9,8 +11,8 @@ import { ApiV2 } from '@/server/clientsv2';
 export class Logic {
 
   constructor(
-      private ips: Record<string, string>,
-      private aliases: Record<string,string[]>,
+      private ips: Ips,
+      private aliases: Aliases,
       private delay: number,
   ) {
 
@@ -20,17 +22,16 @@ export class Logic {
   private ids: Record<string, ApiV2> = {};
 
   async createApi() {
-    await Promise.all(Object.entries(this.ips).map(async ([name, ip]) => {
+    await Promise.all(Object.entries(this.ips).map(([name, ip]) => {
       const api = new ApiV2(ip, name);
       this.ids[name] = api;
-      const resPromise = await api.ping();
-      return resPromise;
+      return api.ping();
     }));
   }
 
   async runCommand(currRec: Receiver) {
     if ((currRec as ReceiverSimple).keySend) {
-      await this.ids[currRec.destination].sendKey((currRec as ReceiverSimple).keySend); // TODO
+      await this.ids[currRec.destination].sendKey({key: (currRec as ReceiverSimple).keySend});
     } else {
       await this.ids[currRec.destination].sendCustomKey((currRec as ReceiverId).id, (currRec as ReceiverId).run);
     }

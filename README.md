@@ -21,3 +21,10 @@ yarn start
 ```
 
 
+## Zod vs Class-validator
+
+#### ZoD
+ - schema first, and then dto. Which is less intuitive
+ - dtos lacks type safety
+ + Zod provides a really enhansed validation, with things like Record<string,string[]> and etc, class validator cannot handle it.
+

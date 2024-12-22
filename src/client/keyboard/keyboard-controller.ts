@@ -4,11 +4,11 @@ import {
   Get,
   Post
 } from '@nestjs/common';
-import { KeyboardService } from '@/client/app/keyboard-service';
-import { SendEvent } from '@/dto/send-event';
+import { KeyboardService } from '@/client/keyboard/keyboard-service';
+import { SendEvent } from '@/client/keyboard/keyboard-dto';
 
 @Controller()
-export class AppController {
+export class KeyboardController {
   constructor(private readonly keyboardService: KeyboardService) {}
 
  @Get('ping')
