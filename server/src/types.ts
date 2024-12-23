@@ -1,4 +1,10 @@
 import { z, ZodIssueCode } from 'zod';
+import { Key } from '@nut-tree-fork/nut-js';
+// @ts-expect-error
+import KeyboardAction from "@nut-tree-fork/libnut/dist/lib/libnut-keyboard.class.js";
+
+
+export const possibleKeys: string[] = [...KeyboardAction.KeyLookupMap.values()]
 
 const ipsSchema = z.record(z.string().ip());
 
@@ -6,7 +12,7 @@ const aliasesSchema = z.record(z.array(z.string()));
 
 const receiverSchemaSimple = z.object({
   destination: z.string(),
-  keySend: z.string(),
+  keySend: z.enum(possibleKeys as any),
   delay: z.number().optional(),
 });
 

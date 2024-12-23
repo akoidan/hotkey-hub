@@ -4,7 +4,7 @@
     "msi": "192.168.100.14",
     "lenovo": "192.168.100.33",
     "desktop": "192.168.100.9",
-    "asus": "192.168.100.52"
+    "asus": "192.168.100.27"
   },
   "delay": 200,
   "aliases": {
@@ -70,11 +70,11 @@
       "receivers": [
         {
           "destination": "se",
-          "keySend": "F3"
+          "keySend": "f3"
         },
         {
           "destination": "ee",
-          "keySend": "F3"
+          "keySend": "f3"
         }
       ],
       "name": "mana",
@@ -85,7 +85,7 @@
       "receivers": [
         {
           "destination": "all",
-          "keySend": "F6"
+          "keySend": "f6"
         }
       ],
       "name": "to me",
