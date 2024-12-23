@@ -16,7 +16,10 @@ export class FetchClient {
     });
     const text = await res.text();
     if (!res.ok) {
+      console.error(`POST:FAILED ${this.url}/${url} ${JSON.stringify(data)} : ${text}`);
       throw new Error(text);
+    } else {
+      console.debug(`POST:OK ${this.url}/${url} ${JSON.stringify(data)}: ${text}`);
     }
   }
 
@@ -24,7 +27,10 @@ export class FetchClient {
     const res = await fetch(`${this.url}/${url}`);
     const text = await res.text();
     if (!res.ok) {
+      console.error(`POST:FAILED ${this.url}/${url} : ${text}`);
       throw new Error(text);
+    } else {
+      console.debug(`POST:OK ${this.url}/${url} : ${text}`);
     }
   }
 }

@@ -13,6 +13,7 @@ export class ApiV2 {
   }
 
   async sendKey(request: { key: string }): Promise<void> {
+    console.log(`${this.name} -> ${request.key}`);
     return this.client.post('send-event', { payload: request });
   }
 

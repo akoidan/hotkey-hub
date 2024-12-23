@@ -1,3 +1,4 @@
 dist
 build
 app.exe
+node_modules
