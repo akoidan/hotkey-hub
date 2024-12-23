@@ -1,29 +1,31 @@
 import {
   Aliases,
-  ConfigCombination,
+  EventData,
   Ips,
+  ReceiveExecute,
   Receiver,
-  ReceiverId,
-  ReceiverSimple
+  ReceiverMouse,
+  ReceiverSimple,
+  ReceiveTypeText
 } from "@/types";
-import { ApiV2 } from '@/client';
+import { Api } from '@/client';
 
 export class Logic {
 
   constructor(
-      private ips: Ips,
-      private aliases: Aliases,
-      private delay: number,
+    private ips: Ips,
+    private aliases: Aliases,
+    private delay: number,
   ) {
 
   }
 
   private activeFighterIndex: number = 0;
-  private ids: Record<string, ApiV2> = {};
+  private ids: Record<string, Api> = {};
 
   async createApi() {
     await Promise.all(Object.entries(this.ips).map(([name, ip]) => {
-      const api = new ApiV2(ip, name);
+      const api = new Api(ip, name);
       this.ids[name] = api;
       return api.ping();
     }));
@@ -31,18 +33,42 @@ export class Logic {
 
   async runCommand(currRec: Receiver) {
     if ((currRec as ReceiverSimple).keySend) {
-      await this.ids[currRec.destination].sendKey({key: (currRec as ReceiverSimple).keySend});
+      await this.ids[currRec.destination].keyPress({ key: (currRec as ReceiverSimple).keySend });
+    } else if ((currRec as ReceiverMouse).mouseMoveX) {
+      await this.ids[currRec.destination].mouseClick({
+        x: (currRec as ReceiverMouse).mouseMoveX,
+        y: (currRec as ReceiverMouse).mouseMoveY,
+      });
+    } else if ((currRec as ReceiveExecute).launch) {
+      await this.ids[currRec.destination].launchExe({
+        path: (currRec as ReceiveExecute).launch
+      });
+    } else if ((currRec as ReceiveTypeText).typeText) {
+      await this.ids[currRec.destination].typeText({
+        text: (currRec as ReceiveTypeText).typeText
+      });
     } else {
-      await this.ids[currRec.destination].sendCustomKey((currRec as ReceiverId).id, (currRec as ReceiverId).run);
+      throw Error(`Unknown receiver type ${JSON.stringify(currRec)}`);
     }
   }
 
 
-  async sendKeyToApi(comb: ConfigCombination) {
+  async processEvent(comb: EventData) {
     console.log(`${comb.shortCut} pressed`);
+    if (comb.receivers) {
+      await this.processReceiverEvent(comb, comb.receivers);
+    } else if (comb.receiversMulti) {
+      console.log(`${comb.shortCut} processing ${comb.receiversMulti.length} in parallel`);
+      await Promise.all(comb.receiversMulti.map(rec => this.processReceiverEvent(comb, rec)))
+    } else {
+      throw Error("Unknown event type");
+    }
+  }
+
+  private async processReceiverEvent(comb: Omit<EventData, 'receiversMulti' | 'receivers'>, inputReceivers: Receiver[]) {
     // but same as receiver but destination would be an ip
     const receivers: Receiver[] = [];
-    comb.receivers.forEach(rec => {
+    inputReceivers.forEach(rec => {
       this.aliases[rec.destination].forEach(dest => {
         receivers.push({
           ...rec,

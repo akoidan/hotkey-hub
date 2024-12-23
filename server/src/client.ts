@@ -1,7 +1,13 @@
 import { FetchClient } from '@/http-client';
+import {
+  LaunchExeRequest,
+  MouseClickRequest,
+  SendKeyRequest,
+  TypeTextRequest
+} from '@/dto/event';
 
 
-export class ApiV2 {
+export class Api {
   private client: FetchClient;
 
   constructor(private url: string, private name: string) {
@@ -12,13 +18,20 @@ export class ApiV2 {
     return this.client.get('ping');
   }
 
-  async sendKey(request: { key: string }): Promise<void> {
+  async keyPress(request: SendKeyRequest): Promise<void> {
     console.log(`${this.name} -> ${request.key}`);
-    return this.client.post('send-event', { payload: request });
+    return this.client.post('key-press', { payload: request });
   }
 
-  async sendCustomKey(id: string, run: string): Promise<void> {
-    throw new Error('Method not implemented.');
+  async mouseClick(request: MouseClickRequest): Promise<void> {
+    return this.client.post('mouse-click', { payload: request });
   }
 
+  async launchExe(request: LaunchExeRequest): Promise<void> {
+    return this.client.post('launch-exe', { payload: request });
+  }
+
+  async typeText(request: TypeTextRequest): Promise<void> {
+    return this.client.post('type-text', { payload: request });
+  }
 }
