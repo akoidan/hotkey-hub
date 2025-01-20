@@ -46,11 +46,11 @@ export class LogicService {
   }
 
   // eslint-disable-next-line sonarjs/cognitive-complexity
-  private async runCommand(input: CommandOrMacro, resolveAlias = true): Promise<void> {
+  private async resolveMacroAndAlias(input: CommandOrMacro, resolveAlias = true): Promise<void> {
     if ((input as MacroCommand).macro) {
       const executable = this.configService.getMacros()[(input as MacroCommand).macro];
       for (const command of executable.commands) {
-        await this.runCommand(this.replacePlaceholders(command, (input as MacroCommand).variables));
+        await this.resolveMacroAndAlias(this.replacePlaceholders(command, (input as MacroCommand).variables), true);
       }
       return;
     }
@@ -58,11 +58,15 @@ export class LogicService {
     if (resolveAlias) {
       const commands = this.resolveAliases(currRec);
       for (const command of commands) {
-        await this.runCommand(command, false);
+        await this.resolveMacroAndAlias(command, false);
       }
       return ;
     }
-    currRec = this.replaceEnvVars(currRec);
+     await this.runCommand(currRec);
+  }
+
+  private async runCommand(input: Command) {
+    const currRec = this.replaceEnvVars(input);
     const ip = this.configService.getIps()[(currRec as BaseCommand).destination];
     const keySend: KeyPressCommand = currRec as KeyPressCommand;
     if (keySend.keySend) {
@@ -106,6 +110,7 @@ export class LogicService {
     } else {
       throw Error(`Unknown receiver type ${JSON.stringify(currRec)}`);
     }
+    return currRec;
   }
 
   private replacePlaceholders<T extends object>(obj: T, variables: Record<string, unknown> | undefined): T {
@@ -165,7 +170,7 @@ export class LogicService {
   ): Promise<void> {
     const commands = comb.commands.flatMap(comm => this.resolveAliases(comm));
     if (comb.circular && commands.length > 0) {
-      await this.runCommand(commands[this.activeFighterIndex], false);
+      await this.resolveMacroAndAlias(commands[this.activeFighterIndex], false);
       if (this.activeFighterIndex >= commands.length - 1) {
         this.activeFighterIndex = 0;
       } else if (this.activeFighterIndex + 1 <= commands.length - 1) {
@@ -181,7 +186,7 @@ export class LogicService {
 
   private async processCommandWithMacro(commands: CommandOrMacro[], delay: number | undefined) {
     for (const receiver of commands) {
-      await this.runCommand(receiver);
+      await this.resolveMacroAndAlias(receiver, true);
       await this.awaitDelay(delay, receiver.delay as number);
     }
   }
