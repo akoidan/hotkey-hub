@@ -56,11 +56,16 @@ const shortCutMappingSchema = z.object({
     }
   ).describe('An event schema that represent a set of commands that is executed when a cirtain shortkey is pressed');
 
+
+const macroVariablesDescription = z.record(z.object({
+  type: z.enum(['string', 'number']).describe('To validate the type, or cast from env variables'),
+  optional: z.boolean().optional().describe('If set to true, the key is be removed is var is not passed'),
+}).strict().optional().describe('Set of variables for a macro'))
+  .describe('Set of variables descriptors for macro');
+
 const macroSchema = z.object({
   commands: z.array(commandSchema).describe('Set of commands for this macro'),
-  variables: z.array(z.string()).optional()
-    .describe('Variables that are used in macros. If you set a option value to {{varName}}' +
-      ' in this macro section. If this varName is present in this array, it will be replaced'),
+  variables: macroVariablesDescription,
 }).strict().describe('A macro that can be injected instead of command. ' +
   'That will run commands from its body. Can be also injected with variables. Think of it like a function');
 
@@ -100,33 +105,49 @@ const aARootSchema = z.object({
 }).superRefine((data, ctx) => {
   const alisesKeys = new Set(Object.keys(data.aliases ?? {}));
   const ipsKeys = new Set(Object.keys(data.ips));
-  data.combinations.forEach((value, combId) => {
-    const allReceivers = value.commands ?? value.threads!.flat();
-    allReceivers.forEach((v, receiverId) => {
-      if (!(v as MacroCommand).macro && !alisesKeys.has((v as Command).destination) && !data.ips[(v as Command).destination]) {
+  data.combinations.forEach((combin, combId) => {
+    const commands = combin.commands ?? combin.threads!.flat();
+    commands.forEach((command, receiverId) => {
+      if (!(command as MacroCommand).macro && !alisesKeys.has((command as Command).destination) && !data.ips[(command as Command).destination]) {
         const allOptions = JSON.stringify([...Array.from(alisesKeys), ...Array.from(ipsKeys)]);
         ctx.addIssue({
           code: ZodIssueCode.custom,
-          path: [`combinations[${combId}]`, `commands[${receiverId}]`, 'destination'],
-          message: `"${(v as Command).destination}" is not a valid destination, possible options are ${allOptions}`,
+          path: ['combinations',`name=${combin.name}[${combId}]`, 'commands', receiverId, 'destination'],
+          message: `"${(command as Command).destination}" is not a valid destination, possible options are ${allOptions}`,
         });
       }
-      if ((v as MacroCommand).macro) {
-        if (!data.macros?.[(v as MacroCommand).macro]) {
+      if ((command as MacroCommand).macro) {
+        if (!data.macros?.[(command as MacroCommand).macro]) {
           ctx.addIssue({
             code: ZodIssueCode.custom,
-            path: [`combinations[${combId}]`, `commands[${receiverId}]`, 'destination'],
-            message: `Macro ${(v as MacroCommand).macro} doesn't exist`,
+            path: ['combinations', `name=${combin.name}[${combId}]`, 'commands', receiverId, 'destination'],
+            message: `Macro ${(command as MacroCommand).macro} doesn't exist`,
           });
-        } else if ((data.macros[(v as MacroCommand).macro]?.variables?.length ?? 0) > 0) {
-          const macroVars = data.macros[(v as MacroCommand).macro].variables!.sort();
-          const calledVars = Object.keys((v as MacroCommand).variables ?? {})!.sort();
-          if (JSON.stringify(macroVars) !== JSON.stringify(calledVars)) {
-            ctx.addIssue({
-              code: ZodIssueCode.custom,
-              path: [`combinations[${combId}]`, `commands[${receiverId}]`, 'variables'],
-              message: `Macro ${(v as MacroCommand).macro} variables missmatch ${JSON.stringify(macroVars)} ${JSON.stringify(calledVars)}`,
-            });
+        } else if ((command as MacroCommand).variables) {
+          for (const [key, value] of Object.entries((command as MacroCommand).variables!)) {
+            if (!data.macros[(command as MacroCommand).macro]?.variables?.[key]) {
+              ctx.addIssue({
+                code: ZodIssueCode.custom,
+                path: ['combinations', `name=${combin.name}[${combId}]`, 'commands', receiverId, 'variables', key],
+                message: `Passed variable ${key}=${value} doesn't have a description on macro`,
+              });
+            }
+          }
+          for (const [key, value] of Object.entries(data.macros[(command as MacroCommand).macro]!.variables)) {
+            if ((command as MacroCommand).variables?.[key] && value!.type !== typeof (command as MacroCommand).variables?.[key]) {
+              ctx.addIssue({
+                code: ZodIssueCode.custom,
+                path: ['combinations', `name=${combin.name}[${combId}]`, 'commands', receiverId, 'variables', key],
+                message: `Passed variable ${key}=${(command as MacroCommand).variables?.[key]} type of ${typeof (command as MacroCommand).variables?.[key]}, expected ${value!.type}`,
+              });
+            }
+            if (!value!.optional && !(command as MacroCommand).variables?.[key]) {
+              ctx.addIssue({
+                code: ZodIssueCode.custom,
+                path: ['combinations', `name=${combin.name}[${combId}]`, 'commands', receiverId, 'variables', key],
+                message: `macro ${(command as MacroCommand).macro} requires variable ${key} but only ${JSON.stringify((command as MacroCommand).variables)} were passed`,
+              });
+            }
           }
         }
       }
@@ -168,6 +189,7 @@ export {
   keySchema,
   variablesSchema,
   macrosMapSchema,
+  macroVariablesDescription,
   shortCutMappingSchema,
   macroSchema,
   commandSchema,
