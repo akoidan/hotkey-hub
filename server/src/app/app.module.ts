@@ -30,7 +30,7 @@ export class AppModule implements OnModuleInit {
       await this.hotKeyService.init();
       this.configService.getCombinations().forEach((comb) => {
         this.hotKeyService.registerShortcut(comb.shortCut, () => {
-          this.logicService.processEvent(comb).catch((err: unknown) => this.logger.error(err));
+          this.logicService.processUnknownShortCut(comb).catch((err: unknown) => this.logger.error(err));
         });
       });
       this.logger.log('App has sucessfully started');

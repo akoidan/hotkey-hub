@@ -2,23 +2,29 @@
 import {
   BaseCommand,
   Command,
-  CommandOrMacro,
   ExecuteCommand,
   FocusWindowCommand,
   Key,
   KeyPressCommand,
   KillCommand,
-  MacroCommand,
   MouseClickCommand,
   TypeTextCommand,
 } from '@/config/types/commands';
-import { EventData } from '@/config/types/schema';
-import { ConfigService } from '@/config/config-service';
-import { ClientService } from '@/client/client-service';
+import {
+  ShortsData,
+  RandomShortcutMapping,
+  MacroShortcutMapping,
+} from '@/config/types/shortcut';
+import {ConfigService} from '@/config/config-service';
+import {ClientService} from '@/client/client-service';
 import {
   Injectable,
   Logger,
 } from '@nestjs/common';
+import {
+  CommandOrMacro,
+  MacroCommand,
+} from '@/config/types/macros';
 
 @Injectable()
 export class LogicService {
@@ -40,7 +46,23 @@ export class LogicService {
   }
 
   // eslint-disable-next-line sonarjs/cognitive-complexity
-  async runCommand(currRec: Command): Promise<void> {
+  private async runCommand(input: CommandOrMacro, resolveAlias = true): Promise<void> {
+    if ((input as MacroCommand).macro) {
+      const executable = this.configService.getMacros()[(input as MacroCommand).macro];
+      for (const command of executable.commands) {
+        await this.runCommand(this.replacePlaceholders(command, (input as MacroCommand).variables));
+      }
+      return;
+    }
+    let currRec: Command = input as Command;
+    if (resolveAlias) {
+      const commands = this.resolveAliases(currRec);
+      for (const command of commands) {
+        await this.runCommand(command, false);
+      }
+      return ;
+    }
+    currRec = this.replaceEnvVars(currRec);
     const ip = this.configService.getIps()[(currRec as BaseCommand).destination];
     const keySend: KeyPressCommand = currRec as KeyPressCommand;
     if (keySend.keySend) {
@@ -86,7 +108,7 @@ export class LogicService {
     }
   }
 
-  replacePlaceholders<T extends object>(obj: T, variables: Record<string, unknown> | undefined): T {
+  private replacePlaceholders<T extends object>(obj: T, variables: Record<string, unknown> | undefined): T {
     if (!variables) {
       return obj;
     }
@@ -102,7 +124,7 @@ export class LogicService {
     return result as T;
   }
 
-  replaceEnvVars<T extends object>(obj: T): T {
+  private replaceEnvVars<T extends object>(obj: T): T {
     const result: Partial<T> = {};
     for (const [key, value] of Object.entries(obj) as [keyof T, T[keyof T]][]) {
       if (typeof value === 'string' && value.startsWith('{{') && value.endsWith('}}')) {
@@ -125,80 +147,60 @@ export class LogicService {
     return result as T;
   }
 
-  async processEvent(comb: EventData): Promise<void> {
+  public async processUnknownShortCut(comb: ShortsData): Promise<void> {
     this.logger.log(`${comb.shortCut} pressed`);
-    if (comb.commands) {
-      await this.processReceiverEvent(comb, comb.commands);
-    } else if (comb.threads) {
-      this.logger.log(`${comb.shortCut} processing ${comb.threads.length} in parallel`);
-      await Promise.all(comb.threads.map(async receiver => this.processReceiverEvent(comb, receiver)));
-    } else {
-      throw Error('Unknown event type');
+    if ((comb as RandomShortcutMapping).circular! || (comb as RandomShortcutMapping).shuffle!) {
+      await this.processShortcutsWoMacro((comb as RandomShortcutMapping));
+    } else if ((comb as MacroShortcutMapping).commands) {
+      await this.processCommandWithMacro(comb.commands!, comb.delay);
+    } else if ((comb as MacroShortcutMapping).threads) {
+      await Promise.all((comb as MacroShortcutMapping).threads!.map(async receiver => {
+        await this.processCommandWithMacro(receiver, comb.delay);
+      }));
     }
   }
 
-  private async processReceiverEvent(
-    comb: Omit<EventData, 'threads' | 'commands'>,
-    inputReceivers: CommandOrMacro[]
+  private async processShortcutsWoMacro(
+    comb: RandomShortcutMapping,
   ): Promise<void> {
-    const commands = this.removeMacroAndAliases(inputReceivers, comb);
-
+    const commands = comb.commands.flatMap(comm => this.resolveAliases(comm));
     if (comb.circular && commands.length > 0) {
-      await this.runCommand(commands[this.activeFighterIndex]);
+      await this.runCommand(commands[this.activeFighterIndex], false);
       if (this.activeFighterIndex >= commands.length - 1) {
         this.activeFighterIndex = 0;
       } else if (this.activeFighterIndex + 1 <= commands.length - 1) {
         this.activeFighterIndex++;
       }
     } else {
-      for (const receiver of commands) {
-        // eslint-disable-next-line no-await-in-loop
-        await this.runCommand(receiver);
-        // eslint-disable-next-line no-await-in-loop
-        await this.awaitDelay(comb.delay, receiver.delay as number);
+      if (comb.shuffle) {
+        this.shuffle(commands);
       }
+      await this.processCommandWithMacro(commands, comb.delay);
     }
   }
 
-  private removeMacroAndAliases(inputReceivers: CommandOrMacro[], comb: Omit<EventData, 'threads' | 'commands'>): Command[] {
-    let processReceivers: Command[] = [];
-    for (const inpRec of inputReceivers) {
-      if ((inpRec as MacroCommand).macro) {
-        const executable = this.configService.getMacros()[(inpRec as MacroCommand).macro];
-        for (const command of executable.commands) {
-          processReceivers.push(this.replacePlaceholders(command, (inpRec as MacroCommand).variables));
-        }
-      } else {
-        processReceivers.push(inpRec as Command);
-      }
+  private async processCommandWithMacro(commands: CommandOrMacro[], delay: number | undefined) {
+    for (const receiver of commands) {
+      await this.runCommand(receiver);
+      await this.awaitDelay(delay, receiver.delay as number);
     }
-    processReceivers = processReceivers.map(rec => this.replaceEnvVars(rec));
-
-    const commands = this.constructReceivers(processReceivers);
-    if (comb.shuffle) {
-      this.shuffle(commands);
-    }
-    return commands;
   }
 
-  private constructReceivers(inputReceivers: Command[]): Command[] {
+  private resolveAliases(rec: Command): Command[] {
+    if (this.configService.getIps()[rec.destination]) {
+      return [{...rec, destination: rec.destination}];
+    }
     const commands: Command[] = [];
-    inputReceivers.forEach(rec => {
-      if (this.configService.getIps()[rec.destination]) {
-        commands.push({ ...rec, destination: rec.destination });
-        return;
-      }
-      const destination = this.configService.getAliases()[rec.destination];
-      if (typeof destination === 'string') {
-        commands.push({ ...rec, destination });
-      } else if (Array.isArray(destination)) {
-        destination.forEach(dest => {
-          commands.push({ ...rec, destination: dest });
-        });
-      } else {
-        throw Error(`Unknown destination type ${rec.destination}`);
-      }
-    });
+    const destination = this.configService.getAliases()[rec.destination];
+    if (typeof destination === 'string') {
+      commands.push({...rec, destination});
+    } else if (Array.isArray(destination)) {
+      destination.forEach(dest => {
+        commands.push({...rec, destination: dest});
+      });
+    } else {
+      throw Error(`Unknown destination type ${rec.destination}`);
+    }
     return commands;
   }
 

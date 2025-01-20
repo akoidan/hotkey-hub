@@ -10,9 +10,12 @@
     "start": "rm -rf ./dist/ && electron ./src/index.js",
     "lint": "eslint --ext .ts --max-warnings=0 src",
     "autoformat": "eslint --ext .ts --max-warnings=0 --fix src",
-    "schema": "zod2md --entry ./src/config/types/schema.ts --title 'Schema for config.jsonc' --output README.md"
+    "schema": "zod2md --entry ./src/config/types/schema.ts --title 'Schema for config.jsonc' --output README.md",
+    "test": "jest --coverage  --detectOpenHandles --testTimeout=10000"
   },
   "devDependencies": {
+    "@nestjs/testing": "^11.0.3",
+    "@types/jest": "^29.5.14",
     "@typescript-eslint/eslint-plugin": "^7.7.2",
     "@typescript-eslint/parser": "^7.7.2",
     "electron": "^30.0.6",
@@ -25,8 +28,10 @@
     "eslint-plugin-only-warn": "^1.1.0",
     "eslint-plugin-sonarjs": "^0.25.1",
     "eslint-plugin-unicorn": "^56.0.0",
+    "ts-jest": "^29.2.5",
     "typescript": "^5.4.5",
-    "zod2md": "^0.1.4"
+    "zod2md": "^0.1.4",
+    "jest": "^29.7.0"
   },
   "engines": {
     "node": ">=18.0.0 <19",
