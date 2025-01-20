@@ -6,11 +6,13 @@ import {ConfigService} from '@/config/config-service';
 import {
   createConfigTyrsMock,
 } from '@/tests/mocks/config-provider';
+import { LogicModule } from '@/logic/logic.module';
 
 describe('logic-service', () => {
   it('should demo curl request', async() => {
 
     const testModule = await Test.createTestingModule({
+      imports: [LogicModule],
       providers: [
         {
           provide: ClientService,
