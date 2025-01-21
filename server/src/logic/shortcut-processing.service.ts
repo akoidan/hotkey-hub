@@ -39,7 +39,7 @@ export class ShortcutProcessingService {
   private async processShortcutsWoMacro(comb: RandomShortcutMapping): Promise<void> {
     const commands = comb.commands.flatMap(comm => this.commandProcessor.resolveAliases(comm));
     if (comb.circular && commands.length > 0) {
-      await this.commandProcessor.resolveMacroAndAlias(commands[this.activeFighterIndex], false);
+      await this.commandProcessor.resolveMacroAndAlias(commands[this.activeFighterIndex], false, comb.delay);
       if (this.activeFighterIndex >= commands.length - 1) {
         this.activeFighterIndex = 0;
       } else {
@@ -54,12 +54,9 @@ export class ShortcutProcessingService {
   }
 
 
-  private async processCommandWithMacro(commands: CommandOrMacro[], delay: number | undefined) {
+  private async processCommandWithMacro(commands: CommandOrMacro[], combDelay: number|undefined): Promise<void> {
     for (const command of commands) {
-      await this.commandProcessor.resolveMacroAndAlias(command, true);
-      if (delay) {
-        await new Promise(resolve => setTimeout(resolve, delay));
-      }
+      await this.commandProcessor.resolveMacroAndAlias(command, true, combDelay);
     }
   }
 

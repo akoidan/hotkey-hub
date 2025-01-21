@@ -1,4 +1,7 @@
-import {Injectable} from '@nestjs/common';
+import {
+  Injectable,
+  Logger
+} from '@nestjs/common';
 import {ConfigService} from '@/config/config-service';
 import {Command} from '@/config/types/commands';
 import {
@@ -13,37 +16,55 @@ export class CommandProcessingService {
   constructor(
     private readonly configService: ConfigService,
     private readonly variableService: VariableResolutionService,
+    private readonly logger: Logger,
     private readonly commandChain: BaseCommandHandler
   ) {
 
   }
 
-  async resolveMacroAndAlias(input: CommandOrMacro, resolveAlias = true): Promise<void> {
+  async resolveMacroAndAlias(input: CommandOrMacro, resolveAlias = true, combDelay: number | undefined): Promise<void> {
     if ((input as MacroCommand).macro) {
       const executable = this.configService.getMacros()[(input as MacroCommand).macro];
       for (const command of executable.commands) {
-        await this.resolveMacroAndAlias(
-          this.variableService.replacePlaceholders(command, (input as MacroCommand).variables),
-          true
+        const preparedCommand = this.variableService.replacePlaceholders(
+          command,
+          (input as MacroCommand).variables,
+          executable.variables
         );
+        await this.resolveMacroAndAlias(preparedCommand, true, (preparedCommand.delay as number|undefined) ?? combDelay);
       }
     } else if (resolveAlias) {
       const commands = this.resolveAliases(input as Command);
       for (const command of commands) {
-        await this.resolveMacroAndAlias(command, false);
+        await this.resolveMacroAndAlias(command, false, combDelay);
       }
     } else {
-      await this.runCommand(input as Command);
+      await this.runCommand(input as Command, combDelay);
     }
   }
 
-  private async runCommand(input: Command): Promise<void> {
+  private async runCommand(input: Command, combDelay: undefined | number): Promise<void> {
     const currRec = this.variableService.replaceEnvVars(input);
     const ip = this.configService.getIps()[(currRec as Command).destination];
+    this.logger.debug(`Running ${JSON.stringify(input)}`);
     await this.commandChain.handle(ip, currRec);
+    await this.awaitDelay(combDelay, input.delay as number | undefined);
   }
 
-  resolveAliases(rec: Command): Command[] {
+  private async awaitDelay(combDelay: undefined | number, commandDelay: undefined | number): Promise<void> {
+    if (commandDelay !== undefined) {
+      combDelay = commandDelay;
+    }
+    if (combDelay === undefined) {
+      combDelay = Math.round(Math.random() * this.configService.getDelay());
+    }
+    await new Promise(resolve => {
+      setTimeout(resolve, combDelay);
+    });
+  }
+
+  resolveAliases(rec:
+                 Command): Command[] {
     if (this.configService.getIps()[rec.destination]) {
       return [{...rec, destination: rec.destination}];
     }

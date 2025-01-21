@@ -81,6 +81,7 @@ const macrosDefinitionSchema = z.record(macroSchema)
 type MacroCommand = z.infer<typeof runMacroCommandSchema>
 type CommandOrMacro = z.infer<typeof commandOrMacroSchema>
 type MacroList = z.infer<typeof macrosDefinitionSchema>
+type VariablesDefinition = z.infer<typeof macroVariablesDescriptionSchema>
 
 export {
   runMacroCommandSchema,
@@ -92,6 +93,7 @@ export {
 
 export type {
   MacroCommand,
+  VariablesDefinition,
   CommandOrMacro,
   MacroList,
 };

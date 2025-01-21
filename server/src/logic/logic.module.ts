@@ -32,6 +32,7 @@ import {VariableResolutionService} from '@/logic/variable-resolution.service';
       inject: [
         ConfigService,
         VariableResolutionService,
+        Logger,
         KeyPressHandler,
         FocusWindowHandler,
         MouseClickHandler,
@@ -39,7 +40,7 @@ import {VariableResolutionService} from '@/logic/variable-resolution.service';
         TypeTextHandler,
         KillHandler,
       ],
-      useFactory: (configService, variableService, keyPressHandler, focusWindowHandler, mouseClickHandler, executeHandler, typeTextHandler, killHandler) => {
+      useFactory: (configService, variableService, logger, keyPressHandler, focusWindowHandler, mouseClickHandler, executeHandler, typeTextHandler, killHandler) => {
         keyPressHandler
           .setNext(focusWindowHandler)
           .setNext(mouseClickHandler)
@@ -47,7 +48,7 @@ import {VariableResolutionService} from '@/logic/variable-resolution.service';
           .setNext(typeTextHandler)
           .setNext(killHandler);
 
-        return new CommandProcessingService(configService, variableService, keyPressHandler);
+        return new CommandProcessingService(configService, variableService, logger, keyPressHandler);
       },
     },
   ],
