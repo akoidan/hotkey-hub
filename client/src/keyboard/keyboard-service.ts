@@ -48,13 +48,16 @@ export class KeyboardService {
       this.logger.debug(`ReleaseKey: \u001b[35m${key}`);
       await keyboard.releaseKey(invertedMap.get(key)!);
     }
+    await new Promise((resolve) => {setTimeout(resolve, 10);});
   }
 
   private async typeWithSpecialCharacters(text: string): Promise<void> {
-    const parts = text.split(this.specialCharacters);
+    const parts = text.split('$');
     for (let i = 0; i < parts.length; i++) {
-      this.logger.debug(`Type: \u001b[35m${text}`);
+      this.logger.debug(`Type: \u001b[35m${parts[i]}`);
       await keyboard.type(parts[i]);
+      // eslint-disable-next-line @typescript-eslint/no-loop-func
+      await new Promise((resolve) => {setTimeout(resolve, 10);});
       if (i < parts.length - 1) {
         await this.sendKey(['4'], ['shift']);
       }
