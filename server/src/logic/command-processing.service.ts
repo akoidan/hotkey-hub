@@ -1,6 +1,6 @@
 import {
   Injectable,
-  Logger
+  Logger,
 } from '@nestjs/common';
 import {ConfigService} from '@/config/config-service';
 import {Command} from '@/config/types/commands';
@@ -22,7 +22,7 @@ export class CommandProcessingService {
 
   }
 
-  async resolveMacroAndAlias(input: CommandOrMacro, resolveAlias = true, combDelay: number | undefined): Promise<void> {
+  async resolveMacroAndAlias(input: CommandOrMacro, resolveAlias: boolean, combDelay: number | undefined): Promise<void> {
     if ((input as MacroCommand).macro) {
       const executable = this.configService.getMacros()[(input as MacroCommand).macro];
       for (const command of executable.commands) {
@@ -31,7 +31,7 @@ export class CommandProcessingService {
           (input as MacroCommand).variables,
           executable.variables
         );
-        await this.resolveMacroAndAlias(preparedCommand, true, (preparedCommand.delay as number|undefined) ?? combDelay);
+        await this.resolveMacroAndAlias(preparedCommand, true, (preparedCommand.delay as number | undefined) ?? combDelay);
       }
     } else if (resolveAlias) {
       const commands = this.resolveAliases(input as Command);
@@ -63,8 +63,7 @@ export class CommandProcessingService {
     });
   }
 
-  resolveAliases(rec:
-                 Command): Command[] {
+  resolveAliases(rec: Command): Command[] {
     if (this.configService.getIps()[rec.destination]) {
       return [{...rec, destination: rec.destination}];
     }

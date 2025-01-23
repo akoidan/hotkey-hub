@@ -5,7 +5,7 @@ import {
 import {
   commandSchema,
 } from '@/config/types/commands';
-import { commandOrMacroSchema } from '@/config/types/macros';
+import {commandOrMacroSchema} from '@/config/types/macros';
 
 
 const commandsAndMacrosArraySchema = z.array(commandOrMacroSchema)
@@ -15,7 +15,7 @@ const baseShortCutMappingSchema = z.object({
   delay: z.number().optional().describe('Delay in milliseconds between commands for this shorcut'),
   name: z.string().describe('Name that is printed during startup with a shorcut'),
   shortCut: z.string().describe('A shorcut to be pressed. E.g. Alt+1'),
-});
+}).strict();
 
 const commandsSchema = z.array(commandSchema);
 const shortcutMappingWithMacroSchema = z.object({
@@ -65,7 +65,7 @@ type MacroShortcutMapping = z.infer<typeof shortcutMappingWithMacroSchema>;
 export type {
   ShortsData,
   RandomShortcutMapping,
-  MacroShortcutMapping
+  MacroShortcutMapping,
 };
 
 export {
