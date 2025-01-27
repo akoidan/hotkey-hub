@@ -20,14 +20,14 @@ export class RequestIdMiddleware implements NestMiddleware {
 
       const {method, originalUrl, body} = req;
 
-      this.logger.log(`<<==${method} ${originalUrl} ${JSON.stringify(body)}`);
+      this.logger.debug(`<<== ${method} ${originalUrl} ${JSON.stringify(body)}`);
       req.requestId = reqId; // Attach it to the request for convenience
 
       const originalSend = res.send.bind(res); // Store the original send method
 
       // Override res.send to log the response body
-      res.send = (resBody: string, b: any): any => {
-        this.logger.log(`==>> ${method} ${originalUrl}: ${resBody} ${b}`);
+      res.send = (resBody: string): any => {
+        this.logger.debug(`==>> ${method} ${originalUrl}: ${resBody}`);
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return originalSend(resBody); // Correctly call the original send method with the body
       };
