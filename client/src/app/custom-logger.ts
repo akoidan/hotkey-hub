@@ -4,7 +4,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import clc from 'cli-color';
-import {AsyncLocalStorage} from 'async_hooks';
+import { AsyncLocalStorage } from 'async_hooks';
 
 const asyncLocalStorage = new AsyncLocalStorage<Map<string, any>>();
 
@@ -36,7 +36,7 @@ class CustomLogger extends ConsoleLogger {
     // Make message more prominent with bright text and underline
     const store = asyncLocalStorage.getStore();
     if (store?.get('comb') === 'init') {
-        this.debug(message);
+      this.debug(message);
     } else {
       console.info(CustomLogger.logFormat('INFO', message, clc.bold.blue, clc.cyan));
     }
