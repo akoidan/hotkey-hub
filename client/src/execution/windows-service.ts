@@ -1,11 +1,8 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
 } from '@nestjs/common';
-import {
-  InjectPinoLogger,
-  PinoLogger,
-} from 'nestjs-pino';
 
 import {platform} from 'os';
 import {
@@ -17,10 +14,8 @@ import {
 @Injectable()
 export class WindowsService {
   constructor(
-    @InjectPinoLogger(WindowsService.name)
-    private readonly logger: PinoLogger
+    private readonly logger: Logger
   ) {
-
   }
 
   // eslint-disable-next-line @typescript-eslint/require-await

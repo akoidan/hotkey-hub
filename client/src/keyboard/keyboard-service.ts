@@ -1,12 +1,11 @@
 /*
  eslint-disable no-await-in-loop
  */
-import {Injectable} from '@nestjs/common';
-import {keyboard} from '@nut-tree-fork/nut-js';
 import {
-  InjectPinoLogger,
-  PinoLogger,
-} from 'nestjs-pino';
+  Injectable,
+  Logger,
+} from '@nestjs/common';
+import {keyboard} from '@nut-tree-fork/nut-js';
 import {invertedMap} from '@/keyboard/keyboard-dto';
 import os from 'os';
 
@@ -15,8 +14,7 @@ export class KeyboardService {
   private readonly platform = os.platform(); // Detect OS
 
   constructor(
-    @InjectPinoLogger(KeyboardService.name)
-    private readonly logger: PinoLogger
+    private readonly logger: Logger
   ) {
   }
 
@@ -26,7 +24,7 @@ export class KeyboardService {
     if (text.includes(this.specialCharacters) && this.platform === 'linux') {
       await this.typeWithSpecialCharacters(text);
     } else {
-      this.logger.info(`Type: \u001b[35m${text}`);
+      this.logger.log(`Type: \u001b[35m${text}`);
       await keyboard.type(text);
     }
   }
