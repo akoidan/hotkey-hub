@@ -19,7 +19,7 @@ class CustomLogger extends ConsoleLogger {
     const timestamp = clc.xterm(100)(`[${CustomLogger.getCurrentTime()}]`);
 
     const store = asyncLocalStorage.getStore();
-    const id =  store ?  levelColor(store.get('comb') as string):  levelColor(level);
+    const id = store ? levelColor(store.get('comb') as string) : levelColor(level);
     return `${timestamp} ${id}: ${messageStyle ? messageStyle(message) : message}`;
   }
 
@@ -34,10 +34,15 @@ class CustomLogger extends ConsoleLogger {
 
   log(message: string): void {
     // Make message more prominent with bright text and underline
-    console.info(CustomLogger.logFormat('INFO', message, clc.bold.blue, clc.cyan));
+    const store = asyncLocalStorage.getStore();
+    if (store?.get('comb') === 'init') {
+        this.debug(message);
+    } else {
+      console.info(CustomLogger.logFormat('INFO', message, clc.bold.blue, clc.cyan));
+    }
   }
 
-  error(message: string|Error, trace?: string): void {
+  error(message: string | Error, trace?: string): void {
     console.error(CustomLogger.logFormat('ERROR', (message as Error)?.message ?? message, clc.bold.redBright, clc.red));
     if (trace ?? (message as Error)?.stack) {
       console.error(clc.red(trace ?? (message as Error)?.stack));
@@ -57,4 +62,7 @@ class CustomLogger extends ConsoleLogger {
   }
 }
 
-export {asyncLocalStorage, CustomLogger};
+export {
+  asyncLocalStorage,
+  CustomLogger,
+};

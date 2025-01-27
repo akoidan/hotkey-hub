@@ -27,6 +27,7 @@ export class WindowsService {
       if (!window) {
         throw new BadRequestException(`Window not found ${pid}`);
       }
+      this.logger.log(`Focusing window: \u001b[35m#${window.id} for pid ${pid}`);
       bringWindoToTop(window.id);
     } else {
       throw new BadRequestException('Not supported on this platform');
