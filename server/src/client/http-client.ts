@@ -7,6 +7,12 @@ import {
   request,
 } from 'https';
 
+
+interface CustomError extends Error {
+  statusCode?: number;
+  response?: string;
+}
+
 @Injectable()
 export class FetchClient {
   constructor(
@@ -19,12 +25,13 @@ export class FetchClient {
 
   // eslint-disable-next-line
   async post<T>(client: string, url: string, payload: any, timeout = 3000, withParse: boolean = false): Promise<T> {
+    const payloadstr: string = JSON.stringify(payload);
     try {
-      const payloadstr: string = JSON.stringify(payload);
-      const result = await new Promise<string>((resolve, reject) => {
+      const [result, statusCode] = await new Promise<[string, number]>((resolve, reject) => {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => {
-          reject(Error(`Request timed out after ${timeout}m`));
+          const error = Error(`Request timed out after ${timeout}m`);
+          reject(error);
           controller.abort();
         }, timeout);
         const req = request({
@@ -47,9 +54,12 @@ export class FetchClient {
           res.on('end', () => {
             clearTimeout(timeoutId);
             if (res.statusCode! < 400) {
-              resolve(data);
+              resolve([data, res.statusCode!]);
             } else {
-              reject(Error(`status code ${res.statusCode} ${data}`));
+              const error = Error();
+              (error as CustomError).statusCode = res.statusCode;
+              (error as CustomError).response = data;
+              reject(error);
             }
           });
           res.on('error', (e) => {
@@ -61,7 +71,7 @@ export class FetchClient {
         req.write(payloadstr);
         req.end();
       });
-      this.logger.log(`POST:OK ${client}${url} ${payloadstr}: ${result}`);
+      this.logger.log(`POST:${statusCode} ${client}${url} ${payloadstr} ==>> ${result}`);
       if (withParse) {
         try {
           return JSON.parse(result) as T;
@@ -71,7 +81,9 @@ export class FetchClient {
       }
       return null as T;
     } catch (error: unknown) {
-      throw new Error(`POST:FAIL ${this.protocol}//${client}:${this.port}${url} ${(error as any).message}`);
+      const status = (error as CustomError).statusCode ?? 'FAIL';
+      const fullUrl = `${this.protocol}//${client}:${this.port}${url}`;
+      throw new Error(`POST:${status} ${fullUrl} ${(error as any).message}  ${payloadstr} ==>> ${(error as CustomError).response ?? ''}`);
     }
   }
 

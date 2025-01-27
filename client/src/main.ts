@@ -2,11 +2,12 @@ import {NestFactory} from '@nestjs/core';
 import {AppModule} from '@/app/app.module';
 import {MtlsModule} from '@/mtls/mtls.module';
 import {CertService} from '@/mtls/cert-service';
-import {CustomLogger, asyncLocalStorage} from '@/app/custom-logger';
+import {
+  asyncLocalStorage,
+  CustomLogger,
+} from '@/app/custom-logger';
 import process from 'node:process';
 
-import * as bodyParser from 'body-parser';
-import { RequestIdMiddleware } from '@/app/request-id-middleware';
 asyncLocalStorage.run(new Map().set('comb', 'init'), () => {
   const customLogger = new CustomLogger();
   (async function() {
@@ -28,12 +29,9 @@ asyncLocalStorage.run(new Map().set('comb', 'init'), () => {
         rejectUnauthorized: true,
       },
     });
-    app.useGlobalInterceptors(new RequestIdMiddleware())
-    // app.useGlobalPipes(new ValidationPipe());
     await app.listen(5000);
   })().catch((err) => {
     customLogger.error(err);
     process.exit(98);
   });
 });
-

@@ -1,34 +1,37 @@
 import {
-  CallHandler,
-  ExecutionContext,
   Injectable,
-  NestInterceptor,
+  Logger,
+  NestMiddleware,
 } from '@nestjs/common';
-import {Observable} from 'rxjs';
-import {tap} from 'rxjs/operators';
-
+import {asyncLocalStorage} from '@/app/custom-logger';
 
 @Injectable()
-export class RequestIdMiddleware implements NestInterceptor {
- intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    const request = context.switchToHttp().getRequest();
-    const response = context.switchToHttp().getResponse();
+export class RequestIdMiddleware implements NestMiddleware {
+  constructor(private readonly logger: Logger) {
+  }
 
-    const {method, originalUrl, body: requestBody} = request;
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type,@typescript-eslint/explicit-module-boundary-types
+  use(req: any, res: any, next: () => void) {
+    const comb = asyncLocalStorage.getStore()?.get('comb');
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    asyncLocalStorage.run(new Map().set('comb', comb), () => {
+      const reqId = Math.random().toString(36).substring(2, 6);
+      asyncLocalStorage.getStore()?.set('comb', reqId);
 
-    // Log incoming request details
-    console.log(`Incoming Request: ${method} ${originalUrl}`);
-    console.debug('Request Body:', JSON.stringify(requestBody));
+      const {method, originalUrl, body} = req;
 
-    const now = Date.now();
+      this.logger.log(`<<==${method} ${originalUrl} ${JSON.stringify(body)}`);
+      req.requestId = reqId; // Attach it to the request for convenience
 
-    return next.handle().pipe(
-      tap((data) => {
-        // Log the outgoing response
-        const processingTime = Date.now() - now;
-        console.log(`Response for ${method} ${originalUrl} in ${processingTime}ms`);
-        console.debug('Response Body:', JSON.stringify(data));
-      }),
-    );
+      const originalSend = res.send.bind(res); // Store the original send method
+
+      // Override res.send to log the response body
+      res.send = (resBody: string, b: any): any => {
+        this.logger.log(`==>> ${method} ${originalUrl}: ${resBody} ${b}`);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        return originalSend(resBody); // Correctly call the original send method with the body
+      };
+      next();
+    });
   }
 }

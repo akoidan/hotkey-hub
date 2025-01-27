@@ -30,6 +30,7 @@ export class KeyboardService {
   }
 
   public async sendKey(keys: string[], holdKeys: string[]): Promise<void> {
+    throw Error('as')
     for (const key of holdKeys) {
       this.logger.debug(`HoldKey: \u001b[35m${key}`);
       await keyboard.pressKey(invertedMap.get(key)!);
