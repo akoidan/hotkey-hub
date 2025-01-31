@@ -6,12 +6,12 @@ import {
 } from '@nestjs/common';
 import {AppController} from '@/app/app-controller';
 import {KeyboardModule} from '@/keyboard/keyboard-module';
-import {ExecutionModule} from '@/execution/execution-module';
+import {ExecuteModule} from '@/execute/execute-module';
 import {MouseModule} from '@/mouse/mouse-module';
 import {RequestIdMiddleware} from '@/app/request-id-middleware';
 
 @Module({
-  imports: [KeyboardModule, ExecutionModule, MouseModule],
+  imports: [KeyboardModule, ExecuteModule, MouseModule],
   controllers: [AppController],
   providers: [Logger, RequestIdMiddleware],
 })

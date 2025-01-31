@@ -7,10 +7,10 @@
   "license": "MIT",
   "scripts": {
     "start": "rm -rf ./dist/ && node -r tsconfig-paths/register -r ts-node/register src/main.ts",
-    "prebuild": "rm -rf ./dist/ && nest build && mkdir ./dist/native/win32 && cp ./src/native/win32/window.node ./dist/native/win32/window.node",
+    "prebuild": "rm -rf ./dist/ && nest build",
     "build": "pkg . --targets win --output app.exe",
     "wine": "wine app.exe",
-    "win32": "node-gyp rebuild && cp ./build/Release/window.node ./src/native/window.node",
+    "win32": "node-gyp rebuild",
     "lint": "eslint --ext .ts --max-warnings=0 src",
     "autoformat": "eslint --ext .ts --max-warnings=0 --fix src",
     "postinstall": "patch-package"
