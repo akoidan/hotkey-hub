@@ -326,13 +326,17 @@
             "keySend": "6"
           }
         },
-        {
+         {
           "macro": "keySend",
           "variables": {
             "focusPid": "{{wc}}",
             "destination": "wc",
-            "keySend": "f9"
+            "keySend": "f8"
           }
+        },
+        {
+          "keySend": "f9",
+          "destination": "wc"
         },
         {
           "macro": "keySend",

@@ -66,7 +66,7 @@ pid_t get_window_pid(xcb_window_t window) {
 
     xcb_get_property_cookie_t cookie = xcb_get_property(connection, 0, window,
         ewmh._NET_WM_PID, XCB_ATOM_CARDINAL, 0, 1);
-    
+
     xcb_get_property_reply_t* reply = xcb_get_property_reply(connection, cookie, nullptr);
     if (!reply) return 0;
 
@@ -74,7 +74,7 @@ pid_t get_window_pid(xcb_window_t window) {
     if (reply->type == XCB_ATOM_CARDINAL && reply->format == 32 && reply->length == 1) {
         pid = *(pid_t*)xcb_get_property_value(reply);
     }
-    
+
     free(reply);
     return pid;
 }
@@ -178,4 +178,3 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
     return exports;
 }
 
-NODE_API_MODULE(addon, Init)
