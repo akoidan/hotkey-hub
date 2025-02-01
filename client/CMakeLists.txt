@@ -24,3 +24,24 @@ if(MSVC AND CMAKE_JS_NODELIB_DEF AND CMAKE_JS_NODELIB_TARGET)
   # Generate node.lib
   execute_process(COMMAND ${CMAKE_AR} /def:${CMAKE_JS_NODELIB_DEF} /out:${CMAKE_JS_NODELIB_TARGET} ${CMAKE_STATIC_LINKER_FLAGS})
 endif()
+
+
+if(WIN32)
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+    "${CMAKE_SOURCE_DIR}/build/Release/window.node"
+    "${CMAKE_SOURCE_DIR}/src/native/win32/window-win32.node"
+    COMMENT "Copying window.node to src"
+)
+elseif(UNIX)
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+    "${CMAKE_SOURCE_DIR}/build/Release/window.node"
+    "${CMAKE_SOURCE_DIR}/src/native/linux/window-linux.node"
+    COMMENT "Copying window.node to src"
+)
+else()
+    message(FATAL_ERROR "Unsupported OS")
+endif()
+
+
