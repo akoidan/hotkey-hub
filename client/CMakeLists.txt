@@ -9,7 +9,11 @@ add_definitions(-DNAPI_VERSION=4)
 include_directories(${CMAKE_JS_INC})
 
 if(WIN32)
-    set(SOURCE_FILES "${CMAKE_SOURCE_DIR}/src/native/win32/window-win32.cc" "${CMAKE_SOURCE_DIR}/src/native/win32/keypress-win32.c")
+    set(SOURCE_FILES 
+        "${CMAKE_SOURCE_DIR}/src/native/win32/main.cc"
+        "${CMAKE_SOURCE_DIR}/src/native/win32/window-win32.cc"
+        "${CMAKE_SOURCE_DIR}/src/native/win32/keypress-win32.cc"
+    )
 elseif (UNIX AND NOT APPLE)
     set(SOURCE_FILES "${CMAKE_SOURCE_DIR}/src/native/linux/window-linux.cc")
     find_package(X11 REQUIRED)
