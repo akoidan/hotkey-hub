@@ -5,7 +5,8 @@
     "lenovo": "192.168.100.33",
     "desktop": "192.168.100.9",
     "asus": "192.168.100.27",
-    "this": "127.0.0.1"
+    "this": "127.0.0.1",
+    "medion": "192.168.100.62"
   },
   "delay": 200,
   "combinations": [
@@ -16,7 +17,7 @@
             "macro": "killLaunchL2",
             "variables": {
               "destination": "touchpad",
-              "login": "deathangel3",
+              "login": "deathangelz",
               "delay": 10000
             }
           }
@@ -26,7 +27,7 @@
             "macro": "killLaunchL2",
             "variables": {
               "destination": "msi",
-              "login": "deathangel4",
+              "login": "deathangel-",
               "delay": 12000
             }
           }
@@ -35,9 +36,19 @@
           {
             "macro": "killLaunchL2",
             "variables": {
+              "destination": "asus",
+              "login": "deathangel_",
+              "delay": 14000
+            }
+          }
+        ],
+        [
+           {
+            "macro": "killLaunchL2",
+            "variables": {
               "destination": "lenovo",
-              "login": "deathangel5",
-              "delay": 18000
+              "login": "deathangelr",
+              "delay": 16000
             }
           }
         ],
@@ -45,8 +56,8 @@
           {
             "macro": "killLaunchL2",
             "variables": {
-              "destination": "asus",
-              "login": "deathangelp",
+              "destination": "desktop",
+              "login": "deathangels",
               "delay": 18000
             }
           }
@@ -55,8 +66,18 @@
           {
             "macro": "killLaunchL2",
             "variables": {
-              "destination": "desktop",
-              "login": "deathangelj",
+              "destination": "medion",
+              "login": "deathangeli",
+              "delay": 18000
+            }
+          }
+        ],
+        [
+          {
+            "macro": "killLaunchL2Wine",
+            "variables": {
+              "destination": "this",
+              "login": "deathangelp",
               "delay": 18000
             }
           }

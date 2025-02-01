@@ -3,16 +3,18 @@ import {
   Module,
   NotImplementedException,
 } from '@nestjs/common';
-import {ExecuteController} from '@/execute/execute-controller';
 import os from 'os';
 import {
   IWindowService,
   WindowService,
 } from '@/window/window-model';
-import {WindowsWin32Service} from '@/window/os/win32/windows-win32-service';
+import {WindowWin32Service} from '@/window/os/win32/window-win32-service';
+import {WindowDarwinService} from '@/window/os/darwin/window-darwin.service';
+import {WindowLinuxService} from '@/window/os/linux/window-linux-service';
+import {WindowController} from '@/window/window-controller';
 
 @Module({
-  controllers: [ExecuteController],
+  controllers: [WindowController],
   providers: [
     Logger,
     {
@@ -21,11 +23,11 @@ import {WindowsWin32Service} from '@/window/os/win32/windows-win32-service';
       useFactory: (logger: Logger): IWindowService => {
         const platform = os.platform();
         if (platform === 'win32') {
-          return new WindowsWin32Service(logger);
+          return new WindowWin32Service(logger);
         } else if (platform === 'linux') {
-          throw new NotImplementedException(`Unsupported platform: ${platform}`);
+          return new WindowLinuxService(logger);
         } else if (platform === 'darwin') {
-          throw new NotImplementedException(`Unsupported platform: ${platform}`);
+          return new WindowDarwinService(logger);
         }
         throw new NotImplementedException(`Unsupported platform: ${platform}`);
       },

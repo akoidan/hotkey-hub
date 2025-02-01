@@ -9,7 +9,7 @@ import {
 } from '@/window/window-model';
 
 @Injectable()
-export class WindowsWin32Service implements IWindowService {
+export class WindowWin32Service implements IWindowService {
   private readonly addon: any;
 
   constructor(
