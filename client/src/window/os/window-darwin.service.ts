@@ -3,7 +3,7 @@ import {
   Injectable,
   Logger,
 } from '@nestjs/common';
-import { IWindowService, } from '@/window/window-model';
+import {IWindowService} from '@/window/window-model';
 
 @Injectable()
 export class WindowDarwinService implements IWindowService {

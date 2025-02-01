@@ -16,7 +16,7 @@ export class WindowWin32Service implements IWindowService {
     private readonly logger: Logger
   ) {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
-    this.addon = require('./window.node');
+    this.addon = require('../../native/window.node');
   }
 
   // eslint-disable-next-line @typescript-eslint/require-await
