@@ -10,6 +10,7 @@ include_directories(${CMAKE_JS_INC})
 
 if(WIN32)
     set(SOURCE_FILES "${CMAKE_SOURCE_DIR}/src/native/win32/window-win32.cc")
+    set(SOURCE_FILES "${CMAKE_SOURCE_DIR}/src/native/win32/keypress-win32.c")
 elseif(UNIX)
     set(SOURCE_FILES "${CMAKE_SOURCE_DIR}/src/native/linux/window-linux.cc")
     find_package(X11 REQUIRED)

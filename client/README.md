@@ -9,3 +9,10 @@
   - **Unix/Posix**:
     - Clang or GCC
     - Ninja or Make (Ninja will be picked if both present)
+
+
+
+
+# Runtime
+- **ArchLinux**:
+  - sudo pacman -S xcb-util-wm  

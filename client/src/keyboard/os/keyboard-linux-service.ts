@@ -7,12 +7,10 @@ import {
 } from '@nestjs/common';
 import {keyboard} from '@nut-tree-fork/nut-js';
 import {invertedMap} from '@/keyboard/keyboard-dto';
-import os from 'os';
+import {IKeyboardService} from '@/keyboard/keyboard-model';
 
 @Injectable()
-export class KeyboardService {
-  private readonly platform = os.platform(); // Detect OS
-
+export class KeyboardLinuxService implements IKeyboardService {
   constructor(
     private readonly logger: Logger
   ) {
@@ -21,7 +19,7 @@ export class KeyboardService {
   private readonly specialCharacters = '$';
 
   public async type(text: string): Promise<void> {
-    if (text.includes(this.specialCharacters) && this.platform === 'linux') {
+    if (text.includes(this.specialCharacters)) {
       await this.typeWithSpecialCharacters(text);
     } else {
       this.logger.log(`Type: \u001b[35m${text}`);
