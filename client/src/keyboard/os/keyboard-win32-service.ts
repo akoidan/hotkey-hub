@@ -5,30 +5,37 @@ import {
   Injectable,
   Logger,
 } from '@nestjs/common';
-import {keyboard} from '@nut-tree-fork/nut-js';
 import {invertedMap} from '@/keyboard/keyboard-dto';
 import {IKeyboardService} from '@/keyboard/keyboard-model';
+import {NativeModule} from '@/native/native-interface';
 
 @Injectable()
 export class KeyboardWin32Service  implements IKeyboardService  {
+  private readonly addon: NativeModule;
+
+
   constructor(
     private readonly logger: Logger
   ) {
+    // eslint-disable-next-line
+    this.addon = require('../../native/win32/native-win32.node');
   }
+
 
   public async type(text: string): Promise<void> {
       this.logger.log(`Type: \u001b[35m${text}`);
-      await keyboard.type(text);
+      await this.addon.typeString(text);
   }
 
   public async sendKey(keys: string[], holdKeys: string[]): Promise<void> {
     for (const key of holdKeys) {
       this.logger.log(`HoldKey: \u001b[35m${key}`);
-      await keyboard.pressKey(invertedMap.get(key)!);
+      this.addon.keyToggle(key, 'down', []);
     }
     for (const key of keys) {
       this.logger.log(`KeyPress: \u001b[35m${key}`);
-      await keyboard.type(invertedMap.get(key)!);
+      this.addon.keyToggle(key, 'down', []);
+      this.addon.keyToggle(key, 'up', []);
       // eslint-disable-next-line @typescript-eslint/no-loop-func
       await new Promise(resolve => {
         setTimeout(resolve, 10);
@@ -36,7 +43,7 @@ export class KeyboardWin32Service  implements IKeyboardService  {
     }
     for (const key of holdKeys) {
       this.logger.log(`ReleaseKey: \u001b[35m${key}`);
-      await keyboard.releaseKey(invertedMap.get(key)!);
+      this.addon.keyToggle(key, 'down', []);
     }
     await new Promise((resolve) => {setTimeout(resolve, 10);});
   }

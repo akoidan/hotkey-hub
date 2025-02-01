@@ -13,7 +13,7 @@ interface WindowNativeModule {
 
 interface KeyboardNativeModule {
 
-  typeString(string: string): void;
+  typeString(string: string): Promise<void>;
 
   keyTap(key: string, modifier?: string | string[]): void;
 
