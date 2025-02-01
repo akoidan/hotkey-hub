@@ -402,7 +402,7 @@ Napi::Object getMonitorInfo (const Napi::CallbackInfo& info) {
     return obj;
 }
 
-Napi::Object Init (Napi::Env env, Napi::Object exports) {
+Napi::Object window_init (Napi::Env env, Napi::Object exports) {
     exports.Set (Napi::String::New (env, "getActiveWindow"), Napi::Function::New (env, getActiveWindow));
     exports.Set (Napi::String::New (env, "getMonitorFromWindow"), Napi::Function::New (env, getMonitorFromWindow));
     exports.Set (Napi::String::New (env, "getMonitorScaleFactor"),

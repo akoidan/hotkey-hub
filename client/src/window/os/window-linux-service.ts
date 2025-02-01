@@ -17,7 +17,7 @@ export class WindowLinuxService implements IWindowService {
     private readonly logger: Logger
   ) {
     // eslint-disable-next-line
-    this.addon = require('../../native/linux/window-linux.node');
+    this.addon = require('../../native/linux/native-linux.node');
   }
 
   // eslint-disable-next-line @typescript-eslint/require-await

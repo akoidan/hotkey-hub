@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 cmake_policy(SET CMP0091 NEW)
 cmake_policy(SET CMP0042 NEW)
 
-project (window)
+project (native)
 
 add_definitions(-DNAPI_VERSION=4)
 
@@ -48,16 +48,16 @@ endif()
 if(WIN32)
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
-    "${CMAKE_SOURCE_DIR}/build/Release/window.node"
-    "${CMAKE_SOURCE_DIR}/src/native/win32/window-win32.node"
-    COMMENT "Copying window.node to src"
+    "${CMAKE_SOURCE_DIR}/build/Release/native.node"
+    "${CMAKE_SOURCE_DIR}/src/native/win32/native-win32.node"
+    COMMENT "Copying native.node to src"
 )
 elseif(UNIX)
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
-    "${CMAKE_SOURCE_DIR}/build/Release/window.node"
-    "${CMAKE_SOURCE_DIR}/src/native/linux/window-linux.node"
-    COMMENT "Copying window.node to src"
+    "${CMAKE_SOURCE_DIR}/build/Release/native.node"
+    "${CMAKE_SOURCE_DIR}/src/native/linux/native-linux.node"
+    COMMENT "Copying native.node to src"
 )
 else()
     message(FATAL_ERROR "Unsupported OS")

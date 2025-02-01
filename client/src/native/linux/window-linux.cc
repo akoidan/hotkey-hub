@@ -170,11 +170,10 @@ Napi::Boolean bringWindowToTop(const Napi::CallbackInfo& info) {
     return Napi::Boolean::New(env, true);
 }
 
-Napi::Object Init(Napi::Env env, Napi::Object exports) {
+Napi::Object window_init(Napi::Env env, Napi::Object exports) {
     DEBUG_LOG("Initializing module");
     exports.Set("getWindows", Napi::Function::New(env, getWindows));
     exports.Set("initWindow", Napi::Function::New(env, initWindow));
     exports.Set("bringWindowToTop", Napi::Function::New(env, bringWindowToTop));
     return exports;
 }
-
