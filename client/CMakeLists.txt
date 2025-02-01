@@ -1,25 +1,26 @@
 cmake_minimum_required(VERSION 3.15)
-project(window)
+cmake_policy(SET CMP0091 NEW)
+cmake_policy(SET CMP0042 NEW)
 
-# Include Node-API wrappers
-execute_process(COMMAND node -p "require('node-addon-api').include"
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    OUTPUT_VARIABLE NODE_ADDON_API_DIR
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
+project (window)
 
-add_definitions(-DNAPI_VERSION=3)
-add_definitions(-DNAPI_DISABLE_CPP_EXCEPTIONS)
+add_definitions(-DNAPI_VERSION=4)
+
+include_directories(${CMAKE_JS_INC})
 
 if(WIN32)
-    set(SOURCE_FILES "./src/native/win32/window.cc")
+    set(SOURCE_FILES "${CMAKE_SOURCE_DIR}/src/native/win32/window.cc")
+elseif(UNIX)
+    set(SOURCE_FILES "${CMAKE_SOURCE_DIR}/src/native/linux/window.cc")
+else()
+    message(FATAL_ERROR "Unsupported OS")
 endif()
 
-add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES})
+add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES} ${CMAKE_JS_SRC})
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")
+target_link_libraries(${PROJECT_NAME} ${CMAKE_JS_LIB})
 
-target_include_directories(${PROJECT_NAME} PRIVATE ${NODE_ADDON_API_DIR})
-
-# Set the output directory
-set_target_properties(${PROJECT_NAME} PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/dist/native"
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/dist/native")
+if(MSVC AND CMAKE_JS_NODELIB_DEF AND CMAKE_JS_NODELIB_TARGET)
+  # Generate node.lib
+  execute_process(COMMAND ${CMAKE_AR} /def:${CMAKE_JS_NODELIB_DEF} /out:${CMAKE_JS_NODELIB_TARGET} ${CMAKE_STATIC_LINKER_FLAGS})
+endif()
