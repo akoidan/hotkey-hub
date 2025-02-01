@@ -10,7 +10,7 @@
     "prebuild": "rm -rf ./dist/ && nest build",
     "build": "pkg . --targets win --output app.exe",
     "wine": "wine app.exe",
-    "win32": "node-gyp rebuild",
+    "win32": "cmake-js compile",
     "lint": "eslint --ext .ts --max-warnings=0 src",
     "autoformat": "eslint --ext .ts --max-warnings=0 --fix src",
     "postinstall": "patch-package"
@@ -22,6 +22,7 @@
     "@types/express": "^5.0.0",
     "@typescript-eslint/eslint-plugin": "^7.7.2",
     "@typescript-eslint/parser": "^7.7.2",
+    "cmake-js": "^7.3.0",
     "eslint": "^8.57.0",
     "eslint-find-rules": "^4.1.0",
     "eslint-plugin-babel": "^5.3.1",
@@ -32,10 +33,9 @@
     "eslint-plugin-unicorn": "^56.0.0",
     "node-addon-api": "^8.3.0",
     "patch-package": "^8.0.0",
-    "tsconfig-paths": "^4.2.0",
-    "node-gyp": "^11.0.0",
     "pkg": "^5.8.1",
     "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.4.5"
   },
   "engines": {
