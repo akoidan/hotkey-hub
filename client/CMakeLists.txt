@@ -12,19 +12,25 @@ if(WIN32)
     set(SOURCE_FILES "${CMAKE_SOURCE_DIR}/src/native/win32/window-win32.cc")
 elseif(UNIX)
     set(SOURCE_FILES "${CMAKE_SOURCE_DIR}/src/native/linux/window-linux.cc")
+    find_package(X11 REQUIRED)
+    include_directories(${X11_INCLUDE_DIR})
 else()
     message(FATAL_ERROR "Unsupported OS")
 endif()
 
 add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES} ${CMAKE_JS_SRC})
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")
-target_link_libraries(${PROJECT_NAME} ${CMAKE_JS_LIB})
+
+if(WIN32)
+    target_link_libraries(${PROJECT_NAME} ${CMAKE_JS_LIB})
+elseif(UNIX)
+    target_link_libraries(${PROJECT_NAME} ${CMAKE_JS_LIB} ${X11_LIBRARIES})
+endif()
 
 if(MSVC AND CMAKE_JS_NODELIB_DEF AND CMAKE_JS_NODELIB_TARGET)
   # Generate node.lib
   execute_process(COMMAND ${CMAKE_AR} /def:${CMAKE_JS_NODELIB_DEF} /out:${CMAKE_JS_NODELIB_TARGET} ${CMAKE_STATIC_LINKER_FLAGS})
 endif()
-
 
 if(WIN32)
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
@@ -43,5 +49,3 @@ elseif(UNIX)
 else()
     message(FATAL_ERROR "Unsupported OS")
 endif()
-
-

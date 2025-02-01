@@ -3,21 +3,47 @@ import {
   Injectable,
   Logger,
 } from '@nestjs/common';
-import {IWindowService} from '@/window/window-model';
+import {
+  IWindowService,
+  UIWindow,
+} from '@/window/window-model';
+import {NativeModule} from '@/native/native-interface';
 
 @Injectable()
 export class WindowLinuxService implements IWindowService {
-  private readonly addon: any;
+  private readonly addon: NativeModule;
 
   constructor(
     private readonly logger: Logger
   ) {
-
+    // eslint-disable-next-line
+    this.addon = require('../../native/linux/window-linux.node');
   }
 
   // eslint-disable-next-line @typescript-eslint/require-await
   async activateWindow(pid: number): Promise<void> {
-    throw new BadRequestException(`Not supported int his os ${pid}`);
+    const windowsRaw = this.getAllWindows();
+    const requiredWindows = windowsRaw.filter((win: UIWindow) => win.processId === pid);
+    this.logger.debug(`Found following windows ids ${windowsRaw.map((win: UIWindow) => win.processId).join(', ')}`);
+    if (requiredWindows.length === 0) {
+      throw new BadRequestException(`Window not found ${pid}`);
+    }
+    this.logger.debug(`Found following windows for pid ${pid}: ${JSON.stringify(requiredWindows)}. Picking last`);
+    const requireWindow = requiredWindows[requiredWindows.length - 1];
+    this.logger.log(`Focusing window: \u001b[35m#${requireWindow.id} for pid ${pid}`);
+    this.addon.bringWindowToTop(requireWindow.id);
+  }
+
+  private getAllWindows(): UIWindow[] {
+    return this.addon.getWindows().map((id: number) => {
+      const initRes = this.addon.initWindow(id);
+      const res: UIWindow = {
+        id,
+        path: initRes.path,
+        processId: initRes.processId,
+      };
+      return res;
+    }) as UIWindow[];
   }
 }
 
