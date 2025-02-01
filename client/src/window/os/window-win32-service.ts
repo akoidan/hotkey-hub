@@ -7,16 +7,17 @@ import {
   IWindowService,
   UIWindow,
 } from '@/window/window-model';
+import {NativeModule} from '@/native/native-interface';
 
 @Injectable()
 export class WindowWin32Service implements IWindowService {
-  private readonly addon: any;
+  private readonly addon: NativeModule;
 
   constructor(
     private readonly logger: Logger
   ) {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    this.addon = require('../../native/window.node');
+    // eslint-disable-next-line @typescript-eslint/no-require-imports,import/no-internal-modules,@typescript-eslint/no-var-requires
+    this.addon = require('../../native/window.node') as NativeModule;
   }
 
   // eslint-disable-next-line @typescript-eslint/require-await

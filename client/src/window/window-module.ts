@@ -8,9 +8,9 @@ import {
   IWindowService,
   WindowService,
 } from '@/window/window-model';
-import {WindowWin32Service} from '@/window/os/win32/window-win32-service';
-import {WindowDarwinService} from '@/window/os/darwin/window-darwin.service';
-import {WindowLinuxService} from '@/window/os/linux/window-linux-service';
+import {WindowWin32Service} from '@/window/os/window-win32-service';
+import {WindowDarwinService} from '@/window/os/window-darwin.service';
+import {WindowLinuxService} from '@/window/os/window-linux-service';
 import {WindowController} from '@/window/window-controller';
 
 @Module({
