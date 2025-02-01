@@ -34,8 +34,7 @@ export class KeyboardWin32Service  implements IKeyboardService  {
     }
     for (const key of keys) {
       this.logger.log(`KeyPress: \u001b[35m${key}`);
-      this.addon.keyToggle(key, 'down', []);
-      this.addon.keyToggle(key, 'up', []);
+      this.addon.keyTap(key, []);
       // eslint-disable-next-line @typescript-eslint/no-loop-func
       await new Promise(resolve => {
         setTimeout(resolve, 10);
