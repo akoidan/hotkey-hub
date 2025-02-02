@@ -17,7 +17,7 @@
             "macro": "killLaunchL2",
             "variables": {
               "destination": "touchpad",
-              "login": "deathangelz",
+              "login": "deathunity",
               "delay": 10000
             }
           }
@@ -27,7 +27,7 @@
             "macro": "killLaunchL2",
             "variables": {
               "destination": "msi",
-              "login": "deathangel-",
+              "login": "deathunity1",
               "delay": 12000
             }
           }
@@ -37,7 +37,7 @@
             "macro": "killLaunchL2",
             "variables": {
               "destination": "asus",
-              "login": "deathangel_",
+              "login": "deathunity2",
               "delay": 14000
             }
           }
@@ -47,7 +47,7 @@
             "macro": "killLaunchL2",
             "variables": {
               "destination": "lenovo",
-              "login": "deathangelr",
+              "login": "deathunity3",
               "delay": 16000
             }
           }
@@ -57,7 +57,7 @@
             "macro": "killLaunchL2",
             "variables": {
               "destination": "desktop",
-              "login": "deathangels",
+              "login": "deathunity4",
               "delay": 18000
             }
           }
@@ -67,7 +67,7 @@
             "macro": "killLaunchL2",
             "variables": {
               "destination": "medion",
-              "login": "deathangeli",
+              "login": "deathunity5",
               "delay": 18000
             }
           }

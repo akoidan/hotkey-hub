@@ -7,19 +7,23 @@
   "license": "MIT",
   "scripts": {
     "start": "rm -rf ./dist/ && node -r tsconfig-paths/register -r ts-node/register src/main.ts",
-    "prebuild": "rm -rf ./dist/ && nest build",
-    "build": "pkg . --targets win --output app.exe",
+    "clean": "rm -rf ./dist/ && rm -rf ./build",
+    "transpile": "nest build",
+    "pkg": "pkg . --targets win --output app.exe",
+    "build": "npm-run-all -s clean native:configure:debug native:build:debug transpile pkg",
     "wine": "wine app.exe",
     "native:configure": "cmake-js configure",
-    "native": "cmake-js compile",
-    "native:debug:configure": "rm -rf build && cmake-js configure --debug",
-    "native:debug": "cmake-js build --debug",
+    "native:build": "cmake-js compile",
+    "native:configure:debug": "rm -rf build && cmake-js configure --debug",
+    "native:build:debug": "cmake-js build --debug",
     "lint": "eslint --ext .ts --max-warnings=0 src",
     "autoformat": "eslint --ext .ts --max-warnings=0 --fix src",
-    "postinstall": "patch-package"
+    "postinstall": "npm -s patch-package native:configure native:build"
   },
   "binary": {
-    "napi_versions": [8]
+    "napi_versions": [
+      8
+    ]
   },
   "devDependencies": {
     "@nestjs/cli": "^10.4.9",
@@ -37,6 +41,7 @@
     "eslint-plugin-sonarjs": "^0.25.1",
     "eslint-plugin-unicorn": "^56.0.0",
     "node-addon-api": "^8.3.0",
+    "npm-run-all": "^4.1.5",
     "patch-package": "^8.0.0",
     "pkg": "^5.8.1",
     "ts-node": "^10.9.2",
@@ -52,7 +57,7 @@
     "scripts": "dist/main.js",
     "assets": [
       "node_modules/thread-stream/lib/worker.js",
-      "node_modules/@nut-tree-fork"
+      "src/native/**/*.node"
     ],
     "targets": [
       "node18-win-x64"

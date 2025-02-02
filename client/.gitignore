@@ -8,3 +8,4 @@ libnut-core
 .vs
 Project1
 cmake-build-debug
+*.node

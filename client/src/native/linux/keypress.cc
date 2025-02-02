@@ -7,6 +7,7 @@
 #include <map>
 #include "./key-names.h"
 #include "./display.h"
+#include "./keypress.h"
 
 #define X_KEY_EVENT(display, key, is_press)                \
     (XTestFakeKeyEvent(display, XKeysymToKeycode(display, key), is_press, CurrentTime), XSync(display, false))

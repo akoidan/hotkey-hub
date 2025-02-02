@@ -13,6 +13,7 @@
 #include <shtypes.h>
 #include <string>
 #include <windows.h>
+#include "./window.h"
 
 typedef int (__stdcall* lp_GetScaleFactorForMonitor) (HMONITOR, DEVICE_SCALE_FACTOR*);
 

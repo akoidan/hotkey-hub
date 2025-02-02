@@ -3,6 +3,7 @@
 #include <napi.h>
 #include <stdint.h>
 #include "./key-names.h"
+#include "./keypress.h"
 
 void win32KeyEvent(int key, unsigned int flags) {
 	UINT scan = MapVirtualKey(key & 0xff, MAPVK_VK_TO_VSC);
