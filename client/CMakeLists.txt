@@ -31,7 +31,8 @@ elseif (UNIX AND NOT APPLE)
         "${CMAKE_SOURCE_DIR}/src/native/linux/keypress-linux.cc"
         "${CMAKE_SOURCE_DIR}/src/native/linux/window-linux.cc"
         "${CMAKE_SOURCE_DIR}/src/native/linux/main.cc"
-    )
+        "${CMAKE_SOURCE_DIR}/src/native/linux/mouse.cc"
+            src/native/linux/display.cc src/native/linux/display.h src/native/linux/key-names.h src/native/linux/mouse.h)
     find_package(X11 REQUIRED)
     find_library(X11_XTEST_LIBRARY Xtst REQUIRED)
     find_package(PkgConfig REQUIRED)

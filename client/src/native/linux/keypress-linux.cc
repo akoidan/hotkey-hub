@@ -12,41 +12,7 @@
 #include <iostream>
 #include <map>
 #include "./key-names.cc"
-
-static Display *mainDisplay = NULL;
-static int registered = 0;
-static char *displayName = NULL;
-static int hasDisplayNameChanged = 0;
-
-void XCloseMainDisplay(void) {
-    if (mainDisplay != NULL) {
-        XCloseDisplay(mainDisplay);
-        mainDisplay = NULL;
-    }
-}
-
-Display *XGetMainDisplay(void) {
-    /* Close the display if displayName has changed */
-    if (hasDisplayNameChanged) {
-        XCloseMainDisplay();
-        hasDisplayNameChanged = 0;
-    }
-
-    if (mainDisplay == NULL) {
-        /* First try the user set displayName */
-        mainDisplay = XOpenDisplay(displayName);
-
-        if (mainDisplay == NULL) {
-            fputs("Could not open main display\n", stderr);
-        } else if (!registered) {
-            atexit(&XCloseMainDisplay);
-            registered = 1;
-        }
-    }
-
-    return mainDisplay;
-}
-
+#include "./display.h"
 
 #define X_KEY_EVENT(display, key, is_press)                \
     (XTestFakeKeyEvent(display, XKeysymToKeycode(display, key), is_press, CurrentTime), XSync(display, false))

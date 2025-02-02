@@ -1,12 +1,8 @@
 #include <X11/Xutil.h>
 #include <X11/XF86keysym.h>
+#include "./key-names.h"
 
-typedef struct {
-    const char* name;
-    KeySym key;
-} KeyNames;
-
-static KeyNames key_names[] = {
+KeyNames key_names[] = {
     {"backspace",         XK_BackSpace},
     {"delete",           XK_Delete},
     {"return",           XK_Return},
