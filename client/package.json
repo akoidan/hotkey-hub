@@ -9,8 +9,9 @@
     "start": "rm -rf ./dist/ && node -r tsconfig-paths/register -r ts-node/register src/main.ts",
     "clean": "rm -rf ./dist/ && rm -rf ./build",
     "transpile": "nest build",
+    "build:local": "npm-run-all -s clean native:configure:debug native:build:debug",
     "pkg": "pkg . --targets win --output app.exe",
-    "build": "npm-run-all -s clean native:configure:debug native:build:debug transpile pkg",
+    "build": "npm-run-all -s clean native:configure native:build transpile pkg",
     "wine": "wine app.exe",
     "native:configure": "cmake-js configure",
     "native:build": "cmake-js compile",
@@ -18,8 +19,7 @@
     "native:build:debug": "cmake-js build --debug",
     "lint": "eslint --ext .ts --max-warnings=0 src",
     "autoformat": "eslint --ext .ts --max-warnings=0 --fix src",
-    "fix-binaries": "patch-package",
-    "postinstall": "npm-run-all -s fix-binaries native:configure native:build"
+    "postinstall": "patch-package",
   },
   "binary": {
     "napi_versions": [
