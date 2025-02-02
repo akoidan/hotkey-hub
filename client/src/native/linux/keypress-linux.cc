@@ -2,6 +2,9 @@
 #include <napi.h>
 #include <X11/extensions/XTest.h>
 #include <X11/Xlib.h>
+#include <X11/XKBlib.h>
+#include <locale.h>
+#include <wchar.h>
 
 #include <stdio.h> /* For fputs() */
 #include <stdlib.h> /* For atexit() */
@@ -105,8 +108,8 @@ static std::map<char, KeySym> XShiftRequiredMap = {
         {'|', XK_bar},
         {':', XK_colon},
         {'"', XK_quotedbl},
-        {'<', XK_less},
-        {'>', XK_greater},
+        {'<', XK_comma},      // Use comma key for <
+        {'>', XK_period},     // Use period key for >
         {'?', XK_question}
 };
 
@@ -141,45 +144,51 @@ void toggleKey(char c, const bool down, unsigned int flags) {
     toggleKeyCode(keyCode, down, flags);
 }
 
-
 void typeString(const char *str) {
-    unsigned short c;
-    unsigned short c1;
-    unsigned short c2;
-    unsigned short c3;
-    unsigned long n;
+    Display *display = XGetMainDisplay();
+    while (*str) {
+        KeySym ks;
+        bool needShift = false;
+        
+        // First check our special character map
+        auto it = XSpecialCharacterMap.find(*str);
+        if (it != XSpecialCharacterMap.end()) {
+            ks = it->second;
+        } else {
+            // Then check shift-required map
+            auto shiftIt = XShiftRequiredMap.find(*str);
+            if (shiftIt != XShiftRequiredMap.end()) {
+                ks = shiftIt->second;
+                needShift = true;
+            } else {
+                // Finally try normal character conversion
+                char buf[2] = {*str, 0};
+                ks = XStringToKeysym(buf);
+            }
+        }
 
-    while (*str != '\0') {
-        c = *str++;
-
-        // warning, the following utf8 decoder
-        // doesn't perform validation
-        if (c <= 0x7F) {
-            // 0xxxxxxx one byte
-            n = c;
-        } else if ((c & 0xE0) == 0xC0) {
-            // 110xxxxx two bytes
-            c1 = (*str++) & 0x3F;
-            n = ((c & 0x1F) << 6) | c1;
-        } else if ((c & 0xF0) == 0xE0) {
-            // 1110xxxx three bytes
-            c1 = (*str++) & 0x3F;
-            c2 = (*str++) & 0x3F;
-            n = ((c & 0x0F) << 12) | (c1 << 6) | c2;
-        } else if ((c & 0xF8) == 0xF0) {
-            // 11110xxx four bytes
-            c1 = (*str++) & 0x3F;
-            c2 = (*str++) & 0x3F;
-            c3 = (*str++) & 0x3F;
-            n = ((c & 0x07) << 18) | (c1 << 12) | (c2 << 6) | c3;
-        } else
-            continue; /* ignore invalid UTF-8 */
-
-        toggleKey((char) n, true, 0);
-        toggleKey((char) n, false, 0);
+        if (ks != NoSymbol) {
+            KeyCode kc = XKeysymToKeycode(display, ks);
+            if (kc != 0) {
+                if (needShift || isupper(*str)) {
+                    XTestFakeKeyEvent(display, XKeysymToKeycode(display, XK_Shift_L), True, CurrentTime);
+                    XSync(display, False);
+                }
+                
+                XTestFakeKeyEvent(display, kc, True, CurrentTime);
+                XSync(display, False);
+                XTestFakeKeyEvent(display, kc, False, CurrentTime);
+                XSync(display, False);
+                
+                if (needShift || isupper(*str)) {
+                    XTestFakeKeyEvent(display, XKeysymToKeycode(display, XK_Shift_L), False, CurrentTime);
+                    XSync(display, False);
+                }
+            }
+        }
+        str++;
     }
 }
-
 
 unsigned int getFlag(napi_env env, napi_value value) {
     unsigned int flags = 0;
