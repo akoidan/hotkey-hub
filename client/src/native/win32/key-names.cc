@@ -6,6 +6,13 @@ typedef struct {
 } KeyNames;
 
 static KeyNames key_names[] = {
+    {"numpad_decimal",           VK_DECIMAL},
+    {"enter",            VK_RETURN},
+    {"clear",            VK_CLEAR},
+    {"add",          VK_ADD},
+    {"subtract",             VK_SUBTRACT},
+    {"multiply",             VK_MULTIPLY},
+    {"divide",           VK_DIVIDE},
     {"backspace",         VK_BACK},
     {"delete",           VK_DELETE},
     {"return",           VK_RETURN},
