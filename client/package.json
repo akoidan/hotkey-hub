@@ -18,7 +18,8 @@
     "native:build:debug": "cmake-js build --debug",
     "lint": "eslint --ext .ts --max-warnings=0 src",
     "autoformat": "eslint --ext .ts --max-warnings=0 --fix src",
-    "postinstall": "npm -s patch-package native:configure native:build"
+    "fix-binaries": "patch-package",
+    "postinstall": "npm-run-all -s fix-binaries native:configure native:build"
   },
   "binary": {
     "napi_versions": [
