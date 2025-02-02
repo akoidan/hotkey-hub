@@ -2,7 +2,7 @@ import {Module} from '@nestjs/common';
 import {
   INativeModule,
   Native,
-} from '@/native/native-interface';
+} from '@/native/native-model';
 import bindings from 'bindings';
 
 @Module({

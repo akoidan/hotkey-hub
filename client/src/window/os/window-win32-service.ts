@@ -7,11 +7,10 @@ import {
   IWindowService,
   UIWindow,
 } from '@/window/window-model';
-import {INativeModule} from '@/native/native-interface';
+import {INativeModule} from '@/native/native-model';
 
 @Injectable()
 export class WindowWin32Service implements IWindowService {
-
   constructor(
     private readonly logger: Logger,
     private readonly addon: INativeModule

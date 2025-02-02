@@ -5,8 +5,7 @@ import {
 } from '@nestjs/common';
 import {KeyboardController} from '@/keyboard/keyboard-controller';
 import os from 'os';
-import {KeyboardWin32Service} from '@/keyboard/os/keyboard-win32-service';
-import {KeyboardLinuxService} from '@/keyboard/os/keyboard-linux-service';
+import {KeyboardWin32LinuxService} from '@/keyboard/os/keyboard-win32-linux-service';
 import {
   IKeyboardService,
   KeyboardService,
@@ -15,7 +14,7 @@ import {KeyboardDarwinService} from '@/keyboard/os/keyboard-darwin-service';
 import {
   INativeModule,
   Native,
-} from '@/native/native-interface';
+} from '@/native/native-model';
 import {NativeModule} from '@/native/native-module';
 
 @Module({
@@ -28,11 +27,8 @@ import {NativeModule} from '@/native/native-module';
       inject: [Logger, Native],
       useFactory: (logger: Logger, addon: INativeModule): IKeyboardService => {
         const platform = os.platform();
-        if (platform === 'win32') {
-          return new KeyboardWin32Service(logger, addon);
-        } else if (platform === 'linux') {
-          // eslint-disable-next-line
-          return new KeyboardLinuxService(logger, addon);
+        if (platform === 'win32' || platform === 'linux') {
+          return new KeyboardWin32LinuxService(logger, addon);
         } else if (platform === 'darwin') {
           return new KeyboardDarwinService(logger);
         }

@@ -7,7 +7,7 @@ import {
   IWindowService,
   UIWindow,
 } from '@/window/window-model';
-import {INativeModule} from '@/native/native-interface';
+import {INativeModule} from '@/native/native-model';
 
 @Injectable()
 export class WindowLinuxService implements IWindowService {

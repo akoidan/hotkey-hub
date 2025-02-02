@@ -15,7 +15,7 @@ import {WindowController} from '@/window/window-controller';
 import {
   INativeModule,
   Native,
-} from '@/native/native-interface';
+} from '@/native/native-model';
 import {NativeModule} from '@/native/native-module';
 
 @Module({
