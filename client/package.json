@@ -7,8 +7,6 @@
   "license": "MIT",
   "scripts": {
     "start": "rm -rf ./dist/ && node -r tsconfig-paths/register -r ts-node/register src/main.ts",
-    "start:win32:debug": "rm -rf ./dist/ && set DEBUG_NATIVE=true && node -r tsconfig-paths/register -r ts-node/register src/main.ts",
-    "start:linux:debug": "rm -rf ./dist/ && DEBUG_NATIVE=true node -r tsconfig-paths/register -r ts-node/register src/main.ts",
     "prebuild": "rm -rf ./dist/ && nest build",
     "build": "pkg . --targets win --output app.exe",
     "wine": "wine app.exe",

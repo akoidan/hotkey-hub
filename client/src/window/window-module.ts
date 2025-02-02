@@ -25,11 +25,11 @@ import type {NativeModule} from '@/native/native-interface';
         const platform = os.platform();
         if (platform === 'win32') {
           // eslint-disable-next-line
-          const addon: NativeModule =  process.env.DEBUG_NATIVE ? require('../../build/Debug/native.node') : require('../native/win32/native-win32.node');
+          const addon: NativeModule = require('../native/win32/native-win32.node');
           return new WindowWin32Service(logger, addon);
         } else if (platform === 'linux') {
           // eslint-disable-next-line
-          const addon: NativeModule =  process.env.DEBUG_NATIVE ? require('../../build/Debug/native.node') : require('../native/linux/native-linux.node');
+          const addon: NativeModule = require('../native/linux/native-linux.node');
           return new WindowLinuxService(logger, addon);
         } else if (platform === 'darwin') {
           return new WindowDarwinService(logger);
