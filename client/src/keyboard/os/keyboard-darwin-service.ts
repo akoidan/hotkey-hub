@@ -11,7 +11,6 @@ export class KeyboardDarwinService implements IKeyboardService {
     ) {
     }
 
-
     // eslint-disable-next-line
     public async type(text: string): Promise<void> {
        throw new InternalServerErrorException('Not implemnted');

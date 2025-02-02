@@ -5,8 +5,8 @@ import {
   Injectable,
   Logger,
 } from '@nestjs/common';
-import {IKeyboardService} from '@/keyboard/keyboard-model';
-import {NativeModule} from '@/native/native-interface';
+import { IKeyboardService } from '@/keyboard/keyboard-model';
+import { NativeModule } from '@/native/native-interface';
 
 @Injectable()
 export class KeyboardLinuxService implements IKeyboardService {
@@ -17,7 +17,7 @@ export class KeyboardLinuxService implements IKeyboardService {
   }
 
   public async type(text: string): Promise<void> {
-    // await new Promise((resolve) => {setTimeout(resolve, 500);});
+    await new Promise((resolve) => {setTimeout(resolve, 500);});
     await this.addon.typeString(text);
   }
 
@@ -28,7 +28,7 @@ export class KeyboardLinuxService implements IKeyboardService {
     }
     for (const key of keys) {
       this.logger.log(`KeyPress: \u001b[35m${key}`);
-       this.addon.keyTap(key, []);
+      this.addon.keyTap(key, []);
       // eslint-disable-next-line @typescript-eslint/no-loop-func
       await new Promise(resolve => {
         setTimeout(resolve, 10);
@@ -38,6 +38,5 @@ export class KeyboardLinuxService implements IKeyboardService {
       this.logger.log(`ReleaseKey: \u001b[35m${key}`);
       this.addon.keyToggle(key, [], false);
     }
-    await new Promise((resolve) => {setTimeout(resolve, 10);});
   }
 }

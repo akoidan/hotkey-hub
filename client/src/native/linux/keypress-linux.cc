@@ -7,6 +7,7 @@
 #include <stdlib.h> /* For atexit() */
 #include <string.h> /* For strdup() */
 #include <iostream>
+#include <map>
 #include "./key-names.cc"
 
 static Display *mainDisplay = NULL;
@@ -69,47 +70,44 @@ void toggleKeyCode(KeySym code, const bool down, unsigned int flags) {
 
 }
 
-struct XSpecialCharacterMapping {
-    char name;
-    KeySym code;
-};
-
-struct XSpecialCharacterMapping XSpecialCharacterTable[] = {
-        {'~', XK_asciitilde},
-        {'_', XK_underscore},
+static std::map<char, KeySym> XSpecialCharacterMap = {
         {'[', XK_bracketleft},
         {']', XK_bracketright},
-        {'!', XK_exclam},
-        {'\'', XK_quotedbl},
-        {'#', XK_numbersign},
-        {'$', XK_dollar},
-        {'%', XK_percent},
-        {'&', XK_ampersand},
-        {'\'', XK_quoteright},
-        {'*', XK_asterisk},
-        {'+', XK_plus},
         {',', XK_comma},
         {'-', XK_minus},
         {'.', XK_period},
-        {'?', XK_question},
-        {'<', XK_less},
-        {'>', XK_greater},
         {'=', XK_equal},
-        {'@', XK_at},
-        {':', XK_colon},
         {';', XK_semicolon},
         {'\\', XK_backslash},
         {'`', XK_grave},
+        {'/', XK_slash},
+        {' ', XK_space},
+        {'\t', XK_Tab},
+        {'\n', XK_Return}
+};
+
+static std::map<char, KeySym> XShiftRequiredMap = {
+        {'~', XK_asciitilde},
+        {'_', XK_underscore},
+        {'!', XK_exclam},
+        {'@', XK_at},
+        {'#', XK_numbersign},
+        {'$', XK_dollar},
+        {'%', XK_percent},
+        {'^', XK_asciicircum},
+        {'&', XK_ampersand},
+        {'*', XK_asterisk},
+        {'(', XK_parenleft},
+        {')', XK_parenright},
+        {'+', XK_plus},
         {'{', XK_braceleft},
         {'}', XK_braceright},
         {'|', XK_bar},
-        {'^', XK_asciicircum},
-        {'(', XK_parenleft},
-        {')', XK_parenright},
-        {' ', XK_space},
-        {'/', XK_slash},
-        {'\t', XK_Tab},
-        {'\n', XK_Return}
+        {':', XK_colon},
+        {'"', XK_quotedbl},
+        {'<', XK_less},
+        {'>', XK_greater},
+        {'?', XK_question}
 };
 
 KeySym keyCodeForChar(const char c) {
@@ -121,15 +119,13 @@ KeySym keyCodeForChar(const char c) {
 
     code = XStringToKeysym(buf);
     if (code == NoSymbol) {
-        /* Some special keys are apparently not handled properly by
-         * XStringToKeysym() on some systems, so search for them instead in our
-         * mapping table. */
-        size_t i;
-        const size_t specialCharacterCount = sizeof(XSpecialCharacterTable) / sizeof(XSpecialCharacterTable[0]);
-        for (i = 0; i < specialCharacterCount; ++i) {
-            if (c == XSpecialCharacterTable[i].name) {
-                code = XSpecialCharacterTable[i].code;
-                break;
+        auto it = XSpecialCharacterMap.find(c);
+        if (it != XSpecialCharacterMap.end()) {
+            code = it->second;
+        } else {
+            auto shiftIt = XShiftRequiredMap.find(c);
+            if (shiftIt != XShiftRequiredMap.end()) {
+                code = shiftIt->second;
             }
         }
     }
@@ -139,7 +135,7 @@ KeySym keyCodeForChar(const char c) {
 
 void toggleKey(char c, const bool down, unsigned int flags) {
     KeySym keyCode = keyCodeForChar(c);
-    if (isupper(c) && !(flags & ShiftMask)) {
+    if (isupper(c) || XShiftRequiredMap.find(c) != XShiftRequiredMap.end()) {
         flags |= ShiftMask;
     }
     toggleKeyCode(keyCode, down, flags);
