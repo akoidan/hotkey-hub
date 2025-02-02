@@ -25,7 +25,7 @@ export class KeyboardWin32Service  implements IKeyboardService  {
     for (const key of holdKeys) {
       this.logger.log(`HoldKey: \u001b[35m${key}`);
       // libnut.keyToggle(key, 'down', [])
-      this.addon.keyToggle(key, [], 'down');
+      this.addon.keyToggle(key, [], true);
     }
     for (const key of keys) {
       await new Promise(resolve => {
@@ -43,7 +43,7 @@ export class KeyboardWin32Service  implements IKeyboardService  {
         setTimeout(resolve, 10);
       });
       this.logger.log(`ReleaseKey: \u001b[35m${key}`);
-      this.addon.keyToggle(key, [], 'up',);
+      this.addon.keyToggle(key, [], false);
     }
     await new Promise((resolve) => {setTimeout(resolve, 10);});
   }
