@@ -2,10 +2,12 @@
 
 // Window management functions
 Napi::Object window_init(Napi::Env env, Napi::Object exports);
+Napi::Object keyboard_init(Napi::Env env, Napi::Object exports);
 
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
     // Initialize window management
     window_init(env, exports);
+    keyboard_init(env, exports);
 
     return exports;
 }

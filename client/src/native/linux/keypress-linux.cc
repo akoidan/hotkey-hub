@@ -44,20 +44,8 @@ Display *XGetMainDisplay(void) {
 }
 
 
-char *getXDisplay(void) {
-    return displayName;
-}
-
-void setXDisplay(const char *name) {
-    displayName = strdup(name);
-    hasDisplayNameChanged = 1;
-}
-
 #define X_KEY_EVENT(display, key, is_press)                \
-    (XTestFakeKeyEvent(display,                        \
-               XKeysymToKeycode(display, key), \
-               is_press, CurrentTime),         \
-     XSync(display, false))
+    (XTestFakeKeyEvent(display, XKeysymToKeycode(display, key), is_press, CurrentTime), XSync(display, false))
 
 void toggleKeyCode(KeySym code, const bool down, unsigned int flags) {
     Display *display = XGetMainDisplay();
@@ -150,14 +138,9 @@ KeySym keyCodeForChar(const char c) {
 
 void toggleKey(char c, const bool down, unsigned int flags) {
     KeySym keyCode = keyCodeForChar(c);
-
-    //Prevent unused variable warning for Mac and Linux.
-
-    if (isupper(c) && !(flags & ShiftMask))
-    {
-        flags |= ShiftMask; /* Not sure if this is safe for all layouts. */
+    if (isupper(c) && !(flags & ShiftMask)) {
+        flags |= ShiftMask;
     }
-
     toggleKeyCode(keyCode, down, flags);
 }
 

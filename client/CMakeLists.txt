@@ -8,6 +8,16 @@ add_definitions(-DNAPI_VERSION=4)
 
 include_directories(${CMAKE_JS_INC})
 
+if (UNIX AND APPLE)
+    message(STATUS "macOS build")
+    list(APPEND LIBS "-framework ApplicationServices" "-framework Cocoa")
+elseif (WIN32)
+    message(STATUS "Windows build")
+elseif (UNIX AND NOT APPLE)
+    message(STATUS "Linux build")
+    list(APPEND LIBS "-lX11" "-lXtst")
+endif()
+
 if(WIN32)
     set(SOURCE_FILES
         "${CMAKE_SOURCE_DIR}/src/native/win32/main.cc"
@@ -31,6 +41,8 @@ elseif (UNIX AND APPLE)
 else()
     message(FATAL_ERROR "Unsupported OS")
 endif()
+
+
 
 #target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/node_modules/node-addon-api")
 
