@@ -7,13 +7,13 @@ import {
   IWindowService,
   UIWindow,
 } from '@/window/window-model';
-import {NativeModule} from '@/native/native-interface';
+import {INativeModule} from '@/native/native-interface';
 
 @Injectable()
 export class WindowLinuxService implements IWindowService {
     constructor(
     private readonly logger: Logger,
-    private readonly addon: NativeModule
+    private readonly addon: INativeModule
   ) {
   }
 

@@ -12,24 +12,25 @@ import {WindowWin32Service} from '@/window/os/window-win32-service';
 import {WindowDarwinService} from '@/window/os/window-darwin.service';
 import {WindowLinuxService} from '@/window/os/window-linux-service';
 import {WindowController} from '@/window/window-controller';
-import type {NativeModule} from '@/native/native-interface';
+import {
+  INativeModule,
+  Native,
+} from '@/native/native-interface';
+import {NativeModule} from '@/native/native-module';
 
 @Module({
+  imports: [NativeModule],
   controllers: [WindowController],
   providers: [
     Logger,
     {
       provide: WindowService,
-      inject: [Logger],
-      useFactory: (logger: Logger): IWindowService => {
+      inject: [Logger, Native],
+      useFactory: (logger: Logger, addon: INativeModule): IWindowService => {
         const platform = os.platform();
         if (platform === 'win32') {
-          // eslint-disable-next-line
-          const addon: NativeModule = require('../native/win32/native-win32.node');
           return new WindowWin32Service(logger, addon);
         } else if (platform === 'linux') {
-          // eslint-disable-next-line
-          const addon: NativeModule = require('../native/linux/native-linux.node');
           return new WindowLinuxService(logger, addon);
         } else if (platform === 'darwin') {
           return new WindowDarwinService(logger);

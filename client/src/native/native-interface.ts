@@ -20,10 +20,12 @@ interface KeyboardNativeModule {
   keyToggle(key: string, modifier:string[], down: boolean): void;
 }
 
-interface NativeModule extends WindowNativeModule, KeyboardNativeModule {
+interface INativeModule extends WindowNativeModule, KeyboardNativeModule {
 }
+
+export const Native = 'Native';
 
 export type {
   InitWindowResult,
-  NativeModule,
+  INativeModule,
 };

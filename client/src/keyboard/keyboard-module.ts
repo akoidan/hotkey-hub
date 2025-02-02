@@ -12,26 +12,26 @@ import {
   KeyboardService,
 } from '@/keyboard/keyboard-model';
 import {KeyboardDarwinService} from '@/keyboard/os/keyboard-darwin-service';
-import process from "node:process";
-import {NativeModule} from "@/native/native-interface";
-
+import {
+  INativeModule,
+  Native,
+} from '@/native/native-interface';
+import {NativeModule} from '@/native/native-module';
 
 @Module({
+  imports: [NativeModule],
   controllers: [KeyboardController],
   providers: [
     Logger,
     {
       provide: KeyboardService,
-      inject: [Logger],
-      useFactory: (logger: Logger): IKeyboardService => {
+      inject: [Logger, Native],
+      useFactory: (logger: Logger, addon: INativeModule): IKeyboardService => {
         const platform = os.platform();
         if (platform === 'win32') {
-          // eslint-disable-next-line
-          const addon: NativeModule = require('../native/win32/native-win32.node');
           return new KeyboardWin32Service(logger, addon);
         } else if (platform === 'linux') {
           // eslint-disable-next-line
-          const addon: NativeModule = require('../native/linux/native-linux.node');
           return new KeyboardLinuxService(logger, addon);
         } else if (platform === 'darwin') {
           return new KeyboardDarwinService(logger);

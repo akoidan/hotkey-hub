@@ -3,14 +3,14 @@
  */
 import {Injectable, Logger} from '@nestjs/common';
 import {IKeyboardService} from '@/keyboard/keyboard-model';
-import {NativeModule} from '@/native/native-interface';
+import {INativeModule} from '@/native/native-interface';
 
 @Injectable()
 export class KeyboardWin32Service  implements IKeyboardService  {
 
   constructor(
     private readonly logger: Logger,
-    private readonly addon: NativeModule
+    private readonly addon: INativeModule
   ) {
   }
 
