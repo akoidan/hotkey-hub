@@ -15,9 +15,9 @@ interface KeyboardNativeModule {
 
   typeString(string: string): Promise<void>;
 
-  keyTap(key: string, modifier?: string | string[]): void;
+  keyTap(key: string, modifier: string[]): void;
 
-  keyToggle(key: string, down: string, modifier?: string | string[]): void;
+  keyToggle(key: string, modifier:string[], direction: 'down' | 'up'): void;
 }
 
 interface NativeModule extends WindowNativeModule, KeyboardNativeModule {
