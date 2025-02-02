@@ -1,83 +1,95 @@
 #include <windows.h>
 #include <ctype.h> /* For isupper() */
 #include <napi.h>
-#include <stdint.h>
+#include <X11/extensions/XTest.h>
+#include <X11/Xlib.h>
+
+#include <stdio.h> /* For fputs() */
+#include <stdlib.h> /* For atexit() */
+#include <string.h> /* For strdup() */
 #include "./key-names.cc"
 
-void win32KeyEvent(int key, unsigned int flags) {
-	UINT scan = MapVirtualKey(key & 0xff, MAPVK_VK_TO_VSC);
+static Display *mainDisplay = NULL;
+static int registered = 0;
+static char *displayName = NULL;
+static int hasDisplayNameChanged = 0;
 
-	/* Set the scan code for extended keys */
-	switch (key)
-	{
-	case VK_RCONTROL:
-	case VK_SNAPSHOT: /* Print Screen */
-	case VK_RMENU:	  /* Right Alt / Alt Gr */
-	case VK_PAUSE:	  /* Pause / Break */
-	case VK_HOME:
-	case VK_UP:
-	case VK_PRIOR: /* Page up */
-	case VK_LEFT:
-	case VK_RIGHT:
-	case VK_END:
-	case VK_DOWN:
-	case VK_NEXT: /* 'Page Down' */
-	case VK_INSERT:
-	case VK_DELETE:
-	case VK_LWIN:
-	case VK_RWIN:
-	case VK_APPS: /* Application */
-	case VK_VOLUME_MUTE:
-	case VK_VOLUME_DOWN:
-	case VK_VOLUME_UP:
-	case VK_MEDIA_NEXT_TRACK:
-	case VK_MEDIA_PREV_TRACK:
-	case VK_MEDIA_STOP:
-	case VK_MEDIA_PLAY_PAUSE:
-	case VK_BROWSER_BACK:
-	case VK_BROWSER_FORWARD:
-	case VK_BROWSER_REFRESH:
-	case VK_BROWSER_STOP:
-	case VK_BROWSER_SEARCH:
-	case VK_BROWSER_FAVORITES:
-	case VK_BROWSER_HOME:
-	case VK_LAUNCH_MAIL:
-	{
-		flags |= KEYEVENTF_EXTENDEDKEY;
-		break;
-	}
+Display *XGetMainDisplay(void) {
+	/* Close the display if displayName has changed */
+	if (hasDisplayNameChanged) {
+		XCloseMainDisplay();
+		hasDisplayNameChanged = 0;
 	}
 
-	INPUT keyboardInput;
-	keyboardInput.type = INPUT_KEYBOARD;
-	keyboardInput.ki.wScan = (WORD)scan;
-	keyboardInput.ki.wVk = (WORD)key;
-	keyboardInput.ki.dwFlags = KEYEVENTF_SCANCODE | flags;
-	keyboardInput.ki.time = 0;
-	SendInput(1, &keyboardInput, sizeof(keyboardInput));
+	if (mainDisplay == NULL) {
+		/* First try the user set displayName */
+		mainDisplay = XOpenDisplay(displayName);
+
+		if (mainDisplay == NULL) {
+			fputs("Could not open main display\n", stderr);
+		} else if (!registered) {
+			atexit(&XCloseMainDisplay);
+			registered = 1;
+		}
+	}
+
+	return mainDisplay;
 }
 
-void toggleKeyCode(unsigned int code, const bool down, unsigned int flags) {
-	const DWORD dwFlags = down ? 0 : KEYEVENTF_KEYUP;
-    if (!down) {
-        win32KeyEvent(code, dwFlags);
-    }
-    /* Parse modifier keys. */
-    if (flags & MOD_WIN) {
-        win32KeyEvent(VK_LWIN, dwFlags);
-    }
-    if (flags & MOD_ALT) {
-        win32KeyEvent(VK_LMENU, dwFlags);
-    }
-    if (flags & MOD_CONTROL) {
-        win32KeyEvent(VK_LCONTROL, dwFlags);
-    }
-    if (flags & MOD_SHIFT) {
-        win32KeyEvent(VK_LSHIFT, dwFlags);
-    }
-    if (down) {
-        win32KeyEvent(code, dwFlags);
-    }
+void XCloseMainDisplay(void) {
+	if (mainDisplay != NULL) {
+		XCloseDisplay(mainDisplay);
+		mainDisplay = NULL;
+	}
+}
+
+char * getXDisplay(void) {
+	return displayName;
+}
+
+void setXDisplay(const char *name) {
+	displayName = strdup(name);
+	hasDisplayNameChanged = 1;
+}
+#define X_KEY_EVENT(display, key, is_press)                \
+	(XTestFakeKeyEvent(display,                        \
+			   XKeysymToKeycode(display, key), \
+			   is_press, CurrentTime),         \
+	 XSync(display, false))
+
+void toggleKeyCode(MMKeyCode code, const bool down, MMKeyFlags flags)
+{
+	Display *display = XGetMainDisplay();
+	const Bool is_press = down ? True : False; /* Just to be safe. */
+
+	if (down)
+	{
+		/* Parse modifier keys. */
+		if (flags & MOD_META)
+			X_KEY_EVENT(display, K_META, is_press);
+		if (flags & MOD_ALT)
+			X_KEY_EVENT(display, K_ALT, is_press);
+		if (flags & MOD_CONTROL)
+			X_KEY_EVENT(display, K_CONTROL, is_press);
+		if (flags & MOD_SHIFT)
+			X_KEY_EVENT(display, K_SHIFT, is_press);
+
+		X_KEY_EVENT(display, code, is_press);
+	}
+	else
+	{
+		X_KEY_EVENT(display, code, is_press);
+
+		/* Parse modifier keys. */
+		if (flags & MOD_META)
+			X_KEY_EVENT(display, K_META, is_press);
+		if (flags & MOD_ALT)
+			X_KEY_EVENT(display, K_ALT, is_press);
+		if (flags & MOD_CONTROL)
+			X_KEY_EVENT(display, K_CONTROL, is_press);
+		if (flags & MOD_SHIFT)
+			X_KEY_EVENT(display, K_SHIFT, is_press);
+	}
 }
 
 void toggleKey(char c, const bool down, unsigned int flags) {
