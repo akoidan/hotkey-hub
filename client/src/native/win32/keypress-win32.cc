@@ -2,7 +2,7 @@
 #include <ctype.h> /* For isupper() */
 #include <napi.h>
 #include <stdint.h>
-#include <key_names.cc>
+#include "./key-names.cc"
 
 /* Forward declarations */
 int GetFlagsFromString(napi_env env, napi_value value, unsigned int *flags);
@@ -71,7 +71,7 @@ void toggleKeyCode(unsigned int code, const bool down, unsigned int flags)
 	if (down)
 	{
 		/* Parse modifier keys. */
-		if (flags & MOD_META)
+		if (flags & MOD_WIN)
 			win32KeyEvent(VK_LWIN, dwFlags);
 		if (flags & MOD_ALT)
 			win32KeyEvent(VK_LMENU, dwFlags);
@@ -87,7 +87,7 @@ void toggleKeyCode(unsigned int code, const bool down, unsigned int flags)
 		win32KeyEvent(code, dwFlags);
 
 		/* Parse modifier keys. */
-		if (flags & MOD_META)
+		if (flags & MOD_WIN)
 			win32KeyEvent(VK_LWIN, dwFlags);
 		if (flags & MOD_ALT)
 			win32KeyEvent(VK_LMENU, dwFlags);
@@ -164,8 +164,8 @@ void typeString(const char *str)
 		else
 			continue; /* ignore invalid UTF-8 */
 
-        toggleKey((char)n, true, MOD_NONE)
-        toggleKey((char)n, false, MOD_NONE)
+        toggleKey((char)n, true, 0);
+        toggleKey((char)n, false, 0);
 	}
 }
 
@@ -181,13 +181,13 @@ int GetFlagsFromString(napi_env env, napi_value value, unsigned int *flags) {
     if (strcmp(buffer, "alt") == 0) {
         *flags = MOD_ALT;
     } else if (strcmp(buffer, "command") == 0 || strcmp(buffer, "win") == 0 || strcmp(buffer, "meta") == 0) {
-        *flags = MOD_META;
+        *flags = MOD_WIN;
     } else if (strcmp(buffer, "control") == 0 || strcmp(buffer, "ctrl") == 0) {
         *flags = MOD_CONTROL;
     } else if (strcmp(buffer, "shift") == 0) {
         *flags = MOD_SHIFT;
     } else if (strcmp(buffer, "none") == 0) {
-        *flags = MOD_NONE;
+        *flags = 0;
     } else {
         return -2;
     }
@@ -220,7 +220,7 @@ int GetFlagsFromValue(napi_env env, napi_value value, unsigned int *flags) {
                 return -2;
             }
 
-            unsigned int f = MOD_NONE;
+            unsigned int f = 0;
             const int rv = GetFlagsFromString(env, element, &f);
             if (rv) {
                 return rv;
@@ -267,7 +267,7 @@ Napi::Value _keyTap(const Napi::CallbackInfo& info) {
         return env.Undefined();
     }
 
-    unsigned int flags = MOD_NONE;
+    unsigned int flags = 0;
     unsigned int key;
 
     std::string keyName = info[0].As<Napi::String>();
@@ -304,7 +304,7 @@ Napi::Value _keyToggle(const Napi::CallbackInfo& info) {
         return env.Undefined();
     }
 
-    unsigned int flags = MOD_NONE;
+    unsigned int flags = 0;
     bool down = false;
 
     /* Get key modifier. */
