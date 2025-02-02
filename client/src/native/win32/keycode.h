@@ -1,0 +1,210 @@
+#include <windows.h>
+
+
+
+#define VK_A 0x41
+#define VK_B 0x42
+#define VK_C 0x43
+#define VK_D 0x44
+#define VK_E 0x45
+#define VK_F 0x46
+#define VK_G 0x47
+#define VK_H 0x48
+#define VK_I 0x49
+#define VK_J 0x4A
+#define VK_K 0x4B
+#define VK_L 0x4C
+#define VK_M 0x4D
+#define VK_N 0x4E
+#define VK_O 0x4F
+#define VK_P 0x50
+#define VK_Q 0x51
+#define VK_R 0x52
+#define VK_S 0x53
+#define VK_T 0x54
+#define VK_U 0x55
+#define VK_V 0x56
+#define VK_W 0x57
+#define VK_X 0x58
+#define VK_Y 0x59
+#define VK_Z 0x5A
+
+#define VK_0 0x30
+#define VK_1 0x31
+#define VK_2 0x32
+#define VK_3 0x33
+#define VK_4 0x34
+#define VK_5 0x35
+#define VK_6 0x36
+#define VK_7 0x37
+#define VK_8 0x38
+#define VK_9 0x39
+
+enum _MMKeyCode {
+  K_NOT_A_KEY = 9999,
+
+  K_BACKSPACE = VK_BACK,
+  K_DELETE = VK_DELETE,
+  K_RETURN = VK_RETURN,
+  K_TAB = VK_TAB,
+  K_ESCAPE = VK_ESCAPE,
+
+  K_UP = VK_UP,
+  K_DOWN = VK_DOWN,
+  K_RIGHT = VK_RIGHT,
+  K_LEFT = VK_LEFT,
+
+  K_HOME = VK_HOME,
+  K_END = VK_END,
+  K_PAGEUP = VK_PRIOR,
+  K_PAGEDOWN = VK_NEXT,
+
+  K_F1 = VK_F1,
+  K_F2 = VK_F2,
+  K_F3 = VK_F3,
+  K_F4 = VK_F4,
+  K_F5 = VK_F5,
+  K_F6 = VK_F6,
+  K_F7 = VK_F7,
+  K_F8 = VK_F8,
+  K_F9 = VK_F9,
+  K_F10 = VK_F10,
+  K_F11 = VK_F11,
+  K_F12 = VK_F12,
+  K_F13 = VK_F13,
+  K_F14 = VK_F14,
+  K_F15 = VK_F15,
+  K_F16 = VK_F16,
+  K_F17 = VK_F17,
+  K_F18 = VK_F18,
+  K_F19 = VK_F19,
+  K_F20 = VK_F20,
+  K_F21 = VK_F21,
+  K_F22 = VK_F22,
+  K_F23 = VK_F23,
+  K_F24 = VK_F24,
+
+  K_A = VK_A,
+  K_B = VK_B,
+  K_C = VK_C,
+  K_D = VK_D,
+  K_E = VK_E,
+  K_F = VK_F,
+  K_G = VK_G,
+  K_H = VK_H,
+  K_I = VK_I,
+  K_J = VK_J,
+  K_K = VK_K,
+  K_L = VK_L,
+  K_M = VK_M,
+  K_N = VK_N,
+  K_O = VK_O,
+  K_P = VK_P,
+  K_Q = VK_Q,
+  K_R = VK_R,
+  K_S = VK_S,
+  K_T = VK_T,
+  K_U = VK_U,
+  K_V = VK_V,
+  K_W = VK_W,
+  K_X = VK_X,
+  K_Y = VK_Y,
+  K_Z = VK_Z,
+
+  K_COMMA = VK_OEM_COMMA,
+  K_PERIOD = VK_OEM_PERIOD,
+  K_SLASH = VK_OEM_2,
+
+  K_SEMICOLON = VK_OEM_1,
+  K_QUOTE = VK_OEM_7,
+  K_LEFTBRACKET = VK_OEM_4,
+  K_RIGHTBRACKET = VK_OEM_6,
+  K_BACKSLASH = VK_OEM_5,
+
+  K_MINUS = VK_OEM_MINUS,
+  K_EQUAL = VK_OEM_PLUS,
+
+  K_GRAVE = VK_OEM_3,
+
+  K_META = VK_LWIN,
+  K_RIGHTMETA = VK_RWIN,
+
+  K_CMD = K_NOT_A_KEY,
+  K_RIGHTCMD = K_NOT_A_KEY,
+
+  K_WIN = VK_LWIN,
+  K_RIGHTWIN = VK_RWIN,
+
+  K_FUNCTION = K_NOT_A_KEY,
+  K_PAUSE = VK_PAUSE,
+
+  K_ALT = VK_LMENU,
+  K_RIGHTALT = VK_RMENU,
+
+  K_CONTROL = VK_LCONTROL,
+  K_RIGHTCONTROL = VK_RCONTROL,
+
+  K_SHIFT = VK_LSHIFT,
+  K_RIGHTSHIFT = VK_RSHIFT,
+
+  K_CAPSLOCK = VK_CAPITAL,
+  K_NUMLOCK = VK_NUMLOCK,
+  K_SCROLL_LOCK = VK_SCROLL,
+
+  K_SPACE = VK_SPACE,
+
+  K_PRINTSCREEN = VK_SNAPSHOT,
+  K_INSERT = VK_INSERT,
+  K_MENU = VK_APPS,
+
+  K_ADD = VK_ADD,
+  K_SUBTRACT = VK_SUBTRACT,
+  K_DIVIDE = VK_DIVIDE,
+  K_MULTIPLY = VK_MULTIPLY,
+  K_ENTER = VK_RETURN,
+  K_CLEAR = VK_CLEAR,
+
+  K_0 = VK_0,
+  K_1 = VK_1,
+  K_2 = VK_2,
+  K_3 = VK_3,
+  K_4 = VK_4,
+  K_5 = VK_5,
+  K_6 = VK_6,
+  K_7 = VK_7,
+  K_8 = VK_8,
+  K_9 = VK_9,
+
+  K_NUMPAD_0 = VK_NUMPAD0,
+  K_NUMPAD_1 = VK_NUMPAD1,
+  K_NUMPAD_2 = VK_NUMPAD2,
+  K_NUMPAD_3 = VK_NUMPAD3,
+  K_NUMPAD_4 = VK_NUMPAD4,
+  K_NUMPAD_5 = VK_NUMPAD5,
+  K_NUMPAD_6 = VK_NUMPAD6,
+  K_NUMPAD_7 = VK_NUMPAD7,
+  K_NUMPAD_8 = VK_NUMPAD8,
+  K_NUMPAD_9 = VK_NUMPAD9,
+  K_NUMPAD_DECIMAL = VK_DECIMAL,
+
+  K_AUDIO_VOLUME_MUTE = VK_VOLUME_MUTE,
+  K_AUDIO_VOLUME_DOWN = VK_VOLUME_DOWN,
+  K_AUDIO_VOLUME_UP = VK_VOLUME_UP,
+  K_AUDIO_PLAY = VK_MEDIA_PLAY_PAUSE,
+  K_AUDIO_STOP = VK_MEDIA_STOP,
+  K_AUDIO_PAUSE = VK_MEDIA_PLAY_PAUSE,
+  K_AUDIO_PREV = VK_MEDIA_PREV_TRACK,
+  K_AUDIO_NEXT = VK_MEDIA_NEXT_TRACK,
+  K_AUDIO_REWIND = K_NOT_A_KEY,
+  K_AUDIO_FORWARD = K_NOT_A_KEY,
+  K_AUDIO_REPEAT = K_NOT_A_KEY,
+  K_AUDIO_RANDOM = K_NOT_A_KEY,
+
+  K_LIGHTS_MON_UP = K_NOT_A_KEY,
+  K_LIGHTS_MON_DOWN = K_NOT_A_KEY,
+  K_LIGHTS_KBD_TOGGLE = K_NOT_A_KEY,
+  K_LIGHTS_KBD_UP = K_NOT_A_KEY,
+  K_LIGHTS_KBD_DOWN = K_NOT_A_KEY,
+};
+
+typedef int MMKeyCode;
