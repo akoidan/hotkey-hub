@@ -7,4 +7,5 @@ certs
 libnut-core
 .vs
 Project1
+app
 cmake-build-debug
