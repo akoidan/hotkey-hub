@@ -1,7 +1,7 @@
 #include <windows.h>
 #include "./key-names.h"
 
-static KeyNames key_names[] = {
+KeyNames key_names[] = {
     {"numpad_decimal",           VK_DECIMAL},
     {"enter",            VK_RETURN},
     {"clear",            VK_CLEAR},
