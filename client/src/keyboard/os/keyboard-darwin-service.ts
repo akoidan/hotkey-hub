@@ -1,8 +1,7 @@
 /*
  eslint-disable no-await-in-loop
  */
-import {Injectable, InternalServerErrorException, Logger,} from '@nestjs/common';
-import {keyboard} from '@nut-tree-fork/nut-js';
+import {Injectable, InternalServerErrorException, Logger} from '@nestjs/common';
 import {IKeyboardService} from '@/keyboard/keyboard-model';
 
 @Injectable()
@@ -13,8 +12,9 @@ export class KeyboardDarwinService implements IKeyboardService {
     }
 
 
+    // eslint-disable-next-line
     public async type(text: string): Promise<void> {
-        await keyboard.type(text);
+       throw new InternalServerErrorException('Not implemnted');
     }
 
     // eslint-disable-next-line

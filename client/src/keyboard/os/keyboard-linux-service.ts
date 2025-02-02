@@ -5,8 +5,6 @@ import {
   Injectable,
   Logger,
 } from '@nestjs/common';
-import {keyboard} from '@nut-tree-fork/nut-js';
-import {invertedMap} from '@/keyboard/keyboard-dto';
 import {IKeyboardService} from '@/keyboard/keyboard-model';
 import {NativeModule} from "@/native/native-interface";
 
@@ -25,18 +23,18 @@ export class KeyboardLinuxService implements IKeyboardService {
       await this.typeWithSpecialCharacters(text);
     } else {
       this.logger.log(`Type: \u001b[35m${text}`);
-      await keyboard.type(text);
+      await this.addon.typeString(text);
     }
   }
 
   public async sendKey(keys: string[], holdKeys: string[]): Promise<void> {
     for (const key of holdKeys) {
       this.logger.log(`HoldKey: \u001b[35m${key}`);
-      await keyboard.pressKey(invertedMap.get(key)!);
+      this.addon.keyToggle(key, [], true);
     }
     for (const key of keys) {
       this.logger.log(`KeyPress: \u001b[35m${key}`);
-      await keyboard.type(invertedMap.get(key)!);
+       this.addon.keyTap(key, []);
       // eslint-disable-next-line @typescript-eslint/no-loop-func
       await new Promise(resolve => {
         setTimeout(resolve, 10);
@@ -44,7 +42,7 @@ export class KeyboardLinuxService implements IKeyboardService {
     }
     for (const key of holdKeys) {
       this.logger.log(`ReleaseKey: \u001b[35m${key}`);
-      await keyboard.releaseKey(invertedMap.get(key)!);
+      this.addon.keyToggle(key, [], false);
     }
     await new Promise((resolve) => {setTimeout(resolve, 10);});
   }
@@ -53,7 +51,7 @@ export class KeyboardLinuxService implements IKeyboardService {
     const parts = text.split('$');
     for (let i = 0; i < parts.length; i++) {
       this.logger.log(`Type: \u001b[35m${parts[i]}`);
-      await keyboard.type(parts[i]);
+      await this.addon.typeString(parts[i]);
       // eslint-disable-next-line @typescript-eslint/no-loop-func
       await new Promise((resolve) => {setTimeout(resolve, 10);});
       if (i < parts.length - 1) {

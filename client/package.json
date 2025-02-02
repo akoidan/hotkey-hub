@@ -8,9 +8,11 @@
   "scripts": {
     "start": "rm -rf ./dist/ && node -r tsconfig-paths/register -r ts-node/register src/main.ts",
     "start:win32:debug": "rm -rf ./dist/ && set DEBUG_NATIVE=true && node -r tsconfig-paths/register -r ts-node/register src/main.ts",
+    "start:linux:debug": "rm -rf ./dist/ && DEBUG_NATIVE=true node -r tsconfig-paths/register -r ts-node/register src/main.ts",
     "prebuild": "rm -rf ./dist/ && nest build",
     "build": "pkg . --targets win --output app.exe",
     "wine": "wine app.exe",
+    "prenative": "cmake-js configure",
     "native": "cmake-js compile",
     "native:debug": "cmake-js build --debug",
     "lint": "eslint --ext .ts --max-warnings=0 src",
@@ -22,7 +24,6 @@
   },
   "devDependencies": {
     "@nestjs/cli": "^10.4.9",
-    "@nut-tree-fork/nut-js": "^4.2.2",
     "@types/cli-color": "^2.0.6",
     "@types/express": "^5.0.0",
     "@typescript-eslint/eslint-plugin": "^7.7.2",
