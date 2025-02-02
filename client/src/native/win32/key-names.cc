@@ -1,9 +1,5 @@
 #include <windows.h>
-
-typedef struct {
-    const char* name;
-    int key;
-} KeyNames;
+#include "./key-names.h"
 
 static KeyNames key_names[] = {
     {"backspace",         VK_BACK},
