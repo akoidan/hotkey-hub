@@ -1,17 +1,11 @@
-#include <ctype.h> /* For isupper() */
+#include <ctype.h>
 #include <napi.h>
 #include <X11/extensions/XTest.h>
 #include <X11/Xlib.h>
-#include <X11/XKBlib.h>
-#include <locale.h>
-#include <wchar.h>
-
-#include <stdio.h> /* For fputs() */
-#include <stdlib.h> /* For atexit() */
-#include <string.h> /* For strdup() */
+#include <string.h>
 #include <iostream>
 #include <map>
-#include "./key-names.cc"
+#include "./key-names.h"
 #include "./display.h"
 
 #define X_KEY_EVENT(display, key, is_press)                \

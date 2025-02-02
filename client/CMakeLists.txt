@@ -19,20 +19,13 @@ elseif (UNIX AND NOT APPLE)
 endif()
 
 if(WIN32)
-    set(SOURCE_FILES
-        "${CMAKE_SOURCE_DIR}/src/native/win32/main.cc"
-        "${CMAKE_SOURCE_DIR}/src/native/win32/window-win32.cc"
-        "${CMAKE_SOURCE_DIR}/src/native/win32/key-names.cc"
-        "${CMAKE_SOURCE_DIR}/src/native/win32/keypress-win32.cc"
-    )
+    file(GLOB_RECURSE HEADERS "${CMAKE_SOURCE_DIR}/src/win32/linux/**.h")
+    file(GLOB_RECURSE SOURCES "${CMAKE_SOURCE_DIR}/src/win32/linux/**.cc")
+    set(SOURCE_FILES ${SOURCES} ${HEADERS})
 elseif (UNIX AND NOT APPLE)
-    set(SOURCE_FILES
-        "${CMAKE_SOURCE_DIR}/src/native/linux/key-names.cc"
-        "${CMAKE_SOURCE_DIR}/src/native/linux/keypress-linux.cc"
-        "${CMAKE_SOURCE_DIR}/src/native/linux/window-linux.cc"
-        "${CMAKE_SOURCE_DIR}/src/native/linux/main.cc"
-        "${CMAKE_SOURCE_DIR}/src/native/linux/mouse.cc"
-            src/native/linux/display.cc src/native/linux/display.h src/native/linux/key-names.h src/native/linux/mouse.h)
+    file(GLOB_RECURSE HEADERS "${CMAKE_SOURCE_DIR}/src/native/linux/**.h")
+    file(GLOB_RECURSE SOURCES "${CMAKE_SOURCE_DIR}/src/native/linux/**.cc")
+    set(SOURCE_FILES ${SOURCES} ${HEADERS})
     find_package(X11 REQUIRED)
     find_library(X11_XTEST_LIBRARY Xtst REQUIRED)
     find_package(PkgConfig REQUIRED)
@@ -44,9 +37,6 @@ else()
     message(FATAL_ERROR "Unsupported OS")
 endif()
 
-
-
-#target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/node_modules/node-addon-api")
 
 add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES} ${CMAKE_JS_SRC})
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")

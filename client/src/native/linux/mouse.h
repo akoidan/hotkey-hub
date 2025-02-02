@@ -10,12 +10,10 @@ struct MMPoint {
     int64_t y;
 };
 
-typedef unsigned int MMMouseButton;
-
-enum _MMMouseButton {
+enum MMMouseButton {
     LEFT_BUTTON = 1,
     CENTER_BUTTON = 2,
     RIGHT_BUTTON = 3
 };
 
-#endif //NATIVE_MOUSE_H
+#endif //NATIVE_MOUSE_Hdd
