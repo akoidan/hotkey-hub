@@ -62,9 +62,6 @@ void toggleKeyCode(KeySym code, const bool down, unsigned int flags) {
         X_KEY_EVENT(display, XK_Control_L, is_press);
     if (flags & ShiftMask)
         X_KEY_EVENT(display, XK_Shift_L, is_press);
-    if (down) {
-        X_KEY_EVENT(display, code, is_press);
-    }
 
     if (down) {
         X_KEY_EVENT(display, code, is_press);

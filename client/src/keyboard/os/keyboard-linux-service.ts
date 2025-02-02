@@ -6,7 +6,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import {IKeyboardService} from '@/keyboard/keyboard-model';
-import {NativeModule} from "@/native/native-interface";
+import {NativeModule} from '@/native/native-interface';
 
 @Injectable()
 export class KeyboardLinuxService implements IKeyboardService {
@@ -16,15 +16,9 @@ export class KeyboardLinuxService implements IKeyboardService {
   ) {
   }
 
-  private readonly specialCharacters = '$';
-
   public async type(text: string): Promise<void> {
-    if (text.includes(this.specialCharacters)) {
-      await this.typeWithSpecialCharacters(text);
-    } else {
-      this.logger.log(`Type: \u001b[35m${text}`);
-      await this.addon.typeString(text);
-    }
+    // await new Promise((resolve) => {setTimeout(resolve, 500);});
+    await this.addon.typeString(text);
   }
 
   public async sendKey(keys: string[], holdKeys: string[]): Promise<void> {
@@ -45,18 +39,5 @@ export class KeyboardLinuxService implements IKeyboardService {
       this.addon.keyToggle(key, [], false);
     }
     await new Promise((resolve) => {setTimeout(resolve, 10);});
-  }
-
-  private async typeWithSpecialCharacters(text: string): Promise<void> {
-    const parts = text.split('$');
-    for (let i = 0; i < parts.length; i++) {
-      this.logger.log(`Type: \u001b[35m${parts[i]}`);
-      await this.addon.typeString(parts[i]);
-      // eslint-disable-next-line @typescript-eslint/no-loop-func
-      await new Promise((resolve) => {setTimeout(resolve, 10);});
-      if (i < parts.length - 1) {
-        await this.sendKey(['4'], ['shift']);
-      }
-    }
   }
 }
