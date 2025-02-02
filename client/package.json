@@ -14,7 +14,7 @@
     "wine": "wine app.exe",
     "prenative": "cmake-js configure",
     "native": "cmake-js compile",
-    "prenative:debug": "rm -rf build && cmake-js configure",
+    "prenative:debug": "rm -rf build && cmake-js configure --debug",
     "native:debug": "cmake-js build --debug",
     "lint": "eslint --ext .ts --max-warnings=0 src",
     "autoformat": "eslint --ext .ts --max-warnings=0 --fix src",

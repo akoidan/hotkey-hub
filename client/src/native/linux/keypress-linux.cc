@@ -66,6 +66,10 @@ void toggleKeyCode(KeySym code, const bool down, unsigned int flags) {
         X_KEY_EVENT(display, code, is_press);
     }
 
+    if (down) {
+        X_KEY_EVENT(display, code, is_press);
+    }
+
 }
 
 struct XSpecialCharacterMapping {
