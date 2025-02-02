@@ -17,6 +17,8 @@ if(WIN32)
     )
 elseif (UNIX AND NOT APPLE)
     set(SOURCE_FILES
+        "${CMAKE_SOURCE_DIR}/src/native/linux/key-names.cc"
+        "${CMAKE_SOURCE_DIR}/src/native/linux/keypress-linux.cc"
         "${CMAKE_SOURCE_DIR}/src/native/linux/window-linux.cc"
         "${CMAKE_SOURCE_DIR}/src/native/linux/main.cc"
     )

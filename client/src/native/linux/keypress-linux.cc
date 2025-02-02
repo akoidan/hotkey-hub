@@ -1,4 +1,3 @@
-#include <windows.h>
 #include <ctype.h> /* For isupper() */
 #include <napi.h>
 #include <X11/extensions/XTest.h>
@@ -7,6 +6,7 @@
 #include <stdio.h> /* For fputs() */
 #include <stdlib.h> /* For atexit() */
 #include <string.h> /* For strdup() */
+#include <iostream>
 #include "./key-names.cc"
 
 static Display *mainDisplay = NULL;
@@ -14,144 +14,190 @@ static int registered = 0;
 static char *displayName = NULL;
 static int hasDisplayNameChanged = 0;
 
-Display *XGetMainDisplay(void) {
-	/* Close the display if displayName has changed */
-	if (hasDisplayNameChanged) {
-		XCloseMainDisplay();
-		hasDisplayNameChanged = 0;
-	}
-
-	if (mainDisplay == NULL) {
-		/* First try the user set displayName */
-		mainDisplay = XOpenDisplay(displayName);
-
-		if (mainDisplay == NULL) {
-			fputs("Could not open main display\n", stderr);
-		} else if (!registered) {
-			atexit(&XCloseMainDisplay);
-			registered = 1;
-		}
-	}
-
-	return mainDisplay;
-}
-
 void XCloseMainDisplay(void) {
-	if (mainDisplay != NULL) {
-		XCloseDisplay(mainDisplay);
-		mainDisplay = NULL;
-	}
+    if (mainDisplay != NULL) {
+        XCloseDisplay(mainDisplay);
+        mainDisplay = NULL;
+    }
 }
 
-char * getXDisplay(void) {
-	return displayName;
+Display *XGetMainDisplay(void) {
+    /* Close the display if displayName has changed */
+    if (hasDisplayNameChanged) {
+        XCloseMainDisplay();
+        hasDisplayNameChanged = 0;
+    }
+
+    if (mainDisplay == NULL) {
+        /* First try the user set displayName */
+        mainDisplay = XOpenDisplay(displayName);
+
+        if (mainDisplay == NULL) {
+            fputs("Could not open main display\n", stderr);
+        } else if (!registered) {
+            atexit(&XCloseMainDisplay);
+            registered = 1;
+        }
+    }
+
+    return mainDisplay;
+}
+
+
+char *getXDisplay(void) {
+    return displayName;
 }
 
 void setXDisplay(const char *name) {
-	displayName = strdup(name);
-	hasDisplayNameChanged = 1;
+    displayName = strdup(name);
+    hasDisplayNameChanged = 1;
 }
+
 #define X_KEY_EVENT(display, key, is_press)                \
-	(XTestFakeKeyEvent(display,                        \
-			   XKeysymToKeycode(display, key), \
-			   is_press, CurrentTime),         \
-	 XSync(display, false))
+    (XTestFakeKeyEvent(display,                        \
+               XKeysymToKeycode(display, key), \
+               is_press, CurrentTime),         \
+     XSync(display, false))
 
-void toggleKeyCode(MMKeyCode code, const bool down, MMKeyFlags flags)
-{
-	Display *display = XGetMainDisplay();
-	const Bool is_press = down ? True : False; /* Just to be safe. */
+void toggleKeyCode(KeySym code, const bool down, unsigned int flags) {
+    Display *display = XGetMainDisplay();
+    const Bool is_press = down ? True : False; /* Just to be safe. */
+    if (!down) {
+        X_KEY_EVENT(display, code, is_press);
+    }
 
-	if (down)
-	{
-		/* Parse modifier keys. */
-		if (flags & MOD_META)
-			X_KEY_EVENT(display, K_META, is_press);
-		if (flags & MOD_ALT)
-			X_KEY_EVENT(display, K_ALT, is_press);
-		if (flags & MOD_CONTROL)
-			X_KEY_EVENT(display, K_CONTROL, is_press);
-		if (flags & MOD_SHIFT)
-			X_KEY_EVENT(display, K_SHIFT, is_press);
+    if (flags & Mod4Mask)
+        X_KEY_EVENT(display, XK_Super_L, is_press);
+    if (flags & Mod1Mask)
+        X_KEY_EVENT(display, XK_Alt_L, is_press);
+    if (flags & ControlMask)
+        X_KEY_EVENT(display, XK_Control_L, is_press);
+    if (flags & ShiftMask)
+        X_KEY_EVENT(display, XK_Shift_L, is_press);
+    if (down) {
+        X_KEY_EVENT(display, code, is_press);
+    }
 
-		X_KEY_EVENT(display, code, is_press);
-	}
-	else
-	{
-		X_KEY_EVENT(display, code, is_press);
+}
 
-		/* Parse modifier keys. */
-		if (flags & MOD_META)
-			X_KEY_EVENT(display, K_META, is_press);
-		if (flags & MOD_ALT)
-			X_KEY_EVENT(display, K_ALT, is_press);
-		if (flags & MOD_CONTROL)
-			X_KEY_EVENT(display, K_CONTROL, is_press);
-		if (flags & MOD_SHIFT)
-			X_KEY_EVENT(display, K_SHIFT, is_press);
-	}
+struct XSpecialCharacterMapping {
+    char name;
+    KeySym code;
+};
+
+struct XSpecialCharacterMapping XSpecialCharacterTable[] = {
+        {'~', XK_asciitilde},
+        {'_', XK_underscore},
+        {'[', XK_bracketleft},
+        {']', XK_bracketright},
+        {'!', XK_exclam},
+        {'\'', XK_quotedbl},
+        {'#', XK_numbersign},
+        {'$', XK_dollar},
+        {'%', XK_percent},
+        {'&', XK_ampersand},
+        {'\'', XK_quoteright},
+        {'*', XK_asterisk},
+        {'+', XK_plus},
+        {',', XK_comma},
+        {'-', XK_minus},
+        {'.', XK_period},
+        {'?', XK_question},
+        {'<', XK_less},
+        {'>', XK_greater},
+        {'=', XK_equal},
+        {'@', XK_at},
+        {':', XK_colon},
+        {';', XK_semicolon},
+        {'\\', XK_backslash},
+        {'`', XK_grave},
+        {'{', XK_braceleft},
+        {'}', XK_braceright},
+        {'|', XK_bar},
+        {'^', XK_asciicircum},
+        {'(', XK_parenleft},
+        {')', XK_parenright},
+        {' ', XK_space},
+        {'/', XK_slash},
+        {'\t', XK_Tab},
+        {'\n', XK_Return}
+};
+
+KeySym keyCodeForChar(const char c) {
+    KeySym code;
+
+    char buf[2];
+    buf[0] = c;
+    buf[1] = '\0';
+
+    code = XStringToKeysym(buf);
+    if (code == NoSymbol) {
+        /* Some special keys are apparently not handled properly by
+         * XStringToKeysym() on some systems, so search for them instead in our
+         * mapping table. */
+        size_t i;
+        const size_t specialCharacterCount = sizeof(XSpecialCharacterTable) / sizeof(XSpecialCharacterTable[0]);
+        for (i = 0; i < specialCharacterCount; ++i) {
+            if (c == XSpecialCharacterTable[i].name) {
+                code = XSpecialCharacterTable[i].code;
+                break;
+            }
+        }
+    }
+
+    return code;
 }
 
 void toggleKey(char c, const bool down, unsigned int flags) {
-	unsigned int keyCode = VkKeyScan(c);
+    KeySym keyCode = keyCodeForChar(c);
 
-	int modifiers = keyCode >> 8; // Pull out modifers.
-	if ((modifiers & 1) != 0)
-		flags |= MOD_SHIFT; // Update flags from keycode modifiers.
-	if ((modifiers & 2) != 0)
-		flags |= MOD_CONTROL;
-	if ((modifiers & 4) != 0)
-		flags |= MOD_ALT;
-	keyCode = keyCode & 0xff; // Mask out modifiers.
-	toggleKeyCode(keyCode, down, flags);
+    //Prevent unused variable warning for Mac and Linux.
+
+    if (isupper(c) && !(flags & ShiftMask))
+    {
+        flags |= ShiftMask; /* Not sure if this is safe for all layouts. */
+    }
+
+    toggleKeyCode(keyCode, down, flags);
 }
 
 
 void typeString(const char *str) {
-	unsigned short c;
-	unsigned short c1;
-	unsigned short c2;
-	unsigned short c3;
-	unsigned long n;
+    unsigned short c;
+    unsigned short c1;
+    unsigned short c2;
+    unsigned short c3;
+    unsigned long n;
 
-	while (*str != '\0')
-	{
-		c = *str++;
+    while (*str != '\0') {
+        c = *str++;
 
-		// warning, the following utf8 decoder
-		// doesn't perform validation
-		if (c <= 0x7F)
-		{
-			// 0xxxxxxx one byte
-			n = c;
-		}
-		else if ((c & 0xE0) == 0xC0)
-		{
-			// 110xxxxx two bytes
-			c1 = (*str++) & 0x3F;
-			n = ((c & 0x1F) << 6) | c1;
-		}
-		else if ((c & 0xF0) == 0xE0)
-		{
-			// 1110xxxx three bytes
-			c1 = (*str++) & 0x3F;
-			c2 = (*str++) & 0x3F;
-			n = ((c & 0x0F) << 12) | (c1 << 6) | c2;
-		}
-		else if ((c & 0xF8) == 0xF0)
-		{
-			// 11110xxx four bytes
-			c1 = (*str++) & 0x3F;
-			c2 = (*str++) & 0x3F;
-			c3 = (*str++) & 0x3F;
-			n = ((c & 0x07) << 18) | (c1 << 12) | (c2 << 6) | c3;
-		}
-		else
-			continue; /* ignore invalid UTF-8 */
+        // warning, the following utf8 decoder
+        // doesn't perform validation
+        if (c <= 0x7F) {
+            // 0xxxxxxx one byte
+            n = c;
+        } else if ((c & 0xE0) == 0xC0) {
+            // 110xxxxx two bytes
+            c1 = (*str++) & 0x3F;
+            n = ((c & 0x1F) << 6) | c1;
+        } else if ((c & 0xF0) == 0xE0) {
+            // 1110xxxx three bytes
+            c1 = (*str++) & 0x3F;
+            c2 = (*str++) & 0x3F;
+            n = ((c & 0x0F) << 12) | (c1 << 6) | c2;
+        } else if ((c & 0xF8) == 0xF0) {
+            // 11110xxx four bytes
+            c1 = (*str++) & 0x3F;
+            c2 = (*str++) & 0x3F;
+            c3 = (*str++) & 0x3F;
+            n = ((c & 0x07) << 18) | (c1 << 12) | (c2 << 6) | c3;
+        } else
+            continue; /* ignore invalid UTF-8 */
 
-        toggleKey((char)n, true, 0);
-        toggleKey((char)n, false, 0);
-	}
+        toggleKey((char) n, true, 0);
+        toggleKey((char) n, false, 0);
+    }
 }
 
 
@@ -162,13 +208,13 @@ unsigned int getFlag(napi_env env, napi_value value) {
     napi_get_value_string_utf8(env, value, buffer, sizeof(buffer), &copied);
 
     if (strcmp(buffer, "alt") == 0) {
-        flags = MOD_ALT;
+        flags = Mod1Mask;
     } else if (strcmp(buffer, "command") == 0 || strcmp(buffer, "win") == 0 || strcmp(buffer, "meta") == 0) {
-        flags = MOD_WIN;
+        flags = Mod4Mask;
     } else if (strcmp(buffer, "control") == 0 || strcmp(buffer, "ctrl") == 0) {
-        flags = MOD_CONTROL;
+        flags = ControlMask;
     } else if (strcmp(buffer, "shift") == 0) {
-        flags = MOD_SHIFT;
+        flags = ShiftMask;
     } else if (strcmp(buffer, "none") == 0) {
         flags = 0;
     }
@@ -188,19 +234,19 @@ unsigned int getAllFlags(napi_env env, napi_value value) {
         napi_get_element(env, value, i, &element);
         unsigned int f = getFlag(env, element);
 
-        flags = (unsigned int)(flags | f);
+        flags = (unsigned int) (flags | f);
     }
     return flags;
 }
 
-unsigned int assignKeyCode(const char* keyName) {
-    if (strlen(keyName) == 1) {
-        return VkKeyScan(keyName[0]);
+unsigned int assignKeyCode(std::string &keyName) {
+    if (keyName.length() == 1) {
+        return keyCodeForChar(keyName[0]);
     }
     unsigned int res = 0;
     KeyNames *kn = key_names;
     while (kn->name) {
-        if (_stricmp(keyName, kn->name) == 0) {
+        if (keyName.compare((kn->name)) == 0) {
             return kn->key;
         }
         kn++;
@@ -208,17 +254,17 @@ unsigned int assignKeyCode(const char* keyName) {
     return 0;
 }
 
-Napi::Value _keyTap(const Napi::CallbackInfo& info) {
+Napi::Value _keyTap(const Napi::CallbackInfo &info) {
     Napi::Env env = info.Env();
     unsigned int flags = getAllFlags(env, info[1]);
     std::string keyName = info[0].As<Napi::String>();
-    unsigned int key = assignKeyCode(keyName.c_str());
+    unsigned int key = assignKeyCode(keyName);
     toggleKeyCode(key, true, flags);
     toggleKeyCode(key, false, flags);
     return env.Undefined();
 }
 
-Napi::Value _keyToggle(const Napi::CallbackInfo& info) {
+Napi::Value _keyToggle(const Napi::CallbackInfo &info) {
     Napi::Env env = info.Env();
 
     bool down = info[2].As<Napi::Boolean>().Value();
@@ -226,13 +272,13 @@ Napi::Value _keyToggle(const Napi::CallbackInfo& info) {
     unsigned int flags = getAllFlags(env, info[1]);
 
     std::string keyName = info[0].As<Napi::String>();
-    unsigned int key = assignKeyCode(keyName.c_str());
+    unsigned int key = assignKeyCode(keyName);
 
     toggleKeyCode(key, down, flags);
     return env.Undefined();
 }
 
-Napi::Value _typeString(const Napi::CallbackInfo& info) {
+Napi::Value _typeString(const Napi::CallbackInfo &info) {
     Napi::Env env = info.Env();
 
     std::string str = info[0].As<Napi::String>();
