@@ -430,5 +430,3 @@ Napi::Object window_init (Napi::Env env, Napi::Object exports) {
 
     return exports;
 }
-
-NODE_API_MODULE (addon, Init)

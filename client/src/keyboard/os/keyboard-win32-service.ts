@@ -8,7 +8,6 @@ import {
 import {invertedMap} from '@/keyboard/keyboard-dto';
 import {IKeyboardService} from '@/keyboard/keyboard-model';
 import {NativeModule} from '@/native/native-interface';
-
 @Injectable()
 export class KeyboardWin32Service  implements IKeyboardService  {
   private readonly addon: NativeModule;
@@ -18,7 +17,7 @@ export class KeyboardWin32Service  implements IKeyboardService  {
     private readonly logger: Logger
   ) {
     // eslint-disable-next-line
-    this.addon = require('../../native/win32/native-win32.node');
+    this.addon = require('../../../build/Debug/native.node');
   }
 
 
@@ -28,11 +27,16 @@ export class KeyboardWin32Service  implements IKeyboardService  {
   }
 
   public async sendKey(keys: string[], holdKeys: string[]): Promise<void> {
+    // const libnut = require('@nut-tree-fork/libnut-win32/build/Release/libnut.node')
     for (const key of holdKeys) {
       this.logger.log(`HoldKey: \u001b[35m${key}`);
-      this.addon.keyToggle(key, 'down', []);
+      // libnut.keyToggle(key, 'down', [])
+      this.addon.keyToggle(key, [], 'down');
     }
     for (const key of keys) {
+      await new Promise(resolve => {
+        setTimeout(resolve, 10);
+      });
       this.logger.log(`KeyPress: \u001b[35m${key}`);
       this.addon.keyTap(key, []);
       // eslint-disable-next-line @typescript-eslint/no-loop-func
@@ -41,8 +45,11 @@ export class KeyboardWin32Service  implements IKeyboardService  {
       });
     }
     for (const key of holdKeys) {
+      await new Promise(resolve => {
+        setTimeout(resolve, 10);
+      });
       this.logger.log(`ReleaseKey: \u001b[35m${key}`);
-      this.addon.keyToggle(key, 'down', []);
+      this.addon.keyToggle(key, [], 'up',);
     }
     await new Promise((resolve) => {setTimeout(resolve, 10);});
   }

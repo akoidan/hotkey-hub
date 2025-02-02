@@ -10,7 +10,7 @@ include_directories(${CMAKE_JS_INC})
 
 if(WIN32)
     set(SOURCE_FILES
-        "${CMAKE_SOURCE_DIR}/src/native/main.cc"
+        "${CMAKE_SOURCE_DIR}/src/native/win32/main.cc"
         "${CMAKE_SOURCE_DIR}/src/native/win32/window-win32.cc"
         "${CMAKE_SOURCE_DIR}/src/native/win32/keypress-win32.cc"
     )
