@@ -7,10 +7,12 @@
   "license": "MIT",
   "scripts": {
     "start": "rm -rf ./dist/ && node -r tsconfig-paths/register -r ts-node/register src/main.ts",
+    "start:win32:debug": "rm -rf ./dist/ && set DEBUG_NATIVE=true && node -r tsconfig-paths/register -r ts-node/register src/main.ts",
     "prebuild": "rm -rf ./dist/ && nest build",
     "build": "pkg . --targets win --output app.exe",
     "wine": "wine app.exe",
     "native": "cmake-js compile",
+    "native:debug": "cmake-js build --debug",
     "lint": "eslint --ext .ts --max-warnings=0 src",
     "autoformat": "eslint --ext .ts --max-warnings=0 --fix src",
     "postinstall": "patch-package"

@@ -8,11 +8,13 @@ import {
 import {keyboard} from '@nut-tree-fork/nut-js';
 import {invertedMap} from '@/keyboard/keyboard-dto';
 import {IKeyboardService} from '@/keyboard/keyboard-model';
+import {NativeModule} from "@/native/native-interface";
 
 @Injectable()
 export class KeyboardLinuxService implements IKeyboardService {
   constructor(
-    private readonly logger: Logger
+    private readonly logger: Logger,
+    private readonly addon: NativeModule
   ) {
   }
 

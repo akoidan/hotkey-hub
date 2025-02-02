@@ -1,23 +1,17 @@
 /*
  eslint-disable no-await-in-loop
  */
-import {
-  Injectable,
-  Logger,
-} from '@nestjs/common';
-import {invertedMap} from '@/keyboard/keyboard-dto';
+import {Injectable, Logger} from '@nestjs/common';
 import {IKeyboardService} from '@/keyboard/keyboard-model';
 import {NativeModule} from '@/native/native-interface';
+
 @Injectable()
 export class KeyboardWin32Service  implements IKeyboardService  {
-  private readonly addon: NativeModule;
-
 
   constructor(
-    private readonly logger: Logger
+    private readonly logger: Logger,
+    private readonly addon: NativeModule
   ) {
-    // eslint-disable-next-line
-    this.addon = require('../../../build/Debug/native.node');
   }
 
 

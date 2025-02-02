@@ -11,13 +11,10 @@ import {NativeModule} from '@/native/native-interface';
 
 @Injectable()
 export class WindowLinuxService implements IWindowService {
-  private readonly addon: NativeModule;
-
-  constructor(
-    private readonly logger: Logger
+    constructor(
+    private readonly logger: Logger,
+    private readonly addon: NativeModule
   ) {
-    // eslint-disable-next-line
-    this.addon = require('../../native/linux/native-linux.node');
   }
 
   // eslint-disable-next-line @typescript-eslint/require-await
