@@ -23,7 +23,7 @@ Add Cmake options:
 ```
  -DCMAKE_CXX_FLAGS="-I/home/andrew/.nvm/versions/node/v18.18.2/include/node -I/home/andrew/it/my-projects/l2/client/node_modules/node-addon-api"
 ```
-Replace **/home/andrew/** to your home directory
+Replace **/home/andrew/** to your home directory. Do not use `~` alias, should be absolute path.
 
 
 # Local
