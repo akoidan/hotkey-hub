@@ -11,8 +11,8 @@ Possible interactions:
 ## Get started
 
 ### Certificates
-
-Generate certificates with [gen-cert.sh](./gen-cert.sh) for [MTLS](https://www.cloudflare.com/learning/access-management/what-is-mutual-tls/) encryption.
+The client server app both use [mutual TLS authentication](https://www.cloudflare.com/learning/access-management/what-is-mutual-tls/).
+You can use my helper script to generate certificates with [gen-cert.sh](./gen-cert.sh).
 
 ```bash
 bash ./gen-cert.sh
@@ -39,18 +39,6 @@ Also you can find json schema in the [releases](https://github.com/akoidan/hotke
  - Put server sertificate into `certs` directory which is in the same directory as app.exe
  - run **app.exe** as regular user.
  - If it crasher, run it from cmd to get output
-
-## Security
-The client server app both use mutual TLS authentication. 
-Client apps should be available withing the address provided in config. So either all apps are within same network. Or clients have public static IP address.
-
-## OS support
-- Windows
-- Linux
-- Mac is coming...
-
-This product has 2 apps: Client and Server. Native binaries are shipped via [pkg](https://www.npmjs.com/package/pkg) that packs Nodejs inside of the executable. Both apps support Window/Linux and Mac support is coming soon
-
 
 ## Develop locally
 
