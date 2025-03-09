@@ -19,7 +19,7 @@ import {ConfigService} from '@/config/config-service';
     {
       provide: FetchClient,
       async useFactory(logger: Logger, cert: CertService, config: ConfigService): Promise<FetchClient> {
-        return new FetchClient(logger, config, await cert.getHttpAgent(), 'https:', 5000);
+        return new FetchClient(logger, config, await cert.getHttpAgent(), 'https:');
       },
       inject: [Logger, CertService, ConfigService],
     },

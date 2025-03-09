@@ -58,6 +58,10 @@ const aliasesSchema = z.record(aliasesValueSchema)
 const aARootSchema = z.object({
   ips: ipsSchema,
   aliases: aliasesSchema,
+  clientPort: z.number()
+    .optional()
+    .default(5000)
+    .describe('Https port to connect to on client PC'),
   delayAfter: z.number()
     .optional()
     .describe('Global delay in miliseconds after execution of every command in order to prevent spam. Could be set to 0'),

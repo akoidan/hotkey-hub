@@ -1,69 +1,44 @@
 # Hotkey Hub
 Allow to bind any hotkey in the OS to send a keyStroke to a remote PC via http.
-Check https://github.com/akoidan/http-remote-pc-control
 E.g. you press `alt+1` on your PC and remote one send a keyStroke `F1`.
+You will need to install a [client](https://github.com/akoidan/http-remote-pc-control/releases) on a remote pc
+Possible interactions:
+ - Mouse move, click
+ - Keyboard events
+ - Running executabe files or killing executable
+ - Operating windows, like focus, resize
 
 ## Get started
 
 ### Certificates
-
-Generate certificates with [gen-cert.sh](./gen-cert.sh) for [MTLS](https://www.cloudflare.com/learning/access-management/what-is-mutual-tls/) encryption.
+The client server app both use [mutual TLS authentication](https://www.cloudflare.com/learning/access-management/what-is-mutual-tls/).
+You can use my helper script to generate certificates with [gen-cert.sh](./gen-cert.sh).
 
 ```bash
 bash ./gen-cert.sh
 ```
 
 It will generate:
- - self-sign CA certificate with its private key and put CA cert into both ./server/certs/ca-cert.pem and ./client/certs/ca-cert.pem
- - server and client private key in the ./server/certs/key.pem and ./client/certs/key.pem
- - server and client certificate thatis signed with CA private key and put it into  ./server/certs/cert.pem and ./server/certs/cert.pem
+ - self-sign CA certificate with its private key and put CA cert into both ./certs/ca-cert.pem and ./client/ca-cert.pem
+ - server and client private key in the ./certs/key.pem and ./client/key.pem
+ - server and client certificate that are signed with CA private key and put it into ./certs/cert.pem and ./client/cert.pem
 
+Leave certs directory in the project or within the same directory you are running app executable file.
+Copy client directory to the remote PC where you have the [client](https://github.com/akoidan/http-remote-pc-control)
+
+**If client and server certificates are different you'll get an exception on startup that server is unable to connnect to the client**
 
 ### Config
-Create a config mapper file in the PC that you want to controll other PCs from. We call it server (see [Server](#server)) .The file should be named as **configs/config.jsonc** and be with the same directory as server app.exe. You can get examples of config files [examples](./examples) and documentation in README.md in release section [here](https://github.com/akoidan/hotkey-hub/releases). 
+Create a config mapper file in the PC that you want to controll other PCs from. .The file should be named as **configs/config.jsonc** and be with the same directory as your app.exe. Check config documentation in CONFIG.md in release section [here](https://github.com/akoidan/hotkey-hub/releases). 
 
-Also you can find json schema in the same release section of the server. You can use any editor that support json schema. E.g. [jsonschemavalidator.net](https://www.jsonschemavalidator.net/). Just paste the content from json-schema.json into the left panel of it, and you can write your config in the right panel. After it as I mentioned above put it into **config.jsonc** with the same directory you have you app.exe for the server.
-
+Also you can find json schema in the [releases](https://github.com/akoidan/hotkey-hub/releases). You can use any editor that support json schema. E.g. [jsonschemavalidator.net](https://www.jsonschemavalidator.net/). Just paste the content from json-schema.json into the left panel of it, and you can write your config in the right panel.
  
-### Server
+### Download the app
  - Download application from [releases](https://github.com/akoidan/hotkey-hub/releases)
  - You already have your configs/config.jsonc described in [config](#config)
  - Put server sertificate into `certs` directory which is in the same directory as app.exe
  - run **app.exe** as regular user.
  - If it crasher, run it from cmd to get output
-
-## Security
-The client server app both use mutual TLS authentication. 
-Client apps should be available withing the address provided in config. So either all apps are within same network. Or clients have public static IP address.
-
-## OS support
-- Windows
-- Linux
-- Mac is coming...
-
-This product has 2 apps: Client and Server. Native binaries are shipped via [pkg](https://www.npmjs.com/package/pkg) that packs Nodejs inside of the executable. Both apps support Window/Linux and Mac support is coming soon
-
-## Autostart
-Add a script to autostart in Windows with admin petrmissions: Replace path to your app.exe:
-```shell
-@echo off
-setlocal
-
-:: Replace with the path to your program
-set "ProgramPath=C:\Users\msi\Downloads\app.exe"
-set "ProgramName=L2"
-
-:: Create the task in Task Scheduler for admin startup
-schtasks /create /tn "%ProgramName%" /tr "\"%ProgramPath%\"" /sc onlogon /rl highest /f
-
-if %errorlevel% equ 0 (
-echo Program added to startup with admin permissions successfully.
-) else (
-echo Failed to add program to startup.
-)
-
-pause
-```
 
 ## Develop locally
 
@@ -99,6 +74,10 @@ yarn start # starts a nestjs server
 ```
 
 ### Clion
+If you want to debug native code, you need to build native module in a debug mode, `yarn build:local` already does it. Then you can attach to the nodejs process via gdb from Clion which should pull sourcemaps and allow to put breakpoints in native code. In order to start the process, you can still use `yarn start`, as soon as native module loads it will pull the breakpoints from IDE.
+
+In order to have proper syntax highlight from nodejs headers, you have to manually add them to Clion configs:
+
 Open Settings -> Cmake -> Add configuration
 
 Add Cmake options:
