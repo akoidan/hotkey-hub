@@ -109,7 +109,8 @@ export class FetchClient {
       const status: number | 'FAIL' = (error as CustomError).statusCode ?? 'FAIL';
       const fullUrl: string = `${this.protocol}//${client}:${this.port}${url}`;
       throw new Error(
-        `${method}:${status} ${fullUrl} ${(error as Error).message} ${payloadstr ?? ''} ${clc.xterm(2)('==>>')} ${(error as CustomError).response ?? ''}`
+        `${method}:${status} ${fullUrl} ${(error as Error).message}`
+        +` ${payloadstr ?? ''} ${clc.xterm(2)('==>>')} ${(error as CustomError).response ?? ''}`
       );
     }
   }

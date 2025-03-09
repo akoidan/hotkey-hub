@@ -49,12 +49,13 @@ export class ShortcutProcessingService {
     }
   }
 
-  private async processLoop(comb: ShortsData) {
+  private async processLoop(comb: ShortsData): Promise<void> {
     if (this.iterationsInProgress[comb.shortCut]) {
       this.iterationsInProgress[comb.shortCut] = false;
       this.logger.log(`Halting ${clc.bold.green(comb.name)}. Waiting for its command to finish...`);
     } else {
       this.iterationsInProgress[comb.shortCut] = true;
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const copy: ShortsData = JSON.parse(JSON.stringify(comb));
       delete copy.iterations;
       for (let i = 1; this.iterationsInProgress[comb.shortCut]; i++) {

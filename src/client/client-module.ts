@@ -6,7 +6,7 @@ import {FetchClient} from '@/client/http-client';
 import {ClientService} from '@/client/client-service';
 import {CertService} from '@/client/cert-service';
 import {ConfigModule} from '@/config/config-module';
-import { ConfigService } from '@/config/config-service';
+import {ConfigService} from '@/config/config-service';
 
 
 @Module({

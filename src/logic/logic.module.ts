@@ -8,7 +8,7 @@ import {ShortcutProcessingService} from '@/logic/shortcut-processing.service';
 import {VariableResolutionService} from '@/logic/variable-resolution.service';
 import {HandlerModule} from '@/handlers/handler-module';
 import {CommandProcessingService} from '@/logic/command-processing.service';
-import { CircularIndex } from '@/logic/circular-index';
+import {CircularIndex} from '@/logic/circular-index';
 
 @Module({
   imports: [ConfigModule, ClientModule, HandlerModule],

@@ -1,5 +1,4 @@
 import {
-  Inject,
   Logger,
   Module,
   OnModuleInit,
