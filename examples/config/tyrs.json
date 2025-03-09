@@ -14,11 +14,13 @@
     "se": "desktop",
     "wc": "desktop",
     "craft": "desktop",
-    "tyrs": [
-      "touchpad",
-      "lenovo",
-      "msi"
-    ],
+    "tyrs": {
+      "ipNames": ["touchpad", "lenovo", "msi"]
+    },
+    "tyr": {
+      "ipNames": ["touchpad", "lenovo", "msi"],
+      "circular": true,
+    },
     "da": "this",
     "bd": "this",
     "sws": "this",
@@ -244,25 +246,12 @@
       "shortCut": "Alt+f10"
     },
     {
-      "threadsCircular": [
-        [
-          {
-            "destination": "tyrant",
-            "keySend": "f5"
-          }
-        ],
-        [
-          {
-            "destination": "monk",
-            "keySend": "f5"
-          }
-        ],
-        [
-          {
-            "destination": "raider",
-            "keySend": "f5"
-          }
-        ]
+      "circular": true,
+      "commands": [
+        {
+          "destination": "tyrs",
+          "keySend": "f5"
+        }
       ],
       "name": "Stun",
       "shortCut": "Alt+1"
@@ -287,6 +276,15 @@
               "focusPid": "{{craft}}",
               "destination": "craft",
               "keySend": "2"
+            },
+            "delayAfter": 400,
+          },
+          {
+            "macro": "keySend",
+            "variables": {
+              "focusPid": "{{se}}",
+              "destination": "se",
+              "keySend": "f5"
             }
           }
         ],
@@ -303,7 +301,12 @@
         [
           {
             "destination": "tyrs",
-            "keySend": "f4"
+            "keySend": "4"
+          },
+          {
+            "delayBefore": 800,
+            "destination": "tyr",
+            "keySend": "3"
           }
         ]
       ],
@@ -1109,30 +1112,6 @@
         {
           "macro": "keySend",
           "variables": {
-            "focusPid": "{{bd}}",
-            "destination": "bd",
-            "keySend": "8"
-          }
-        },
-        {
-          "macro": "keySend",
-          "variables": {
-            "focusPid": "{{sws}}",
-            "destination": "sws",
-            "keySend": "8"
-          }
-        },
-        {
-          "macro": "keySend",
-          "variables": {
-            "focusPid": "{{da}}",
-            "destination": "da",
-            "keySend": "8"
-          }
-        },
-        {
-          "macro": "keySend",
-          "variables": {
             "focusPid": "{{spoil}}",
             "destination": "spoil",
             "keySend": "8"
@@ -1189,19 +1168,13 @@
             "destination": "craft",
             "keySend": "8"
           }
-        }
-      ],
-      "name": "Easy form",
-      "shortCut": "Alt+p"
-    },
-    {
-      "commands": [
+        },
         {
           "macro": "keySend",
           "variables": {
             "focusPid": "{{bd}}",
             "destination": "bd",
-            "keySend": "9"
+            "keySend": "8"
           }
         },
         {
@@ -1209,7 +1182,7 @@
           "variables": {
             "focusPid": "{{sws}}",
             "destination": "sws",
-            "keySend": "9"
+            "keySend": "8"
           }
         },
         {
@@ -1217,9 +1190,15 @@
           "variables": {
             "focusPid": "{{da}}",
             "destination": "da",
-            "keySend": "9"
+            "keySend": "8"
           }
-        },
+        }
+      ],
+      "name": "Easy form",
+      "shortCut": "Alt+p"
+    },
+    {
+      "commands": [
         {
           "macro": "keySend",
           "variables": {
@@ -1279,19 +1258,13 @@
             "destination": "craft",
             "keySend": "9"
           }
-        }
-      ],
-      "name": "mid  form",
-      "shortCut": "Alt+["
-    },
-    {
-      "commands": [
-        {
+        },
+         {
           "macro": "keySend",
           "variables": {
             "focusPid": "{{bd}}",
             "destination": "bd",
-            "keySend": "0"
+            "keySend": "9"
           }
         },
         {
@@ -1299,7 +1272,7 @@
           "variables": {
             "focusPid": "{{sws}}",
             "destination": "sws",
-            "keySend": "0"
+            "keySend": "9"
           }
         },
         {
@@ -1307,9 +1280,15 @@
           "variables": {
             "focusPid": "{{da}}",
             "destination": "da",
-            "keySend": "0"
+            "keySend": "9"
           }
-        },
+        }
+      ],
+      "name": "mid  form",
+      "shortCut": "Alt+["
+    },
+    {
+      "commands": [
         {
           "macro": "keySend",
           "variables": {
@@ -1369,6 +1348,30 @@
             "destination": "craft",
             "keySend": "0"
           }
+        },
+        {
+          "macro": "keySend",
+          "variables": {
+            "focusPid": "{{bd}}",
+            "destination": "bd",
+            "keySend": "0"
+          }
+        },
+        {
+          "macro": "keySend",
+          "variables": {
+            "focusPid": "{{sws}}",
+            "destination": "sws",
+            "keySend": "0"
+          }
+        },
+        {
+          "macro": "keySend",
+          "variables": {
+            "focusPid": "{{da}}",
+            "destination": "da",
+            "keySend": "0"
+          }
         }
       ],
       "name": "heavy form",
@@ -1386,7 +1389,7 @@
         }
       ],
       "name": "Purify (anchor/bleed/pois)",
-      "shortCut": "Alt+x"
+      "shortCut": "Alt+b"
     },
     {
       "commands": [
@@ -1400,7 +1403,49 @@
         }
       ],
       "name": "Cleanse  (debuffs)",
-      "shortCut": "Alt+b"
+      "shortCut": "Alt+n"
+    },
+    {
+      "threads": [
+        [
+          {
+            "macro": "keySend",
+            "variables": {
+              "focusPid": "{{craft}}",
+              "destination": "craft",
+              "keySend": "2"
+            }
+          }
+        ],
+        [
+          {
+            "macro": "keySend",
+            "variables": {
+              "focusPid": "{{spoil}}",
+              "destination": "spoil",
+              "keySend": "2"
+            }
+          }
+        ],
+        [
+          {
+            "destination": "tyrs",
+            "keySend": "f4"
+          }
+        ]
+      ],
+      "name": "Attack",
+      "shortCut": "Alt+x"
+    },
+    {
+      "commands": [
+        {
+          "keySend": "5",
+          "destination": "tyrs"
+        }
+      ],
+      "name": "barrier",
+      "shortCut": "Alt+j"
     },
     {
       "commands": [

@@ -1,11 +1,10 @@
-name: server-build
+name: build
 
 on:
   push:
     branches: [ main ]
     paths:
-      - 'server/**'
-      - '.github/workflows/server-build.yaml'
+      - '.github/workflows/build.yaml'
   workflow_dispatch:
     inputs:
       release_name:
@@ -35,8 +34,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: server-${{ env.RELEASE_NAME }}
-        release_name: server-${{ env.RELEASE_NAME }}
+        tag_name: ${{ env.RELEASE_NAME }}
+        release_name: ${{ env.RELEASE_NAME }}
         draft: false
         prerelease: false
   win32:
@@ -52,18 +51,13 @@ jobs:
         id: cache-node
         uses: actions/cache@v4
         with:
-          path: |
-            server/node_modules
-          key: ${{ runner.os }}-node-modules-server-${{ hashFiles('server/yarn.lock') }}
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('yarn.lock') }}
       - name: Install yarn deps
         if: steps.cache-node.outputs.cache-hit != 'true'
-        run: |
-          cd server
-          yarn install --frozen-lockfile
+        run: yarn install --frozen-lockfile
       - name: Build
-        run: |
-          cd server
-          yarn build:win32
+        run: yarn build:win32
 
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
@@ -71,7 +65,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create_release.outputs.upload_url }}
-          asset_path: ./server/app.exe
+          asset_path: ./app.exe
           asset_name: app.exe
           asset_content_type: application/vnd.microsoft.portable-executable
   docs:
@@ -87,22 +81,15 @@ jobs:
         id: cache-node
         uses: actions/cache@v4
         with:
-          path: |
-            server/node_modules
-          key: ${{ runner.os }}-node-modules-server-${{ hashFiles('server/yarn.lock') }}
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('yarn.lock') }}
       - name: Install yarn deps
         if: steps.cache-node.outputs.cache-hit != 'true'
-        run: |
-          cd server
-          yarn install --frozen-lockfile
+        run: yarn install --frozen-lockfile
       - name: Generate readme
-        run: |
-          cd server
-          yarn schema:doc
+        run: yarn schema:doc
       - name: Generate json schema
-        run: |
-          cd server
-          yarn schema:json
+        run: yarn schema:json
 
       - name: Upload README
         uses: actions/upload-release-asset@v1
@@ -110,8 +97,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create_release.outputs.upload_url }}
-          asset_path: ./server/README.md
-          asset_name: README.md
+          asset_path: ./CONFIG.md
+          asset_name: CONFIG.md
           asset_content_type: text/markdown
       - name: Upload json schema
         uses: actions/upload-release-asset@v1
@@ -119,7 +106,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create_release.outputs.upload_url }}
-          asset_path: ./server/json-schema.json
+          asset_path: ./json-schema.json
           asset_name: json-schema.json
           asset_content_type: application/json
       - name: Upload macros json schema
@@ -128,7 +115,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create_release.outputs.upload_url }}
-          asset_path: ./server/macros-schema.json
+          asset_path: ./macros-schema.json
           asset_name: macros-schema.json
           asset_content_type: application/json
   linux:
@@ -143,7 +130,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /var/cache/apt/archives
-          key: apt-cache-${{ runner.os }}-${{ hashFiles('.github/workflows/server-build.yaml') }}
+          key: apt-cache-${{ runner.os }}-${{ hashFiles('.github/workflows/build.yaml') }}
           restore-keys: |
             apt-cache-${{ runner.os }}-
 
@@ -159,18 +146,13 @@ jobs:
         id: cache-node
         uses: actions/cache@v4
         with:
-          path: |
-            server/node_modules
-          key: ${{ runner.os }}-node-modules-server-${{ hashFiles('server/yarn.lock') }}
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('yarn.lock') }}
       - name: Install yarn deps
         if: steps.cache-node.outputs.cache-hit != 'true'
-        run: |
-          cd server
-          yarn install --frozen-lockfile
+        run: yarn install --frozen-lockfile
       - name: Build
-        run: |
-          cd server
-          yarn build:linux
+        run: yarn build:linux
 
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
@@ -178,6 +160,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create_release.outputs.upload_url }}
-          asset_path: ./server/app
+          asset_path: ./app
           asset_name: app.elf
           asset_content_type: application/x-executable
