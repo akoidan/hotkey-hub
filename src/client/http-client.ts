@@ -21,8 +21,7 @@ export class FetchClient {
     private readonly logger: Logger,
     private readonly config: ConfigService,
     private readonly agent: Agent,
-    private readonly protocol: string,
-    private readonly port: number,
+    private readonly protocol: string
   ) {
   }
 
@@ -37,7 +36,7 @@ export class FetchClient {
     return new Promise<[string, number]>((resolve, reject) => {
       const req = request({
         agent: this.agent,
-        port: this.port,
+        port: this.config.getClientPort(),
         host,
         signal: controller.signal,
         protocol: this.protocol,
@@ -107,7 +106,7 @@ export class FetchClient {
       return null as T;
     } catch (error: unknown) {
       const status: number | 'FAIL' = (error as CustomError).statusCode ?? 'FAIL';
-      const fullUrl: string = `${this.protocol}//${client}:${this.port}${url}`;
+      const fullUrl: string = `${this.protocol}//${client}:${this.config.getClientPort()}${url}`;
       throw new Error(
         `${method}:${status} ${fullUrl} ${(error as Error).message}`
         +` ${payloadstr ?? ''} ${clc.xterm(2)('==>>')} ${(error as CustomError).response ?? ''}`

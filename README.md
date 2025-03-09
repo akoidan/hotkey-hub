@@ -26,6 +26,8 @@ It will generate:
 Leave certs directory in the project or within the same directory you are running app executable file.
 Copy client directory to the remote PC where you have the [client](https://github.com/akoidan/http-remote-pc-control)
 
+**If client and server certificates are different you'll get an exception on startup that server is unable to connnect to the client**
+
 ### Config
 Create a config mapper file in the PC that you want to controll other PCs from. .The file should be named as **configs/config.jsonc** and be with the same directory as your app.exe. Check config documentation in CONFIG.md in release section [here](https://github.com/akoidan/hotkey-hub/releases). 
 

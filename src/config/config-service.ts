@@ -109,6 +109,10 @@ export class ConfigService implements ConfigProvider {
     return this.variables;
   }
 
+  public getClientPort(): number {
+    return this.configData!.clientPort || 5000;
+  }
+
   public async setVariable(name: string, value: string | number): Promise<void> {
     this.variables[name] = value;
     this.variablesSaveLockIteration++;
