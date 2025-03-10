@@ -14,7 +14,7 @@ concurrency:
 jobs:
 
   lint:
-    runs-on: ubuntu-22
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -34,7 +34,7 @@ jobs:
       - name: Check Eslint
         run: yarn lint
   test:
-    runs-on: ubuntu-22
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -54,7 +54,7 @@ jobs:
       - name: Test
         run: yarn test
   build:
-    runs-on: ubuntu-22
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
