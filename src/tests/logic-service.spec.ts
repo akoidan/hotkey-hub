@@ -3,75 +3,57 @@ import {ShortcutProcessingService} from '@/logic/shortcut-processing.service';
 import {ClientService} from '@/client/client-service';
 import {Logger} from '@nestjs/common';
 import {ConfigService} from '@/config/config-service';
-import {LogicModule} from '@/logic/logic.module';
-import {ConfigsPathService} from '@/config/configs-path.service';
+import {ConfigReaderService} from '@/config/config-reader-service';
+import {handlerProviders} from '@/handlers/handler-module';
+import {VariableResolutionService} from '@/logic/variable-resolution.service';
+import {CommandProcessingService} from '@/logic/command-processing.service';
+import {CircularIndex} from '@/logic/circular-index';
+import path from 'path';
 
 describe('logic-service', () => {
   it('should demo curl request', async() => {
     const testModule = await Test.createTestingModule({
-      imports: [LogicModule],
       providers: [
+        ...handlerProviders,
+        ShortcutProcessingService,
+        VariableResolutionService,
+        CommandProcessingService,
+        CircularIndex,
         {
           provide: ClientService,
           useClass: class Empty {
-            async keyPress(d1: string, d2: object): Promise<void> {
-              console.log(`called ${d1}, ${JSON.stringify(d2)}`);
-            }
-            async focusExe(d1: string, d2: object): Promise<void> {
-              console.log(`called ${d1}, ${JSON.stringify(d2)}`);
-            }
           },
         },
         {
           provide: ConfigService,
-          useFactory: (logger: Logger) => new ConfigService(logger, process.env, new ConfigsPathService()),
+          useFactory: (logger: Logger) => new ConfigService(logger, process.env, new ConfigReaderService(logger, {
+            configFilePath: path.join(__dirname, 'fixtures', 'tyrs.jsonc'),
+            variablesFilePath: path.join(__dirname, 'fixtures', 'variables.jsonc'),
+            macroFilePath: null!,
+          })),
           inject: [Logger],
         },
         Logger,
-        ShortcutProcessingService,
       ],
     }).compile();
 
-    const photoService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
+    const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const tyrs = testModule.get<ConfigService>(ConfigService);
+    const clientService = testModule.get<ClientService>(ClientService);
+    clientService.keyPress = jest.fn().mockImplementation();
+    const spykeyPress = jest.spyOn(clientService, 'keyPress');
     await tyrs.parseConfig();
-    await photoService.processUnknownShortCut({
+    expect(spykeyPress).toHaveBeenCalledTimes(0);
+    await shortCutService.processUnknownShortCut({
       commands: [
         {
-          destination: 'tyrs',
-          keySend: 'f6',
-        },
-        {
-          destination: 'asus',
-          keySend: 'f6',
-        },
-        {
-          focusPid: '{{se}}',
-          destination: 'desktop',
-        },
-        {
-          destination: 'desktop',
-          keySend: 'f6',
-        },
-        {
-          focusPid: '{{wc}}',
-          destination: 'desktop',
-        },
-        {
-          destination: 'desktop',
-          keySend: 'f6',
-        },
-        {
-          focusPid: '{{ee}}',
-          destination: 'desktop',
-        },
-        {
-          destination: 'desktop',
+          destination: 'this',
           keySend: 'f6',
         },
       ],
-      name: 'Raging Force Tyr(-Pdef)',
+      name: 'test1',
       shortCut: 'Alt+c',
     });
+    expect(spykeyPress).toHaveBeenCalledWith('this', {holdKeys: [], keys: ['f6']});
   });
 });

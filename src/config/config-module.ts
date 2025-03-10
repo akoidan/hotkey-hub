@@ -7,11 +7,16 @@ import {ConfigService} from '@/config/config-service';
 import * as process from 'node:process';
 import {ConfigsPathService} from '@/config/configs-path.service';
 import {ConfigReaderService} from '@/config/config-reader-service';
+import {ConfigPathClass} from '@/config/types/config-path';
 
 @Module({
   providers: [
     Logger,
     ConfigsPathService,
+    {
+      provide: ConfigPathClass,
+      useExisting: ConfigsPathService,
+    },
     ConfigReaderService,
     {
       provide: ConfigService,

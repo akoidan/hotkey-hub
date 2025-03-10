@@ -1,9 +1,14 @@
 import {
+  Inject,
   Injectable,
   Logger,
 } from '@nestjs/common';
 import {promises as fs} from 'fs';
 import {ConfigsPathService} from '@/config/configs-path.service';
+import {
+  ConfigPath,
+  ConfigPathClass,
+} from '@/config/types/config-path';
 
 
 @Injectable()
@@ -11,7 +16,8 @@ export class ConfigReaderService {
   // eslint-disable-next-line @typescript-eslint/max-params
   constructor(
     private readonly logger: Logger,
-    private readonly configsPathSerivice: ConfigsPathService,
+    @Inject(ConfigPathClass)
+    private readonly configsPathSerivice: ConfigPath,
   ) {
   }
 
