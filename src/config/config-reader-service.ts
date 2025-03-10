@@ -4,7 +4,6 @@ import {
   Logger,
 } from '@nestjs/common';
 import {promises as fs} from 'fs';
-import {ConfigsPathService} from '@/config/configs-path.service';
 import {
   ConfigPath,
   ConfigPathClass,
