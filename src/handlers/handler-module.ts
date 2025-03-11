@@ -10,10 +10,10 @@ import {CommandHandler} from '@/handlers/command-handler.service';
 import {KillPidHandler} from '@/handlers/implementation/kill-pid-handler';
 import {ConfigModule} from '@/config/config-module';
 import {LeftMouseClickHandler} from '@/handlers/implementation/left-mouse-click-handler';
+import {Provider} from '@nestjs/common/interfaces/modules/provider.interface';
 
-@Module({
-  imports: [ClientModule, ConfigModule],
-  providers: [
+
+const handlerProviders: Provider[] = [
     KeyPressHandler,
     FocusWindowHandler,
     MouseClickHandler,
@@ -56,9 +56,14 @@ import {LeftMouseClickHandler} from '@/handlers/implementation/left-mouse-click-
         return keyPressHandler;
       },
     },
-  ],
+  ];
+@Module({
+  imports: [ClientModule, ConfigModule],
+  providers: handlerProviders,
   exports: [CommandHandler],
 })
-export class HandlerModule {
+class HandlerModule {
 
 }
+
+export {handlerProviders, HandlerModule};
