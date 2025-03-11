@@ -95,24 +95,21 @@ describe('Logic service', () => {
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const tyrs = testModule.get<ConfigService>(ConfigService);
     const clientService = testModule.get<ClientService>(ClientService);
-    clientService.launchExe = jest.fn().mockImplementation();
-    const spyLaucnhExe = jest.spyOn(clientService, 'launchExe');
+    clientService.killExeById = jest.fn().mockImplementation();
+    const spyLaucnhExe = jest.spyOn(clientService, 'killExeById');
     await tyrs.parseConfig();
     await shortCutService.processUnknownShortCut({
       commands: [
         {
           destination: 'this',
-          launch: 'C:\\Windows\\System32\\shutdown.exe',
-          arguments: ['/s', '/t', '0'],
+          killByPid: 123,
         },
       ],
       name: 'Launch exe test',
       shortCut: 'Alt+F11',
     });
     expect(spyLaucnhExe).toHaveBeenCalledWith('this', {
-      arguments: ['/s', '/t', '0'],
-      path: 'C:\\Windows\\System32\\shutdown.exe',
-      waitTillFinish: false,
+      pid: 123,
     });
   });
 
@@ -207,7 +204,7 @@ describe('Logic service', () => {
           variables: {
             destination: 'this',
             login: 'testuser',
-            delayAfter: 1000
+            delayAfter: 200
           }
         }
       ],
