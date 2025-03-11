@@ -1,6 +1,43 @@
 {
   "ips": {
-    "this": "127.0.0.1"
+    "this": "127.0.0.1",
+    "that": "127.0.0.2"
+  },
+  "aliases": {
+    "multiple": {
+      "ipNames": ["this", "that"],
+      "circular": true
+    }
+  },
+  "macros": {
+    "loginProceed": {
+      "commands": [
+        {
+          "destination": "{{destination}}",
+          "typeText": "{{login}}"
+        },
+        {
+          "destination": "{{destination}}",
+          "keySend": "tab"
+        },
+        {
+          "destination": "{{destination}}",
+          "keySend": "enter",
+          "delayAfter": "{{delayAfter}}"
+        }
+      ],
+      "variables": {
+        "destination": {
+          "type": "string"
+        },
+        "login": {
+          "type": "string"
+        },
+        "delayAfter": {
+          "type": "number"
+        }
+      }
+    }
   },
   "combinations": []
 }

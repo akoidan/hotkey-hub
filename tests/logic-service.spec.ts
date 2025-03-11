@@ -90,7 +90,7 @@ describe('Logic service', () => {
     });
   });
 
-   it('should call macro exe client call', async() => {
+  it('should call macro exe client call', async() => {
     const testModule = await getTestModule('tyrs.jsonc');
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const tyrs = testModule.get<ConfigService>(ConfigService);
@@ -114,5 +114,108 @@ describe('Logic service', () => {
       path: 'C:\\Windows\\System32\\shutdown.exe',
       waitTillFinish: false,
     });
+  });
+
+  it('should handle circular index with multiple destinations through alias', async() => {
+    const testModule = await getTestModule('tyrs.jsonc');
+    const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
+    const configService = testModule.get<ConfigService>(ConfigService);
+    const clientService = testModule.get<ClientService>(ClientService);
+    clientService.keyPress = jest.fn().mockImplementation();
+    const spyKeyPress = jest.spyOn(clientService, 'keyPress');
+    
+    await configService.parseConfig();
+    
+    // Test first destination
+    await shortCutService.processUnknownShortCut({
+      commands: [
+        {
+          destination: 'multiple',
+          keySend: 'f7'
+        },
+      ],
+      name: 'circular-test',
+      shortCut: 'Alt+1',
+    });
+    
+    expect(spyKeyPress).toHaveBeenCalledWith('this', {holdKeys: [], keys: ['f7']});
+    
+    // Test second destination (circular)
+    await shortCutService.processUnknownShortCut({
+      commands: [
+        {
+          destination: 'multiple',
+          keySend: 'f7'
+        },
+      ],
+      name: 'circular-test',
+      shortCut: 'Alt+1',
+    });
+    
+    expect(spyKeyPress).toHaveBeenCalledWith('that', {holdKeys: [], keys: ['f7']});
+  });
+
+  it('should resolve variables in commands', async() => {
+    const testModule = await getTestModule('tyrs.jsonc');
+    const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
+    const configService = testModule.get<ConfigService>(ConfigService);
+    const clientService = testModule.get<ClientService>(ClientService);
+    const variableService = testModule.get<VariableResolutionService>(VariableResolutionService);
+    
+    clientService.typeText = jest.fn().mockImplementation();
+    const spyTypeText = jest.spyOn(clientService, 'typeText');
+    
+    // Set up environment variable
+    process.env.login = 'testuser123';
+    
+    await configService.parseConfig();
+    
+    await shortCutService.processUnknownShortCut({
+      commands: [
+        {
+          destination: 'this',
+          typeText: '{{login}}'
+        },
+      ],
+      name: 'variable-test',
+      shortCut: 'Alt+2',
+    });
+    
+    expect(spyTypeText).toHaveBeenCalledWith('this', {text: 'testuser123'});
+    
+    // Clean up
+    delete process.env.login;
+  });
+
+  it('should handle complex macro with delays', async() => {
+    const testModule = await getTestModule('tyrs.jsonc');
+    const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
+    const configService = testModule.get<ConfigService>(ConfigService);
+    const clientService = testModule.get<ClientService>(ClientService);
+    clientService.typeText = jest.fn().mockImplementation();
+    clientService.keyPress = jest.fn().mockImplementation();
+    const spyTypeText = jest.spyOn(clientService, 'typeText');
+    const spyKeyPress = jest.spyOn(clientService, 'keyPress');
+    
+    await configService.parseConfig();
+    
+    await shortCutService.processUnknownShortCut({
+      commands: [
+        {
+          macro: 'loginProceed',
+          variables: {
+            destination: 'this',
+            login: 'testuser',
+            delayAfter: 1000
+          }
+        }
+      ],
+      name: 'macro-delay-test',
+      shortCut: 'Alt+3',
+    });
+    
+    expect(spyTypeText).toHaveBeenCalledWith('this', {text: 'testuser'});
+    expect(spyKeyPress).toHaveBeenCalledWith('this', {holdKeys: [], keys: ['tab']});
+    expect(spyKeyPress).toHaveBeenCalledWith('this', {holdKeys: [], keys: ['enter']});
   });
 });
