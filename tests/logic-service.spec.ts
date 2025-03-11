@@ -123,9 +123,9 @@ describe('Logic service', () => {
     const clientService = testModule.get<ClientService>(ClientService);
     clientService.keyPress = jest.fn().mockImplementation();
     const spyKeyPress = jest.spyOn(clientService, 'keyPress');
-    
+
     await configService.parseConfig();
-    
+
     // Test first destination
     await shortCutService.processUnknownShortCut({
       commands: [
@@ -137,9 +137,9 @@ describe('Logic service', () => {
       name: 'circular-test',
       shortCut: 'Alt+1',
     });
-    
+
     expect(spyKeyPress).toHaveBeenCalledWith('this', {holdKeys: [], keys: ['f7']});
-    
+
     // Test second destination (circular)
     await shortCutService.processUnknownShortCut({
       commands: [
@@ -151,8 +151,9 @@ describe('Logic service', () => {
       name: 'circular-test',
       shortCut: 'Alt+1',
     });
-    
+
     expect(spyKeyPress).toHaveBeenCalledWith('that', {holdKeys: [], keys: ['f7']});
+    expect(spyKeyPress).toHaveBeenCalledTimes(2);
   });
 
   it('should resolve variables in commands', async() => {
@@ -161,15 +162,15 @@ describe('Logic service', () => {
     const configService = testModule.get<ConfigService>(ConfigService);
     const clientService = testModule.get<ClientService>(ClientService);
     const variableService = testModule.get<VariableResolutionService>(VariableResolutionService);
-    
+
     clientService.typeText = jest.fn().mockImplementation();
     const spyTypeText = jest.spyOn(clientService, 'typeText');
-    
+
     // Set up environment variable
     process.env.login = 'testuser123';
-    
+
     await configService.parseConfig();
-    
+
     await shortCutService.processUnknownShortCut({
       commands: [
         {
@@ -180,9 +181,9 @@ describe('Logic service', () => {
       name: 'variable-test',
       shortCut: 'Alt+2',
     });
-    
+
     expect(spyTypeText).toHaveBeenCalledWith('this', {text: 'testuser123'});
-    
+
     // Clean up
     delete process.env.login;
   });
@@ -196,9 +197,9 @@ describe('Logic service', () => {
     clientService.keyPress = jest.fn().mockImplementation();
     const spyTypeText = jest.spyOn(clientService, 'typeText');
     const spyKeyPress = jest.spyOn(clientService, 'keyPress');
-    
+
     await configService.parseConfig();
-    
+
     await shortCutService.processUnknownShortCut({
       commands: [
         {
@@ -213,7 +214,7 @@ describe('Logic service', () => {
       name: 'macro-delay-test',
       shortCut: 'Alt+3',
     });
-    
+
     expect(spyTypeText).toHaveBeenCalledWith('this', {text: 'testuser'});
     expect(spyKeyPress).toHaveBeenCalledWith('this', {holdKeys: [], keys: ['tab']});
     expect(spyKeyPress).toHaveBeenCalledWith('this', {holdKeys: [], keys: ['enter']});
