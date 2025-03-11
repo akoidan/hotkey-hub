@@ -1,11 +1,19 @@
 {
   "ips": {
     "this": "127.0.0.1",
-    "that": "127.0.0.2"
+    "that": "127.0.0.2",
+    "other": "127.0.0.3"
   },
   "aliases": {
     "multiple": {
       "ipNames": ["this", "that"],
+      "circular": true
+    },
+    "all": {
+      "ipNames": ["this", "that", "other"]
+    },
+    "circular_three": {
+      "ipNames": ["this", "that", "other"],
       "circular": true
     }
   },
@@ -39,5 +47,124 @@
       }
     }
   },
-  "combinations": []
+  "combinations": [
+    {
+      "name": "test1",
+      "shortCut": "Alt+c",
+      "commands": [
+        {
+          "destination": "this",
+          "keySend": "f6"
+        }
+      ]
+    },
+    {
+      "name": "Launch exe test",
+      "shortCut": "Alt+F11",
+      "commands": [
+        {
+          "destination": "this",
+          "launch": "C:\\Windows\\System32\\shutdown.exe",
+          "arguments": ["/s", "/t", "0"]
+        }
+      ]
+    },
+    {
+      "name": "circular-test",
+      "shortCut": "Alt+f7",
+      "commands": [
+        {
+          "destination": "multiple",
+          "keySend": "f7"
+        }
+      ]
+    },
+    {
+      "name": "Command circular test",
+      "shortCut": "Alt+1",
+      "circular": true,
+      "commands": [
+        {
+          "destination": "this",
+          "keySend": "1"
+        },
+        {
+          "destination": "this",
+          "keySend": "2"
+        },
+        {
+          "destination": "this",
+          "keySend": "3"
+        }
+      ]
+    },
+    {
+      "name": "Thread circular test",
+      "shortCut": "Alt+2",
+      "threadsCircular": [
+        [
+          {
+            "destination": "this",
+            "keySend": "a"
+          }
+        ],
+        [
+          {
+            "destination": "this",
+            "keySend": "b"
+          }
+        ],
+        [
+          {
+            "destination": "this",
+            "keySend": "c"
+          }
+        ]
+      ]
+    },
+    {
+      "name": "Random circular test",
+      "shortCut": "Alt+3",
+      "circular": true,
+      "shuffle": true,
+      "commands": [
+        {
+          "destination": "this",
+          "keySend": "x"
+        },
+        {
+          "destination": "this",
+          "keySend": "y"
+        },
+        {
+          "destination": "this",
+          "keySend": "z"
+        }
+      ]
+    },
+    {
+      "name": "variable-test",
+      "shortCut": "Alt+4",
+      "commands": [
+        {
+          "destination": "this",
+          "typeText": "{{login}}"
+        }
+      ]
+    },
+    {
+      "name": "macro-delay-test",
+      "shortCut": "Alt+5",
+      "commands": [
+        {
+          "macro": "loginProceed",
+          "variables": {
+            "destination": "this",
+            "login": "testuser",
+            "delayAfter": 1000
+          }
+        }
+      ]
+    }
+  ]
 }

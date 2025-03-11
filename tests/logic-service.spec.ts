@@ -219,4 +219,88 @@ describe('Logic service', () => {
     expect(spyKeyPress).toHaveBeenCalledWith('this', {holdKeys: [], keys: ['tab']});
     expect(spyKeyPress).toHaveBeenCalledWith('this', {holdKeys: [], keys: ['enter']});
   });
+
+  it('should execute commands in circular mode', async() => {
+    const testModule = await getTestModule('tyrs.jsonc');
+    const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
+    const configService = testModule.get<ConfigService>(ConfigService);
+    const clientService = testModule.get<ClientService>(ClientService);
+    clientService.keyPress = jest.fn().mockImplementation();
+    const spyKeyPress = jest.spyOn(clientService, 'keyPress');
+
+    await configService.parseConfig();
+
+    const shortcutMapping = configService.getCombinations().find(s => s.name === 'Command circular test');
+    expect(shortcutMapping).toBeDefined();
+
+    // First press - first command
+    await shortCutService.processUnknownShortCut(shortcutMapping!);
+    expect(spyKeyPress).toHaveBeenCalledWith('this', {holdKeys: [], keys: ['1']});
+
+    // Second press - second command
+    await shortCutService.processUnknownShortCut(shortcutMapping!);
+    expect(spyKeyPress).toHaveBeenCalledWith('this', {holdKeys: [], keys: ['2']});
+
+    // Third press - third command
+    await shortCutService.processUnknownShortCut(shortcutMapping!);
+    expect(spyKeyPress).toHaveBeenCalledWith('this', {holdKeys: [], keys: ['3']});
+
+    // Fourth press - back to first command
+    await shortCutService.processUnknownShortCut(shortcutMapping!);
+    expect(spyKeyPress).toHaveBeenCalledWith('this', {holdKeys: [], keys: ['1']});
+    expect(spyKeyPress).toHaveBeenCalledTimes(4);
+  });
+
+  it('should execute threads in circular mode', async() => {
+    const testModule = await getTestModule('tyrs.jsonc');
+    const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
+    const configService = testModule.get<ConfigService>(ConfigService);
+    const clientService = testModule.get<ClientService>(ClientService);
+    clientService.keyPress = jest.fn().mockImplementation();
+    const spyKeyPress = jest.spyOn(clientService, 'keyPress');
+
+    await configService.parseConfig();
+
+    const shortcutMapping = configService.getCombinations().find(s => s.name === 'Thread circular test');
+    expect(shortcutMapping).toBeDefined();
+
+    // First press - first thread
+    await shortCutService.processUnknownShortCut(shortcutMapping!);
+    expect(spyKeyPress).toHaveBeenCalledWith('this', {holdKeys: [], keys: ['a']});
+
+    // Second press - second thread
+    await shortCutService.processUnknownShortCut(shortcutMapping!);
+    expect(spyKeyPress).toHaveBeenCalledWith('this', {holdKeys: [], keys: ['b']});
+
+    // Third press - third thread
+    await shortCutService.processUnknownShortCut(shortcutMapping!);
+    expect(spyKeyPress).toHaveBeenCalledWith('this', {holdKeys: [], keys: ['c']});
+
+    // Fourth press - back to first thread
+    await shortCutService.processUnknownShortCut(shortcutMapping!);
+    expect(spyKeyPress).toHaveBeenCalledWith('this', {holdKeys: [], keys: ['a']});
+    expect(spyKeyPress).toHaveBeenCalledTimes(4);
+  });
+
+  // Note: Random circular test is not deterministic, so we just verify it calls one of the commands
+  it('should execute random command in circular mode', async() => {
+    const testModule = await getTestModule('tyrs.jsonc');
+    const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
+    const configService = testModule.get<ConfigService>(ConfigService);
+    const clientService = testModule.get<ClientService>(ClientService);
+    clientService.keyPress = jest.fn().mockImplementation();
+    const spyKeyPress = jest.spyOn(clientService, 'keyPress');
+
+    await configService.parseConfig();
+
+    const shortcutMapping = configService.getCombinations().find(s => s.name === 'Random circular test');
+    expect(shortcutMapping).toBeDefined();
+
+    await shortCutService.processUnknownShortCut(shortcutMapping!);
+
+    expect(spyKeyPress).toHaveBeenCalledTimes(1);
+    const possibleKeys = ['x', 'y', 'z'];
+    const calledKey = spyKeyPress.mock.calls[0][1].keys[0];
+    expect(possibleKeys).toContain(calledKey);
+  });
 });
