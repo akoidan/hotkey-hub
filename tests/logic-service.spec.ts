@@ -44,7 +44,7 @@ async function getTestModule(configFilePath: string): Promise<TestingModule> {
 
 describe('Logic service', () => {
   it('should keySend client call', async() => {
-    const testModule = await getTestModule('tyrs.jsonc');
+    const testModule = await getTestModule('config-fixture.jsonc');
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const tyrs = testModule.get<ConfigService>(ConfigService);
     const clientService = testModule.get<ClientService>(ClientService);
@@ -65,7 +65,7 @@ describe('Logic service', () => {
   });
 
   it('should launch exe client call', async() => {
-    const testModule = await getTestModule('tyrs.jsonc');
+    const testModule = await getTestModule('config-fixture.jsonc');
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const tyrs = testModule.get<ConfigService>(ConfigService);
     const clientService = testModule.get<ClientService>(ClientService);
@@ -91,7 +91,7 @@ describe('Logic service', () => {
   });
 
   it('should call macro exe client call', async() => {
-    const testModule = await getTestModule('tyrs.jsonc');
+    const testModule = await getTestModule('config-fixture.jsonc');
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const tyrs = testModule.get<ConfigService>(ConfigService);
     const clientService = testModule.get<ClientService>(ClientService);
@@ -114,7 +114,7 @@ describe('Logic service', () => {
   });
 
   it('should handle circular index with multiple destinations through alias', async() => {
-    const testModule = await getTestModule('tyrs.jsonc');
+    const testModule = await getTestModule('config-fixture.jsonc');
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const configService = testModule.get<ConfigService>(ConfigService);
     const clientService = testModule.get<ClientService>(ClientService);
@@ -154,7 +154,7 @@ describe('Logic service', () => {
   });
 
   it('should resolve variables in commands', async() => {
-    const testModule = await getTestModule('tyrs.jsonc');
+    const testModule = await getTestModule('config-fixture.jsonc');
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const configService = testModule.get<ConfigService>(ConfigService);
     const clientService = testModule.get<ClientService>(ClientService);
@@ -186,7 +186,7 @@ describe('Logic service', () => {
   });
 
   it('should handle complex macro with delays', async() => {
-    const testModule = await getTestModule('tyrs.jsonc');
+    const testModule = await getTestModule('config-fixture.jsonc');
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const configService = testModule.get<ConfigService>(ConfigService);
     const clientService = testModule.get<ClientService>(ClientService);
@@ -218,7 +218,7 @@ describe('Logic service', () => {
   });
 
   it('should execute commands in circular mode', async() => {
-    const testModule = await getTestModule('tyrs.jsonc');
+    const testModule = await getTestModule('config-fixture.jsonc');
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const configService = testModule.get<ConfigService>(ConfigService);
     const clientService = testModule.get<ClientService>(ClientService);
@@ -249,7 +249,7 @@ describe('Logic service', () => {
   });
 
   it('should execute threads in circular mode', async() => {
-    const testModule = await getTestModule('tyrs.jsonc');
+    const testModule = await getTestModule('config-fixture.jsonc');
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const configService = testModule.get<ConfigService>(ConfigService);
     const clientService = testModule.get<ClientService>(ClientService);
@@ -281,7 +281,7 @@ describe('Logic service', () => {
 
   // Note: Random circular test is not deterministic, so we just verify it calls one of the commands
   it('should execute random command in circular mode', async() => {
-    const testModule = await getTestModule('tyrs.jsonc');
+    const testModule = await getTestModule('config-fixture.jsonc');
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const configService = testModule.get<ConfigService>(ConfigService);
     const clientService = testModule.get<ClientService>(ClientService);
