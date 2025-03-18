@@ -105,16 +105,10 @@ export class ConfigService implements ConfigProvider {
   }
 
   public getDelayAfter(): number | undefined {
-    if (this.configData!.delayAfter) {
-      return this.configData!.delayAfter * this.getRandomVariation();
-    }
     return this.configData!.delayAfter;
   }
 
   public getDelayBefore(): number | undefined {
-    if (this.configData!.delayBefore) {
-      return this.configData!.delayBefore * this.getRandomVariation();
-    }
     return this.configData!.delayBefore;
   }
 

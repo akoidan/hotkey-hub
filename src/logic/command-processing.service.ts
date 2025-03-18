@@ -80,9 +80,10 @@ export class CommandProcessingService {
       combDelay = commandDelay;
     }
     if (combDelay === undefined && configDelay !== undefined) {
-      combDelay = Math.round(Math.random() * configDelay);
+      combDelay = this.configService.getRandomVariation() * configDelay;
     }
     if (combDelay) {
+      this.logger.debug(`Sleeping for ${combDelay}ms`);
       await new Promise(resolve => {
         setTimeout(resolve, combDelay);
       });
