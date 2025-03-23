@@ -80,7 +80,7 @@ export class CommandProcessingService {
       combDelay = commandDelay;
     }
     if (combDelay === undefined && configDelay !== undefined) {
-      combDelay = this.configService.getRandomVariation() * configDelay;
+      combDelay = Math.round(this.configService.getRandomVariation() * configDelay);
     }
     if (combDelay) {
       this.logger.debug(`Sleeping for ${combDelay}ms`);
