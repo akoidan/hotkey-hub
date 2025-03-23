@@ -6,17 +6,17 @@ import {
   macrosDefinitionSchema,
   variablesSchema,
 } from '@/config/types/schema';
-import { parse } from 'jsonc-parser';
+import {parse} from 'jsonc-parser';
 import {
   Injectable,
   Logger,
 } from '@nestjs/common';
-import { schemaRootCache } from '@/config/types/cache';
-import { Variables } from '@/config/types/variables';
-import { MacroList } from '@/config/types/macros';
-import { ShortsData } from '@/config/types/shortcut';
-import { ConfigProvider } from '@/config/interfaces';
-import { ConfigReaderService } from '@/config/config-reader-service';
+import {schemaRootCache} from '@/config/types/cache';
+import {Variables} from '@/config/types/variables';
+import {MacroList} from '@/config/types/macros';
+import {ShortsData} from '@/config/types/shortcut';
+import {ConfigProvider} from '@/config/interfaces';
+import {ConfigReaderService} from '@/config/config-reader-service';
 import clc from 'cli-color';
 
 interface ConfigCombination {
@@ -61,7 +61,7 @@ export class ConfigService implements ConfigProvider {
     await macrosDefinitionSchema.parseAsync(globalMacroConf);
 
     this.logger.debug('Validating macro config');
-    conf.macros = { ...globalMacroConf, ...conf.macros };
+    conf.macros = {...globalMacroConf, ...conf.macros};
     await aARootSchema.parseAsync(conf);
 
     this.logger.debug('Validating variables config');
