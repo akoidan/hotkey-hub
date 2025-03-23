@@ -62,9 +62,13 @@ const aARootSchema = z.object({
     .optional()
     .default(5000)
     .describe('Https port to connect to on client PC'),
-  delayAfter: z.number()
+  random: z.number()
+    .positive()
     .optional()
-    .describe('Global delay in miliseconds after execution of every command in order to prevent spam. Could be set to 0'),
+    .default(0)
+    .describe('Random multiplier for global delayAfter and delayBefore. initialDelay +/-initialDelay*random. ' +
+      'E.g. if you specified 0.2, global delay 1s would be a random delay between 0.8 and 1.2s'),
+  delayAfter: z.number(),
   delayBefore: z.number()
     .optional()
     .describe('Global delay in miliseconds before execution every current commands in order to prevent spam. Could be set to 0'),

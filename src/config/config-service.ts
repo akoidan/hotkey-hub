@@ -6,17 +6,17 @@ import {
   macrosDefinitionSchema,
   variablesSchema,
 } from '@/config/types/schema';
-import {parse} from 'jsonc-parser';
+import { parse } from 'jsonc-parser';
 import {
   Injectable,
   Logger,
 } from '@nestjs/common';
-import {schemaRootCache} from '@/config/types/cache';
-import {Variables} from '@/config/types/variables';
-import {MacroList} from '@/config/types/macros';
-import {ShortsData} from '@/config/types/shortcut';
-import {ConfigProvider} from '@/config/interfaces';
-import {ConfigReaderService} from '@/config/config-reader-service';
+import { schemaRootCache } from '@/config/types/cache';
+import { Variables } from '@/config/types/variables';
+import { MacroList } from '@/config/types/macros';
+import { ShortsData } from '@/config/types/shortcut';
+import { ConfigProvider } from '@/config/interfaces';
+import { ConfigReaderService } from '@/config/config-reader-service';
 import clc from 'cli-color';
 
 interface ConfigCombination {
@@ -61,7 +61,7 @@ export class ConfigService implements ConfigProvider {
     await macrosDefinitionSchema.parseAsync(globalMacroConf);
 
     this.logger.debug('Validating macro config');
-    conf.macros = {...globalMacroConf, ...conf.macros};
+    conf.macros = { ...globalMacroConf, ...conf.macros };
     await aARootSchema.parseAsync(conf);
 
     this.logger.debug('Validating variables config');
@@ -97,11 +97,18 @@ export class ConfigService implements ConfigProvider {
     return this.configData!.macros ?? {};
   }
 
-  public getDelayAfter(): number |undefined {
+  public getRandomVariation(): number {
+    if (this.configData!.random) {
+      return 1 + ((Math.random() - 0.5) * this.configData!.random);
+    }
+    return 1;
+  }
+
+  public getDelayAfter(): number | undefined {
     return this.configData!.delayAfter;
   }
 
-  public getDelayBefore(): number|undefined {
+  public getDelayBefore(): number | undefined {
     return this.configData!.delayBefore;
   }
 
