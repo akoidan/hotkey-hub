@@ -8,6 +8,7 @@ import {
 } from 'https';
 import {ConfigService} from '@/config/config-service';
 import clc from 'cli-color';
+import {asyncLocalStorage} from '@/app/custom-logger';
 
 interface CustomError extends Error {
   statusCode?: number;
@@ -25,6 +26,7 @@ export class FetchClient {
   ) {
   }
 
+  // eslint-disable-next-line max-lines-per-function
   private async executeRequest(
     method: 'GET' | 'POST',
     client: string,
@@ -34,6 +36,7 @@ export class FetchClient {
   ): Promise<[string, number]> {
     const host = this.config.getIps()[client];
     return new Promise<[string, number]>((resolve, reject) => {
+      const headers = this.getHeaders(payloadstr);
       const req = request({
         agent: this.agent,
         port: this.config.getClientPort(),
@@ -42,12 +45,7 @@ export class FetchClient {
         protocol: this.protocol,
         path: url,
         method,
-        headers: method === 'POST' ? {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          'Content-Type': 'application/json',
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          'Content-Length': Buffer.byteLength(payloadstr),
-        } : undefined,
+        headers,
       }, (res) => {
         let data = '';
         res.on('data', (chunk: string) => (data += chunk));
@@ -69,6 +67,23 @@ export class FetchClient {
       }
       req.end();
     });
+  }
+
+  private getHeaders(payloadstr: string): Record<string, string|number> {
+    let headers: Record<string, string | number> = {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      'x-request-id': asyncLocalStorage.getStore()!.get('comb') as string,
+    };
+    if (payloadstr) {
+      headers = {
+        ...headers,
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        'Content-Type': 'application/json',
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        'Content-Length': Buffer.byteLength(payloadstr),
+      };
+    }
+    return headers;
   }
 
   private async makeRequest<T>(
