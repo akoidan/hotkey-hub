@@ -1,14 +1,12 @@
 import {NestFactory} from '@nestjs/core';
 import {AppModule} from '@/app/app.module';
-import {
-  asyncLocalStorage,
-  CustomLogger,
-} from '@/app/custom-logger';
+import {CustomLogger} from '@/app/custom-logger';
 import * as process from 'node:process';
+import {asyncLocalStorage} from '@/asyncstore/async-storage-value';
 
 
 asyncLocalStorage.run(new Map<string, string>().set('comb', 'init'), () => {
-  const customLogger = new CustomLogger();
+  const customLogger = new CustomLogger(asyncLocalStorage);
   NestFactory.createApplicationContext(AppModule, {
     logger: customLogger,
   }).catch((err: unknown) => {

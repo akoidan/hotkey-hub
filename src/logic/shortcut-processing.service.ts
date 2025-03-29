@@ -1,4 +1,5 @@
 import {
+  Inject,
   Injectable,
   Logger,
 } from '@nestjs/common';
@@ -10,10 +11,11 @@ import {
   ShortsData,
 } from '@/config/types/shortcut';
 import {CommandOrMacro} from '@/config/types/macros';
-import {asyncLocalStorage} from '@/app/custom-logger';
 import {Command} from '@/config/types/commands';
 import clc from 'cli-color';
 import {CircularIndex} from '@/logic/circular-index';
+import {ASYNC_PROVIDER} from '@/asyncstore/async-storage-const';
+import {AsyncLocalStorage} from 'async_hooks';
 
 @Injectable()
 export class ShortcutProcessingService {
@@ -23,6 +25,8 @@ export class ShortcutProcessingService {
     private readonly commandProcessor: CommandProcessingService,
     private readonly circularResolver: CircularIndex,
     private readonly logger: Logger,
+    @Inject(ASYNC_PROVIDER)
+    private readonly asyncLocalStorage: AsyncLocalStorage<Map<string, any>>,
   ) {
   }
 
@@ -35,9 +39,9 @@ export class ShortcutProcessingService {
       await this.processShortcutsThreadWoMacro((comb as MacroShortcutMappingCircular));
     } else if ((comb as MacroShortcutMapping).threads) {
       await Promise.all((comb as MacroShortcutMapping).threads!.map(async(receiver, i) => new Promise((resolv, rej) => {
-        const newStorageMap = new Map().set('comb', `${asyncLocalStorage.getStore()!.get('comb')}-${i + 1}`);
+        const newStorageMap = new Map().set('comb', `${this.asyncLocalStorage.getStore()!.get('comb')}-${i + 1}`);
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        asyncLocalStorage.run(newStorageMap, () => {
+        this.asyncLocalStorage.run(newStorageMap, () => {
           // eslint-disable-next-line @typescript-eslint/use-unknown-in-catch-callback-variable
           this.processCommandWithMacro(receiver, comb.delayAfter, comb.delayBefore).then(resolv).catch(rej);
         });

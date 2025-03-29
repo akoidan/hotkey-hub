@@ -1,4 +1,5 @@
 import {
+  Inject,
   Injectable,
   Logger,
 } from '@nestjs/common';
@@ -8,7 +9,8 @@ import {
 } from 'https';
 import {ConfigService} from '@/config/config-service';
 import clc from 'cli-color';
-import {asyncLocalStorage} from '@/app/custom-logger';
+import { ASYNC_PROVIDER } from '@/asyncstore/async-storage-const';
+import { AsyncLocalStorage } from 'async_hooks';
 
 interface CustomError extends Error {
   statusCode?: number;
@@ -22,7 +24,9 @@ export class FetchClient {
     private readonly logger: Logger,
     private readonly config: ConfigService,
     private readonly agent: Agent,
-    private readonly protocol: string
+    private readonly protocol: string,
+        @Inject(ASYNC_PROVIDER)
+    private readonly asyncLocalStorage: AsyncLocalStorage<Map<string, any>>,
   ) {
   }
 
@@ -72,7 +76,7 @@ export class FetchClient {
   private getHeaders(payloadstr: string): Record<string, string|number> {
     let headers: Record<string, string | number> = {
       // eslint-disable-next-line @typescript-eslint/naming-convention
-      'x-request-id': asyncLocalStorage.getStore()!.get('comb') as string,
+      'x-request-id': this.asyncLocalStorage.getStore()!.get('comb') as string,
     };
     if (payloadstr) {
       headers = {
