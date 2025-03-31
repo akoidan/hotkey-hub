@@ -2,6 +2,7 @@ import {
   aARootSchema,
   AliasesData,
   ConfigData,
+  DelayData,
   IpsData,
   macrosDefinitionSchema,
   variablesSchema,
@@ -97,23 +98,12 @@ export class ConfigService implements ConfigProvider {
     return this.configData!.macros ?? {};
   }
 
-  public getRandomVariation(): number {
-    if (this.configData!.random) {
-      return 1 + ((Math.random() - 0.5) * this.configData!.random);
-    }
-    return 1;
-  }
-
-  public getDelayAfter(): number | undefined {
-    return this.configData!.delayAfter;
-  }
-
-  public getDelayBefore(): number | undefined {
-    return this.configData!.delayBefore;
-  }
-
   public getVariables(): NonNullable<Variables> {
     return this.variables;
+  }
+
+  public getDelays(): NonNullable<DelayData> {
+    return this.configData?.delays ?? {} as DelayData;
   }
 
   public getClientPort(): number {

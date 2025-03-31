@@ -1,5 +1,6 @@
 import type {
   AliasesData,
+  DelayData,
   IpsData,
 } from '@/config/types/schema';
 import type {ShortsData} from '@/config/types/shortcut';
@@ -15,9 +16,7 @@ export interface ConfigProvider {
 
   getMacros(): NonNullable<MacroList>;
 
-  getDelayAfter(): number|undefined;
-
-  getDelayBefore(): number|undefined;
+  getDelays(): NonNullable<DelayData>;
 
   getVariables(): NonNullable<Variables>;
 
