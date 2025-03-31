@@ -71,6 +71,8 @@ export class CommandProcessingService {
     await this.awaitDelay(combDelayAfter, input.delayAfter as number | undefined, 'after');
   }
 
+  // Awaits delay if specified in global config or in local command data
+  // Applies a hugeDelay from global config if chance is succeded
   private async awaitDelay(
     combDelay: undefined | number,
     commandDelay: undefined | number,
