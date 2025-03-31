@@ -64,6 +64,7 @@ export class ShortcutProcessingService {
       delete copy.iterations;
       for (let i = 1; this.iterationsInProgress[comb.shortCut]; i++) {
         if (comb.iterations! > 0 && comb.iterations! < i) {
+          this.iterationsInProgress[comb.shortCut] = false;
           break;
         }
         this.logger.log(`Running ${clc.yellow(i)} iteration of ${clc.bold.green(comb.name)}`);
