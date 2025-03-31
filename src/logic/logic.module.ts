@@ -9,9 +9,10 @@ import {VariableResolutionService} from '@/logic/variable-resolution.service';
 import {HandlerModule} from '@/handlers/handler-module';
 import {CommandProcessingService} from '@/logic/command-processing.service';
 import {CircularIndex} from '@/logic/circular-index';
+import {AsyncStorageModule} from '@/asyncstore/async-storage.module';
 
 @Module({
-  imports: [ConfigModule, ClientModule, HandlerModule],
+  imports: [ConfigModule, ClientModule, HandlerModule, AsyncStorageModule],
   providers: [
     Logger,
     ShortcutProcessingService,
