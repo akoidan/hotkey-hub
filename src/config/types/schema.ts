@@ -58,23 +58,28 @@ const aliasesSchema = z.record(aliasesValueSchema)
 
 const delaySchema = z.object({
   beforeCommand: z.number()
-    .optional()
     .default(0)
-    .describe('Global delay in miliseconds before execution every current commands in order to prevent spam.'),
+    .describe('Global delay in miliseconds before execution every current commands in order to prevent spam.')
+    .optional(),
   afterCommand: z.number()
-    .optional()
     .default(0)
-    .describe('Global delay in miliseconds before execution every current commands in order to prevent spam.'),
+    .describe('Global delay in miliseconds before execution every current commands in order to prevent spam.')
+    .optional(),
   standardDiviation: z.number()
     .positive()
     .max(1)
-    .optional()
     .default(0)
     .describe('Random multiplier for delayAfter and delayBefore. initialDelay +/-initialDelay*random. ' +
-      'E.g. if you specified 0.2, global delay 1s would be a random delay between 0.8 and 1.2s'),
-  randomHugeDelay: z.number().positive().optional().default(0).describe("After standard delay is calcuated if randomHugeDelayChance is triggered, this delay will be added * standardDiviation to the standardDelay."),
+      'E.g. if you specified 0.2, global delay 1s would be a random delay between 0.8 and 1.2s')
+    .optional(),
+  randomHugeDelay: z.number()
+    .positive()
+    .default(0)
+    .describe('After standard delay is calcuated if randomHugeDelayChance is triggered, ' +
+      'this delay will be added * standardDiviation to the standardDelay.')
+    .optional(),
   randomHugeDelayChance: z.number().positive().max(1).optional(),
-});
+}).optional().describe('Global delays config between commands. If ommited commands will run instantly after each other');
 
 const aARootSchema = z.object({
   ips: ipsSchema,
@@ -157,6 +162,6 @@ export {
   killExeByNameCommandSchema,
   killExeByPidCommandSchema,
   commandOrMacroSchema,
-  delaySchema
+  delaySchema,
 };
 

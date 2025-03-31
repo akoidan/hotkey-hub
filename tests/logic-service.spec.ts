@@ -14,9 +14,11 @@ import {VariableResolutionService} from '@/logic/variable-resolution.service';
 import {CommandProcessingService} from '@/logic/command-processing.service';
 import {CircularIndex} from '@/logic/circular-index';
 import path from 'path';
+import { AsyncStorageModule } from 'src/asyncstore/async-storage.module';
 
 async function getTestModule(configFilePath: string): Promise<TestingModule> {
   return Test.createTestingModule({
+    imports: [AsyncStorageModule],
     providers: [
       ...handlerProviders,
       ShortcutProcessingService,

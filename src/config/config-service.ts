@@ -103,7 +103,7 @@ export class ConfigService implements ConfigProvider {
   }
 
   public getDelays(): NonNullable<DelayData> {
-    return this.configData?.delays ?? {} as DelayData;
+    return this.configData?.delays ?? ({} as NonNullable<DelayData>);
   }
 
   public getClientPort(): number {

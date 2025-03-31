@@ -9,8 +9,8 @@ import {
 } from 'https';
 import {ConfigService} from '@/config/config-service';
 import clc from 'cli-color';
-import { ASYNC_PROVIDER } from '@/asyncstore/async-storage-const';
-import { AsyncLocalStorage } from 'async_hooks';
+import {ASYNC_PROVIDER} from '@/asyncstore/async-storage-const';
+import {AsyncLocalStorage} from 'async_hooks';
 
 interface CustomError extends Error {
   statusCode?: number;

@@ -2,15 +2,15 @@ import {
   Injectable,
   Logger,
 } from '@nestjs/common';
-import { ConfigService } from '@/config/config-service';
-import { Command } from '@/config/types/commands';
+import {ConfigService} from '@/config/config-service';
+import {Command} from '@/config/types/commands';
 import {
   CommandOrMacro,
   MacroCommand,
 } from '@/config/types/macros';
-import { VariableResolutionService } from 'src/logic/variable-resolution.service';
-import { CommandHandler } from '@/handlers/command-handler.service';
-import { CircularIndex } from '@/logic/circular-index';
+import {VariableResolutionService} from 'src/logic/variable-resolution.service';
+import {CommandHandler} from '@/handlers/command-handler.service';
+import {CircularIndex} from '@/logic/circular-index';
 
 @Injectable()
 export class CommandProcessingService {
@@ -99,14 +99,14 @@ export class CommandProcessingService {
 
   resolveAliases(rec: Command): Command[] {
     if (this.configService.getIps()[rec.destination]) {
-      return [{ ...rec, destination: rec.destination }];
+      return [{...rec, destination: rec.destination}];
     }
     const destination = this.configService.getAliases()[rec.destination];
     if (typeof destination === 'string') {
-      return this.resolveAliases({ ...rec, destination });
+      return this.resolveAliases({...rec, destination});
     }
     if (typeof destination === 'object') {
-      const commands = destination.ipNames.flatMap(dest => this.resolveAliases({ ...rec, destination: dest }));
+      const commands = destination.ipNames.flatMap(dest => this.resolveAliases({...rec, destination: dest}));
       if (destination.circular) {
         return [this.circularResolved.getNextFighterIndex(rec, commands)];
       }
