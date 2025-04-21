@@ -36,6 +36,7 @@ import {
   threadCircularShortCutMappingSchema,
   shortCut,
 } from '@/config/types/shortcut';
+import {globalDelaySchema} from '@/config/types/delays';
 
 const ipsSchema = z.record(z.string().ip())
   .describe('Definition of remote PCs where keys are PC names and values are their IP addresses.' +
@@ -56,31 +57,6 @@ const aliasesSchema = z.record(aliasesValueSchema)
     'IPS section and instead of specifying PC name directly you can use aliases from this section that points to the PC name.');
 
 
-const delaySchema = z.object({
-  beforeCommand: z.number()
-    .default(0)
-    .describe('Global delay in miliseconds before execution every current commands in order to prevent spam.')
-    .optional(),
-  afterCommand: z.number()
-    .default(0)
-    .describe('Global delay in miliseconds before execution every current commands in order to prevent spam.')
-    .optional(),
-  standardDiviation: z.number()
-    .positive()
-    .max(1)
-    .default(0)
-    .describe('Random multiplier for delayAfter and delayBefore. initialDelay +/-initialDelay*random. ' +
-      'E.g. if you specified 0.2, global delay 1s would be a random delay between 0.8 and 1.2s')
-    .optional(),
-  randomHugeDelay: z.number()
-    .positive()
-    .default(0)
-    .describe('After standard delay is calcuated if randomHugeDelayChance is triggered, ' +
-      'this delay will be added * standardDiviation to the standardDelay.')
-    .optional(),
-  randomHugeDelayChance: z.number().positive().max(1).optional(),
-}).optional().describe('Global delays config between commands. If ommited commands will run instantly after each other');
-
 const aARootSchema = z.object({
   ips: ipsSchema,
   aliases: aliasesSchema,
@@ -89,7 +65,7 @@ const aARootSchema = z.object({
     .default(5000)
     .describe('Https port to connect to on client PC'),
   combinations: combinationList,
-  delays: delaySchema,
+  delays: globalDelaySchema,
   macros: macrosDefinitionSchema,
 }).strict().superRefine((data, ctx) => {
   // Ensure mapping values are arrays of keys from ips
@@ -121,14 +97,12 @@ type ConfigData = z.infer<typeof aARootSchema>;
 type IpsData = z.infer<typeof ipsSchema>
 type AliasesData = z.infer<typeof aliasesSchema>
 type AliasesValueData = z.infer<typeof aliasesValueSchema>
-type DelayData = z.infer<typeof delaySchema>
 
 
 export type {
   ConfigData,
   IpsData,
   AliasesData,
-  DelayData,
   AliasesValueData,
 };
 
@@ -136,6 +110,7 @@ export {
   aARootSchema,
   keySchema,
   shortCut,
+  globalDelaySchema,
   macroSchema,
   macrosDefinitionSchema,
   macroVariablesDescriptionSchema,
@@ -162,6 +137,5 @@ export {
   killExeByNameCommandSchema,
   killExeByPidCommandSchema,
   commandOrMacroSchema,
-  delaySchema,
 };
 

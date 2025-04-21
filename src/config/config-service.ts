@@ -2,7 +2,6 @@ import {
   aARootSchema,
   AliasesData,
   ConfigData,
-  DelayData,
   IpsData,
   macrosDefinitionSchema,
   variablesSchema,
@@ -19,6 +18,7 @@ import {ShortsData} from '@/config/types/shortcut';
 import {ConfigProvider} from '@/config/interfaces';
 import {ConfigReaderService} from '@/config/config-reader-service';
 import clc from 'cli-color';
+import { DelayData } from '@/config/types/delays';
 
 interface ConfigCombination {
   shortCut: string;

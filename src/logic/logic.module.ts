@@ -10,11 +10,13 @@ import {HandlerModule} from '@/handlers/handler-module';
 import {CommandProcessingService} from '@/logic/command-processing.service';
 import {CircularIndex} from '@/logic/circular-index';
 import {AsyncStorageModule} from '@/asyncstore/async-storage.module';
+import { DelayService } from '@/logic/delay.service';
 
 @Module({
   imports: [ConfigModule, ClientModule, HandlerModule, AsyncStorageModule],
   providers: [
     Logger,
+    DelayService,
     ShortcutProcessingService,
     VariableResolutionService,
     CommandProcessingService,

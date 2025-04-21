@@ -95,7 +95,7 @@ export class FetchClient {
     client: string,
     url: string,
     payload?: unknown,
-    timeout: number = 3000,
+    timeout: number = 6000,
     withParse: boolean = false,
   ): Promise<T> {
     const payloadstr: string = method === 'POST' && payload ? JSON.stringify(payload) : '';
@@ -134,11 +134,11 @@ export class FetchClient {
   }
 
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-  async post<T>(client: string, url: string, payload: any, timeout = 3000, withParse = false): Promise<T> {
+  async post<T>(client: string, url: string, payload: any, timeout = 6000, withParse = false): Promise<T> {
     return this.makeRequest<T>('POST', client, url, payload, timeout, withParse);
   }
 
-  async get<T>(client: string, url: string, timeout = 3000, withParse = false): Promise<T> {
+  async get<T>(client: string, url: string, timeout = 6000, withParse = false): Promise<T> {
     return this.makeRequest<T>('GET', client, url, undefined, timeout, withParse);
   }
 }

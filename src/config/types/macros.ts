@@ -6,7 +6,7 @@ import {
   commandSchema,
 } from '@/config/types/schema';
 import {schemaRootCache} from '@/config/types/cache';
-import {delaySchema} from '@/config/types/commands';
+import {delayCommandsSchema} from '@/config/types/commands';
 import {variableRegex} from '@/config/types/variables';
 
 const runMacroCommandSchema = z.object({
@@ -14,7 +14,7 @@ const runMacroCommandSchema = z.object({
   variables: z.record(z.union([z.string(), z.number()])).optional().describe('Object of a key-values of variable name and value'),
 })
   .strict()
-  .merge(delaySchema)
+  .merge(delayCommandsSchema)
   .superRefine((command, ctx) => {
     const definedMacros: NonNullable<MacroList> = {...(schemaRootCache.data?.macros ?? {}), ...(schemaRootCache?.macros ?? {})};
     if (!definedMacros[command.macro]) {

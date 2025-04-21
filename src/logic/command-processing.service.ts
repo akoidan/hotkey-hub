@@ -11,6 +11,7 @@ import {
 import {VariableResolutionService} from 'src/logic/variable-resolution.service';
 import {CommandHandler} from '@/handlers/command-handler.service';
 import {CircularIndex} from '@/logic/circular-index';
+import {DelayService} from '@/logic/delay.service';
 
 @Injectable()
 export class CommandProcessingService {
@@ -20,6 +21,7 @@ export class CommandProcessingService {
     private readonly logger: Logger,
     private readonly comandHandler: CommandHandler,
     private readonly circularResolved: CircularIndex,
+    private readonly delayService: DelayService,
   ) {
 
   }
@@ -35,7 +37,7 @@ export class CommandProcessingService {
       if (typeof input.delayBefore === 'number') { // ignore if it's a variable or undefined
         // if it's a macro, delay in this macro won't be passed down
         // but would be await after any commands in this macro has run yet as expected, this is why on top we are not passing it
-        await this.awaitDelay(input.delayBefore as number, undefined, 'before');
+        await this.delayService.awaitDelay(input.delayBefore as number, undefined, 'before');
       }
       for (const command of executable.commands) {
         const preparedCommand = this.variableService.replacePlaceholders(
@@ -50,7 +52,7 @@ export class CommandProcessingService {
       // commands in this macro has been already ran in the loop
       // await delay before the next command after this macro runs
       if (typeof input.delayAfter === 'number') { // ignore if it's a variable or undefined
-        await this.awaitDelay(input.delayAfter as number, undefined, 'after'); // if it's a macro, delay in this macro won't be passed down
+        await this.delayService.awaitDelay(input.delayAfter as number, undefined, 'after'); // if it's a macro, delay in this macro won't be passed down
         // but would be await after all commands in this macro as expected, this is why on top we are not passing it
       }
     } else if (resolveAlias) {
@@ -66,37 +68,9 @@ export class CommandProcessingService {
   private async runCommand(input: Command, combDelayAfter: undefined | number, combDelayBefore: undefined | number): Promise<void> {
     const currRec = this.variableService.replaceEnvVars(input);
     this.logger.debug(`Running ${JSON.stringify(input)}`);
-    await this.awaitDelay(combDelayBefore, input.delayBefore as number | undefined, 'before');
+    await this.delayService.awaitDelay(combDelayBefore, input.delayBefore as number | undefined, 'before');
     await this.comandHandler.handle((currRec as Command).destination, currRec);
-    await this.awaitDelay(combDelayAfter, input.delayAfter as number | undefined, 'after');
-  }
-
-  // Awaits delay if specified in global config or in local command data
-  // Applies a hugeDelay from global config if chance is succeded
-  private async awaitDelay(
-    combDelay: undefined | number,
-    commandDelay: undefined | number,
-    type: 'before' | 'after'
-  ): Promise<void> {
-    if (commandDelay !== undefined) {
-      combDelay = commandDelay;
-    }
-    const delays = this.configService.getDelays();
-    const randomVariation = delays.standardDiviation ? 1 + ((Math.random() - 0.5) * delays?.standardDiviation) : 1;
-    const configDelay = type === 'before' ? delays.beforeCommand : delays.afterCommand;
-    if (combDelay === undefined && configDelay !== undefined) {
-      combDelay = Math.round(randomVariation * configDelay);
-      if (delays.randomHugeDelay && delays.randomHugeDelayChance && Math.random() < delays.randomHugeDelayChance) {
-        combDelay += delays.standardDiviation ? delays.randomHugeDelay * (1 + (Math.random() - 0.5) * delays.standardDiviation) : 1;
-      }
-    }
-    if (!combDelay) {
-      return;
-    }
-    this.logger.debug(`Sleeping for ${combDelay}ms`);
-    await new Promise(resolve => {
-      setTimeout(resolve, combDelay);
-    });
+    await this.delayService.awaitDelay(combDelayAfter, input.delayAfter as number | undefined, 'after');
   }
 
   resolveAliases(rec: Command): Command[] {
