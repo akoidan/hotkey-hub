@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import clc from 'cli-color';
 import {AsyncLocalStorage} from 'async_hooks';
+import {SemaphorService} from '@/semaphor/semaphor-service';
 
 
 @Injectable()
@@ -21,7 +22,7 @@ class CustomLogger extends ConsoleLogger {
     const timestamp = clc.xterm(100)(`[${this.getCurrentTime()}]`);
 
     const store = this.asyncStorage.getStore();
-    const id =  store ?  levelColor(store.get('comb') as string):  levelColor(level);
+    const id =  store ?  levelColor(store.get(SemaphorService.COMB_KEY) as string):  levelColor(level);
     return `${timestamp} ${id}: ${messageStyle ? messageStyle(message) : message}`;
   }
 

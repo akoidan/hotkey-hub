@@ -11,6 +11,7 @@ import {ConfigService} from '@/config/config-service';
 import clc from 'cli-color';
 import {ASYNC_PROVIDER} from '@/asyncstore/async-storage-const';
 import {AsyncLocalStorage} from 'async_hooks';
+import { SemaphorService } from '@/semaphor/semaphor-service';
 
 interface CustomError extends Error {
   statusCode?: number;
@@ -25,8 +26,7 @@ export class FetchClient {
     private readonly config: ConfigService,
     private readonly agent: Agent,
     private readonly protocol: string,
-        @Inject(ASYNC_PROVIDER)
-    private readonly asyncLocalStorage: AsyncLocalStorage<Map<string, any>>,
+    private readonly semaphorService: SemaphorService,
   ) {
   }
 
@@ -76,7 +76,7 @@ export class FetchClient {
   private getHeaders(payloadstr: string): Record<string, string|number> {
     let headers: Record<string, string | number> = {
       // eslint-disable-next-line @typescript-eslint/naming-convention
-      'x-request-id': this.asyncLocalStorage.getStore()!.get('comb') as string,
+      'x-request-id': this.semaphorService.getCurrentOperationId(),
     };
     if (payloadstr) {
       headers = {

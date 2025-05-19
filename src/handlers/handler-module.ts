@@ -11,54 +11,57 @@ import {KillPidHandler} from '@/handlers/implementation/kill-pid-handler';
 import {ConfigModule} from '@/config/config-module';
 import {LeftMouseClickHandler} from '@/handlers/implementation/left-mouse-click-handler';
 import {Provider} from '@nestjs/common/interfaces/modules/provider.interface';
+import {SemaphorService} from '@/semaphor/semaphor-service';
+import {SemaphorModule} from '@/semaphor/semaphor.module';
 
 
 const handlerProviders: Provider[] = [
-    KeyPressHandler,
-    FocusWindowHandler,
-    MouseClickHandler,
-    ExecuteHandler,
-    TypeTextHandler,
-    KillNameHandler,
-    KillPidHandler,
-    LeftMouseClickHandler,
-    {
-      provide: CommandHandler,
-      inject: [
-        KeyPressHandler,
-        FocusWindowHandler,
-        MouseClickHandler,
-        ExecuteHandler,
-        TypeTextHandler,
-        KillNameHandler,
-        KillPidHandler,
-        LeftMouseClickHandler,
-      ],
-      useFactory: (
-        keyPressHandler: CommandHandler,
-        focusWindowHandler: CommandHandler,
-        mouseClickHandler: CommandHandler,
-        executeHandler: CommandHandler,
-        typeTextHandler: CommandHandler,
-        killByNameHandler: CommandHandler,
-        killByPidHandler: CommandHandler,
-        leftMouseClickHandler: CommandHandler,
-      ): CommandHandler => {
-        keyPressHandler
-          .setNext(focusWindowHandler)
-          .setNext(mouseClickHandler)
-          .setNext(executeHandler)
-          .setNext(typeTextHandler)
-          .setNext(killByNameHandler)
-          .setNext(killByPidHandler)
-          .setNext(leftMouseClickHandler);
+  KeyPressHandler,
+  FocusWindowHandler,
+  MouseClickHandler,
+  ExecuteHandler,
+  TypeTextHandler,
+  KillNameHandler,
+  KillPidHandler,
+  LeftMouseClickHandler,
+  {
+    provide: CommandHandler,
+    inject: [
+      KeyPressHandler,
+      FocusWindowHandler,
+      MouseClickHandler,
+      ExecuteHandler,
+      TypeTextHandler,
+      KillNameHandler,
+      KillPidHandler,
+      LeftMouseClickHandler,
+    ],
+    useFactory: (
+      keyPressHandler: CommandHandler,
+      focusWindowHandler: CommandHandler,
+      mouseClickHandler: CommandHandler,
+      executeHandler: CommandHandler,
+      typeTextHandler: CommandHandler,
+      killByNameHandler: CommandHandler,
+      killByPidHandler: CommandHandler,
+      leftMouseClickHandler: CommandHandler,
+    ): CommandHandler => {
+      keyPressHandler
+        .setNext(focusWindowHandler)
+        .setNext(mouseClickHandler)
+        .setNext(executeHandler)
+        .setNext(typeTextHandler)
+        .setNext(killByNameHandler)
+        .setNext(killByPidHandler)
+        .setNext(leftMouseClickHandler);
 
-        return keyPressHandler;
-      },
+      return keyPressHandler;
     },
-  ];
+  },
+];
+
 @Module({
-  imports: [ClientModule, ConfigModule],
+  imports: [ClientModule, ConfigModule, SemaphorModule],
   providers: handlerProviders,
   exports: [CommandHandler],
 })
@@ -66,4 +69,7 @@ class HandlerModule {
 
 }
 
-export {handlerProviders, HandlerModule};
+export {
+  handlerProviders,
+  HandlerModule,
+};

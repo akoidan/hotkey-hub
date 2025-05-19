@@ -10,12 +10,14 @@ import {ConfigService} from '@/config/config-service';
 import {ASYNC_PROVIDER} from '@/asyncstore/async-storage-const';
 import {AsyncStorageModule} from '@/asyncstore/async-storage.module';
 import {AsyncLocalStorage} from 'async_hooks';
+import {SemaphorService} from '@/semaphor/semaphor-service';
+import {SemaphorModule} from '@/semaphor/semaphor.module';
 
 
 @Module({
   imports: [
     ConfigModule,
-    AsyncStorageModule,
+    SemaphorModule,
   ],
   providers: [
     Logger,
@@ -26,11 +28,11 @@ import {AsyncLocalStorage} from 'async_hooks';
         logger: Logger,
         cert: CertService,
         config: ConfigService,
-        async: AsyncLocalStorage<Map<string, any>>
+        semaphore: SemaphorService,
       ): Promise<FetchClient> {
-        return new FetchClient(logger, config, await cert.getHttpAgent(), 'https:', async);
+        return new FetchClient(logger, config, await cert.getHttpAgent(), 'https:', semaphore);
       },
-      inject: [Logger, CertService, ConfigService, ASYNC_PROVIDER],
+      inject: [Logger, CertService, ConfigService, SemaphorService],
     },
     ClientService,
   ],

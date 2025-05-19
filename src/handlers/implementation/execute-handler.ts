@@ -6,14 +6,16 @@ import {CommandHandler} from '@/handlers/command-handler.service';
 import {ConfigService} from '@/config/config-service';
 import {Injectable} from '@nestjs/common';
 import {ClientService} from '@/client/client-service';
+import { SemaphorService } from '@/semaphor/semaphor-service';
 
 @Injectable()
 export class ExecuteHandler extends CommandHandler {
   constructor(
     clientService: ClientService,
     private readonly configService: ConfigService,
+    private readonly semaphoreSerivce: SemaphorService,
   ) {
-    super(clientService);
+    super(clientService, semaphoreSerivce);
   }
 
   canHandle(command: Command): command is ExecuteCommand {
