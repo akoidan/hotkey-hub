@@ -36,20 +36,9 @@ export class SemaphorService {
     return this.asyncLocalStorage.getStore()!.get(SemaphorService.COMB_KEY) as string;
   }
 
-  public getMainOperationId(): string {
-    const currentId = this.getCurrentOperationId();
-    return currentId.split('-')[0];
-  }
-
-  // public isCurrentOperationLocked(): boolean {
-  //   const currentId = this.getCurrentOperationId();
-  //   const mainId = currentId.split('-')[0];
-  //   if
-  //   return this.asyncLocalStorage.getStore()!.get(SemaphorService.COMB_KEY) as string;
-  // }
-
   public spawnChild(i: number, cb: () => void): void {
     const newId = `${this.getCurrentOperationId()}-${i}`;
+    this.iterationsInProgress.set(newId, []);
     const newStorageMap: Map<string, any> = new Map<string, any>().set(SemaphorService.COMB_KEY, newId);
     this.asyncLocalStorage.run(newStorageMap, cb);
   }
@@ -63,7 +52,7 @@ export class SemaphorService {
       processingId = [];
       this.destinationsInProgress.set(destination, processingId);
     }
-    const currentOperationId = this.getMainOperationId();
+    const currentOperationId = this.getCurrentOperationId();
     if (!processingId.includes(currentOperationId)) {
       processingId.push(currentOperationId);
     }
@@ -77,16 +66,18 @@ export class SemaphorService {
   }
 
   public finishOperation(): void {
-    const key = this.getMainOperationId();
+    const key = this.getCurrentOperationId();
+    this.logger.debug(`Current operation ${key} has finished, flushing its data `);
     for (const [destination, threads] of this.destinationsInProgress.entries()) {
       if (threads.includes(key)) {
         this.logger.debug(`Removing ${key} from ${destination} queue`);
         threads.splice(threads.indexOf(key), 1);
       }
     }
-    const awaitedResolving = this.iterationsInProgress.get(key)!;
+    const awaitedResolving = this.iterationsInProgress.get(key) ?? [];
     for (const resolve of awaitedResolving) {
       resolve();
+      this.logger.debug(`Unlocking ${resolve.length} operations from ${key}`);
     }
     this.iterationsInProgress.delete(key);
   }

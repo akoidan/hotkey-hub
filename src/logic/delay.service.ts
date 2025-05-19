@@ -31,11 +31,15 @@ export class DelayService {
     commandDelay: undefined | number,
     type: 'before' | 'after'
   ): Promise<void> {
+    const delays = this.configService.getDelays();
+    if (combDelay && delays.combinationDiviation) {
+      combDelay = this.calcDiviation(combDelay, delays.combinationDiviation);
+    }
     if (commandDelay !== undefined) {
       combDelay = commandDelay;
     }
 
-    const delays = this.configService.getDelays();
+
     const configDelay = type === 'before' ? delays.beforeCommand : delays.afterCommand;
     if (combDelay === undefined && configDelay !== undefined) {
       combDelay = this.calcDiviation(configDelay, delays.standardDiviation);

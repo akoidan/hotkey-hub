@@ -38,7 +38,9 @@ export class ShortcutProcessingService {
       await Promise.all((comb as MacroShortcutMapping).threads!.map(async(receiver, i) => new Promise((resolv, rej) => {
         this.semaphorService.spawnChild(i, () => {
           // eslint-disable-next-line @typescript-eslint/use-unknown-in-catch-callback-variable
-          this.processCommandWithMacro(receiver, comb.delayAfter, comb.delayBefore).then(resolv).catch(rej);
+          this.processCommandWithMacro(receiver, comb.delayAfter, comb.delayBefore).then(resolv).catch(rej).finally(() => {
+            this.semaphorService.finishOperation();
+          });
         });
       })));
     } else if ((comb as MacroShortcutMapping).commands) {

@@ -15,7 +15,16 @@ const globalDelaySchema = z.object({
     .positive()
     .max(1)
     .default(0)
-    .describe('Controls randomness of before/after delays. Value from 0 to 1. '
+    .describe('Controls randomness of global before/after delays. Value from 0 to 1. '
+      + 'Final delay = base ± (base * standardDeviation). '
+      + 'E.g. 0.2 with 1000ms delay gives random delay between 800ms and 1200ms.')
+    .optional(),
+
+  combinationDiviation: z.number()
+    .positive()
+    .max(1)
+    .default(0)
+    .describe('Controls randomness of combination before/after delays. Value from 0 to 1. '
       + 'Final delay = base ± (base * standardDeviation). '
       + 'E.g. 0.2 with 1000ms delay gives random delay between 800ms and 1200ms.')
     .optional(),
