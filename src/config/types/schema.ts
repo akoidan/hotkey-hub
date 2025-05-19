@@ -66,6 +66,10 @@ const aARootSchema = z.object({
     .describe('Https port to connect to on client PC'),
   combinations: combinationList,
   delays: globalDelaySchema,
+  queueEnabled: z.boolean()
+    .optional()
+    .default(false)
+    .describe('If set to true, commands to destination will be sent only when previous combination is finished running'),
   macros: macrosDefinitionSchema,
 }).strict().superRefine((data, ctx) => {
   // Ensure mapping values are arrays of keys from ips

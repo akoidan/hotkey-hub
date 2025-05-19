@@ -1,5 +1,4 @@
 import {
-  Inject,
   Injectable,
   Logger,
 } from '@nestjs/common';
@@ -14,8 +13,6 @@ import {CommandOrMacro} from '@/config/types/macros';
 import {Command} from '@/config/types/commands';
 import clc from 'cli-color';
 import {CircularIndex} from '@/logic/circular-index';
-import {ASYNC_PROVIDER} from '@/asyncstore/async-storage-const';
-import {AsyncLocalStorage} from 'async_hooks';
 import {SemaphorService} from '@/semaphor/semaphor-service';
 
 @Injectable()

@@ -18,7 +18,7 @@ import {ShortsData} from '@/config/types/shortcut';
 import {ConfigProvider} from '@/config/interfaces';
 import {ConfigReaderService} from '@/config/config-reader-service';
 import clc from 'cli-color';
-import { DelayData } from '@/config/types/delays';
+import {DelayData} from '@/config/types/delays';
 
 interface ConfigCombination {
   shortCut: string;
@@ -84,6 +84,10 @@ export class ConfigService implements ConfigProvider {
 
   public getIps(): IpsData {
     return this.configData!.ips;
+  }
+
+  public queueEnabled(): boolean {
+    return this.configData!.queueEnabled ?? false;
   }
 
   public getCombinations(): ShortsData[] {

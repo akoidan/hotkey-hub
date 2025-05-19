@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import {ASYNC_PROVIDER} from '@/asyncstore/async-storage-const';
 import {AsyncLocalStorage} from 'async_hooks';
+import {ConfigService} from '@/config/config-service';
 
 @Injectable()
 export class SemaphorService {
@@ -17,6 +18,7 @@ export class SemaphorService {
   constructor(
     @Inject(ASYNC_PROVIDER)
     private readonly asyncLocalStorage: AsyncLocalStorage<Map<string, any>>,
+    private readonly configService: ConfigService,
     private readonly logger: Logger,
   ) {
   }
@@ -53,6 +55,9 @@ export class SemaphorService {
   }
 
   public async awaitOperation(destination: string): Promise<void> {
+    if (!this.configService.queueEnabled()) {
+      return;
+    }
     let processingId = this.destinationsInProgress.get(destination);
     if (!processingId) {
       processingId = [];

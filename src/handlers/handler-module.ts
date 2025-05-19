@@ -11,7 +11,6 @@ import {KillPidHandler} from '@/handlers/implementation/kill-pid-handler';
 import {ConfigModule} from '@/config/config-module';
 import {LeftMouseClickHandler} from '@/handlers/implementation/left-mouse-click-handler';
 import {Provider} from '@nestjs/common/interfaces/modules/provider.interface';
-import {SemaphorService} from '@/semaphor/semaphor-service';
 import {SemaphorModule} from '@/semaphor/semaphor.module';
 
 

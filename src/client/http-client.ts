@@ -1,5 +1,4 @@
 import {
-  Inject,
   Injectable,
   Logger,
 } from '@nestjs/common';
@@ -9,9 +8,7 @@ import {
 } from 'https';
 import {ConfigService} from '@/config/config-service';
 import clc from 'cli-color';
-import {ASYNC_PROVIDER} from '@/asyncstore/async-storage-const';
-import {AsyncLocalStorage} from 'async_hooks';
-import { SemaphorService } from '@/semaphor/semaphor-service';
+import {SemaphorService} from '@/semaphor/semaphor-service';
 
 interface CustomError extends Error {
   statusCode?: number;

@@ -1,7 +1,7 @@
 import {Command} from '@/config/types/commands';
 import {ClientService} from '@/client/client-service';
 import {Injectable} from '@nestjs/common';
-import { SemaphorService } from '@/semaphor/semaphor-service';
+import {SemaphorService} from '@/semaphor/semaphor-service';
 
 @Injectable()
 export abstract class CommandHandler {
