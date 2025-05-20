@@ -76,9 +76,11 @@ export class CommandProcessingService {
   private async runCommand(input: Command, combDelayAfter: undefined | number, combDelayBefore: undefined | number): Promise<void> {
     const currRec = this.variableService.replaceEnvVars(input);
     this.logger.debug(`Running ${JSON.stringify(input)}`);
+    await this.semaphoreService.startTransaction((currRec as Command).destination);
     await this.delayService.awaitDelay(combDelayBefore, input.delayBefore as number | undefined, 'before');
     await this.comandHandler.handle((currRec as Command).destination, currRec);
     await this.delayService.awaitDelay(combDelayAfter, input.delayAfter as number | undefined, 'after');
+    this.semaphoreService.finishTransaction((currRec as Command).destination);
   }
 
   resolveAliases(rec: Command): Command[] {
