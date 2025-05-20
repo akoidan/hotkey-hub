@@ -21,7 +21,7 @@ export class SemaphorService {
 
   private getDebugState(): string {
     const state = {
-      iterationsInProgress: JSON.stringify(this.iterationsInProgress, null, ),
+      iterationsInProgress: JSON.stringify(this.iterationsInProgress, null, 2),
       destinationsInProgress: JSON.stringify(this.destinationsInProgress, null, 2),
     };
     return JSON.stringify(state, null, 2);
@@ -35,7 +35,7 @@ export class SemaphorService {
   ) {
   }
 
-  public startOperation(cb: () => Promise<void>): void {
+  public startTransaction(cb: () => Promise<void>): void {
     const randomValue = Math.random().toString(36).substring(2, 6);
     this.iterationsInProgress[randomValue] = [];
     this.logger.debug(`[PARENT] Starting new parent operation ${randomValue}\nCurrent state:\n${this.getDebugState()}`);
@@ -88,7 +88,7 @@ export class SemaphorService {
     }
   }
 
-  public finishOperation(): void {
+  public commitTransaction(): void {
     const key = this.getCurrentOperationId();
     const parentId = key.includes('-') ? key.split('-')[0] : key;
     const isChild = key !== parentId;
@@ -104,12 +104,7 @@ export class SemaphorService {
     let i = 0;
     for (const awaited of awaitedResolving) {
       this.logger.debug(`[RESOLVE] Operation ${key} resolving operation, ${awaitedResolving.length - i} remaining`);
-      setTimeout(() => {
-        this.logger.debug(`[RESOLVE] Operation ${key} executing resolver for operation, ${awaitedResolving.length - i} remaining`);
-        awaited.resolve();
-        this.logger.debug(`[RESOLVE] Operation ${key} resolved operation, ${awaitedResolving.length - i - 1} remaining`);
-      }, i * 10);
-      i++;
+      awaited.resolve();
       this.logger.debug(`Unlocking ${awaited.from} operations from ${key} in ${i * 10}ms`);
     }
     delete this.iterationsInProgress[key];

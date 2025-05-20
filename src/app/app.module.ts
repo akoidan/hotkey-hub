@@ -40,14 +40,14 @@ export class AppModule implements OnModuleInit {
       );
       this.configService.getCombinations().forEach((comb) => {
         this.hotKeyService.registerShortcut(comb.shortCut, () => {
-          this.semaphorService.startOperation(async() => {
+          this.semaphorService.startTransaction(async() => {
             this.logger.log(`${clc.bold.green(comb.shortCut)} pressed`);
             try {
               await this.logicService.processUnknownShortCut(comb);
             } catch (err) {
               this.logger.error(err);
             } finally {
-              this.semaphorService.finishOperation();
+              this.semaphorService.commitTransaction();
             }
           });
         });
