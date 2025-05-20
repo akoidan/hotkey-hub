@@ -11,14 +11,14 @@ export class SemaphorService {
   // eslint-disable-next-line @typescript-eslint/naming-convention
   public static readonly COMB_KEY = 'comb';
 
-  private readonly transactionQueue: Record<string, ({
+  private readonly transactionGroups: Record<string, ({
     resolve(): void;
     resolveFrom: string;
-    currentId: string;
+    transactionId: string;
   } | {
     resolve: null;
     resolveFrom: null;
-    currentId: string;
+    transactionId: string;
   })[]> = {};
 
 
@@ -30,15 +30,15 @@ export class SemaphorService {
   }
 
   public startOperation(cb: () => Promise<void>): void {
-    const randomValue = Math.random().toString(36).substring(2, 6);
-    this.transactionQueue[randomValue] = [];
+    const randomValue = this.getNewTransactionId();
+    this.transactionGroups[randomValue] = [];
     this.asyncLocalStorage.run(new Map(), () => {
       this.asyncLocalStorage.getStore()!.set(SemaphorService.COMB_KEY, randomValue);
       void cb();
     });
   }
 
-  public finishOperation():void {
+  public finishOperation(): void {
     this.logger.debug(`All actions for ${this.getCurrentOperationId()} are completed`);
   }
 
@@ -53,11 +53,11 @@ export class SemaphorService {
     this.asyncLocalStorage.run(newStorageMap, cb);
   }
 
-  public finishTransaction(destination: string): void {
-    const currentState = this.transactionQueue[destination];
-    const key = this.getCurrentOperationId();
-    if (currentState[0].currentId !== key) {
-      throw Error(`Invalid state for current id of queue[0] = ${currentState[0].currentId}`);
+  public finishTransaction(transactionGroup: string, transactionId: string): void {
+    this.logger.debug(`Finishing transactions on ${transactionGroup}: ${transactionId}`);
+    const currentState = this.transactionGroups[transactionGroup];
+    if (currentState[0].transactionId !== transactionId) {
+      throw Error(`Invalid state for current id of queue[0] = ${currentState[0].transactionId}`);
     }
     const elements = currentState.shift();
     if (elements!.resolve) {
@@ -66,25 +66,32 @@ export class SemaphorService {
     }
   }
 
-  public async startTransaction(destination: string): Promise<void> {
-    let currentState = this.transactionQueue[destination];
+  public getNewTransactionId(): string {
+    return Math.random().toString(36).substring(2, 6);
+  }
+
+  public async startTransaction(trasactionGroup: string, transactionId: string): Promise<void> {
+    let currentState = this.transactionGroups[trasactionGroup];
     if (!currentState) {
       // eslint-disable-next-line no-multi-assign
-      currentState = this.transactionQueue[destination] = [];
+      currentState = this.transactionGroups[trasactionGroup] = [];
     }
     if (currentState.length > 0) {
-      if (currentState[0].currentId === this.getCurrentOperationId()) {
-        // this operation is the same transaction
+      if (currentState[0].transactionId === transactionId) {
+        this.logger.debug(`Continuing inside transaction ${transactionId}`);
         return;
       }
-      this.logger.log(`Awaiting ${currentState[currentState.length - 1]!.currentId} to finish`);
+
+      this.logger.log(`Create new transaction ${transactionId} but waiting ${currentState[currentState.length - 1]!.transactionId} to finish`);
       await new Promise<void>(resolve => {
         currentState[currentState.length - 1].resolve = resolve;
-        currentState[currentState.length - 1].resolveFrom = this.getCurrentOperationId();
-        currentState.push({currentId: this.getCurrentOperationId(), resolve: null, resolveFrom: null}); // push to queue this new transaction so others won't come before this one
+        currentState[currentState.length - 1].resolveFrom = transactionId;
+        currentState.push({transactionId, resolve: null, resolveFrom: null}); // push to queue this new transaction so others won't come before this one
       });
+      this.logger.debug(`Lock released. Starting new transaction ${transactionId}`);
     } else {
-      currentState.push({currentId: this.getCurrentOperationId(), resolve: null, resolveFrom: null});
+      this.logger.debug(`Starting new transaction ${transactionId}`);
+      currentState.push({transactionId, resolve: null, resolveFrom: null});
     }
   }
 }
