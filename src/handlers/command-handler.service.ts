@@ -1,7 +1,6 @@
 import {Command} from '@/config/types/commands';
 import {ClientService} from '@/client/client-service';
 import {Injectable} from '@nestjs/common';
-import {SemaphorService} from '@/semaphor/semaphor-service';
 
 @Injectable()
 export abstract class CommandHandler {
@@ -9,7 +8,6 @@ export abstract class CommandHandler {
 
   constructor(
     protected readonly clientService: ClientService,
-    private readonly semaphorService: SemaphorService,
   ) {
   }
 
@@ -24,7 +22,6 @@ export abstract class CommandHandler {
 
   async handle(destination: string, command: Command): Promise<void> {
     if (this.canHandle(command)) {
-      await this.semaphorService.awaitOperation(destination);
       await this.execute(destination, command);
     } else if (this.next) {
       await this.next.handle(destination, command);

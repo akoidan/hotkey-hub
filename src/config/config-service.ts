@@ -86,8 +86,8 @@ export class ConfigService implements ConfigProvider {
     return this.configData!.ips;
   }
 
-  public queueEnabled(): boolean {
-    return this.configData!.queueEnabled ?? false;
+  public mutex(): boolean {
+    return this.configData!.mutex ?? false;
   }
 
   public getCombinations(): ShortsData[] {

@@ -12,11 +12,11 @@ import {ShortcutProcessingService} from '@/logic/shortcut-processing.service';
 import {LogicModule} from '@/logic/logic.module';
 import {NativeModule} from '@/native/native-module';
 import clc from 'cli-color';
-import {SemaphorService} from '@/semaphor/semaphor-service';
-import {SemaphorModule} from '@/semaphor/semaphor.module';
+import {MutexService} from '@/mutex/mutex.service';
+import {MutexModule} from '@/mutex/mutex.module';
 
 @Module({
-  imports: [ConfigModule, ClientModule, LogicModule, NativeModule, SemaphorModule],
+  imports: [ConfigModule, ClientModule, LogicModule, NativeModule, MutexModule],
   providers: [Logger, HotkeyService],
   exports: [],
 })
@@ -27,7 +27,7 @@ export class AppModule implements OnModuleInit {
     private readonly logicService: ShortcutProcessingService,
     private readonly configService: ConfigService,
     private readonly clientService: ClientService,
-    private readonly semaphorService: SemaphorService
+    private readonly semaphorService: MutexService
   ) {
   }
 
@@ -40,8 +40,7 @@ export class AppModule implements OnModuleInit {
       );
       this.configService.getCombinations().forEach((comb) => {
         this.hotKeyService.registerShortcut(comb.shortCut, () => {
-          this.semaphorService.startTransaction(async() => {
-            this.logger.log(`${clc.bold.green(comb.shortCut)} pressed`);
+          this.semaphorService.startTransaction(comb.shortCut, async() => {
             try {
               await this.logicService.processUnknownShortCut(comb);
             } catch (err) {

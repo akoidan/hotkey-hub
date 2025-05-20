@@ -2,20 +2,18 @@ import {
   Command,
   ExecuteCommand,
 } from '@/config/types/commands';
-import {CommandHandler} from '@/handlers/command-handler.service';
-import {ConfigService} from '@/config/config-service';
-import {Injectable} from '@nestjs/common';
-import {ClientService} from '@/client/client-service';
-import {SemaphorService} from '@/semaphor/semaphor-service';
+import { CommandHandler } from '@/handlers/command-handler.service';
+import { ConfigService } from '@/config/config-service';
+import { Injectable } from '@nestjs/common';
+import { ClientService } from '@/client/client-service';
 
 @Injectable()
 export class ExecuteHandler extends CommandHandler {
   constructor(
     clientService: ClientService,
     private readonly configService: ConfigService,
-    private readonly semaphoreSerivce: SemaphorService,
   ) {
-    super(clientService, semaphoreSerivce);
+    super(clientService);
   }
 
   canHandle(command: Command): command is ExecuteCommand {

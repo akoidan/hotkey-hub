@@ -2,7 +2,7 @@ import {
   Logger,
   Module,
 } from '@nestjs/common';
-import {SemaphorService} from '@/semaphor/semaphor-service';
+import {MutexService} from '@/mutex/mutex.service';
 import {AsyncStorageModule} from '@/asyncstore/async-storage.module';
 import {ConfigModule} from '@/config/config-module';
 
@@ -10,10 +10,10 @@ import {ConfigModule} from '@/config/config-module';
   imports: [AsyncStorageModule, ConfigModule],
   providers: [
     Logger,
-    SemaphorService,
+    MutexService,
   ],
-  exports: [SemaphorService],
+  exports: [MutexService],
 })
-export class SemaphorModule {
+export class MutexModule {
 
 }

@@ -11,7 +11,7 @@ import {KillPidHandler} from '@/handlers/implementation/kill-pid-handler';
 import {ConfigModule} from '@/config/config-module';
 import {LeftMouseClickHandler} from '@/handlers/implementation/left-mouse-click-handler';
 import {Provider} from '@nestjs/common/interfaces/modules/provider.interface';
-import {SemaphorModule} from '@/semaphor/semaphor.module';
+import {MutexModule} from '@/mutex/mutex.module';
 
 
 const handlerProviders: Provider[] = [
@@ -60,7 +60,7 @@ const handlerProviders: Provider[] = [
 ];
 
 @Module({
-  imports: [ClientModule, ConfigModule, SemaphorModule],
+  imports: [ClientModule, ConfigModule],
   providers: handlerProviders,
   exports: [CommandHandler],
 })

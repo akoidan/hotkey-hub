@@ -10,10 +10,10 @@ import {HandlerModule} from '@/handlers/handler-module';
 import {CommandProcessingService} from '@/logic/command-processing.service';
 import {CircularIndex} from '@/logic/circular-index';
 import {DelayService} from '@/logic/delay.service';
-import {SemaphorModule} from '@/semaphor/semaphor.module';
+import {MutexModule} from '@/mutex/mutex.module';
 
 @Module({
-  imports: [ConfigModule, ClientModule, HandlerModule, SemaphorModule],
+  imports: [ConfigModule, ClientModule, HandlerModule, MutexModule],
   providers: [
     Logger,
     DelayService,

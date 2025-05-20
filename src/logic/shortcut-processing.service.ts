@@ -13,7 +13,7 @@ import {CommandOrMacro} from '@/config/types/macros';
 import {Command} from '@/config/types/commands';
 import clc from 'cli-color';
 import {CircularIndex} from '@/logic/circular-index';
-import {SemaphorService} from '@/semaphor/semaphor-service';
+import {MutexService} from '@/mutex/mutex.service';
 
 @Injectable()
 export class ShortcutProcessingService {
@@ -23,7 +23,7 @@ export class ShortcutProcessingService {
     private readonly commandProcessor: CommandProcessingService,
     private readonly circularResolver: CircularIndex,
     private readonly logger: Logger,
-    private readonly semaphorService: SemaphorService,
+    private readonly semaphorService: MutexService,
   ) {
   }
 
