@@ -71,6 +71,7 @@ export class MutexService {
       return;
     }
     const resolvers = this.transactionQueue.find(el => el.id === key);
+    this.transactionQueue.splice(this.transactionQueue.indexOf(resolvers!), 1);
     if (resolvers!.resolve) {
       this.logger.debug(`Releaseing ${resolvers!.resolveId}`);
       resolvers!.resolve();
