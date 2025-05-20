@@ -86,10 +86,6 @@ export class ConfigService implements ConfigProvider {
     return this.configData!.ips;
   }
 
-  public mutex(): boolean {
-    return this.configData!.mutex ?? false;
-  }
-
   public getCombinations(): ShortsData[] {
     return this.configData!.combinations;
   }

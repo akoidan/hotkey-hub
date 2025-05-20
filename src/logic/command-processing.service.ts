@@ -12,6 +12,7 @@ import {VariableResolutionService} from 'src/logic/variable-resolution.service';
 import {CommandHandler} from '@/handlers/command-handler.service';
 import {CircularIndex} from '@/logic/circular-index';
 import {DelayService} from '@/logic/delay.service';
+import { SemaphorService } from '@/semaphor/semaphor-service';
 
 @Injectable()
 export class CommandProcessingService {
@@ -21,6 +22,7 @@ export class CommandProcessingService {
     private readonly logger: Logger,
     private readonly comandHandler: CommandHandler,
     private readonly circularResolved: CircularIndex,
+    private readonly semaphoreService: SemaphorService,
     private readonly delayService: DelayService,
   ) {
 
@@ -34,6 +36,9 @@ export class CommandProcessingService {
   ): Promise<void> {
     if ((input as MacroCommand).macro) {
       const executable = this.configService.getMacros()[(input as MacroCommand).macro];
+      if ((input as MacroCommand).transactional) {
+        await this.semaphoreService.startTransaction((input as MacroCommand).transactional!);
+      }
       if (typeof input.delayBefore === 'number') { // ignore if it's a variable or undefined
         // if it's a macro, delay in this macro won't be passed down
         // but would be await after any commands in this macro has run yet as expected, this is why on top we are not passing it
@@ -54,6 +59,9 @@ export class CommandProcessingService {
       if (typeof input.delayAfter === 'number') { // ignore if it's a variable or undefined
         await this.delayService.awaitDelay(input.delayAfter as number, undefined, 'after'); // if it's a macro, delay in this macro won't be passed down
         // but would be await after all commands in this macro as expected, this is why on top we are not passing it
+      }
+       if ((input as MacroCommand).transactional) {
+        this.semaphoreService.finishTransaction((input as MacroCommand).transactional!);
       }
     } else if (resolveAlias) {
       const commands = this.resolveAliases(input as Command);

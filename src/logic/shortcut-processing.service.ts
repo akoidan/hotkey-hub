@@ -13,7 +13,7 @@ import {CommandOrMacro} from '@/config/types/macros';
 import {Command} from '@/config/types/commands';
 import clc from 'cli-color';
 import {CircularIndex} from '@/logic/circular-index';
-import {MutexService} from '@/mutex/mutex.service';
+import {SemaphorService} from '@/semaphor/semaphor-service';
 
 @Injectable()
 export class ShortcutProcessingService {
@@ -23,7 +23,7 @@ export class ShortcutProcessingService {
     private readonly commandProcessor: CommandProcessingService,
     private readonly circularResolver: CircularIndex,
     private readonly logger: Logger,
-    private readonly semaphorService: MutexService,
+    private readonly semaphorService: SemaphorService,
   ) {
   }
 
@@ -39,7 +39,7 @@ export class ShortcutProcessingService {
         this.semaphorService.spawnChild(i, () => {
           // eslint-disable-next-line @typescript-eslint/use-unknown-in-catch-callback-variable
           this.processCommandWithMacro(receiver, comb.delayAfter, comb.delayBefore).then(resolv).catch(rej).finally(() => {
-            this.semaphorService.commitTransaction();
+            this.semaphorService.finishOperation();
           });
         });
       })));

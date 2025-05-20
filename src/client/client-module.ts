@@ -7,14 +7,14 @@ import {ClientService} from '@/client/client-service';
 import {CertService} from '@/client/cert-service';
 import {ConfigModule} from '@/config/config-module';
 import {ConfigService} from '@/config/config-service';
-import {MutexService} from '@/mutex/mutex.service';
-import {MutexModule} from '@/mutex/mutex.module';
+import {SemaphorService} from '@/semaphor/semaphor-service';
+import {SemaphorModule} from '@/semaphor/semaphor.module';
 
 
 @Module({
   imports: [
     ConfigModule,
-    MutexModule,
+    SemaphorModule,
   ],
   providers: [
     Logger,
@@ -25,11 +25,11 @@ import {MutexModule} from '@/mutex/mutex.module';
         logger: Logger,
         cert: CertService,
         config: ConfigService,
-        semaphore: MutexService,
+        semaphore: SemaphorService,
       ): Promise<FetchClient> {
         return new FetchClient(logger, config, await cert.getHttpAgent(), 'https:', semaphore);
       },
-      inject: [Logger, CertService, ConfigService, MutexService],
+      inject: [Logger, CertService, ConfigService, SemaphorService],
     },
     ClientService,
   ],

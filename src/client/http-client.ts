@@ -8,7 +8,7 @@ import {
 } from 'https';
 import {ConfigService} from '@/config/config-service';
 import clc from 'cli-color';
-import {MutexService} from '@/mutex/mutex.service';
+import {SemaphorService} from '@/semaphor/semaphor-service';
 
 interface CustomError extends Error {
   statusCode?: number;
@@ -23,7 +23,7 @@ export class FetchClient {
     private readonly config: ConfigService,
     private readonly agent: Agent,
     private readonly protocol: string,
-    private readonly semaphorService: MutexService,
+    private readonly semaphorService: SemaphorService,
   ) {
   }
 

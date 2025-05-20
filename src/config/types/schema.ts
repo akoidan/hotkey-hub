@@ -66,10 +66,6 @@ const aARootSchema = z.object({
     .describe('Https port to connect to on client PC'),
   combinations: combinationList,
   delays: globalDelaySchema,
-  mutex: z.boolean()
-    .optional()
-    .default(false)
-    .describe('If set to true, shortcuts should wait until previous command finishes execution. Another words only 1 chain of events are allowed at the same time'),
   macros: macrosDefinitionSchema,
 }).strict().superRefine((data, ctx) => {
   // Ensure mapping values are arrays of keys from ips

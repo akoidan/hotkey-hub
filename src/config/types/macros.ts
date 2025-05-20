@@ -11,6 +11,7 @@ import {variableRegex} from '@/config/types/variables';
 
 const runMacroCommandSchema = z.object({
   macro: z.string().describe('Name of the macro (key from macros section object)'),
+  transactional: z.string().optional().describe('Name of transaction'),
   variables: z.record(z.union([z.string(), z.number()])).optional().describe('Object of a key-values of variable name and value'),
 })
   .strict()
