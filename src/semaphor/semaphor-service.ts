@@ -46,11 +46,11 @@ export class SemaphorService {
     return this.asyncLocalStorage.getStore()!.get(SemaphorService.COMB_KEY) as string;
   }
 
-  public spawnChild(i: number, cb: () => void): void {
+  public async spawnChild(i: string, cb: () => Promise<void>): Promise<void> {
     const parentId = this.getCurrentOperationId();
     const newId = `${parentId}-${i}`;
     const newStorageMap: Map<string, any> = new Map<string, any>().set(SemaphorService.COMB_KEY, newId);
-    this.asyncLocalStorage.run(newStorageMap, cb);
+    await this.asyncLocalStorage.run(newStorageMap, cb);
   }
 
   public finishTransaction(transactionGroup: string, transactionId: string): void {
@@ -82,7 +82,7 @@ export class SemaphorService {
         return;
       }
 
-      this.logger.log(`Create new transaction ${transactionId} but waiting ${currentState[currentState.length - 1]!.transactionId} to finish`);
+      this.logger.log(`Created a new transaction ${transactionId} but waiting ${currentState[currentState.length - 1]!.transactionId} to finish`);
       await new Promise<void>(resolve => {
         currentState[currentState.length - 1].resolve = resolve;
         currentState[currentState.length - 1].resolveFrom = transactionId;

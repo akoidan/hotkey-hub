@@ -37,33 +37,14 @@ export class CommandProcessingService {
   ): Promise<void> {
     if ((input as MacroCommand).macro) {
       const tId = transactionId ?? this.semaphoreService.getNewTransactionId();
-      const executable = this.configService.getMacros()[(input as MacroCommand).macro];
       if ((input as MacroCommand).transactional) {
-        await this.semaphoreService.startTransaction((input as MacroCommand).transactional!, tId);
-      }
-      if (typeof input.delayBefore === 'number') { // ignore if it's a variable or undefined
-        // if it's a macro, delay in this macro won't be passed down
-        // but would be await after any commands in this macro has run yet as expected, this is why on top we are not passing it
-        await this.delayService.awaitDelay(input.delayBefore as number, undefined, 'before');
-      }
-      for (const command of executable.commands) {
-        const preparedCommand = this.variableService.replacePlaceholders(
-          command,
-          (input as MacroCommand).variables,
-          executable.variables
-        );
-        const delayA = (preparedCommand.delayAfter as number | undefined) ?? combDelayAfter;
-        const delayB = (preparedCommand.delayBefore as number | undefined) ?? combDelayBefore;
-        await this.resolveMacroAndAlias(preparedCommand, true, delayA, delayB, tId);
-      }
-      // commands in this macro has been already ran in the loop
-      // await delay before the next command after this macro runs
-      if (typeof input.delayAfter === 'number') { // ignore if it's a variable or undefined
-        await this.delayService.awaitDelay(input.delayAfter as number, undefined, 'after'); // if it's a macro, delay in this macro won't be passed down
-        // but would be await after all commands in this macro as expected, this is why on top we are not passing it
-      }
-      if ((input as MacroCommand).transactional) {
-        this.semaphoreService.finishTransaction((input as MacroCommand).transactional!, tId);
+        await this.semaphoreService.spawnChild(tId, async() => {
+          await this.semaphoreService.startTransaction((input as MacroCommand).transactional!, tId);
+          await this.runResolveMacroBody(input, combDelayAfter, combDelayBefore, tId);
+          this.semaphoreService.finishTransaction((input as MacroCommand).transactional!, tId);
+        });
+      } else {
+        await this.runResolveMacroBody(input, combDelayAfter, combDelayBefore, tId);
       }
     } else if (resolveAlias) {
       const commands = this.resolveAliases(input as Command);
@@ -75,6 +56,36 @@ export class CommandProcessingService {
     }
   }
 
+  private async runResolveMacroBody(
+    input: CommandOrMacro,
+    combDelayAfter: number | undefined,
+    combDelayBefore: number | undefined,
+    tId: string
+  ): Promise<void> {
+    const executable = this.configService.getMacros()[(input as MacroCommand).macro];
+    if (typeof input.delayBefore === 'number') { // ignore if it's a variable or undefined
+      // if it's a macro, delay in this macro won't be passed down
+      // but would be await after any commands in this macro has run yet as expected, this is why on top we are not passing it
+      await this.delayService.awaitDelay(input.delayBefore as number, undefined, 'before');
+    }
+    for (const command of executable.commands) {
+      const preparedCommand = this.variableService.replacePlaceholders(
+        command,
+        (input as MacroCommand).variables,
+        executable.variables
+      );
+      const delayA = (preparedCommand.delayAfter as number | undefined) ?? combDelayAfter;
+      const delayB = (preparedCommand.delayBefore as number | undefined) ?? combDelayBefore;
+      await this.resolveMacroAndAlias(preparedCommand, true, delayA, delayB, tId);
+    }
+    // commands in this macro has been already ran in the loop
+    // await delay before the next command after this macro runs
+    if (typeof input.delayAfter === 'number') { // ignore if it's a variable or undefined
+      await this.delayService.awaitDelay(input.delayAfter as number, undefined, 'after'); // if it's a macro, delay in this macro won't be passed down
+      // but would be await after all commands in this macro as expected, this is why on top we are not passing it
+    }
+  }
+
   private async runCommand(
     input: Command,
     combDelayAfter: undefined | number,
@@ -83,16 +94,19 @@ export class CommandProcessingService {
   ): Promise<void> {
     const currRec = this.variableService.replaceEnvVars(input);
     this.logger.debug(`Running ${JSON.stringify(input)}`);
-    let newTransactionId: string | undefined;
-    if (!tId) {
-      newTransactionId = this.semaphoreService.getNewTransactionId();
-      await this.semaphoreService.startTransaction((currRec as Command).destination, newTransactionId);
-    }
-    await this.delayService.awaitDelay(combDelayBefore, input.delayBefore as number | undefined, 'before');
-    await this.comandHandler.handle((currRec as Command).destination, currRec);
-    await this.delayService.awaitDelay(combDelayAfter, input.delayAfter as number | undefined, 'after');
-    if (newTransactionId) {
-      this.semaphoreService.finishTransaction((currRec as Command).destination, newTransactionId);
+    if (tId) {
+      await this.delayService.awaitDelay(combDelayBefore, input.delayBefore as number | undefined, 'before');
+      await this.comandHandler.handle((currRec as Command).destination, currRec);
+      await this.delayService.awaitDelay(combDelayAfter, input.delayAfter as number | undefined, 'after');
+    } else {
+      const newTransactionId = this.semaphoreService.getNewTransactionId();
+      await this.semaphoreService.spawnChild(newTransactionId, async() => {
+        await this.semaphoreService.startTransaction((currRec as Command).destination, newTransactionId);
+        await this.delayService.awaitDelay(combDelayBefore, input.delayBefore as number | undefined, 'before');
+        await this.comandHandler.handle((currRec as Command).destination, currRec);
+        await this.delayService.awaitDelay(combDelayAfter, input.delayAfter as number | undefined, 'after');
+        this.semaphoreService.finishTransaction((currRec as Command).destination, newTransactionId);
+      });
     }
   }
 
