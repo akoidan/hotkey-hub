@@ -35,13 +35,14 @@ export class ShortcutProcessingService {
     } else if ((comb as MacroShortcutMappingCircular).threadsCircular) {
       await this.processShortcutsThreadWoMacro((comb as MacroShortcutMappingCircular));
     } else if ((comb as MacroShortcutMapping).threads) {
-      await Promise.all((comb as MacroShortcutMapping).threads!.map(async(receiver, i) => new Promise(async(resolv, rej) => {
-        await this.semaphorService.spawnChild(String(i), async() => {
+      await Promise.all((comb as MacroShortcutMapping).threads!.map(async(receiver, i) => new Promise((resolv, rej) => {
+        this.semaphorService.spawnChild(String(i), async(): Promise<void> => {
           // eslint-disable-next-line @typescript-eslint/use-unknown-in-catch-callback-variable
-          this.processCommandWithMacro(receiver, comb.delayAfter, comb.delayBefore).then(resolv).catch(rej).finally(() => {
+          await this.processCommandWithMacro(receiver, comb.delayAfter, comb.delayBefore).then(resolv).catch(rej).finally(() => {
             this.semaphorService.finishChild();
           });
-        });
+          // eslint-disable-next-line @typescript-eslint/use-unknown-in-catch-callback-variable
+        }).catch(rej);
       })));
     } else if ((comb as MacroShortcutMapping).commands) {
       await this.processCommandWithMacro((comb as MacroShortcutMapping).commands!, comb.delayAfter, comb.delayBefore);

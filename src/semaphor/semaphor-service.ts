@@ -51,7 +51,7 @@ export class SemaphorService {
     this.logger.debug(`All actions for ${this.getCurrentOperationId()} are completed`);
   }
 
-  public async finishChild(): Promise<void> {
+  public finishChild(): void {
     this.logger.debug(`All actions for ${this.getCurrentOperationId()} are completed`);
   }
 
