@@ -5,9 +5,10 @@ import {
 import {SemaphorService} from '@/semaphor/semaphor-service';
 import {AsyncStorageModule} from '@/asyncstore/async-storage.module';
 import {ConfigModule} from '@/config/config-module';
+import {RgbModule} from '@/rgb/rgb.module';
 
 @Module({
-  imports: [AsyncStorageModule, ConfigModule],
+  imports: [AsyncStorageModule, ConfigModule, RgbModule],
   providers: [
     Logger,
     SemaphorService,

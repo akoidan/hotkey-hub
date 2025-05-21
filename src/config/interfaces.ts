@@ -2,6 +2,7 @@ import type {
   AliasesData,
   DelayData,
   IpsData,
+  RgbData,
 } from '@/config/types/schema';
 import type {ShortsData} from '@/config/types/shortcut';
 import type {MacroList} from '@/config/types/macros';
@@ -9,6 +10,8 @@ import type {Variables} from '@/config/types/variables';
 
 export interface ConfigProvider {
   getIps(): IpsData;
+
+  getOpenRgb(): RgbData;
 
   getCombinations(): ShortsData[];
 

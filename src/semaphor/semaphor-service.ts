@@ -10,6 +10,8 @@ import {AsyncLocalStorage} from 'async_hooks';
 export class SemaphorService {
   // eslint-disable-next-line @typescript-eslint/naming-convention
   public static readonly COMB_KEY = 'comb';
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  public static readonly COMB_KEYSTROKE = 'keystroke';
 
   private readonly transactionGroups: Record<string, ({
     resolve(): void;
@@ -29,16 +31,18 @@ export class SemaphorService {
   ) {
   }
 
-  public startOperation(cb: () => Promise<void>): void {
+  public startOperation(shortCut: string, cb: () => Promise<void>): void {
     const randomValue = this.getNewTransactionId();
     this.transactionGroups[randomValue] = [];
     this.asyncLocalStorage.run(new Map(), () => {
       this.asyncLocalStorage.getStore()!.set(SemaphorService.COMB_KEY, randomValue);
+      this.asyncLocalStorage.getStore()!.set(SemaphorService.COMB_KEYSTROKE, shortCut);
       void cb();
     });
   }
 
   public finishOperation(): void {
+    const keyStoke = this.asyncLocalStorage.getStore()!.get(SemaphorService.COMB_KEYSTROKE);
     this.logger.debug(`All actions for ${this.getCurrentOperationId()} are completed`);
   }
 

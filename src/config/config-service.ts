@@ -4,6 +4,7 @@ import {
   ConfigData,
   IpsData,
   macrosDefinitionSchema,
+  RgbData,
   variablesSchema,
 } from '@/config/types/schema';
 import {parse} from 'jsonc-parser';
@@ -84,6 +85,10 @@ export class ConfigService implements ConfigProvider {
 
   public getIps(): IpsData {
     return this.configData!.ips;
+  }
+
+  public getOpenRgb(): RgbData {
+    return this.configData!.rgb;
   }
 
   public getCombinations(): ShortsData[] {

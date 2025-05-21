@@ -57,6 +57,14 @@ const aliasesSchema = z.record(aliasesValueSchema)
     'IPS section and instead of specifying PC name directly you can use aliases from this section that points to the PC name.');
 
 
+const rgbSchema = z.object({
+  deviceId: z.number().describe('DeviceId of the keyboard'),
+  clientName: z.string().default('RPC').describe('The name of the client').optional(),
+  serverPort: z.number().default(6742).describe('Port of the openrgb server').optional(),
+  serverAddr: z.string().default('localhost').describe('Address of the openrgb server').optional(),
+}).optional()
+  .describe('Allows to set color on rgb keyboard to highlight the current executing shortcut. If not set won\'t be executed. openrgb server is required. See https://openrgb.org/');
+
 const aARootSchema = z.object({
   ips: ipsSchema,
   aliases: aliasesSchema,
@@ -64,6 +72,7 @@ const aARootSchema = z.object({
     .optional()
     .default(5000)
     .describe('Https port to connect to on client PC'),
+  rgb: rgbSchema,
   combinations: combinationList,
   delays: globalDelaySchema,
   macros: macrosDefinitionSchema,
@@ -96,17 +105,20 @@ type ConfigData = z.infer<typeof aARootSchema>;
 
 type IpsData = z.infer<typeof ipsSchema>
 type AliasesData = z.infer<typeof aliasesSchema>
+type RgbData = z.infer<typeof rgbSchema>
 type AliasesValueData = z.infer<typeof aliasesValueSchema>
 
 
 export type {
   ConfigData,
   IpsData,
+  RgbData,
   AliasesData,
   AliasesValueData,
 };
 
 export {
+  rgbSchema,
   aARootSchema,
   keySchema,
   shortCut,

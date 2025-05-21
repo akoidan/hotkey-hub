@@ -1727,6 +1727,11 @@ buffer@^5.5.0:
     base64-js "^1.3.1"
     ieee754 "^1.1.13"
 
+bufferpack@0.0.6:
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/bufferpack/-/bufferpack-0.0.6.tgz#fb3d8738a0e1e4e03bcff99f9a75f9ec18a9d73e"
+  integrity sha512-MTWvLHElqczrIVhge9qHtqgNigJFyh0+tCDId5yCbFAfuekHWIG+uAgvoHVflwrDPuY/e47JE1ki5qcM7w4uLg==
+
 builtin-modules@^3.3.0:
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/builtin-modules/-/builtin-modules-3.3.0.tgz#cae62812b89801e9656336e46223e030386be7b6"
@@ -4710,6 +4715,13 @@ onetime@^5.1.0, onetime@^5.1.2:
   integrity sha512-kbpaSSGJTWdAY5KPVeMOKXSrPtr8C8C7wodJbcsd51jRnmD+GZu8Y0VoU6Dm5Z4vWr0Ig/1NKuWRKf7j5aaYSg==
   dependencies:
     mimic-fn "^2.1.0"
+
+openrgb-sdk@^0.5.2:
+  version "0.5.2"
+  resolved "https://registry.yarnpkg.com/openrgb-sdk/-/openrgb-sdk-0.5.2.tgz#407c957f969c62f276083610931ed9547ac81d8d"
+  integrity sha512-3OvoXHH8HE1J9ERXHHjoe2MwlxqTyeQP91h0USSmtY2EWPKOFmLkkk7z+0tAPX4ttywqDLcW1RiO4Xu72jkFew==
+  dependencies:
+    bufferpack "0.0.6"
 
 optionator@^0.9.3:
   version "0.9.4"
