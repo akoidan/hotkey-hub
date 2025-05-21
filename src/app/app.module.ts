@@ -39,15 +39,15 @@ export class AppModule implements OnModuleInit {
           .map(async(desination) => this.clientService.ping(desination))
       );
       this.configService.getCombinations().forEach((comb) => {
-        this.hotKeyService.registerShortcut(comb.shortCut, () => {
-          this.semaphorService.startOperation(comb.shortCut, async() => {
+        this.hotKeyService.registerShortcut(comb.shortCut, async() => {
+          await this.semaphorService.startOperation(comb.shortCut, async() => {
             this.logger.log(`${clc.bold.green(comb.shortCut)} pressed`);
             try {
               await this.logicService.processUnknownShortCut(comb);
             } catch (err) {
               this.logger.error(err);
             } finally {
-              this.semaphorService.finishOperation();
+              await this.semaphorService.finishOperation();
             }
           });
         });

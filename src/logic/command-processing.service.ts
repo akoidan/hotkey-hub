@@ -2,17 +2,17 @@ import {
   Injectable,
   Logger,
 } from '@nestjs/common';
-import {ConfigService} from '@/config/config-service';
-import {Command} from '@/config/types/commands';
+import { ConfigService } from '@/config/config-service';
+import { Command } from '@/config/types/commands';
 import {
   CommandOrMacro,
   MacroCommand,
 } from '@/config/types/macros';
-import {VariableResolutionService} from 'src/logic/variable-resolution.service';
-import {CommandHandler} from '@/handlers/command-handler.service';
-import {CircularIndex} from '@/logic/circular-index';
-import {DelayService} from '@/logic/delay.service';
-import {SemaphorService} from '@/semaphor/semaphor-service';
+import { VariableResolutionService } from 'src/logic/variable-resolution.service';
+import { CommandHandler } from '@/handlers/command-handler.service';
+import { CircularIndex } from '@/logic/circular-index';
+import { DelayService } from '@/logic/delay.service';
+import { SemaphorService } from '@/semaphor/semaphor-service';
 
 @Injectable()
 export class CommandProcessingService {
@@ -39,9 +39,12 @@ export class CommandProcessingService {
       const tId = transactionId ?? this.semaphoreService.getNewTransactionId();
       if ((input as MacroCommand).transactional) {
         await this.semaphoreService.spawnChild(tId, async() => {
-          await this.semaphoreService.startTransaction((input as MacroCommand).transactional!, tId);
-          await this.runResolveMacroBody(input, combDelayAfter, combDelayBefore, tId);
-          this.semaphoreService.finishTransaction((input as MacroCommand).transactional!, tId);
+          try {
+            await this.semaphoreService.startTransaction((input as MacroCommand).transactional!, tId);
+            await this.runResolveMacroBody(input, combDelayAfter, combDelayBefore, tId);
+          } finally {
+            this.semaphoreService.finishTransaction((input as MacroCommand).transactional!, tId);
+          }
         });
       } else {
         await this.runResolveMacroBody(input, combDelayAfter, combDelayBefore, tId);
@@ -101,25 +104,28 @@ export class CommandProcessingService {
     } else {
       const newTransactionId = this.semaphoreService.getNewTransactionId();
       await this.semaphoreService.spawnChild(newTransactionId, async() => {
-        await this.semaphoreService.startTransaction((currRec as Command).destination, newTransactionId);
-        await this.delayService.awaitDelay(combDelayBefore, input.delayBefore as number | undefined, 'before');
-        await this.comandHandler.handle((currRec as Command).destination, currRec);
-        await this.delayService.awaitDelay(combDelayAfter, input.delayAfter as number | undefined, 'after');
-        this.semaphoreService.finishTransaction((currRec as Command).destination, newTransactionId);
+        try {
+          await this.semaphoreService.startTransaction((currRec as Command).destination, newTransactionId);
+          await this.delayService.awaitDelay(combDelayBefore, input.delayBefore as number | undefined, 'before');
+          await this.comandHandler.handle((currRec as Command).destination, currRec);
+          await this.delayService.awaitDelay(combDelayAfter, input.delayAfter as number | undefined, 'after');
+        } finally {
+          this.semaphoreService.finishTransaction((currRec as Command).destination, newTransactionId);
+        }
       });
     }
   }
 
   resolveAliases(rec: Command): Command[] {
     if (this.configService.getIps()[rec.destination]) {
-      return [{...rec, destination: rec.destination}];
+      return [{ ...rec, destination: rec.destination }];
     }
     const destination = this.configService.getAliases()[rec.destination];
     if (typeof destination === 'string') {
-      return this.resolveAliases({...rec, destination});
+      return this.resolveAliases({ ...rec, destination });
     }
     if (typeof destination === 'object') {
-      const commands = destination.ipNames.flatMap(dest => this.resolveAliases({...rec, destination: dest}));
+      const commands = destination.ipNames.flatMap(dest => this.resolveAliases({ ...rec, destination: dest }));
       if (destination.circular) {
         return [this.circularResolved.getNextFighterIndex(rec, commands)];
       }

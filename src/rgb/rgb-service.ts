@@ -2,9 +2,9 @@ import {
   Injectable,
   Logger,
 } from '@nestjs/common';
-import {Client} from 'openrgb-sdk';
+import { Client } from 'openrgb-sdk';
 import ClientType from 'openrgb-sdk/types/client';
-import {ConfigService} from '@/config/config-service';
+import { ConfigService } from '@/config/config-service';
 
 
 interface Color {
@@ -17,6 +17,7 @@ interface Color {
 export class RgbService {
   private colors: Color[] | null = null;
   private client: ClientType | null = null;
+  private keyMap: Record<string, number> = {};
 
   constructor(
     private readonly configService: ConfigService,
@@ -29,21 +30,26 @@ export class RgbService {
     if (!rgb) {
       return;
     }
+    const keys = comb.split('+');
+    const key = keys[keys.length - 1].toLowerCase();
+    if (!this.keyMap[key]) {
+      this.logger.error(`key ${key} is not present in keymap ${JSON.stringify(this.keyMap)}`);
+      return;
+    }
     if (hl) {
-      const keys = comb.split('+');
-      const key = keys[keys.length - 1];
-      this.colors![0] = {
+      this.colors![this.keyMap[key]] = {
         red: 255,
         green: 0,
         blue: 0,
       };
     } else {
-      this.colors![0] = {
+      this.colors![this.keyMap[key]] = {
         red: 0,
         green: 0,
         blue: 0,
       };
     }
+    await this.client!.connect();
     this.client!.updateLeds(rgb.deviceId, this.colors!);
   }
 
@@ -66,7 +72,11 @@ export class RgbService {
         this.logger.debug('Found keyboard:', keyboard.type);
         await this.client.updateMode(rgb.deviceId, 'Direct', {});
         this.logger.debug('Resetting rgb colors...');
-        this.colors = Array<Color>(keyboard.colors.length).fill({red: 0, green: 0, blue: 0});
+        keyboard.leds.forEach((led, index: number) => {
+          // Strip 'Key: ' prefix and convert to uppercase
+          this.keyMap[led.name.replace('Key: ', '').toLowerCase()] = index;
+        });
+        this.colors = Array<Color>(keyboard.colors.length).fill({ red: 0, green: 0, blue: 0 });
         this.client.updateLeds(rgb.deviceId, this.colors);
         this.logger.debug('Setting colors...');
       } else {

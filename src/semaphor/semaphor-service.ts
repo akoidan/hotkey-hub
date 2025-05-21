@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import {ASYNC_PROVIDER} from '@/asyncstore/async-storage-const';
 import {AsyncLocalStorage} from 'async_hooks';
+import { RgbService } from '@/rgb/rgb-service';
 
 @Injectable()
 export class SemaphorService {
@@ -27,22 +28,30 @@ export class SemaphorService {
   constructor(
     @Inject(ASYNC_PROVIDER)
     private readonly asyncLocalStorage: AsyncLocalStorage<Map<string, any>>,
+    private readonly rgbService: RgbService,
     private readonly logger: Logger,
   ) {
   }
 
-  public startOperation(shortCut: string, cb: () => Promise<void>): void {
+  public async startOperation(shortCut: string, cb: () => Promise<void>): Promise<void> {
     const randomValue = this.getNewTransactionId();
     this.transactionGroups[randomValue] = [];
-    this.asyncLocalStorage.run(new Map(), () => {
+    await this.asyncLocalStorage.run(new Map(), async () => {
       this.asyncLocalStorage.getStore()!.set(SemaphorService.COMB_KEY, randomValue);
       this.asyncLocalStorage.getStore()!.set(SemaphorService.COMB_KEYSTROKE, shortCut);
+      const keyStoke = this.asyncLocalStorage.getStore()!.get(SemaphorService.COMB_KEYSTROKE) as string;
+      await this.rgbService.updateColors(keyStoke, true);
       void cb();
     });
   }
 
-  public finishOperation(): void {
-    const keyStoke = this.asyncLocalStorage.getStore()!.get(SemaphorService.COMB_KEYSTROKE);
+  public async finishOperation(): Promise<void> {
+    const keyStoke = this.asyncLocalStorage.getStore()!.get(SemaphorService.COMB_KEYSTROKE) as string;
+    await this.rgbService.updateColors(keyStoke, false);
+    this.logger.debug(`All actions for ${this.getCurrentOperationId()} are completed`);
+  }
+
+  public async finishChild(): Promise<void> {
     this.logger.debug(`All actions for ${this.getCurrentOperationId()} are completed`);
   }
 

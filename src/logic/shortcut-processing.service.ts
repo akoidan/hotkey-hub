@@ -39,7 +39,7 @@ export class ShortcutProcessingService {
         await this.semaphorService.spawnChild(String(i), async() => {
           // eslint-disable-next-line @typescript-eslint/use-unknown-in-catch-callback-variable
           this.processCommandWithMacro(receiver, comb.delayAfter, comb.delayBefore).then(resolv).catch(rej).finally(() => {
-            this.semaphorService.finishOperation();
+            this.semaphorService.finishChild();
           });
         });
       })));
