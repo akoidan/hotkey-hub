@@ -18,6 +18,7 @@ export class RgbService {
   private colors: Color[] | null = null;
   private client: ClientType | null = null;
   private keyMap: Record<string, number> = {};
+  private connected: boolean = false;
 
   constructor(
     private readonly configService: ConfigService,
@@ -27,7 +28,7 @@ export class RgbService {
 
   public async updateColors(comb: string, hl: boolean): Promise<void> {
     const rgb = this.configService.getOpenRgb();
-    if (!rgb) {
+    if (!this.connected) {
       return;
     }
     const keys = comb.split('+');
@@ -50,7 +51,7 @@ export class RgbService {
       };
     }
     await this.client!.connect();
-    this.client!.updateLeds(rgb.deviceId, this.colors!);
+    this.client!.updateLeds(rgb!.deviceId, this.colors!);
   }
 
   public async setup(): Promise<void> {
@@ -79,6 +80,7 @@ export class RgbService {
         this.colors = Array<Color>(keyboard.colors.length).fill({ red: 0, green: 0, blue: 0 });
         this.client.updateLeds(rgb.deviceId, this.colors);
         this.logger.debug('Setting colors...');
+        this.connected = true;
       } else {
         throw Error('No keyboard found!');
       }
