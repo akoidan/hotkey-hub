@@ -1,17 +1,17 @@
-node_modules
-.idea
-dist
-yarn-error.log
-l2-win32-x64
-config.json
-yarn-error.log
-configs
-certs
-client
-l2-win32-x64
-coverage
-build
-cmake-build-debug
-json-schema.json
-macros-schema.json
-README.md
+# node_modules
+# .idea
+# dist
+# yarn-error.log
+# l2-win32-x64
+# config.json
+# yarn-error.log
+# configs
+# certs
+# client
+# l2-win32-x64
+# coverage
+# build
+# cmake-build-debug
+# json-schema.json
+# macros-schema.json
+# README.md
