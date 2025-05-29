@@ -1,11 +1,6 @@
-import {
-  Inject,
-  Injectable,
-  Logger,
-} from '@nestjs/common';
+import {Inject, Injectable, Logger,} from '@nestjs/common';
 import {ASYNC_PROVIDER} from '@/asyncstore/async-storage-const';
 import {AsyncLocalStorage} from 'async_hooks';
-import { RgbService } from '@/rgb/rgb-service';
 
 @Injectable()
 export class SemaphorService {
@@ -28,26 +23,22 @@ export class SemaphorService {
   constructor(
     @Inject(ASYNC_PROVIDER)
     private readonly asyncLocalStorage: AsyncLocalStorage<Map<string, any>>,
-    private readonly rgbService: RgbService,
     private readonly logger: Logger,
   ) {
   }
 
-  public async startOperation(shortCut: string, cb: () => Promise<void>): Promise<void> {
+  public startOperation(shortCut: string, cb: () => Promise<void>): void {
     const randomValue = this.getNewTransactionId();
     this.transactionGroups[randomValue] = [];
-    await this.asyncLocalStorage.run(new Map(), async () => {
+    this.asyncLocalStorage.run(new Map(),() => {
       this.asyncLocalStorage.getStore()!.set(SemaphorService.COMB_KEY, randomValue);
       this.asyncLocalStorage.getStore()!.set(SemaphorService.COMB_KEYSTROKE, shortCut);
-      const keyStoke = this.asyncLocalStorage.getStore()!.get(SemaphorService.COMB_KEYSTROKE) as string;
-      await this.rgbService.updateColors(keyStoke, true);
       void cb();
     });
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   public async finishOperation(): Promise<void> {
-    const keyStoke = this.asyncLocalStorage.getStore()!.get(SemaphorService.COMB_KEYSTROKE) as string;
-    await this.rgbService.updateColors(keyStoke, false);
     this.logger.debug(`All actions for ${this.getCurrentOperationId()} are completed`);
   }
 

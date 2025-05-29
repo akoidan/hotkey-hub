@@ -58,7 +58,7 @@ const aliasesSchema = z.record(aliasesValueSchema)
 
 
 const rgbSchema = z.object({
-  deviceId: z.number().describe('DeviceId of the keyboard'),
+  deviceName: z.string().describe('Device name of the keyboard. You can extract it with "openrgb --list-devices" command. Select the name after number'),
   clientName: z.string().default('RPC').describe('The name of the client').optional(),
   serverPort: z.number().default(6742).describe('Port of the openrgb server').optional(),
   serverAddr: z.string().default('localhost').describe('Address of the openrgb server').optional(),

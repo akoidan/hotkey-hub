@@ -2,9 +2,10 @@ import {
   Injectable,
   Logger,
 } from '@nestjs/common';
-import { Client } from 'openrgb-sdk';
+import {Client} from 'openrgb-sdk';
 import ClientType from 'openrgb-sdk/types/client';
-import { ConfigService } from '@/config/config-service';
+import {ConfigService} from '@/config/config-service';
+import {FixedDevice} from "@/rgb/rgb-model";
 
 
 interface Color {
@@ -18,7 +19,7 @@ export class RgbService {
   private colors: Color[] | null = null;
   private client: ClientType | null = null;
   private keyMap: Record<string, number> = {};
-  private connected: boolean = false;
+  private deviceId: number|null = null;
 
   constructor(
     private readonly configService: ConfigService,
@@ -27,8 +28,7 @@ export class RgbService {
   }
 
   public async updateColors(comb: string, hl: boolean): Promise<void> {
-    const rgb = this.configService.getOpenRgb();
-    if (!this.connected) {
+    if (this.deviceId === null) {
       return;
     }
     const keys = comb.split('+');
@@ -50,8 +50,12 @@ export class RgbService {
         blue: 0,
       };
     }
-    await this.client!.connect();
-    this.client!.updateLeds(rgb!.deviceId, this.colors!);
+    try {
+      await this.client!.connect();
+      this.client!.updateLeds(this.deviceId, this.colors!);
+    } catch (error) {
+      this.logger.error(`Unable to update leds because of ${error.message ?? error}`, error.stack);
+    }
   }
 
   public async setup(): Promise<void> {
@@ -66,26 +70,33 @@ export class RgbService {
       this.logger.debug('Connecting to OpenRGB...');
       await this.client.connect();
       this.logger.debug('Connected to OpenRGB...');
-
-      const keyboard = await this.client.getControllerData(rgb.deviceId);
+      // @ts-ignore
+      const controllerData: FixedDevice[] = await this.client.getAllControllerData();
+      const device = controllerData.find(dev => dev.name === rgb.deviceName);
+      if (!device) {
+        throw new Error(`"Unable to find device with name "${rgb.deviceName}",
+         available options "${controllerData.map(dev => dev.name).join('", "')}"`);
+      }
+      this.deviceId = device.deviceId as number;
+      this.logger.debug(controllerData);
+      const keyboard = await this.client.getControllerData(this.deviceId!);
 
       if (keyboard) {
         this.logger.debug('Found keyboard:', keyboard.type);
-        await this.client.updateMode(rgb.deviceId, 'Direct', {});
+        await this.client.updateMode(this.deviceId!, 'Direct', {});
         this.logger.debug('Resetting rgb colors...');
         keyboard.leds.forEach((led, index: number) => {
           // Strip 'Key: ' prefix and convert to uppercase
           this.keyMap[led.name.replace('Key: ', '').toLowerCase()] = index;
         });
-        this.colors = Array<Color>(keyboard.colors.length).fill({ red: 0, green: 0, blue: 0 });
-        this.client.updateLeds(rgb.deviceId, this.colors);
+        this.colors = Array<Color>(keyboard.colors.length).fill({red: 0, green: 0, blue: 0});
+        this.client.updateLeds(this.deviceId!, this.colors);
         this.logger.debug('Setting colors...');
-        this.connected = true;
       } else {
         throw Error('No keyboard found!');
       }
     } catch (error) {
-      this.logger.error(`Unable to init keyboard because of ${error?.message ?? error}`);
+      this.logger.error(`Unable to init keyboard because of ${error?.message ?? error}`, error.stack);
     } finally {
       this.logger.debug('Disconnecting from openrgb server');
       try {

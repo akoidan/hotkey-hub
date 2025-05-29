@@ -1,8 +1,4 @@
-import {
-  Logger,
-  Module,
-  OnModuleInit,
-} from '@nestjs/common';
+import {Logger, Module, OnModuleInit} from '@nestjs/common';
 import {HotkeyService} from '@/app/hotkey.service';
 import {ConfigModule} from '@/config/config-module';
 import {ConfigService} from '@/config/config-service';
@@ -14,9 +10,11 @@ import {NativeModule} from '@/native/native-module';
 import clc from 'cli-color';
 import {SemaphorService} from '@/semaphor/semaphor-service';
 import {SemaphorModule} from '@/semaphor/semaphor.module';
+import {RgbModule} from '@/rgb/rgb.module';
+import {RgbService} from '@/rgb/rgb-service';
 
 @Module({
-  imports: [ConfigModule, ClientModule, LogicModule, NativeModule, SemaphorModule],
+  imports: [ConfigModule, ClientModule, LogicModule, NativeModule, SemaphorModule, RgbModule],
   providers: [Logger, HotkeyService],
   exports: [],
 })
@@ -27,7 +25,8 @@ export class AppModule implements OnModuleInit {
     private readonly logicService: ShortcutProcessingService,
     private readonly configService: ConfigService,
     private readonly clientService: ClientService,
-    private readonly semaphorService: SemaphorService
+    private readonly semaphorService: SemaphorService,
+    private readonly rgbService: RgbService
   ) {
   }
 
@@ -39,11 +38,13 @@ export class AppModule implements OnModuleInit {
           .map(async(desination) => this.clientService.ping(desination))
       );
       this.configService.getCombinations().forEach((comb) => {
-        this.hotKeyService.registerShortcut(comb.shortCut, async() => {
-          await this.semaphorService.startOperation(comb.shortCut, async() => {
+        this.hotKeyService.registerShortcut(comb.shortCut, () => {
+            this.semaphorService.startOperation(comb.shortCut, async() => {
             this.logger.log(`${clc.bold.green(comb.shortCut)} pressed`);
             try {
+              await this.rgbService.updateColors(comb.shortCut, true);
               await this.logicService.processUnknownShortCut(comb);
+              await this.rgbService.updateColors(comb.shortCut, false);
             } catch (err) {
               this.logger.error(err);
             } finally {

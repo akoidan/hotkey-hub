@@ -8,7 +8,7 @@ import {ConfigModule} from '@/config/config-module';
 import {RgbModule} from '@/rgb/rgb.module';
 
 @Module({
-  imports: [AsyncStorageModule, ConfigModule, RgbModule],
+  imports: [AsyncStorageModule, ConfigModule],
   providers: [
     Logger,
     SemaphorService,
