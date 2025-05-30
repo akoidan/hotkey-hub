@@ -5,7 +5,6 @@ import {
 import {Client} from 'openrgb-sdk';
 import ClientType from 'openrgb-sdk/types/client';
 import {ConfigService} from '@/config/config-service';
-import {FixedDevice} from "@/rgb/rgb-model";
 
 
 interface Color {
@@ -51,10 +50,10 @@ export class RgbService {
       };
     }
     try {
-      await this.client!.connect();
       this.client!.updateLeds(this.deviceId, this.colors!);
     } catch (error) {
-      this.logger.error(`Unable to update leds because of ${error.message ?? error}`, error.stack);
+      this.logger.error(`Unable to update leds because of ${error.message ?? error}, launching setup again`, error.stack);
+      await this.setup();
     }
   }
 
@@ -70,8 +69,7 @@ export class RgbService {
       this.logger.debug('Connecting to OpenRGB...');
       await this.client.connect();
       this.logger.debug('Connected to OpenRGB...');
-      // @ts-ignore
-      const controllerData: FixedDevice[] = await this.client.getAllControllerData();
+      const controllerData = await this.client.getAllControllerData();
       const device = controllerData.find(dev => dev.name === rgb.deviceName);
       if (!device) {
         throw new Error(`"Unable to find device with name "${rgb.deviceName}",
@@ -97,13 +95,6 @@ export class RgbService {
       }
     } catch (error) {
       this.logger.error(`Unable to init keyboard because of ${error?.message ?? error}`, error.stack);
-    } finally {
-      this.logger.debug('Disconnecting from openrgb server');
-      try {
-        this.client.disconnect();
-      } catch (error) {
-        this.logger.error('Error disconnecting:', error);
-      }
     }
   }
 }

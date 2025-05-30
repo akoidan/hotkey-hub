@@ -25,7 +25,8 @@
     "native:configure": "cmake-js configure",
     "native:build": "cmake-js compile",
     "native:configure:debug": "rm -rf build && cmake-js configure --debug",
-    "native:build:debug": "cmake-js build --debug"
+    "native:build:debug": "cmake-js build --debug",
+    "postinstall": "patch-package"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.4.9",
@@ -77,6 +78,9 @@
     ]
   },
   "bin": "dist/main.js",
+  "devDependencies": {
+    "patch-package": "^8.0.0"
+  },
   "dependencies": {
     "@nestjs/common": "^10.4.15",
     "@nestjs/core": "^10.4.15",
