@@ -18,7 +18,7 @@ export class RgbService {
   private colors: Color[] | null = null;
   private client: ClientType | null = null;
   private keyMap: Record<string, number> = {};
-  private deviceId: number|null = null;
+  private deviceId: number | null = null;
 
   constructor(
     private readonly configService: ConfigService,
@@ -78,21 +78,20 @@ export class RgbService {
       this.deviceId = device.deviceId as number;
       this.logger.debug(controllerData);
       const keyboard = await this.client.getControllerData(this.deviceId!);
-
-      if (keyboard) {
-        this.logger.debug('Found keyboard:', keyboard.type);
-        await this.client.updateMode(this.deviceId!, 'Direct', {});
-        this.logger.debug('Resetting rgb colors...');
-        keyboard.leds.forEach((led, index: number) => {
-          // Strip 'Key: ' prefix and convert to uppercase
-          this.keyMap[led.name.replace('Key: ', '').toLowerCase()] = index;
-        });
-        this.colors = Array<Color>(keyboard.colors.length).fill({red: 0, green: 0, blue: 0});
-        this.client.updateLeds(this.deviceId!, this.colors);
-        this.logger.debug('Setting colors...');
-      } else {
-        throw Error('No keyboard found!');
+      if (!keyboard) {
+        throw Error(`Unable to find devicesId ${this.deviceId}`);
       }
+      this.logger.debug('Found keyboard:', keyboard.type);
+      await this.client.updateMode(this.deviceId!, 'Direct', {});
+      this.logger.debug('Resetting rgb colors...');
+      keyboard.leds.forEach((led, index: number) => {
+        // Strip 'Key: ' prefix and convert to uppercase
+        this.keyMap[led.name.replace('Key: ', '').toLowerCase()] = index;
+      });
+      this.colors = Array<Color>(keyboard.colors.length).fill({red: 0, green: 0, blue: 0});
+      this.client.updateLeds(this.deviceId!, this.colors);
+      this.logger.debug('Setting colors...');
+
     } catch (error) {
       this.logger.error(`Unable to init keyboard because of ${error?.message ?? error}`, error.stack);
     }
