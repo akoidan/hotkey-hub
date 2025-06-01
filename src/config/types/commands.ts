@@ -42,6 +42,8 @@ const baseSchema = z.object({
 const keyPressCommandSchema = z.object({
   keySend: z.union([keySchema, variableValueSchema, z.array(keySchema)])
     .describe('Key that will be pressed'),
+  duration: z.number().min(50).optional().describe('duration of key being pressed'),
+  durationDiviation: z.number().default(0).optional().describe('Controlls randomness of duration'),
   holdKeys: z.union([keySchema, variableValueSchema, z.array(keySchema)])
     .optional()
     .describe('Keys that will be hold during pressing main key. E.g if you need to send Alt+1, here goes Alt'),

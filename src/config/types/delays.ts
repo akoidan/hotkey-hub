@@ -20,7 +20,7 @@ const globalDelaySchema = z.object({
       + 'E.g. 0.2 with 1000ms delay gives random delay between 800ms and 1200ms.')
     .optional(),
 
-  combinationDiviation: z.number()
+  commandDiviation: z.number()
     .positive()
     .max(1)
     .default(0)

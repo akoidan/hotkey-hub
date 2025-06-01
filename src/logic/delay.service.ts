@@ -3,26 +3,17 @@ import {
   Logger,
 } from '@nestjs/common';
 import {ConfigService} from '@/config/config-service';
+import {RandomService} from '@/random/random-service';
 
 @Injectable()
 export class DelayService {
   constructor(
     private readonly configService: ConfigService,
+    private readonly randomService: RandomService,
     private readonly logger: Logger,
   ) {
-
   }
-
-  /**
-   * Generates a random number based on a given value x and a deviation factor d, where the result stays within the range x ± d * x.
-   */
-  private calcDiviation(x: number, d?: number): number {
-    if (d) {
-      const randomVariator = 1 + ((2 * Math.random() - 1) * d);
-      return Math.round(x * randomVariator);
-    }
-    return x;
-  }
+ 
 
   // Awaits delay if specified in global config or in local command data
   // Applies a hugeDelay from global config if chance is succeded
@@ -32,19 +23,18 @@ export class DelayService {
     type: 'before' | 'after'
   ): Promise<void> {
     const delays = this.configService.getDelays();
-    if (combDelay && delays.combinationDiviation) {
-      combDelay = this.calcDiviation(combDelay, delays.combinationDiviation);
-    }
     if (commandDelay !== undefined) {
       combDelay = commandDelay;
+      if (combDelay && delays.commandDiviation) {
+        combDelay = this.randomService.calcDiviation(commandDelay, delays.commandDiviation);
+      }
     }
-
 
     const configDelay = type === 'before' ? delays.beforeCommand : delays.afterCommand;
     if (combDelay === undefined && configDelay !== undefined) {
-      combDelay = this.calcDiviation(configDelay, delays.standardDiviation);
+      combDelay = this.randomService.calcDiviation(configDelay, delays.standardDiviation);
       if (delays.randomHugeDelay && delays.randomHugeDelayChance && Math.random() < delays.randomHugeDelayChance) {
-        combDelay += this.calcDiviation(delays.randomHugeDelay, delays.randomHugeDelayDiviation);
+        combDelay += this.randomService.calcDiviation(delays.randomHugeDelay, delays.randomHugeDelayDiviation);
       }
     }
     if (!combDelay) {
