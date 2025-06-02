@@ -84,14 +84,17 @@ export class RgbService {
       await this.client.updateMode(this.deviceId!, 'Direct', {});
       keyboard.leds.forEach((led, index: number) => {
         // Strip 'Key: ' prefix and convert to uppercase
-        this.keyMap[led.name.replace('Key: ', '').toLowerCase()] = index;
+        this.keyMap[this.encodeKey(led)] = index;
       });
       this.colors = Array<Color>(keyboard.colors.length).fill({red: 0, green: 0, blue: 0});
       this.client.updateLeds(this.deviceId!, this.colors);
       this.logger.debug('Setting keyboard colors...');
-
     } catch (error) {
       this.logger.error(`Unable to init keyboard because of ${error?.message ?? error}`, error.stack);
     }
+  }
+
+  private encodeKey(led: { name: string; value: { red: any; green: any; blue: any } }): string {
+    return led.name.toLowerCase().replace('key: ', '').replace(' (ansi)', '');
   }
 }

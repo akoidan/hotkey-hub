@@ -1,7 +1,7 @@
 import type {Command, Key, KeyPressCommand} from '@/config/types/commands';
 import {CommandHandler} from '@/handlers/command-handler.service';
-import type {RandomService} from '@/random/random-service';
-import type {ClientService} from '@/client/client-service';
+import {RandomService} from '@/random/random-service';
+import {ClientService} from '@/client/client-service';
 import {Injectable} from '@nestjs/common';
 
 @Injectable()
