@@ -1,4 +1,4 @@
-import {Inject, Injectable, Logger,} from '@nestjs/common';
+import {Inject, Injectable, Logger} from '@nestjs/common';
 import {ASYNC_PROVIDER} from '@/asyncstore/async-storage-const';
 import {AsyncLocalStorage} from 'async_hooks';
 
@@ -28,7 +28,8 @@ export class SemaphorService {
   }
 
   public startOperation(shortCut: string, cb: () => Promise<void>): void {
-    const randomValue = this.getNewTransactionId();
+    const parts = shortCut.split('+');
+    const randomValue = `${parts[parts.length-1]}-${this.getNewTransactionId()}`;
     this.transactionGroups[randomValue] = [];
     this.asyncLocalStorage.run(new Map(),() => {
       this.asyncLocalStorage.getStore()!.set(SemaphorService.COMB_KEY, randomValue);
