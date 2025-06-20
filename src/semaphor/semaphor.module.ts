@@ -1,10 +1,9 @@
 import {Logger, Module} from '@nestjs/common';
 import {SemaphorService} from '@/semaphor/semaphor-service';
 import {AsyncStorageModule} from '@/asyncstore/async-storage.module';
-import {ConfigModule} from '@/config/config-module';
 
 @Module({
-  imports: [AsyncStorageModule, ConfigModule],
+  imports: [AsyncStorageModule],
   providers: [
     Logger,
     SemaphorService,

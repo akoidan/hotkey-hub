@@ -39,7 +39,7 @@ export class AppModule implements OnModuleInit {
       );
       this.configService.getCombinations().forEach((comb) => {
         this.hotKeyService.registerShortcut(comb.shortCut, () => {
-            this.semaphorService.startOperation(comb.shortCut, async() => {
+            void this.semaphorService.startOperation(comb.shortCut, async() => {
             this.logger.log(`${clc.bold.green(comb.shortCut)} pressed. Running: ${comb.name}`);
             try {
               await this.rgbService.updateColors(comb.shortCut, true);

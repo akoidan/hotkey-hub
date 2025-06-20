@@ -41,6 +41,7 @@ export class ConfigService implements ConfigProvider {
     private readonly envVars: Record<string, string | undefined>,
     private readonly configReader: ConfigReaderService,
   ) {
+    this.logger.debug('Created new instance of config service');
   }
 
   public async parseConfig(): Promise<void> {

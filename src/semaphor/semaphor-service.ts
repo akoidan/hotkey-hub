@@ -1,6 +1,7 @@
 import {Inject, Injectable, Logger} from '@nestjs/common';
 import {ASYNC_PROVIDER} from '@/asyncstore/async-storage-const';
 import {AsyncLocalStorage} from 'async_hooks';
+import {TransactionGroups} from '@/semaphor/semaphor-model';
 
 @Injectable()
 export class SemaphorService {
@@ -9,15 +10,7 @@ export class SemaphorService {
   // eslint-disable-next-line @typescript-eslint/naming-convention
   public static readonly COMB_KEYSTROKE = 'keystroke';
 
-  private readonly transactionGroups: Record<string, ({
-    resolve(): void;
-    resolveFrom: string;
-    transactionId: string;
-  } | {
-    resolve: null;
-    resolveFrom: null;
-    transactionId: string;
-  })[]> = {};
+  private readonly transactionGroups: TransactionGroups= {};
 
 
   constructor(
@@ -27,14 +20,14 @@ export class SemaphorService {
   ) {
   }
 
-  public startOperation(shortCut: string, cb: () => Promise<void>): void {
+  public async startOperation(shortCut: string, cb: () => Promise<void>): Promise<void> {
     const parts = shortCut.split('+');
     const randomValue = `${parts[parts.length-1]}-${this.getNewTransactionId()}`;
     this.transactionGroups[randomValue] = [];
-    this.asyncLocalStorage.run(new Map(),() => {
+    await this.asyncLocalStorage.run(new Map(), async() => {
       this.asyncLocalStorage.getStore()!.set(SemaphorService.COMB_KEY, randomValue);
       this.asyncLocalStorage.getStore()!.set(SemaphorService.COMB_KEYSTROKE, shortCut);
-      void cb();
+      await cb();
     });
   }
 

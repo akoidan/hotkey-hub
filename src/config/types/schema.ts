@@ -44,7 +44,7 @@ const ipsSchema = z.record(z.string().ip())
     ' You can also use https://ngrok.com/ to get public address or create VPN ');
 
 const aliasesValueObjectSchema = z.object({
-  ipNames: z.array(z.string().describe('Value from "ips" section of this config')),
+  ipNames: z.array(z.string()).describe('Value from "ips" section of this config'),
   circular: z.boolean().optional().describe('If set to true, only 1 ip will be used at the time.' +
     ' Otherwise will be executed on every element.').default(false),
 });
@@ -60,7 +60,7 @@ const aliasesSchema = z.record(aliasesValueSchema)
 const rgbSchema = z.object({
   deviceName: z.string().describe('Device name of the keyboard. ' +
       'You can extract it with "openrgb --list-devices" command. Select the name after number'),
-  clientName: z.string().default('RPC').describe('The name of the client').optional(),
+  clientName: z.string().default('RPC').describe('Name of this client when connecting to openrg').optional(),
   serverPort: z.number().default(6742).describe('Port of the openrgb server').optional(),
   serverAddr: z.string().default('localhost').describe('Address of the openrgb server').optional(),
 }).optional()
