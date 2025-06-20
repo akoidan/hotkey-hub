@@ -87,7 +87,8 @@ export class SemaphorService {
         return;
       }
 
-      this.logger.log(`Created a new transaction ${transactionId} but waiting ${currentState[currentState.length - 1]!.transactionId} to finish`);
+      const txId = currentState[currentState.length - 1]!.transactionId;
+      this.logger.log(`Created a new transaction ${transactionId} but waiting ${txId} to finish`);
       await new Promise<void>(resolve => {
         currentState[currentState.length - 1].resolve = resolve;
         currentState[currentState.length - 1].resolveFrom = transactionId;

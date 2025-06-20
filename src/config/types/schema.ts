@@ -58,12 +58,14 @@ const aliasesSchema = z.record(aliasesValueSchema)
 
 
 const rgbSchema = z.object({
-  deviceName: z.string().describe('Device name of the keyboard. You can extract it with "openrgb --list-devices" command. Select the name after number'),
+  deviceName: z.string().describe('Device name of the keyboard. ' +
+      'You can extract it with "openrgb --list-devices" command. Select the name after number'),
   clientName: z.string().default('RPC').describe('The name of the client').optional(),
   serverPort: z.number().default(6742).describe('Port of the openrgb server').optional(),
   serverAddr: z.string().default('localhost').describe('Address of the openrgb server').optional(),
 }).optional()
-  .describe('Allows to set color on rgb keyboard to highlight the current executing shortcut. If not set won\'t be executed. openrgb server is required. See https://openrgb.org/');
+  .describe('Allows to set color on rgb keyboard to highlight the current executing shortcut.' +
+      ' If not set won\'t be executed. openrgb server is required. See https://openrgb.org/');
 
 const aARootSchema = z.object({
   ips: ipsSchema,
