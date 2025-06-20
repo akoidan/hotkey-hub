@@ -1,5 +1,4 @@
 import {
-  Inject,
   Injectable,
   Logger,
 } from '@nestjs/common';
@@ -14,8 +13,7 @@ import {CommandOrMacro} from '@/config/types/macros';
 import {Command} from '@/config/types/commands';
 import clc from 'cli-color';
 import {CircularIndex} from '@/logic/circular-index';
-import {ASYNC_PROVIDER} from '@/asyncstore/async-storage-const';
-import {AsyncLocalStorage} from 'async_hooks';
+import {SemaphorService} from '@/semaphor/semaphor-service';
 
 @Injectable()
 export class ShortcutProcessingService {
@@ -25,8 +23,7 @@ export class ShortcutProcessingService {
     private readonly commandProcessor: CommandProcessingService,
     private readonly circularResolver: CircularIndex,
     private readonly logger: Logger,
-    @Inject(ASYNC_PROVIDER)
-    private readonly asyncLocalStorage: AsyncLocalStorage<Map<string, any>>,
+    private readonly semaphorService: SemaphorService,
   ) {
   }
 
@@ -39,12 +36,13 @@ export class ShortcutProcessingService {
       await this.processShortcutsThreadWoMacro((comb as MacroShortcutMappingCircular));
     } else if ((comb as MacroShortcutMapping).threads) {
       await Promise.all((comb as MacroShortcutMapping).threads!.map(async(receiver, i) => new Promise((resolv, rej) => {
-        const newStorageMap = new Map().set('comb', `${this.asyncLocalStorage.getStore()!.get('comb')}-${i + 1}`);
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        this.asyncLocalStorage.run(newStorageMap, () => {
+        this.semaphorService.spawnChild(String(i), async(): Promise<void> => {
           // eslint-disable-next-line @typescript-eslint/use-unknown-in-catch-callback-variable
-          this.processCommandWithMacro(receiver, comb.delayAfter, comb.delayBefore).then(resolv).catch(rej);
-        });
+          await this.processCommandWithMacro(receiver, comb.delayAfter, comb.delayBefore).then(resolv).catch(rej).finally(() => {
+            this.semaphorService.finishChild();
+          });
+          // eslint-disable-next-line @typescript-eslint/use-unknown-in-catch-callback-variable
+        }).catch(rej);
       })));
     } else if ((comb as MacroShortcutMapping).commands) {
       await this.processCommandWithMacro((comb as MacroShortcutMapping).commands!, comb.delayAfter, comb.delayBefore);

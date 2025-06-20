@@ -1,5 +1,4 @@
 import {
-  Inject,
   Injectable,
   Logger,
 } from '@nestjs/common';
@@ -9,8 +8,7 @@ import {
 } from 'https';
 import {ConfigService} from '@/config/config-service';
 import clc from 'cli-color';
-import {ASYNC_PROVIDER} from '@/asyncstore/async-storage-const';
-import {AsyncLocalStorage} from 'async_hooks';
+import {SemaphorService} from '@/semaphor/semaphor-service';
 
 interface CustomError extends Error {
   statusCode?: number;
@@ -25,8 +23,7 @@ export class FetchClient {
     private readonly config: ConfigService,
     private readonly agent: Agent,
     private readonly protocol: string,
-        @Inject(ASYNC_PROVIDER)
-    private readonly asyncLocalStorage: AsyncLocalStorage<Map<string, any>>,
+    private readonly semaphorService: SemaphorService,
   ) {
   }
 
@@ -76,7 +73,7 @@ export class FetchClient {
   private getHeaders(payloadstr: string): Record<string, string|number> {
     let headers: Record<string, string | number> = {
       // eslint-disable-next-line @typescript-eslint/naming-convention
-      'x-request-id': this.asyncLocalStorage.getStore()!.get('comb') as string,
+      'x-request-id': this.semaphorService.getCurrentOperationId(),
     };
     if (payloadstr) {
       headers = {
@@ -95,7 +92,7 @@ export class FetchClient {
     client: string,
     url: string,
     payload?: unknown,
-    timeout: number = 3000,
+    timeout: number = 6000,
     withParse: boolean = false,
   ): Promise<T> {
     const payloadstr: string = method === 'POST' && payload ? JSON.stringify(payload) : '';
@@ -134,11 +131,11 @@ export class FetchClient {
   }
 
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-  async post<T>(client: string, url: string, payload: any, timeout = 3000, withParse = false): Promise<T> {
+  async post<T>(client: string, url: string, payload: any, timeout = 6000, withParse = false): Promise<T> {
     return this.makeRequest<T>('POST', client, url, payload, timeout, withParse);
   }
 
-  async get<T>(client: string, url: string, timeout = 3000, withParse = false): Promise<T> {
+  async get<T>(client: string, url: string, timeout = 6000, withParse = false): Promise<T> {
     return this.makeRequest<T>('GET', client, url, undefined, timeout, withParse);
   }
 }

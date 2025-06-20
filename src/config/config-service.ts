@@ -2,9 +2,9 @@ import {
   aARootSchema,
   AliasesData,
   ConfigData,
-  DelayData,
   IpsData,
   macrosDefinitionSchema,
+  RgbData,
   variablesSchema,
 } from '@/config/types/schema';
 import {parse} from 'jsonc-parser';
@@ -19,6 +19,7 @@ import {ShortsData} from '@/config/types/shortcut';
 import {ConfigProvider} from '@/config/interfaces';
 import {ConfigReaderService} from '@/config/config-reader-service';
 import clc from 'cli-color';
+import {DelayData} from '@/config/types/delays';
 
 interface ConfigCombination {
   shortCut: string;
@@ -40,6 +41,7 @@ export class ConfigService implements ConfigProvider {
     private readonly envVars: Record<string, string | undefined>,
     private readonly configReader: ConfigReaderService,
   ) {
+    this.logger.debug('Created new instance of config service');
   }
 
   public async parseConfig(): Promise<void> {
@@ -84,6 +86,10 @@ export class ConfigService implements ConfigProvider {
 
   public getIps(): IpsData {
     return this.configData!.ips;
+  }
+
+  public getOpenRgb(): RgbData {
+    return this.configData!.rgb;
   }
 
   public getCombinations(): ShortsData[] {

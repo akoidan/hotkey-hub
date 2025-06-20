@@ -91,14 +91,14 @@ const combinationList = z.array(shortCutMappingSchema)
   .superRefine((combinations, ctx) => {
     const shortCuts = new Map<string, number>();
     combinations.forEach((value, i) => {
-      if (shortCuts.has(value.shortCut)) {
+      if (shortCuts.has(value.shortCut.toLowerCase())) {
         ctx.addIssue({
           code: ZodIssueCode.custom,
           path: ['shortcut', i],
           message: `Shortcut ${value.shortCut} already exists at index ${shortCuts.get(value.shortCut)}`,
         });
       }
-      shortCuts.set(value.shortCut, i);
+      shortCuts.set(value.shortCut.toLowerCase(), i);
     });
   }).describe('Shorcuts mappings. Main logic');
 

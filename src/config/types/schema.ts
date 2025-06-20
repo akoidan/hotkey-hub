@@ -36,6 +36,7 @@ import {
   threadCircularShortCutMappingSchema,
   shortCut,
 } from '@/config/types/shortcut';
+import {globalDelaySchema} from '@/config/types/delays';
 
 const ipsSchema = z.record(z.string().ip())
   .describe('Definition of remote PCs where keys are PC names and values are their IP addresses.' +
@@ -43,7 +44,7 @@ const ipsSchema = z.record(z.string().ip())
     ' You can also use https://ngrok.com/ to get public address or create VPN ');
 
 const aliasesValueObjectSchema = z.object({
-  ipNames: z.array(z.string().describe('Value from "ips" section of this config')),
+  ipNames: z.array(z.string()).describe('Value from "ips" section of this config'),
   circular: z.boolean().optional().describe('If set to true, only 1 ip will be used at the time.' +
     ' Otherwise will be executed on every element.').default(false),
 });
@@ -56,30 +57,15 @@ const aliasesSchema = z.record(aliasesValueSchema)
     'IPS section and instead of specifying PC name directly you can use aliases from this section that points to the PC name.');
 
 
-const delaySchema = z.object({
-  beforeCommand: z.number()
-    .default(0)
-    .describe('Global delay in miliseconds before execution every current commands in order to prevent spam.')
-    .optional(),
-  afterCommand: z.number()
-    .default(0)
-    .describe('Global delay in miliseconds before execution every current commands in order to prevent spam.')
-    .optional(),
-  standardDiviation: z.number()
-    .positive()
-    .max(1)
-    .default(0)
-    .describe('Random multiplier for delayAfter and delayBefore. initialDelay +/-initialDelay*random. ' +
-      'E.g. if you specified 0.2, global delay 1s would be a random delay between 0.8 and 1.2s')
-    .optional(),
-  randomHugeDelay: z.number()
-    .positive()
-    .default(0)
-    .describe('After standard delay is calcuated if randomHugeDelayChance is triggered, ' +
-      'this delay will be added * standardDiviation to the standardDelay.')
-    .optional(),
-  randomHugeDelayChance: z.number().positive().max(1).optional(),
-}).optional().describe('Global delays config between commands. If ommited commands will run instantly after each other');
+const rgbSchema = z.object({
+  deviceName: z.string().describe('Device name of the keyboard. ' +
+      'You can extract it with "openrgb --list-devices" command. Select the name after number'),
+  clientName: z.string().default('RPC').describe('Name of this client when connecting to openrg').optional(),
+  serverPort: z.number().default(6742).describe('Port of the openrgb server').optional(),
+  serverAddr: z.string().default('localhost').describe('Address of the openrgb server').optional(),
+}).optional()
+  .describe('Allows to set color on rgb keyboard to highlight the current executing shortcut.' +
+      ' If not set won\'t be executed. openrgb server is required. See https://openrgb.org/');
 
 const aARootSchema = z.object({
   ips: ipsSchema,
@@ -88,8 +74,9 @@ const aARootSchema = z.object({
     .optional()
     .default(5000)
     .describe('Https port to connect to on client PC'),
+  rgb: rgbSchema,
   combinations: combinationList,
-  delays: delaySchema,
+  delays: globalDelaySchema,
   macros: macrosDefinitionSchema,
 }).strict().superRefine((data, ctx) => {
   // Ensure mapping values are arrays of keys from ips
@@ -120,22 +107,24 @@ type ConfigData = z.infer<typeof aARootSchema>;
 
 type IpsData = z.infer<typeof ipsSchema>
 type AliasesData = z.infer<typeof aliasesSchema>
+type RgbData = z.infer<typeof rgbSchema>
 type AliasesValueData = z.infer<typeof aliasesValueSchema>
-type DelayData = z.infer<typeof delaySchema>
 
 
 export type {
   ConfigData,
   IpsData,
+  RgbData,
   AliasesData,
-  DelayData,
   AliasesValueData,
 };
 
 export {
+  rgbSchema,
   aARootSchema,
   keySchema,
   shortCut,
+  globalDelaySchema,
   macroSchema,
   macrosDefinitionSchema,
   macroVariablesDescriptionSchema,
@@ -162,6 +151,5 @@ export {
   killExeByNameCommandSchema,
   killExeByPidCommandSchema,
   commandOrMacroSchema,
-  delaySchema,
 };
 

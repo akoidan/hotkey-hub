@@ -15,3 +15,5 @@ cmake-build-debug
 json-schema.json
 macros-schema.json
 README.md
+CONFIG.md
+a.ts

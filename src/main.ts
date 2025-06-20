@@ -3,9 +3,10 @@ import {AppModule} from '@/app/app.module';
 import {CustomLogger} from '@/app/custom-logger';
 import * as process from 'node:process';
 import {asyncLocalStorage} from '@/asyncstore/async-storage-value';
+import {SemaphorService} from '@/semaphor/semaphor-service';
 
 
-asyncLocalStorage.run(new Map<string, string>().set('comb', 'init'), () => {
+asyncLocalStorage.run(new Map<string, string>().set(SemaphorService.COMB_KEY, 'init'), () => {
   const customLogger = new CustomLogger(asyncLocalStorage);
   NestFactory.createApplicationContext(AppModule, {
     logger: customLogger,

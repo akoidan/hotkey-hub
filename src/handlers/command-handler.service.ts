@@ -6,7 +6,9 @@ import {Injectable} from '@nestjs/common';
 export abstract class CommandHandler {
   private next: CommandHandler | null = null;
 
-  constructor(protected readonly clientService: ClientService) {
+  constructor(
+    protected readonly clientService: ClientService,
+  ) {
   }
 
   setNext(handler: CommandHandler): CommandHandler {

@@ -1,9 +1,4 @@
-import {
-  Inject,
-  Logger,
-  Module,
-  OnModuleInit,
-} from '@nestjs/common';
+import {Logger, Module, OnModuleInit} from '@nestjs/common';
 import {HotkeyService} from '@/app/hotkey.service';
 import {ConfigModule} from '@/config/config-module';
 import {ConfigService} from '@/config/config-service';
@@ -13,24 +8,25 @@ import {ShortcutProcessingService} from '@/logic/shortcut-processing.service';
 import {LogicModule} from '@/logic/logic.module';
 import {NativeModule} from '@/native/native-module';
 import clc from 'cli-color';
-import {AsyncStorageModule} from '@/asyncstore/async-storage.module';
-import {AsyncLocalStorage} from 'async_hooks';
-import {ASYNC_PROVIDER} from '@/asyncstore/async-storage-const';
+import {SemaphorService} from '@/semaphor/semaphor-service';
+import {SemaphorModule} from '@/semaphor/semaphor.module';
+import {RgbModule} from '@/rgb/rgb.module';
+import {RgbService} from '@/rgb/rgb-service';
 
 @Module({
-  imports: [ConfigModule, ClientModule, LogicModule, NativeModule, AsyncStorageModule],
+  imports: [ConfigModule, ClientModule, LogicModule, NativeModule, SemaphorModule, RgbModule],
   providers: [Logger, HotkeyService],
   exports: [],
 })
 export class AppModule implements OnModuleInit {
   constructor(
-    @Inject(ASYNC_PROVIDER)
-    private readonly asyncLocalStorage: AsyncLocalStorage<Map<string, any>>,
     private readonly logger: Logger,
     private readonly hotKeyService: HotkeyService,
     private readonly logicService: ShortcutProcessingService,
     private readonly configService: ConfigService,
-    private readonly clientService: ClientService
+    private readonly clientService: ClientService,
+    private readonly semaphorService: SemaphorService,
+    private readonly rgbService: RgbService
   ) {
   }
 
@@ -43,10 +39,17 @@ export class AppModule implements OnModuleInit {
       );
       this.configService.getCombinations().forEach((comb) => {
         this.hotKeyService.registerShortcut(comb.shortCut, () => {
-          this.asyncLocalStorage.run(new Map(), () => {
-            this.asyncLocalStorage.getStore()!.set('comb', Math.random().toString(36).substring(2, 6));
-            this.logger.log(`${clc.bold.green(comb.shortCut)} pressed`);
-            this.logicService.processUnknownShortCut(comb).catch((err: unknown) => this.logger.error(err));
+            void this.semaphorService.startOperation(comb.shortCut, async() => {
+            this.logger.log(`${clc.bold.green(comb.shortCut)} pressed. Running: ${comb.name}`);
+            try {
+              await this.rgbService.updateColors(comb.shortCut, true);
+              await this.logicService.processUnknownShortCut(comb);
+              await this.rgbService.updateColors(comb.shortCut, false);
+            } catch (err) {
+              this.logger.error(err);
+            } finally {
+              await this.semaphorService.finishOperation();
+            }
           });
         });
       });

@@ -8,6 +8,7 @@ interface MouseClickRequest {
 interface SendKeyRequest {
   keys: Key[];
   holdKeys: Key[];
+  duration?: number;
 }
 
 interface FocusExeRequest {
