@@ -78,19 +78,15 @@ const findProcessWindowsSchema = z.object({
   assignIds: z.string().optional().describe('Assigns Ids of found windows to a variable'),
 }).strict().merge(baseSchema).describe('Finds all windows of the process');
 
+const pickAssignmentPolicy = z.enum(['first', 'last'])
+    .describe('If multiple ids are returned assign policy. If not specified first would be used');
+
 const findProcessesWindowsSchema = z.object({
   findProcessesWindows: z.union([z.array(z.number()), variableValueSchema])
       .describe('Processes IDs to get windows IDs from. Should be array length matching variable names'),
   assignIds: z.array(z.string()).optional().describe('Assigns Ids of found windows to a variable'),
-}).strict().merge(baseSchema).superRefine((command, ctx) => {
-  if (command.assignIds && command.assignIds.length !== command.findProcessesWindows.length ) {
-    // ctx.addIssue({
-    //   code: ZodIssueCode.custom,
-    //   path: ['assignIds'],
-    //   message: `AssignIds names of variables length should match findProcessesWindows length and and be ${command.assignIds.length}`,
-    // });
-  }
-}).describe('Finds all windows of the process');
+  pick: pickAssignmentPolicy.optional(),
+}).strict().merge(baseSchema).describe('Finds all windows of the process');
 
 const mouseMoveClickCommandSchema = z.object({
   mouseMoveX: z.union([z.number(), variableValueSchema]).describe('X coordinate'),

@@ -22,7 +22,8 @@ export class FindProcessesWindowsHandler extends CommandHandler {
         .map(async(id) => this.clientService.getProcessWindows(destination, id)));
     if (command.assignIds) {
       for (let i = 0; i< command.findProcessesWindows.length; i++) {
-        await this.configService.setVariable(command.assignIds[i], responses[i].wids[0]);
+        const id = command.pick === 'last' ? responses[i].wids[responses[i].wids.length - 1] : responses[i].wids[0];
+        await this.configService.setVariable(command.assignIds[i], id);
       }
     }
   }
