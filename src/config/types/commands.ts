@@ -64,6 +64,16 @@ const typeTextCommandSchema = z.object({
   typeText: z.union([z.string(), variableValueSchema]).describe('Any string to type'),
 }).strict().merge(baseSchema).describe('Types text on the remote PC.');
 
+const findPidsByNameSchema = z.object({
+  findPidsByName: z.string().describe('Name of the executalbe to search for process IDs'),
+  assignIds: z.string().optional().describe('Assigns Ids of PIDs to a variable'),
+}).strict().merge(baseSchema).describe('Finds all processes with specified name');
+
+const findProcessWindowsSchema = z.object({
+  findProcessWindows: z.number().describe('Process ID to get windows IDs from'),
+  assignIds: z.string().optional().describe('Assigns Ids of found windows to a variable'),
+}).strict().merge(baseSchema).describe('Finds all windows of the process');
+
 const mouseMoveClickCommandSchema = z.object({
   mouseMoveX: z.union([z.number(), variableValueSchema]).describe('X coordinate'),
   mouseMoveY: z.union([z.number(), variableValueSchema]).describe('Y coordinate'),
@@ -90,6 +100,8 @@ const commandSchema = z.union([
   typeTextCommandSchema,
   killExeByPidCommandSchema,
   killExeByNameCommandSchema,
+  findPidsByNameSchema,
+  findProcessWindowsSchema,
 ]).describe('A remote command');
 
 
@@ -106,6 +118,9 @@ type Key = z.infer<typeof keySchema>;
 type KillExeByPidCommand = z.infer<typeof killExeByPidCommandSchema>
 type KillExeByNameCommand = z.infer<typeof killExeByNameCommandSchema>
 
+type FindPidsByNameCommand = z.infer<typeof findPidsByNameSchema>
+type FindProcessWindowsCommand = z.infer<typeof findProcessWindowsSchema>
+
 export type {
   TypeTextCommand,
   KeyPressCommand,
@@ -118,6 +133,8 @@ export type {
   Key,
   KillExeByPidCommand,
   KillExeByNameCommand,
+  FindPidsByNameCommand,
+  FindProcessWindowsCommand,
 };
 
 export {
@@ -133,5 +150,7 @@ export {
   killExeByNameCommandSchema,
   killExeByPidCommandSchema,
   commandSchema,
+  findPidsByNameSchema,
+  findProcessWindowsSchema,
 };
 

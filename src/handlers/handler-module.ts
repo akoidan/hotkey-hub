@@ -13,7 +13,8 @@ import {LeftMouseClickHandler} from '@/handlers/implementation/left-mouse-click-
 import {Provider} from '@nestjs/common/interfaces/modules/provider.interface';
 import {SemaphorModule} from '@/semaphor/semaphor.module';
 import {RandomModule} from '@/random/random.module';
-
+import {FindPidsByNameHandler} from '@/handlers/implementation/find-pids-by-name-handler';
+import {FindProcessWindowsHandler} from '@/handlers/implementation/find-process-windows-handler';
 
 const handlerProviders: Provider[] = [
   KeyPressHandler,
@@ -24,6 +25,8 @@ const handlerProviders: Provider[] = [
   KillNameHandler,
   KillPidHandler,
   LeftMouseClickHandler,
+  FindPidsByNameHandler,
+  FindProcessWindowsHandler,
   {
     provide: CommandHandler,
     inject: [
@@ -35,6 +38,8 @@ const handlerProviders: Provider[] = [
       KillNameHandler,
       KillPidHandler,
       LeftMouseClickHandler,
+      FindPidsByNameHandler,
+      FindProcessWindowsHandler,
     ],
     useFactory: (
       keyPressHandler: CommandHandler,
@@ -45,6 +50,8 @@ const handlerProviders: Provider[] = [
       killByNameHandler: CommandHandler,
       killByPidHandler: CommandHandler,
       leftMouseClickHandler: CommandHandler,
+      findPidsByNameHandler: CommandHandler,
+      findProcessWindowsHandler: CommandHandler,
     ): CommandHandler => {
       keyPressHandler
         .setNext(focusWindowHandler)
@@ -53,7 +60,9 @@ const handlerProviders: Provider[] = [
         .setNext(typeTextHandler)
         .setNext(killByNameHandler)
         .setNext(killByPidHandler)
-        .setNext(leftMouseClickHandler);
+        .setNext(leftMouseClickHandler)
+        .setNext(findPidsByNameHandler)
+        .setNext(findProcessWindowsHandler);
 
       return keyPressHandler;
     },
