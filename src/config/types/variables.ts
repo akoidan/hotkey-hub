@@ -3,6 +3,7 @@ import {z} from 'zod';
 const variablesSchema = z.record(z.union([
   z.string(),
   z.number(),
+  z.array(z.number()),
 ]).describe('if number, parseInt will be used'));
 
 const variableRegex = /\{\{\w+\}\}/u;

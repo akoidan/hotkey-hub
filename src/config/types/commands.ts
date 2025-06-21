@@ -56,9 +56,13 @@ const launchExeCommandSchema = z.object({
   assignId: z.string().optional().describe('Assigns PID of launched command to a variable that can be used after'),
 }).strict().merge(baseSchema).describe('Starts a program on a remote PC.');
 
-const focusWindowCommandSchema = z.object({
+const focusProcessWindowCommandSchema = z.object({
   focusPid: z.union([variableValueSchema, z.number()]).describe('Pid of the process that has this window'),
 }).strict().merge(baseSchema).describe('Focuses window with the provided PID, making it active');
+
+const focusWindowCommandSchema = z.object({
+  focusWid: z.union([variableValueSchema, z.number()]).describe('Windows Id to focus'),
+}).strict().merge(baseSchema).describe('Focuses window by id. Windows Ids can be fetches with findProcessesWindows');
 
 const typeTextCommandSchema = z.object({
   typeText: z.union([z.string(), variableValueSchema]).describe('Any string to type'),
@@ -73,6 +77,20 @@ const findProcessWindowsSchema = z.object({
   findProcessWindows: z.number().describe('Process ID to get windows IDs from'),
   assignIds: z.string().optional().describe('Assigns Ids of found windows to a variable'),
 }).strict().merge(baseSchema).describe('Finds all windows of the process');
+
+const findProcessesWindowsSchema = z.object({
+  findProcessesWindows: z.union([z.array(z.number()), variableValueSchema])
+      .describe('Processes IDs to get windows IDs from. Should be array length matching variable names'),
+  assignIds: z.array(z.string()).optional().describe('Assigns Ids of found windows to a variable'),
+}).strict().merge(baseSchema).superRefine((command, ctx) => {
+  if (command.assignIds && command.assignIds.length !== command.findProcessesWindows.length ) {
+    // ctx.addIssue({
+    //   code: ZodIssueCode.custom,
+    //   path: ['assignIds'],
+    //   message: `AssignIds names of variables length should match findProcessesWindows length and and be ${command.assignIds.length}`,
+    // });
+  }
+}).describe('Finds all windows of the process');
 
 const mouseMoveClickCommandSchema = z.object({
   mouseMoveX: z.union([z.number(), variableValueSchema]).describe('X coordinate'),
@@ -96,16 +114,19 @@ const commandSchema = z.union([
   leftMouseClickCommandSchema,
   mouseMoveClickCommandSchema,
   launchExeCommandSchema,
+  focusProcessWindowCommandSchema,
   focusWindowCommandSchema,
   typeTextCommandSchema,
   killExeByPidCommandSchema,
   killExeByNameCommandSchema,
   findPidsByNameSchema,
   findProcessWindowsSchema,
+  findProcessesWindowsSchema,
 ]).describe('A remote command');
 
 
 type TypeTextCommand = z.infer<typeof typeTextCommandSchema>
+type FocusProcessWindowCommand = z.infer<typeof focusProcessWindowCommandSchema>
 type FocusWindowCommand = z.infer<typeof focusWindowCommandSchema>
 type KeyPressCommand = z.infer<typeof keyPressCommandSchema>
 type BaseCommand = z.infer<typeof baseSchema>
@@ -120,6 +141,7 @@ type KillExeByNameCommand = z.infer<typeof killExeByNameCommandSchema>
 
 type FindPidsByNameCommand = z.infer<typeof findPidsByNameSchema>
 type FindProcessWindowsCommand = z.infer<typeof findProcessWindowsSchema>
+type FindProcessesWindowsCommand = z.infer<typeof findProcessesWindowsSchema>
 
 export type {
   TypeTextCommand,
@@ -127,6 +149,7 @@ export type {
   BaseCommand,
   MouseMoveClickCommand,
   LeftMouseClickCommand,
+  FocusProcessWindowCommand,
   FocusWindowCommand,
   ExecuteCommand,
   Command,
@@ -135,15 +158,16 @@ export type {
   KillExeByNameCommand,
   FindPidsByNameCommand,
   FindProcessWindowsCommand,
+  FindProcessesWindowsCommand,
 };
 
-export {
+export { // eslint-disable-next-line max-lines
   keySchema,
   variableValueSchema,
   delayCommandsSchema,
   keyPressCommandSchema,
   launchExeCommandSchema,
-  focusWindowCommandSchema,
+  focusProcessWindowCommandSchema,
   typeTextCommandSchema,
   mouseMoveClickCommandSchema,
   leftMouseClickCommandSchema,
@@ -152,5 +176,7 @@ export {
   commandSchema,
   findPidsByNameSchema,
   findProcessWindowsSchema,
+  findProcessesWindowsSchema,
+  focusWindowCommandSchema,
 };
 

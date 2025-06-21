@@ -49,11 +49,11 @@ export class ClientService {
   }
 
   async findPidsByName(client: string, request: FindPidsByNameRequest): Promise<FindPidsByNameResponse> {
-    return this.client.post(client, '/find-pids-by-name', request);
+    return this.client.post(client, '/find-pids-by-name', request, 6000, true);
   }
 
   async getProcessWindows(client: string, pid: number): Promise<FindProcessWindowsResponse> {
-    return this.client.get(client, `/get-process-windows/${pid}`);
+    return this.client.get(client, `/get-process-windows/${pid}`, 6000, true);
   }
 
   async focusWindow(client: string, request: FocusWindowRequest): Promise<void> {

@@ -1,7 +1,7 @@
 import {Module} from '@nestjs/common';
 import {ClientModule} from '@/client/client-module';
 import {KeyPressHandler} from '@/handlers/implementation/key-press-handler';
-import {FocusWindowHandler} from '@/handlers/implementation/focus-window-handler';
+import {FocusProcessWindowHandler} from '@/handlers/implementation/focus-process-window-handler';
 import {MouseClickHandler} from '@/handlers/implementation/mouse-click-handler';
 import {ExecuteHandler} from '@/handlers/implementation/execute-handler';
 import {TypeTextHandler} from '@/handlers/implementation/type-text-handler';
@@ -15,10 +15,12 @@ import {SemaphorModule} from '@/semaphor/semaphor.module';
 import {RandomModule} from '@/random/random.module';
 import {FindPidsByNameHandler} from '@/handlers/implementation/find-pids-by-name-handler';
 import {FindProcessWindowsHandler} from '@/handlers/implementation/find-process-windows-handler';
+import {FindProcessesWindowsHandler} from '@/handlers/implementation/find-processes-windows-handler';
+import {FocusWindowHandler} from '@/handlers/implementation/focus-window-handler';
 
 const handlerProviders: Provider[] = [
   KeyPressHandler,
-  FocusWindowHandler,
+  FocusProcessWindowHandler,
   MouseClickHandler,
   ExecuteHandler,
   TypeTextHandler,
@@ -27,11 +29,13 @@ const handlerProviders: Provider[] = [
   LeftMouseClickHandler,
   FindPidsByNameHandler,
   FindProcessWindowsHandler,
+  FindProcessesWindowsHandler,
+  FocusWindowHandler,
   {
     provide: CommandHandler,
     inject: [
       KeyPressHandler,
-      FocusWindowHandler,
+      FocusProcessWindowHandler,
       MouseClickHandler,
       ExecuteHandler,
       TypeTextHandler,
@@ -40,10 +44,12 @@ const handlerProviders: Provider[] = [
       LeftMouseClickHandler,
       FindPidsByNameHandler,
       FindProcessWindowsHandler,
+      FindProcessesWindowsHandler,
+      FocusWindowHandler,
     ],
     useFactory: (
       keyPressHandler: CommandHandler,
-      focusWindowHandler: CommandHandler,
+      focusProcessWindowHandler: CommandHandler,
       mouseClickHandler: CommandHandler,
       executeHandler: CommandHandler,
       typeTextHandler: CommandHandler,
@@ -52,9 +58,11 @@ const handlerProviders: Provider[] = [
       leftMouseClickHandler: CommandHandler,
       findPidsByNameHandler: CommandHandler,
       findProcessWindowsHandler: CommandHandler,
+      findProcessesWindowsHandler: CommandHandler,
+      focusWindowHandler: CommandHandler,
     ): CommandHandler => {
       keyPressHandler
-        .setNext(focusWindowHandler)
+        .setNext(focusProcessWindowHandler)
         .setNext(mouseClickHandler)
         .setNext(executeHandler)
         .setNext(typeTextHandler)
@@ -62,7 +70,9 @@ const handlerProviders: Provider[] = [
         .setNext(killByPidHandler)
         .setNext(leftMouseClickHandler)
         .setNext(findPidsByNameHandler)
-        .setNext(findProcessWindowsHandler);
+        .setNext(findProcessWindowsHandler)
+        .setNext(findProcessesWindowsHandler)
+        .setNext(focusWindowHandler);
 
       return keyPressHandler;
     },

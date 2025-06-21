@@ -6,7 +6,7 @@ import {
 
 import {
   commandSchema,
-  focusWindowCommandSchema,
+  focusProcessWindowCommandSchema,
   keyPressCommandSchema,
   keySchema,
   killExeByNameCommandSchema,
@@ -141,7 +141,7 @@ export {
   commandsAndMacrosArraySchema,
   launchExeCommandSchema,
   typeTextCommandSchema,
-  focusWindowCommandSchema,
+  focusProcessWindowCommandSchema,
   commandsSchema,
   leftMouseClickCommandSchema,
   runMacroCommandSchema,
