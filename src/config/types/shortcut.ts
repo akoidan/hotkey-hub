@@ -45,6 +45,8 @@ const baseShortCutMappingSchema = z.object({
   delayBefore: z.number().optional().describe('Delay in milliseconds before each command for this shorcut'),
   name: z.string().describe('Name that is printed during startup with a shorcut'),
   shortCut,
+  // singleton: z.boolean().default(false).optional()
+  //     .describe('If set to true pressing this shortcut again would be ignored if previous is still running'),
   iterations: z.number()
     .optional()
     .describe('Repeat commands in this schema in loop intil this shortcut ' +
