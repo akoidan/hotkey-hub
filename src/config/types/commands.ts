@@ -152,12 +152,13 @@ export type {
   Key,
   KillExeByPidCommand,
   KillExeByNameCommand,
+  // eslint-disable-next-line max-lines
   FindPidsByNameCommand,
   FindProcessWindowsCommand,
   FindProcessesWindowsCommand,
 };
 
-export { // eslint-disable-next-line max-lines
+export {
   keySchema,
   variableValueSchema,
   delayCommandsSchema,
