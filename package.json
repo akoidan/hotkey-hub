@@ -26,8 +26,7 @@
     "native:build": "cmake-js compile",
     "native:configure:debug": "rm -rf build && cmake-js configure --debug",
     "native:build:debug": "cmake-js build --debug",
-    "postinstall": "patch-package",
-    "rb": "ts-node examples/config/process-config.ts"
+    "postinstall": "patch-package"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.4.9",

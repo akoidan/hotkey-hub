@@ -1,6 +1,7 @@
 import {FetchClient} from '@/client/http-client';
 import {
-  FocusExeRequest,
+  FindPidsByNameRequest, FindPidsByNameResponse, FindProcessWindowsResponse,
+  FocusExeRequest, FocusWindowRequest,
   KillExeByNameRequest,
   KillExeByPidRequest,
   LaunchExeRequest,
@@ -45,6 +46,18 @@ export class ClientService {
 
   async killExeByName(client: string, request: KillExeByNameRequest): Promise<void> {
     return this.client.post(client, '/kill-exe-by-name', request);
+  }
+
+  async findPidsByName(client: string, request: FindPidsByNameRequest): Promise<FindPidsByNameResponse> {
+    return this.client.post(client, '/find-pids-by-name', request, 6000, true);
+  }
+
+  async getProcessWindows(client: string, pid: number): Promise<FindProcessWindowsResponse> {
+    return this.client.get(client, `/get-process-windows/${pid}`, 6000, true);
+  }
+
+  async focusWindow(client: string, request: FocusWindowRequest): Promise<void> {
+    return this.client.post(client, '/focus-window', request);
   }
 
   async killExeById(client: string, request: KillExeByPidRequest): Promise<void> {

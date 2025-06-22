@@ -56,13 +56,37 @@ const launchExeCommandSchema = z.object({
   assignId: z.string().optional().describe('Assigns PID of launched command to a variable that can be used after'),
 }).strict().merge(baseSchema).describe('Starts a program on a remote PC.');
 
-const focusWindowCommandSchema = z.object({
+const focusProcessWindowCommandSchema = z.object({
   focusPid: z.union([variableValueSchema, z.number()]).describe('Pid of the process that has this window'),
 }).strict().merge(baseSchema).describe('Focuses window with the provided PID, making it active');
+
+const focusWindowCommandSchema = z.object({
+  focusWid: z.union([variableValueSchema, z.number()]).describe('Windows Id to focus'),
+}).strict().merge(baseSchema).describe('Focuses window by id. Windows Ids can be fetches with findProcessesWindows');
 
 const typeTextCommandSchema = z.object({
   typeText: z.union([z.string(), variableValueSchema]).describe('Any string to type'),
 }).strict().merge(baseSchema).describe('Types text on the remote PC.');
+
+const findPidsByNameSchema = z.object({
+  findPidsByName: z.string().describe('Name of the executalbe to search for process IDs'),
+  assignIds: z.string().optional().describe('Assigns Ids of PIDs to a variable'),
+}).strict().merge(baseSchema).describe('Finds all processes with specified name');
+
+const findProcessWindowsSchema = z.object({
+  findProcessWindows: z.number().describe('Process ID to get windows IDs from'),
+  assignIds: z.string().optional().describe('Assigns Ids of found windows to a variable'),
+}).strict().merge(baseSchema).describe('Finds all windows of the process');
+
+const pickAssignmentPolicy = z.enum(['first', 'last'])
+    .describe('If multiple ids are returned assign policy. If not specified first would be used');
+
+const findProcessesWindowsSchema = z.object({
+  findProcessesWindows: z.union([z.array(z.number()), variableValueSchema])
+      .describe('Processes IDs to get windows IDs from. Should be array length matching variable names'),
+  assignIds: z.array(z.string()).optional().describe('Assigns Ids of found windows to a variable'),
+  pick: pickAssignmentPolicy.optional(),
+}).strict().merge(baseSchema).describe('Finds all windows of the process');
 
 const mouseMoveClickCommandSchema = z.object({
   mouseMoveX: z.union([z.number(), variableValueSchema]).describe('X coordinate'),
@@ -86,14 +110,19 @@ const commandSchema = z.union([
   leftMouseClickCommandSchema,
   mouseMoveClickCommandSchema,
   launchExeCommandSchema,
+  focusProcessWindowCommandSchema,
   focusWindowCommandSchema,
   typeTextCommandSchema,
   killExeByPidCommandSchema,
   killExeByNameCommandSchema,
+  findPidsByNameSchema,
+  findProcessWindowsSchema,
+  findProcessesWindowsSchema,
 ]).describe('A remote command');
 
 
 type TypeTextCommand = z.infer<typeof typeTextCommandSchema>
+type FocusProcessWindowCommand = z.infer<typeof focusProcessWindowCommandSchema>
 type FocusWindowCommand = z.infer<typeof focusWindowCommandSchema>
 type KeyPressCommand = z.infer<typeof keyPressCommandSchema>
 type BaseCommand = z.infer<typeof baseSchema>
@@ -106,18 +135,27 @@ type Key = z.infer<typeof keySchema>;
 type KillExeByPidCommand = z.infer<typeof killExeByPidCommandSchema>
 type KillExeByNameCommand = z.infer<typeof killExeByNameCommandSchema>
 
+type FindPidsByNameCommand = z.infer<typeof findPidsByNameSchema>
+type FindProcessWindowsCommand = z.infer<typeof findProcessWindowsSchema>
+type FindProcessesWindowsCommand = z.infer<typeof findProcessesWindowsSchema>
+
 export type {
   TypeTextCommand,
   KeyPressCommand,
   BaseCommand,
   MouseMoveClickCommand,
   LeftMouseClickCommand,
+  FocusProcessWindowCommand,
   FocusWindowCommand,
   ExecuteCommand,
   Command,
   Key,
   KillExeByPidCommand,
   KillExeByNameCommand,
+  // eslint-disable-next-line max-lines
+  FindPidsByNameCommand,
+  FindProcessWindowsCommand,
+  FindProcessesWindowsCommand,
 };
 
 export {
@@ -126,12 +164,16 @@ export {
   delayCommandsSchema,
   keyPressCommandSchema,
   launchExeCommandSchema,
-  focusWindowCommandSchema,
+  focusProcessWindowCommandSchema,
   typeTextCommandSchema,
   mouseMoveClickCommandSchema,
   leftMouseClickCommandSchema,
   killExeByNameCommandSchema,
   killExeByPidCommandSchema,
   commandSchema,
+  findPidsByNameSchema,
+  findProcessWindowsSchema,
+  findProcessesWindowsSchema,
+  focusWindowCommandSchema,
 };
 

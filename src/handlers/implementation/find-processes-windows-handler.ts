@@ -1,0 +1,30 @@
+import {Command, FindProcessesWindowsCommand} from '@/config/types/commands';
+import {CommandHandler} from '@/handlers/command-handler.service';
+import {ConfigService} from '@/config/config-service';
+import {Injectable} from '@nestjs/common';
+import {ClientService} from '@/client/client-service';
+
+@Injectable()
+export class FindProcessesWindowsHandler extends CommandHandler {
+  constructor(
+    clientService: ClientService,
+    private readonly configService: ConfigService,
+  ) {
+    super(clientService);
+  }
+
+  canHandle(command: Command): command is FindProcessesWindowsCommand {
+    return 'findProcessesWindows' in command;
+  }
+
+  async execute(destination: string, command: FindProcessesWindowsCommand): Promise<void> {
+    const responses = await Promise.all((command.findProcessesWindows as number[])
+        .map(async(id) => this.clientService.getProcessWindows(destination, id)));
+    if (command.assignIds) {
+      for (let i = 0; i< command.findProcessesWindows.length; i++) {
+        const id = command.pick === 'last' ? responses[i].wids[responses[i].wids.length - 1] : responses[i].wids[0];
+        await this.configService.setVariable(command.assignIds[i], id);
+      }
+    }
+  }
+}

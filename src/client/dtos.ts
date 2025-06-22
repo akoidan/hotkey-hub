@@ -25,6 +25,22 @@ interface KillExeByNameRequest {
   name: string;
 }
 
+interface FindPidsByNameRequest {
+  name: string;
+}
+
+interface FindPidsByNameResponse {
+  pids: string;
+}
+
+interface FindProcessWindowsResponse {
+  wids: string;
+}
+
+interface FocusWindowRequest {
+  wid: number;
+}
+
 interface KillExeByPidRequest {
   pid: number;
 }
@@ -44,6 +60,10 @@ export type {
   LaunchPidResponse,
   LaunchExeRequest,
   TypeTextRequest,
+  FindPidsByNameRequest,
   KillExeByNameRequest,
   KillExeByPidRequest,
+  FocusWindowRequest,
+  FindPidsByNameResponse,
+  FindProcessWindowsResponse,
 };
