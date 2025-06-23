@@ -78,7 +78,7 @@ const findProcessWindowsSchema = z.object({
   assignIds: z.string().optional().describe('Assigns Ids of found windows to a variable'),
 }).strict().merge(baseSchema).describe('Finds all windows of the process');
 
-const pickAssignmentPolicy = z.enum(['first', 'last'])
+const pickAssignmentPolicy = z.enum(['first', 'last', 'all'])
     .describe('If multiple ids are returned assign policy. If not specified first would be used');
 
 const findProcessesWindowsSchema = z.object({
