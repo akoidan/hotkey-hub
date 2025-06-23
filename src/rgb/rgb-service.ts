@@ -50,7 +50,11 @@ export class RgbService {
       };
     }
     try {
-      this.client!.updateLeds(this.deviceId, this.colors!);
+      if (!this.client!.isConnected) {
+        this.logger.debug('Connecting to OpenRGB...');
+        await this.client!.connect();
+      }
+      this.client!.updateSingleLed(this.deviceId, this.keyMap[key], this.colors![this.keyMap[key]!]!);
     } catch (error) {
       this.logger.error(`Unable to update leds because of ${error.message ?? error}, launching setup again`, error.stack);
       await this.setup();
@@ -67,28 +71,29 @@ export class RgbService {
 
     try {
       this.logger.debug('Connecting to OpenRGB...');
-      await this.client.connect();
+      await this.client!.connect();
       this.logger.debug('Connected to OpenRGB...');
       const controllerData = await this.client.getAllControllerData();
-      const device = controllerData.find(dev => dev.name === rgb.deviceName);
+      const keyboard = controllerData.find(dev => dev.name === rgb.deviceName);
       const availableDevices = controllerData.map(dev => dev.name).join('", "');
-      this.logger.debug(`Available RGB devices: ${availableDevices}`);
-      if (!device) {
+      this.logger.debug(`Available RGB devices: ${availableDevices}. Our device is ${keyboard?.deviceId}`);
+      if (!keyboard) {
         throw new Error(`"Unable to find device with name "${rgb.deviceName}"`);
       }
-      this.deviceId = device.deviceId as number;
-      const keyboard = await this.client.getControllerData(this.deviceId!);
-      if (!keyboard) {
-        throw Error(`Unable to find devicesId ${this.deviceId}`);
-      }
-      await this.client.updateMode(this.deviceId!, 'Direct', {});
+
+      this.deviceId = keyboard.deviceId as number;
+      await this.client!.updateMode(this.deviceId!, 'Direct', {});
       keyboard.leds.forEach((led, index: number) => {
         // Strip 'Key: ' prefix and convert to uppercase
         this.keyMap[this.encodeKey(led)] = index;
       });
       this.colors = Array<Color>(keyboard.colors.length).fill({red: 0, green: 0, blue: 0});
-      this.client.updateLeds(this.deviceId!, this.colors);
+      // this hack is required because otherwise TCP socket error would be throws to unhandled error
+      this.client!.disconnect();
+      await this.client!.connect();
+      // remove this hack when openrgb-sdk is fixed
       this.logger.debug('Setting keyboard colors...');
+      this.client!.updateLeds(this.deviceId!, this.colors);
     } catch (error) {
       this.logger.error(`Unable to init keyboard because of ${error?.message ?? error}`, error.stack);
     }

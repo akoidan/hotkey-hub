@@ -7,7 +7,7 @@ config.json
 yarn-error.log
 configs
 certs
-client
+examples
 l2-win32-x64
 coverage
 build
