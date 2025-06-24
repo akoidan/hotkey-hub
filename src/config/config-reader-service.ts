@@ -41,7 +41,7 @@ export class ConfigReaderService {
       return await fs.readFile(this.configsPathSerivice.variablesFilePath, 'utf8');
     } catch (error) {
       // eslint-disable-next-line max-len
-      this.logger.warn(`Unable to load global macros from ${this.configsPathSerivice.variablesFilePath} because of ${error?.message ?? error}`);
+      this.logger.warn(`Unable to load variables from ${this.configsPathSerivice.variablesFilePath} because of ${error?.message ?? error}`);
       return null;
     }
   }
