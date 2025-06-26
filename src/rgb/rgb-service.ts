@@ -100,6 +100,6 @@ export class RgbService {
   }
 
   private encodeKey(led: { name: string; value: { red: any; green: any; blue: any } }): string {
-    return led.name.toLowerCase().replace('key: ', '').replace(' (ansi)', '').replace(' ', '_');
+    return led.name.toLowerCase().replace('arrow', '').replace('key: ', '').replace(' (ansi)', '').replace(' ', '_');
   }
 }
