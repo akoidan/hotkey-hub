@@ -17,7 +17,7 @@ import {FindPidsByNameHandler} from '@/handlers/implementation/find-pids-by-name
 import {FindProcessWindowsHandler} from '@/handlers/implementation/find-process-windows-handler';
 import {FindProcessesWindowsHandler} from '@/handlers/implementation/find-processes-windows-handler';
 import {FocusWindowHandler} from '@/handlers/implementation/focus-window-handler';
-import {EvaluateVariableHandler} from "@/handlers/implementation/evaluate-variable-handler";
+import {EvaluateVariableHandler} from '@/handlers/implementation/evaluate-variable-handler';
 
 const handlerProviders: Provider[] = [
   Logger,
@@ -52,33 +52,33 @@ const handlerProviders: Provider[] = [
       EvaluateVariableHandler,
     ],
     useFactory: (
-      keyPressHandler: CommandHandler,
-      focusProcessWindowHandler: CommandHandler,
-      mouseClickHandler: CommandHandler,
-      executeHandler: CommandHandler,
-      typeTextHandler: CommandHandler,
-      killByNameHandler: CommandHandler,
-      killByPidHandler: CommandHandler,
-      leftMouseClickHandler: CommandHandler,
-      findPidsByNameHandler: CommandHandler,
-      findProcessWindowsHandler: CommandHandler,
-      findProcessesWindowsHandler: CommandHandler,
-      focusWindowHandler: CommandHandler,
-      evaluateVariableHandler: CommandHandler,
+        keyPressHandler: CommandHandler,
+        focusProcessWindowHandler: CommandHandler,
+        mouseClickHandler: CommandHandler,
+        executeHandler: CommandHandler,
+        typeTextHandler: CommandHandler,
+        killByNameHandler: CommandHandler,
+        killByPidHandler: CommandHandler,
+        leftMouseClickHandler: CommandHandler,
+        findPidsByNameHandler: CommandHandler,
+        findProcessWindowsHandler: CommandHandler,
+        findProcessesWindowsHandler: CommandHandler,
+        focusWindowHandler: CommandHandler,
+        evaluateVariableHandler: CommandHandler,
     ): CommandHandler => {
       keyPressHandler
-        .setNext(focusProcessWindowHandler)
-        .setNext(mouseClickHandler)
-        .setNext(executeHandler)
-        .setNext(typeTextHandler)
-        .setNext(killByNameHandler)
-        .setNext(killByPidHandler)
-        .setNext(leftMouseClickHandler)
-        .setNext(findPidsByNameHandler)
-        .setNext(findProcessWindowsHandler)
-        .setNext(findProcessesWindowsHandler)
-        .setNext(focusWindowHandler)
-        .setNext(evaluateVariableHandler);
+          .setNext(focusProcessWindowHandler)
+          .setNext(mouseClickHandler)
+          .setNext(executeHandler)
+          .setNext(typeTextHandler)
+          .setNext(killByNameHandler)
+          .setNext(killByPidHandler)
+          .setNext(leftMouseClickHandler)
+          .setNext(findPidsByNameHandler)
+          .setNext(findProcessWindowsHandler)
+          .setNext(findProcessesWindowsHandler)
+          .setNext(focusWindowHandler)
+          .setNext(evaluateVariableHandler);
 
       return keyPressHandler;
     },

@@ -2,6 +2,7 @@ import {Inject, Injectable, Logger} from '@nestjs/common';
 import {ASYNC_PROVIDER} from '@/asyncstore/async-storage-const';
 import {AsyncLocalStorage} from 'async_hooks';
 import {TransactionGroups} from '@/semaphor/semaphor-model';
+import clc from 'cli-color';
 
 @Injectable()
 export class SemaphorService {
@@ -81,7 +82,7 @@ export class SemaphorService {
       }
 
       const txId = currentState[currentState.length - 1]!.transactionId;
-      this.logger.log(`Created a new transaction ${transactionId} but waiting ${txId} to finish`);
+      this.logger.log(`Created a new transaction ${clc.yellow(transactionId)} but waiting ${clc.yellow(txId)} to finish`);
       await new Promise<void>(resolve => {
         currentState[currentState.length - 1].resolve = resolve;
         currentState[currentState.length - 1].resolveFrom = transactionId;

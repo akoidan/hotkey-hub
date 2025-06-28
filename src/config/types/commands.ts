@@ -96,7 +96,18 @@ const mouseMoveClickCommandSchema = z.object({
 
 const evaluateVariableSchema = z.object({
   assignVariable: z.string().describe('Variable name to assign to'),
-  expression: z.string().describe('JS like expression that evaluates to some values. E.g. x*2'),
+  expression: z.string().superRefine((expr, ctx) => {
+    try {
+      // eslint-disable-next-line
+      new Function(`return (${expr});`);
+    } catch (e) {
+      ctx.addIssue({
+        code: ZodIssueCode.custom,
+        path: [],
+        message: `"${expr}" is not a valid expression, because of ${e?.message ?? e}`,
+      });
+    }
+  }).describe('JS like expression that evaluates to some values. E.g. x*2'),
 }).strict().merge(baseSchema).describe('Allows to create/assign a variable by expression');
 
 const leftMouseClickCommandSchema = z.object({
