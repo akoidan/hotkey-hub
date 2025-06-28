@@ -1,3 +1,4 @@
+/* eslint-disable max-lines*/
 import {
   z,
   ZodIssueCode,
@@ -93,6 +94,11 @@ const mouseMoveClickCommandSchema = z.object({
   mouseMoveY: z.union([z.number(), variableValueSchema]).describe('Y coordinate'),
 }).strict().merge(baseSchema).describe('Moves mouse to specified coordinates and clicks with left button');
 
+const evaluateVariableSchema = z.object({
+  assignVariable: z.string().describe('Variable name to assign to'),
+  expression: z.string().describe('JS like expression that evaluates to some values. E.g. x*2'),
+}).strict().merge(baseSchema).describe('Allows to create/assign a variable by expression');
+
 const leftMouseClickCommandSchema = z.object({
   leftMouseClick: z.boolean(),
 }).strict().merge(baseSchema).describe('Clicks mouse on current position');
@@ -117,6 +123,7 @@ const commandSchema = z.union([
   killExeByNameCommandSchema,
   findPidsByNameSchema,
   findProcessWindowsSchema,
+  evaluateVariableSchema,
   findProcessesWindowsSchema,
 ]).describe('A remote command');
 
@@ -131,6 +138,7 @@ type LeftMouseClickCommand = z.infer<typeof leftMouseClickCommandSchema>
 type ExecuteCommand = z.infer<typeof launchExeCommandSchema>
 type Command = z.infer<typeof commandSchema>
 type Key = z.infer<typeof keySchema>;
+type EvaluateVariable = z.infer<typeof evaluateVariableSchema>;
 
 type KillExeByPidCommand = z.infer<typeof killExeByPidCommandSchema>
 type KillExeByNameCommand = z.infer<typeof killExeByNameCommandSchema>
@@ -147,12 +155,12 @@ export type {
   LeftMouseClickCommand,
   FocusProcessWindowCommand,
   FocusWindowCommand,
+  EvaluateVariable,
   ExecuteCommand,
   Command,
   Key,
   KillExeByPidCommand,
   KillExeByNameCommand,
-  // eslint-disable-next-line max-lines
   FindPidsByNameCommand,
   FindProcessWindowsCommand,
   FindProcessesWindowsCommand,
@@ -164,6 +172,7 @@ export {
   delayCommandsSchema,
   keyPressCommandSchema,
   launchExeCommandSchema,
+  evaluateVariableSchema,
   focusProcessWindowCommandSchema,
   typeTextCommandSchema,
   mouseMoveClickCommandSchema,

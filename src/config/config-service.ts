@@ -82,6 +82,8 @@ export class ConfigService implements ConfigProvider {
     });
 
     this.configData = conf;
+
+    await this.setVariable('delays', this.configData!.delays);
   }
 
   public getIps(): IpsData {
@@ -109,7 +111,8 @@ export class ConfigService implements ConfigProvider {
   }
 
   public getDelays(): NonNullable<DelayData> {
-    return this.configData?.delays ?? ({} as NonNullable<DelayData>);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return this.variables?.delays ?? ({} as NonNullable<DelayData>);
   }
 
   public getClientPort(): number {

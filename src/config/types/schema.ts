@@ -5,7 +5,7 @@ import {
 } from 'zod';
 
 import {
-  commandSchema,
+  commandSchema, evaluateVariableSchema,
   focusProcessWindowCommandSchema,
   keyPressCommandSchema,
   keySchema,
@@ -141,6 +141,7 @@ export {
   commandsAndMacrosArraySchema,
   launchExeCommandSchema,
   typeTextCommandSchema,
+  evaluateVariableSchema,
   focusProcessWindowCommandSchema,
   commandsSchema,
   leftMouseClickCommandSchema,
