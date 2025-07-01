@@ -1,4 +1,4 @@
-import {Module} from '@nestjs/common';
+import {Logger, Module} from '@nestjs/common';
 import {ClientModule} from '@/client/client-module';
 import {KeyPressHandler} from '@/handlers/implementation/key-press-handler';
 import {FocusProcessWindowHandler} from '@/handlers/implementation/focus-process-window-handler';
@@ -17,8 +17,10 @@ import {FindPidsByNameHandler} from '@/handlers/implementation/find-pids-by-name
 import {FindProcessWindowsHandler} from '@/handlers/implementation/find-process-windows-handler';
 import {FindProcessesWindowsHandler} from '@/handlers/implementation/find-processes-windows-handler';
 import {FocusWindowHandler} from '@/handlers/implementation/focus-window-handler';
+import {EvaluateVariableHandler} from '@/handlers/implementation/evaluate-variable-handler';
 
 const handlerProviders: Provider[] = [
+  Logger,
   KeyPressHandler,
   FocusProcessWindowHandler,
   MouseClickHandler,
@@ -31,6 +33,7 @@ const handlerProviders: Provider[] = [
   FindProcessWindowsHandler,
   FindProcessesWindowsHandler,
   FocusWindowHandler,
+  EvaluateVariableHandler,
   {
     provide: CommandHandler,
     inject: [
@@ -46,33 +49,36 @@ const handlerProviders: Provider[] = [
       FindProcessWindowsHandler,
       FindProcessesWindowsHandler,
       FocusWindowHandler,
+      EvaluateVariableHandler,
     ],
     useFactory: (
-      keyPressHandler: CommandHandler,
-      focusProcessWindowHandler: CommandHandler,
-      mouseClickHandler: CommandHandler,
-      executeHandler: CommandHandler,
-      typeTextHandler: CommandHandler,
-      killByNameHandler: CommandHandler,
-      killByPidHandler: CommandHandler,
-      leftMouseClickHandler: CommandHandler,
-      findPidsByNameHandler: CommandHandler,
-      findProcessWindowsHandler: CommandHandler,
-      findProcessesWindowsHandler: CommandHandler,
-      focusWindowHandler: CommandHandler,
+        keyPressHandler: CommandHandler,
+        focusProcessWindowHandler: CommandHandler,
+        mouseClickHandler: CommandHandler,
+        executeHandler: CommandHandler,
+        typeTextHandler: CommandHandler,
+        killByNameHandler: CommandHandler,
+        killByPidHandler: CommandHandler,
+        leftMouseClickHandler: CommandHandler,
+        findPidsByNameHandler: CommandHandler,
+        findProcessWindowsHandler: CommandHandler,
+        findProcessesWindowsHandler: CommandHandler,
+        focusWindowHandler: CommandHandler,
+        evaluateVariableHandler: CommandHandler,
     ): CommandHandler => {
       keyPressHandler
-        .setNext(focusProcessWindowHandler)
-        .setNext(mouseClickHandler)
-        .setNext(executeHandler)
-        .setNext(typeTextHandler)
-        .setNext(killByNameHandler)
-        .setNext(killByPidHandler)
-        .setNext(leftMouseClickHandler)
-        .setNext(findPidsByNameHandler)
-        .setNext(findProcessWindowsHandler)
-        .setNext(findProcessesWindowsHandler)
-        .setNext(focusWindowHandler);
+          .setNext(focusProcessWindowHandler)
+          .setNext(mouseClickHandler)
+          .setNext(executeHandler)
+          .setNext(typeTextHandler)
+          .setNext(killByNameHandler)
+          .setNext(killByPidHandler)
+          .setNext(leftMouseClickHandler)
+          .setNext(findPidsByNameHandler)
+          .setNext(findProcessWindowsHandler)
+          .setNext(findProcessesWindowsHandler)
+          .setNext(focusWindowHandler)
+          .setNext(evaluateVariableHandler);
 
       return keyPressHandler;
     },
