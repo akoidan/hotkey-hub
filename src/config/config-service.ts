@@ -29,6 +29,7 @@ interface ConfigCombination {
 @Injectable()
 export class ConfigService implements ConfigProvider {
   private configData: ConfigData | null = null;
+  private macros: MacroList  = {};
 
   private variables: Variables = {};
 
@@ -53,25 +54,21 @@ export class ConfigService implements ConfigProvider {
     const macroConfigValue = await this.configReader.loadMacroConfigString();
     const variablesConfigValue = await this.configReader.loadVariablesConfigString();
 
-    const conf = parse(configValue) as ConfigData;
-    const globalMacroConf = macroConfigValue ? parse(macroConfigValue) as MacroList : {};
+    schemaRootCache.data = parse(configValue) as ConfigData;
+    schemaRootCache.macros = macroConfigValue ? parse(macroConfigValue) as MacroList : {};
 
     this.variables = variablesConfigValue ? parse(variablesConfigValue) as Variables : {};
 
-    this.logger.debug('Validating global config');
-    schemaRootCache.data = conf;
-    schemaRootCache.macros = globalMacroConf;
-    await macrosDefinitionSchema.parseAsync(globalMacroConf);
-
     this.logger.debug('Validating macro config');
-    conf.macros = {...globalMacroConf, ...conf.macros};
-    schemaRootCache.macros = conf.macros;
-    await aARootSchema.parseAsync(conf);
+    await macrosDefinitionSchema.parseAsync(schemaRootCache.macros);
+
+    this.logger.debug('Validating global config');
+    await aARootSchema.parseAsync(schemaRootCache.data);
 
     this.logger.debug('Validating variables config');
     await variablesSchema.parseAsync(this.variables);
 
-    const combinations = (conf.combinations as ShortsData[])
+    const combinations = (schemaRootCache.data.combinations as ShortsData[])
       .map((combination): ConfigCombination => ({
         shortCut: combination.shortCut,
         name: combination.name,
@@ -82,7 +79,11 @@ export class ConfigService implements ConfigProvider {
       this.logger.log(`${clc.green.bold(combination.shortCut)}: ${combination.name}`);
     });
 
-    this.configData = conf;
+    this.configData = schemaRootCache.data;
+    this.macros = schemaRootCache.macros;
+
+    schemaRootCache.data = null!;
+    schemaRootCache.macros = null!;
 
     await this.setVariable('delays', this.configData!.delays);
   }
@@ -104,7 +105,7 @@ export class ConfigService implements ConfigProvider {
   }
 
   public getMacros(): NonNullable<MacroList> {
-    return this.configData!.macros ?? {};
+    return this.macros ?? {};
   }
 
   public getVariables(): NonNullable<Variables> {

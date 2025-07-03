@@ -77,7 +77,6 @@ const aARootSchema = z.object({
   rgb: rgbSchema,
   combinations: combinationList,
   delays: globalDelaySchema,
-  macros: macrosDefinitionSchema,
 }).strict().superRefine((data, ctx) => {
   // Ensure mapping values are arrays of keys from ips
   const ipsKeys = new Set(Object.keys(data.ips));
