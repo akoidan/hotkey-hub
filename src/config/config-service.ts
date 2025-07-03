@@ -65,6 +65,7 @@ export class ConfigService implements ConfigProvider {
 
     this.logger.debug('Validating macro config');
     conf.macros = {...globalMacroConf, ...conf.macros};
+    schemaRootCache.macros = conf.macros;
     await aARootSchema.parseAsync(conf);
 
     this.logger.debug('Validating variables config');
