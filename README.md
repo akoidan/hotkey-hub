@@ -74,6 +74,8 @@ You can validate your configuration using any JSON schema validator (e.g., [json
 2. Paste the schema into the validator's schema panel
 3. Write/validate your configuration in the data panel
 
+## Run the app
+After configuration files are created, run the app from regular user. You can also run it from command line to view stdout and sterror if the app crashes. It check connection to remote PC/PCs, verifies the certificates and would be ready to listen shorcut press. 
 
 ## Develop locally
 
