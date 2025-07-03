@@ -17,7 +17,7 @@ const runMacroCommandSchema = z.object({
   .strict()
   .merge(delayCommandsSchema)
   .superRefine((command, ctx) => {
-    const definedMacros: NonNullable<MacroList> = schemaRootCache?.macros ?? {};
+    const definedMacros: NonNullable<MacroList> = schemaRootCache.data.macros!;
     if (!definedMacros[command.macro]) {
       ctx.addIssue({
         code: ZodIssueCode.custom,
@@ -26,7 +26,7 @@ const runMacroCommandSchema = z.object({
       });
     }
   }).superRefine((command, ctx) => {
-    const definedMacros: NonNullable<MacroList> = schemaRootCache?.macros ?? {};
+    const definedMacros: NonNullable<MacroList> = schemaRootCache.data.macros!;
     if (!definedMacros[command.macro] || !command.variables) {
       return;
     }
@@ -40,7 +40,7 @@ const runMacroCommandSchema = z.object({
       }
     }
   }).superRefine((command, ctx) => {
-    const definedMacros: NonNullable<MacroList> = schemaRootCache?.macros ?? {};
+    const definedMacros: NonNullable<MacroList> = schemaRootCache.data.macros!;
     if (!definedMacros[command.macro] || !command.variables) {
       return;
     }
