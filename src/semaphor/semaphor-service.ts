@@ -66,7 +66,7 @@ export class SemaphorService {
   }
 
   public getNewTransactionId(): string {
-    return Math.random().toString(36).substring(2, 6);
+    return Math.random().toString(36).substring(2, 3);
   }
 
   public async startTransaction(trasactionGroup: string, transactionId: string): Promise<void> {
