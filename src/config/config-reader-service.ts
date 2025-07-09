@@ -20,6 +20,10 @@ export class ConfigReaderService {
   ) {
   }
 
+  public getId(): string {
+    return this.configsPathSerivice.configFilePath;
+  }
+
   public async loadConfigString(): Promise<string> {
     this.logger.debug(`Loading config from ${this.configsPathSerivice.configFilePath}`);
     return fs.readFile(this.configsPathSerivice.configFilePath, 'utf8');

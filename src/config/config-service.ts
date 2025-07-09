@@ -37,7 +37,7 @@ export class ConfigService implements ConfigProvider {
     private readonly envVars: Record<string, string | undefined>,
     private readonly configReader: ConfigReaderService,
   ) {
-    this.logger.debug('Created new instance of config service');
+    this.logger.debug(`Created new instance of config service ${configReader.getId()}`);
   }
 
   public async parseConfig(): Promise<void> {
@@ -59,8 +59,7 @@ export class ConfigService implements ConfigProvider {
     await variablesSchema.parseAsync(this.variables);
 
     this.logger.debug('Validating macro config');
-    // eslint-disable-next-line require-atomic-updates
-    schemaRootCache.data.macros = separateMacros;
+
     await macrosDefinitionSchema.parseAsync(separateMacros);
 
     if (Object.keys(separateMacros).length > 0) {
