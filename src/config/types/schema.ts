@@ -104,6 +104,7 @@ const aARootSchema = z.object({
 
 // Generate TypeScript type
 type ConfigData = z.infer<typeof aARootSchema>;
+type ConfigDataWoMacro = Omit<ConfigData, 'macros'>;
 
 type IpsData = z.infer<typeof ipsSchema>
 type AliasesData = z.infer<typeof aliasesSchema>
@@ -112,6 +113,7 @@ type AliasesValueData = z.infer<typeof aliasesValueSchema>
 
 
 export type {
+  ConfigDataWoMacro,
   ConfigData,
   IpsData,
   RgbData,

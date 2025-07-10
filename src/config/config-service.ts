@@ -1,7 +1,7 @@
 import {
   aARootSchema,
   AliasesData,
-  ConfigData,
+  ConfigData, ConfigDataWoMacro,
   IpsData,
   macrosDefinitionSchema,
   RgbData,
@@ -24,7 +24,8 @@ import {ConfigCombination} from '@/config/config-model';
 
 @Injectable()
 export class ConfigService implements ConfigProvider {
-  private configData: ConfigData | null = null;
+  private configData: ConfigDataWoMacro | null = null;
+  private macros: NonNullable<MacroList> = null!;
 
   private variables: Variables = {};
 
@@ -40,51 +41,63 @@ export class ConfigService implements ConfigProvider {
     this.logger.debug(`Created new instance of config service ${configReader.getId()}`);
   }
 
+  public async validateVariableConf(): Promise<void> {
+    this.logger.debug('Validating variables config');
+    const variablesConfigString = await this.configReader.loadVariablesConfigString();
+    this.variables = variablesConfigString ? parse(variablesConfigString) as Variables : {};
+    await variablesSchema.parseAsync(this.variables);
+  }
+
+  public async validateMacroConf(): Promise<NonNullable<MacroList>> {
+    this.logger.debug('Validating macro config');
+    const macroConfigString = await this.configReader.loadMacroConfigString();
+    const separateMacros: NonNullable<MacroList> = macroConfigString ? parse(macroConfigString) as NonNullable<MacroList> : {};
+    schemaRootCache.macros = separateMacros;
+    await macrosDefinitionSchema.parseAsync(separateMacros);
+    schemaRootCache.macros = null!;
+    return separateMacros;
+  }
+
+  public async validateOwnConfig(separateMacros: NonNullable<MacroList>): Promise<void> {
+    this.logger.debug('Validating global config');
+    const configString = await this.configReader.loadConfigString();
+    const confValueWithMacro = parse(configString) as ConfigData;
+    const {macros: ownMacros, ...configValueWoMacro} = confValueWithMacro;
+    if (ownMacros && Object.keys(ownMacros).length > 0) {
+      this.logger.debug('Merging separate macros with own');
+      schemaRootCache.macros = {...separateMacros, ...ownMacros};
+    } else {
+      schemaRootCache.macros = separateMacros;
+    }
+    schemaRootCache.data = configValueWoMacro;
+
+    await aARootSchema.parseAsync(confValueWithMacro);
+
+    this.configData = schemaRootCache.data;
+    this.macros = schemaRootCache.macros;
+    schemaRootCache.data = null!;
+    schemaRootCache.macros = null!;
+
+    const combinations = (this.configData.combinations as ShortsData[])
+        .map((combination): ConfigCombination => ({
+          shortCut: combination.shortCut,
+          name: combination.name,
+        }))
+        .sort((a, b) => a.shortCut.localeCompare(b.shortCut));
+
+    combinations.forEach((combination) => {
+      this.logger.log(`${clc.green.bold(combination.shortCut)}: ${combination.name}`);
+    });
+  }
+
   public async parseConfig(): Promise<void> {
     this.logger.debug('parsing config');
     if (this.configData) {
       throw new Error('Config already loaded');
     }
-    const configString = await this.configReader.loadConfigString();
-    const macroConfigString = await this.configReader.loadMacroConfigString();
-    const variablesConfigString = await this.configReader.loadVariablesConfigString();
-
-    schemaRootCache.data = parse(configString) as ConfigData;
-    const separateMacros: NonNullable<MacroList> = macroConfigString ? parse(macroConfigString) as NonNullable<MacroList> : {};
-    const ownMacros: NonNullable<MacroList> = schemaRootCache.data?.macros ?? {};
-
-    this.variables = variablesConfigString ? parse(variablesConfigString) as Variables : {};
-
-    this.logger.debug('Validating variables config');
-    await variablesSchema.parseAsync(this.variables);
-
-    this.logger.debug('Validating macro config');
-
-    await macrosDefinitionSchema.parseAsync(separateMacros);
-
-    if (Object.keys(separateMacros).length > 0) {
-      this.logger.debug('Merging separate macros with own');
-      // eslint-disable-next-line require-atomic-updates
-      schemaRootCache.data.macros = {...separateMacros, ...ownMacros};
-    }
-
-    this.logger.debug('Validating global config');
-    await aARootSchema.parseAsync(schemaRootCache.data);
-
-    const combinations = (schemaRootCache.data.combinations as ShortsData[])
-      .map((combination): ConfigCombination => ({
-        shortCut: combination.shortCut,
-        name: combination.name,
-      }))
-      .sort((a, b) => a.shortCut.localeCompare(b.shortCut));
-
-    combinations.forEach((combination) => {
-      this.logger.log(`${clc.green.bold(combination.shortCut)}: ${combination.name}`);
-    });
-
-    this.configData = schemaRootCache.data;
-
-    schemaRootCache.data = null!;
+    await this.validateVariableConf();
+    const separateMacros = await this.validateMacroConf();
+    await this.validateOwnConfig(separateMacros);
     await this.setVariable('delays', this.configData!.delays);
   }
 
@@ -105,7 +118,7 @@ export class ConfigService implements ConfigProvider {
   }
 
   public getMacros(): NonNullable<MacroList> {
-    return this.configData!.macros ?? {};
+    return this.macros;
   }
 
   public getVariables(): NonNullable<Variables> {

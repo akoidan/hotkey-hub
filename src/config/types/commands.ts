@@ -4,7 +4,7 @@ import {
   ZodIssueCode,
 } from 'zod';
 import {schemaRootCache} from '@/config/types/cache';
-import type {ConfigData} from '@/config/types/schema';
+import type {ConfigData, ConfigDataWoMacro} from '@/config/types/schema';
 import {
   variableRegex,
   variableValueSchema,
@@ -24,9 +24,9 @@ const delayCommandsSchema = z.object({
 
 const baseSchema = z.object({
   destination: z.union([z.string().superRefine((destination, ctx) => {
-    const data: ConfigData = schemaRootCache.data ?? {};
+    const data: ConfigDataWoMacro = schemaRootCache.data ?? {ips: {}, aliases: {}};
     const alisesKeys = new Set(Object.keys(data.aliases ?? {}));
-    const ipsKeys = new Set(Object.keys(data.ips));
+    const ipsKeys = new Set(Object.keys(data.ips ?? {}));
 
     if (!alisesKeys.has(destination) && !data.ips[destination] && !variableRegex.test(destination)) {
       const allOptions = JSON.stringify([...Array.from(alisesKeys), ...Array.from(ipsKeys)]);
