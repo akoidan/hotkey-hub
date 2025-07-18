@@ -6,18 +6,58 @@
   },
   "aliases": {
     "multiple": {
-      "ipNames": ["this", "that"],
+      "ipNames": [
+        "this",
+        "that"
+      ],
       "circular": true
     },
     "all": {
-      "ipNames": ["this", "that", "other"]
+      "ipNames": [
+        "this",
+        "that",
+        "other"
+      ]
     },
     "circular_three": {
-      "ipNames": ["this", "that", "other"],
+      "ipNames": [
+        "this",
+        "that",
+        "other"
+      ],
       "circular": true
     }
   },
   "macros": {
+    "keySend": {
+      "commands": [
+        {
+          "transaction": "{{destination}}",
+          "commands": [
+            {
+              "destination": "{{destination}}",
+              "focusWid": "{{focusWid}}"
+            },
+            {
+              "destination": "{{destination}}",
+              "keySend": "{{keySend}}",
+              "delayAfter": 50
+            }
+          ]
+        }
+      ],
+      "variables": {
+        "destination": {
+          "type": "string"
+        },
+        "focusWid": {
+          "type": "number"
+        },
+        "keySend": {
+          "type": "string"
+        }
+      }
+    },
     "loginProceed": {
       "commands": [
         {
@@ -49,6 +89,20 @@
   },
   "combinations": [
     {
+      "commands": [
+        {
+          "macro": "keySend",
+          "variables": {
+            "focusWid": "{{widwc}}",
+            "destination": "{{pcwc}}",
+            "keySend": "f4"
+          }
+        }
+      ],
+      "name": "Target me",
+      "shortCut": "Alt+s"
+    },
+    {
       "name": "test1",
       "shortCut": "Alt+c",
       "commands": [
@@ -65,7 +119,11 @@
         {
           "destination": "this",
           "launch": "C:\\Windows\\System32\\shutdown.exe",
-          "arguments": ["/s", "/t", "0"]
+          "arguments": [
+            "/s",
+            "/t",
+            "0"
+          ]
         }
       ]
     },

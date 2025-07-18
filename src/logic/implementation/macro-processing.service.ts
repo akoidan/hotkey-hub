@@ -30,7 +30,7 @@ export class MacroProcessingService extends BaseProcessingService {
     if (typeof input.delayBefore === 'number') { // ignore if it's a variable or undefined
       // if it's a macro, delay in this macro won't be passed down
       // but would be await after any commands in this macro has run yet as expected, this is why on top we are not passing it
-      await this.delayService.awaitDelay(input.delayBefore as number, undefined, 'before');
+      await this.delayService.awaitDelay(input.delayBefore as number, undefined, 'before', 'macro');
     }
     for (const command of executable.commands) {
       const preparedCommand = this.variableService.replacePlaceholders(
@@ -45,7 +45,7 @@ export class MacroProcessingService extends BaseProcessingService {
     // commands in this macro has been already ran in the loop
     // await delay before the next command after this macro runs
     if (typeof input.delayAfter === 'number') { // ignore if it's a variable or undefined
-      await this.delayService.awaitDelay(input.delayAfter as number, undefined, 'after'); // if it's a macro, delay in this macro won't be passed down
+      await this.delayService.awaitDelay(input.delayAfter as number, undefined, 'after', 'macro'); // if it's a macro, delay in this macro won't be passed down
       // but would be await after all commands in this macro as expected, this is why on top we are not passing it
     }
   }

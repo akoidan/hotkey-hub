@@ -32,17 +32,17 @@ export class CommandProcessingService extends BaseProcessingService {
     const currRec = this.variableService.replaceEnvVars(input);
     this.logger.debug(`Running ${JSON.stringify(input)}`);
     if (tId) {
-      await this.delayService.awaitDelay(combDelayBefore, input.delayBefore as number | undefined, 'before');
+      await this.delayService.awaitDelay(combDelayBefore, input.delayBefore as number | undefined, 'before', 'command');
       await this.comandHandler.handle((currRec as Command).destination, currRec);
-      await this.delayService.awaitDelay(combDelayAfter, input.delayAfter as number | undefined, 'after');
+      await this.delayService.awaitDelay(combDelayAfter, input.delayAfter as number | undefined, 'after', 'command');
     } else {
       const newTransactionId = this.semaphoreService.getNewTransactionId();
       await this.semaphoreService.spawnChild(newTransactionId, async() => {
         try {
           await this.semaphoreService.startTransaction((currRec as Command).destination, newTransactionId);
-          await this.delayService.awaitDelay(combDelayBefore, input.delayBefore as number | undefined, 'before');
+          await this.delayService.awaitDelay(combDelayBefore, input.delayBefore as number | undefined, 'before', 'command');
           await this.comandHandler.handle((currRec as Command).destination, currRec);
-          await this.delayService.awaitDelay(combDelayAfter, input.delayAfter as number | undefined, 'after');
+          await this.delayService.awaitDelay(combDelayAfter, input.delayAfter as number | undefined, 'after', 'command');
         } finally {
           this.semaphoreService.finishTransaction((currRec as Command).destination, newTransactionId);
         }

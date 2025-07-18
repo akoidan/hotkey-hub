@@ -28,7 +28,7 @@ export class VariableResolutionService {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         result[key] = this.handleVariablesObject(value as VariablesDefinition, values) as any;
       } else if (Array.isArray(value)) {
-        result[key] = this.handleVariablesObject(value as VariablesDefinition, values) as any;
+        result[key] = value.map(item => this.replacePlaceholders(item, values, definition)) as any;
       } else if (typeof value === 'object') {
         result[key] = this.handleVariablesObject(value as VariablesDefinition, values) as any;
       } else {
