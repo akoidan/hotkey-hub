@@ -1,26 +1,24 @@
 import {ConfigService} from '@/config/config-service';
 import {Injectable, Logger} from '@nestjs/common';
-import type {Command, EvaluateVariable} from '@/config/types/commands';
-import {CommandHandler} from '@/handlers/command-handler.service';
-import {ClientService} from '@/client/client-service';
 import clc from 'cli-color';
+import {BaseProcessingService} from '@/logic/implementation/base-processing.service';
+import {EvaluateVariableCommand, UnkownCommand} from '@/config/types/macros';
 
 @Injectable()
-export class EvaluateVariableHandler extends CommandHandler {
+export class VariableProcessingService extends BaseProcessingService{
   constructor(
-    clientService: ClientService,
     private readonly logger: Logger,
     private readonly configService: ConfigService,
   ) {
-    super(clientService);
+    super();
   }
 
-  canHandle(command: Command): command is EvaluateVariable {
-    return 'assignVariable' in command;
+  canHandle(command: UnkownCommand): command is EvaluateVariableCommand {
+    return Boolean((command as EvaluateVariableCommand).assignVariable);
   }
 
   /* eslint-disable */
-  async execute(destination: string, command: EvaluateVariable): Promise<void> {
+  async execute(command: EvaluateVariableCommand): Promise<void> {
     const variables = this.configService.getVariables();
     let expr= command.expression;
     const reserved = new Set(["this", "arguments", "eval", "function", "return", "var", "let", "const"]);

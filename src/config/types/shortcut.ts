@@ -6,10 +6,10 @@ import {
 import {
   commandSchema,
 } from '@/config/types/commands';
-import {commandOrMacroSchema} from '@/config/types/macros';
+import {unknownCommandSchema} from '@/config/types/macros';
 
 
-const commandsAndMacrosArraySchema = z.array(commandOrMacroSchema)
+const commandsAndMacrosArraySchema = z.array(unknownCommandSchema)
   .describe('A set of events that executed sequentially in this thread');// Define the schema for the 'combinations'
 
 const commandWoMacroArraySchema = z.array(commandSchema).describe('A set of events that executed sequentially in this thread');
@@ -101,24 +101,14 @@ const shortcutMappingWithMacroSchema = z.object({
   );
 
 const randomShortCutMappingSchema = z.object({
-  circular: z.boolean().optional().describe('If set to true. Commands in this chain will be executed in a circular way.' +
-    ' So each press = 1 command. Instead of full commands'),
-  shuffle: z.boolean().optional().describe('If circular set to true, commands in this event would be executed randomly by 1'),
   commands: z.array(commandSchema).describe('List of commands for different commands'),
 })
   .merge(baseShortCutMappingSchema)
   .describe('An event schema that represent a set of commands that is executed when a certain shortkey is pressed');
 
 
-const threadCircularShortCutMappingSchema = z.object({
-  threadsCircular: z.array(commandWoMacroArraySchema)
-    .describe('Similar to circular in commands but will run only one thread upon activation. Each time the next thead will run.'),
-})
-  .merge(baseShortCutMappingSchema)
-  .describe('An event schema that represent a set of commands that is executed when a certain shortkey is pressed');
 
-
-const shortCutMappingSchema = z.union([shortcutMappingWithMacroSchema, randomShortCutMappingSchema, threadCircularShortCutMappingSchema]);
+const shortCutMappingSchema = z.union([shortcutMappingWithMacroSchema, randomShortCutMappingSchema]);
 
 const combinationList = z.array(shortCutMappingSchema)
   .superRefine((combinations, ctx) => {
@@ -138,23 +128,20 @@ const combinationList = z.array(shortCutMappingSchema)
 type ShortsData = z.infer<typeof shortCutMappingSchema>;
 type RandomShortcutMapping = z.infer<typeof randomShortCutMappingSchema>;
 type MacroShortcutMapping = z.infer<typeof shortcutMappingWithMacroSchema>;
-type MacroShortcutMappingCircular = z.infer<typeof threadCircularShortCutMappingSchema>;
 
 export type {
   ShortsData,
   RandomShortcutMapping,
   MacroShortcutMapping,
-  MacroShortcutMappingCircular,
 };
 
 export {
   randomShortCutMappingSchema,
   shortcutMappingWithMacroSchema,
-  threadCircularShortCutMappingSchema,
   shortCut,
   commandSchema,
   commandsAndMacrosArraySchema,
   commandsSchema,
   combinationList,
-  commandOrMacroSchema,
+  unknownCommandSchema,
 };

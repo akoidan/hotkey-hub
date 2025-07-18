@@ -1,6 +1,6 @@
 import {
   z,
-  ZodIssueCode,
+  ZodIssueCode, ZodType,
 } from 'zod';
 import {
   commandSchema,
@@ -11,7 +11,6 @@ import {variableRegex} from '@/config/types/variables';
 
 const runMacroCommandSchema = z.object({
   macro: z.string().describe('Name of the macro (key from macros section object)'),
-  transactional: z.string().optional().describe('Name of transaction'),
   variables: z.record(z.union([z.string(), z.number()])).optional().describe('Object of a key-values of variable name and value'),
 })
   .strict()
@@ -66,11 +65,17 @@ const runMacroCommandSchema = z.object({
     }
   }).describe('Runs a macro from the macros section.');
 
-const commandOrMacroSchema = z.union([
+const unknownCommandSchema = z.lazy(() => z.union([
   commandSchema,
   runMacroCommandSchema,
-])
-  .describe('A remote command or a macro name');
+  evaluateVariableSchema,
+  transactionSchema,
+]).describe('A remote command or a macro name'));
+
+const transactionSchema: ZodType<any> = z.lazy(() => z.object({
+  commands: z.array(unknownCommandSchema).describe('Set of commands for this transaction'),
+  transaction: z.string().describe('Transaction name'),
+}));
 
 const macroVariablesDescriptionSchema = z.record(z.object({
   type: z.enum(['string', 'number']).describe('To validate the type, or cast from env variables'),
@@ -80,8 +85,25 @@ const macroVariablesDescriptionSchema = z.record(z.object({
   .optional())
   .describe('Set of variables descriptors for macro');
 
+const evaluateVariableSchema = z.object({
+  assignVariable: z.string().describe('Variable name to assign to'),
+  expression: z.string().superRefine((expr, ctx) => {
+    try {
+      // eslint-disable-next-line
+      new Function(`return (${expr});`);
+    } catch (e) {
+      ctx.addIssue({
+        code: ZodIssueCode.custom,
+        path: [],
+        message: `"${expr}" is not a valid expression, because of ${e?.message ?? e}`,
+      });
+    }
+  }).describe('JS like expression that evaluates to some values. E.g. x*2.'),
+}).strict().describe('Allows to create/assign a variable by expression. In this case you need to set "destination" property to a string "null"');
+
+
 const macroSchema = z.object({
-  commands: z.array(commandOrMacroSchema).describe('Set of commands for this macro'),
+  commands: z.array(unknownCommandSchema).describe('Set of commands for this macro'),
   variables: macroVariablesDescriptionSchema,
 })
   .strict()
@@ -92,15 +114,18 @@ const macrosDefinitionSchema = z.record(macroSchema)
   .optional()
   .describe('A map of macros where a key is the macro name and value is its body');
 
-
+type EvaluateVariableCommand = z.infer<typeof evaluateVariableSchema>;
 type MacroCommand = z.infer<typeof runMacroCommandSchema>
-type CommandOrMacro = z.infer<typeof commandOrMacroSchema>
+type TransactionCommand = z.infer<typeof transactionSchema>
+type UnkownCommand = z.infer<typeof unknownCommandSchema>
 type MacroList = z.infer<typeof macrosDefinitionSchema>
 type VariablesDefinition = z.infer<typeof macroVariablesDescriptionSchema>
 
 export {
   runMacroCommandSchema,
-  commandOrMacroSchema,
+  unknownCommandSchema,
+  evaluateVariableSchema,
+  transactionSchema,
   macroVariablesDescriptionSchema,
   macroSchema,
   macrosDefinitionSchema,
@@ -108,7 +133,9 @@ export {
 
 export type {
   MacroCommand,
+  TransactionCommand,
+  EvaluateVariableCommand,
   VariablesDefinition,
-  CommandOrMacro,
+  UnkownCommand,
   MacroList,
 };

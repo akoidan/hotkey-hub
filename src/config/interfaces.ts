@@ -1,5 +1,4 @@
 import type {
-  AliasesData,
   IpsData,
   RgbData,
 } from '@/config/types/schema';
@@ -14,8 +13,6 @@ export interface ConfigProvider {
   getOpenRgb(): RgbData;
 
   getCombinations(): ShortsData[];
-
-  getAliases(): NonNullable<AliasesData>;
 
   getMacros(): NonNullable<MacroList>;
 

@@ -13,7 +13,6 @@ export class DelayService {
     private readonly logger: Logger,
   ) {
   }
- 
 
   // Awaits delay if specified in global config or in local command data
   // Applies a hugeDelay from global config if chance is succeded

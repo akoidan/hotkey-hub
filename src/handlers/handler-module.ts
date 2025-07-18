@@ -17,7 +17,6 @@ import {FindPidsByNameHandler} from '@/handlers/implementation/find-pids-by-name
 import {FindProcessWindowsHandler} from '@/handlers/implementation/find-process-windows-handler';
 import {FindProcessesWindowsHandler} from '@/handlers/implementation/find-processes-windows-handler';
 import {FocusWindowHandler} from '@/handlers/implementation/focus-window-handler';
-import {EvaluateVariableHandler} from '@/handlers/implementation/evaluate-variable-handler';
 
 const handlerProviders: Provider[] = [
   Logger,
@@ -33,7 +32,6 @@ const handlerProviders: Provider[] = [
   FindProcessWindowsHandler,
   FindProcessesWindowsHandler,
   FocusWindowHandler,
-  EvaluateVariableHandler,
   {
     provide: CommandHandler,
     inject: [
@@ -49,7 +47,6 @@ const handlerProviders: Provider[] = [
       FindProcessWindowsHandler,
       FindProcessesWindowsHandler,
       FocusWindowHandler,
-      EvaluateVariableHandler,
     ],
     useFactory: (
         keyPressHandler: CommandHandler,
@@ -64,7 +61,6 @@ const handlerProviders: Provider[] = [
         findProcessWindowsHandler: CommandHandler,
         findProcessesWindowsHandler: CommandHandler,
         focusWindowHandler: CommandHandler,
-        evaluateVariableHandler: CommandHandler,
     ): CommandHandler => {
       keyPressHandler
           .setNext(focusProcessWindowHandler)
@@ -77,9 +73,7 @@ const handlerProviders: Provider[] = [
           .setNext(findPidsByNameHandler)
           .setNext(findProcessWindowsHandler)
           .setNext(findProcessesWindowsHandler)
-          .setNext(focusWindowHandler)
-          .setNext(evaluateVariableHandler);
-
+          .setNext(focusWindowHandler);
       return keyPressHandler;
     },
   },

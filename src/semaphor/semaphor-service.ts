@@ -90,7 +90,7 @@ export class SemaphorService {
       });
       this.logger.debug(`Lock released. Starting new transaction ${transactionId}`);
     } else {
-      this.logger.debug(`Starting new transaction ${transactionId}`);
+      this.logger.debug(`Starting new transaction ${transactionId} in ${trasactionGroup}`);
       currentState.push({transactionId, resolve: null, resolveFrom: null});
     }
   }

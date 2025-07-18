@@ -43,7 +43,7 @@ export class AppModule implements OnModuleInit {
             this.logger.log(`${clc.bold.green(comb.shortCut)} pressed. Running: ${comb.name}`);
             try {
               await this.rgbService.updateColors(comb.shortCut, true);
-              await this.logicService.processUnknownShortCut(comb);
+              await this.logicService.runShortcut(comb);
               await this.rgbService.updateColors(comb.shortCut, false);
             } catch (err) {
               this.logger.error(err);

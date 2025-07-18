@@ -1,7 +1,7 @@
 import {
   aARootSchema,
-  AliasesData,
-  ConfigData, ConfigDataWoMacro,
+  ConfigData,
+  ConfigDataWoMacro,
   IpsData,
   macrosDefinitionSchema,
   RgbData,
@@ -111,10 +111,6 @@ export class ConfigService implements ConfigProvider {
 
   public getCombinations(): ShortsData[] {
     return this.configData!.combinations;
-  }
-
-  public getAliases(): NonNullable<AliasesData> {
-    return this.configData!.aliases ?? {};
   }
 
   public getMacros(): NonNullable<MacroList> {

@@ -11,8 +11,7 @@ import {ConfigService} from '@/config/config-service';
 import {ConfigReaderService} from '@/config/config-reader-service';
 import {handlerProviders} from '@/handlers/handler-module';
 import {VariableResolutionService} from '@/logic/variable-resolution.service';
-import {CommandProcessingService} from '@/logic/command-processing.service';
-import {CircularIndex} from '@/logic/circular-index';
+import {CommandProcessingService} from '../src/logic/implementation/command-processing.service';
 import path from 'path';
 import { AsyncStorageModule } from '@/asyncstore/async-storage.module';
 import {RandomModule} from "@/random/random.module";
@@ -60,7 +59,7 @@ describe('Logic service', () => {
     await tyrs.parseConfig();
     const semaphoreService = testModule.get<SemaphorService>(SemaphorService);
     await semaphoreService.startOperation('alt+c', async () => {
-      await shortCutService.processUnknownShortCut({
+      await shortCutService.runShortcut({
         commands: [
           {
             destination: 'this',
@@ -84,7 +83,7 @@ describe('Logic service', () => {
     await tyrs.parseConfig();
     const semaphoreService = testModule.get<SemaphorService>(SemaphorService);
     await semaphoreService.startOperation('alt+c', async () => {
-      await shortCutService.processUnknownShortCut({
+      await shortCutService.runShortcut({
         commands: [
           {
             destination: 'this',
@@ -114,7 +113,7 @@ describe('Logic service', () => {
     await tyrs.parseConfig();
     const semaphoreService = testModule.get<SemaphorService>(SemaphorService);
     await semaphoreService.startOperation('alt+c', async () => {
-      await shortCutService.processUnknownShortCut({
+      await shortCutService.runShortcut({
         commands: [
           {
             destination: 'this',
@@ -143,7 +142,7 @@ describe('Logic service', () => {
     // Test first destination
     const semaphoreService = testModule.get<SemaphorService>(SemaphorService);
     await semaphoreService.startOperation('alt+c', async () => {
-      await shortCutService.processUnknownShortCut({
+      await shortCutService.runShortcut({
         commands: [
           {
             destination: 'multiple',
@@ -159,7 +158,7 @@ describe('Logic service', () => {
 
     // Test second destination (circular)
     await semaphoreService.startOperation('alt+c', async () => {
-      await shortCutService.processUnknownShortCut({
+      await shortCutService.runShortcut({
         commands: [
           {
             destination: 'multiple',
@@ -192,7 +191,7 @@ describe('Logic service', () => {
 
     const semaphoreService = testModule.get<SemaphorService>(SemaphorService);
     await semaphoreService.startOperation('alt+c', async () => {
-      await shortCutService.processUnknownShortCut({
+      await shortCutService.runShortcut({
         commands: [
           {
             destination: 'this',
@@ -224,7 +223,7 @@ describe('Logic service', () => {
 
     const semaphoreService = testModule.get<SemaphorService>(SemaphorService);
     await semaphoreService.startOperation('alt+c', async () => {
-      await shortCutService.processUnknownShortCut({
+      await shortCutService.runShortcut({
         commands: [
           {
             macro: 'loginProceed',
@@ -261,19 +260,19 @@ describe('Logic service', () => {
     // First press - first command
     const semaphoreService = testModule.get<SemaphorService>(SemaphorService);
     await semaphoreService.startOperation('alt+c', async () => {
-      await shortCutService.processUnknownShortCut(shortcutMapping!);
+      await shortCutService.runShortcut(shortcutMapping!);
       expect(spyKeyPress).toHaveBeenCalledWith('this', {holdKeys: [], keys: ['1']});
 
       // Second press - second command
-      await shortCutService.processUnknownShortCut(shortcutMapping!);
+      await shortCutService.runShortcut(shortcutMapping!);
       expect(spyKeyPress).toHaveBeenCalledWith('this', {holdKeys: [], keys: ['2']});
 
       // Third press - third command
-      await shortCutService.processUnknownShortCut(shortcutMapping!);
+      await shortCutService.runShortcut(shortcutMapping!);
       expect(spyKeyPress).toHaveBeenCalledWith('this', {holdKeys: [], keys: ['3']});
 
       // Fourth press - back to first command
-      await shortCutService.processUnknownShortCut(shortcutMapping!);
+      await shortCutService.runShortcut(shortcutMapping!);
     });
     expect(spyKeyPress).toHaveBeenCalledWith('this', {holdKeys: [], keys: ['1']});
     expect(spyKeyPress).toHaveBeenCalledTimes(4);
@@ -295,19 +294,19 @@ describe('Logic service', () => {
     await semaphoreService.startOperation('alt+c', async () => {
 
       // First press - first thread
-      await shortCutService.processUnknownShortCut(shortcutMapping!);
+      await shortCutService.runShortcut(shortcutMapping!);
       expect(spyKeyPress).toHaveBeenCalledWith('this', {holdKeys: [], keys: ['a']});
 
       // Second press - second thread
-      await shortCutService.processUnknownShortCut(shortcutMapping!);
+      await shortCutService.runShortcut(shortcutMapping!);
       expect(spyKeyPress).toHaveBeenCalledWith('this', {holdKeys: [], keys: ['b']});
 
       // Third press - third thread
-      await shortCutService.processUnknownShortCut(shortcutMapping!);
+      await shortCutService.runShortcut(shortcutMapping!);
       expect(spyKeyPress).toHaveBeenCalledWith('this', {holdKeys: [], keys: ['c']});
 
       // Fourth press - back to first thread
-      await shortCutService.processUnknownShortCut(shortcutMapping!);
+      await shortCutService.runShortcut(shortcutMapping!);
     });
     expect(spyKeyPress).toHaveBeenCalledWith('this', {holdKeys: [], keys: ['a']});
     expect(spyKeyPress).toHaveBeenCalledTimes(4);
@@ -328,7 +327,7 @@ describe('Logic service', () => {
     expect(shortcutMapping).toBeDefined();
     const semaphoreService = testModule.get<SemaphorService>(SemaphorService);
     await semaphoreService.startOperation('alt+c', async () => {
-      await shortCutService.processUnknownShortCut(shortcutMapping!);
+      await shortCutService.runShortcut(shortcutMapping!);
     });
     expect(spyKeyPress).toHaveBeenCalledTimes(1);
     const possibleKeys = ['x', 'y', 'z'];

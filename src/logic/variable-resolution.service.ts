@@ -27,6 +27,10 @@ export class VariableResolutionService {
       if ((command as MacroCommand).variables && key === 'variables') {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         result[key] = this.handleVariablesObject(value as VariablesDefinition, values) as any;
+      } else if (Array.isArray(value)) {
+        result[key] = this.handleVariablesObject(value as VariablesDefinition, values) as any;
+      } else if (typeof value === 'object') {
+        result[key] = this.handleVariablesObject(value as VariablesDefinition, values) as any;
       } else {
         const varName = extractVariableName(value)!;
         if (!definition[varName]) {
