@@ -9,7 +9,7 @@ import {UnkownCommand} from '@/config/types/local-commands';
 import {RemoteCommand} from '@/config/types/remote-commands';
 
 @Injectable()
-export class RemoteCommandHandler extends BaseLocalHandler {
+export class CommandLocalHandler extends BaseLocalHandler {
   constructor(
     private readonly variableService: VariableResolutionService,
     private readonly logger: Logger,

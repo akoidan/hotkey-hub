@@ -4,7 +4,7 @@ import {ClientModule} from '@/client/client-module';
 import {ShortcutProcessingService} from '@/local/shortcut-processing.service';
 import {VariableResolutionService} from '@/local/variable-resolution.service';
 import {RemoteHandlerModule} from '@/remote/remote-handler-module';
-import {RemoteCommandHandler} from '@/local/implementation/remote-command-handler';
+import {CommandLocalHandler} from '@/local/implementation/command-local-handler';
 import {DelayService} from '@/local/delay.service';
 import {SemaphorModule} from '@/semaphor/semaphor.module';
 import {RandomModule} from '@/random/random.module';
@@ -20,7 +20,7 @@ const processingProviders: Provider[] = [
   MacroLocalHandler,
   TransactionLocalHandler,
   ExpressionLocalHandler,
-  RemoteCommandHandler,
+  CommandLocalHandler,
   ThreadsLocalHandler,
   {
     provide: BaseLocalHandler,
@@ -29,7 +29,7 @@ const processingProviders: Provider[] = [
       TransactionLocalHandler,
       ExpressionLocalHandler,
       ThreadsLocalHandler,
-      RemoteCommandHandler,
+      CommandLocalHandler,
     ],
     useFactory: (
       macro: BaseLocalHandler,
@@ -55,7 +55,7 @@ const processingProviders: Provider[] = [
     DelayService,
     ShortcutProcessingService,
     VariableResolutionService,
-    RemoteCommandHandler,
+    CommandLocalHandler,
     ...processingProviders,
   ],
   exports: [ShortcutProcessingService],

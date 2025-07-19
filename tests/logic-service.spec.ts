@@ -7,7 +7,7 @@ import {ConfigService} from '@/config/config-service';
 import {ConfigReaderService} from '@/config/config-reader-service';
 import {remoteHandlerProviders} from '../src/remote/remote-handler-module';
 import {VariableResolutionService} from '../src/local/variable-resolution.service';
-import {RemoteCommandHandler} from '../src/local/implementation/remote-command-handler';
+import {CommandLocalHandler} from '../src/local/implementation/command-local-handler';
 import path from 'path';
 import {AsyncStorageModule} from '@/asyncstore/async-storage.module';
 import {RandomModule} from "@/random/random.module";
@@ -25,7 +25,7 @@ async function getTestModule(configFilePath: string): Promise<TestingModule> {
       ShortcutProcessingService,
       DelayService,
       VariableResolutionService,
-      RemoteCommandHandler,
+      CommandLocalHandler,
       {
         provide: ClientService,
         useClass: class Empty {
