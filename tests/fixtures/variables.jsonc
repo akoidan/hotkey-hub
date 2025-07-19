@@ -1,1 +1,16 @@
-{}
+{
+  "multiple": [
+    "this",
+    "that"
+  ],
+  "all": [
+    "this",
+    "that",
+    "other"
+  ],
+  "circular_three": [
+    "this",
+    "that",
+    "other"
+  ]
+}

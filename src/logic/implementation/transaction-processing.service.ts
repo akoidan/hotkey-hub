@@ -21,14 +21,14 @@ export class TransactionProcessingService extends BaseProcessingService {
 
 
   async execute(
-      input: TransactionCommand,
-      combDelayAfter: number | undefined,
-      combDelayBefore: number | undefined,
-      transactionId: string | undefined,
+    input: TransactionCommand,
+    combDelayAfter: number | undefined,
+    combDelayBefore: number | undefined,
+    transactionId: string | undefined,
   ): Promise<void> {
     const preparedInput = this.variableService.replaceEnvVars(input);
     const tId = transactionId ?? this.semaphoreService.getNewTransactionId();
-    await this.semaphoreService.spawnChild(preparedInput.transaction, async () => {
+    await this.semaphoreService.spawnChild(preparedInput.transaction, async() => {
       try {
         await this.semaphoreService.startTransaction(preparedInput.transaction, tId);
         if (typeof preparedInput.delayBefore === 'number') { // ignore if it's a variable or undefined

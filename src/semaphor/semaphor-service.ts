@@ -37,9 +37,6 @@ export class SemaphorService {
     this.logger.debug(`All actions for ${this.getCurrentOperationId()} are completed`);
   }
 
-  public finishChild(): void {
-    this.logger.debug(`All actions for ${this.getCurrentOperationId()} are completed`);
-  }
 
   public getCurrentOperationId(): string {
     return this.asyncLocalStorage.getStore()!.get(SemaphorService.COMB_KEY) as string;
@@ -50,6 +47,7 @@ export class SemaphorService {
     const newId = `${parentId}-${i}`;
     const newStorageMap: Map<string, any> = new Map<string, any>().set(SemaphorService.COMB_KEY, newId);
     await this.asyncLocalStorage.run(newStorageMap, cb);
+    this.logger.debug(`All actions for ${parentId} are completed`);
   }
 
   public finishTransaction(transactionGroup: string, transactionId: string): void {

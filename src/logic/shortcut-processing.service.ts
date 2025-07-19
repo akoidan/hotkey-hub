@@ -25,10 +25,7 @@ export class ShortcutProcessingService {
           // eslint-disable-next-line @typescript-eslint/use-unknown-in-catch-callback-variable
           await this.runCommands(receiver, comb.delayAfter, comb.delayBefore)
               .then(resolv)
-              .catch(rej)
-              .finally(() => {
-                 this.semaphorService.finishChild();
-              });
+              .catch(rej);
           // eslint-disable-next-line @typescript-eslint/use-unknown-in-catch-callback-variable
         }).catch(rej);
       })));

@@ -23,12 +23,7 @@ async function getTestModule(configFilePath: string): Promise<TestingModule> {
   return Test.createTestingModule({
     imports: [AsyncStorageModule, RandomModule, SemaphorModule],
     providers: [
-      ...handlerProviders,
-      ShortcutProcessingService,
-      DelayService,
       VariableResolutionService,
-      CommandProcessingService,
-      CircularIndex,
       {
         provide: ClientService,
         useClass: class Empty {
@@ -50,6 +45,49 @@ async function getTestModule(configFilePath: string): Promise<TestingModule> {
 
 describe('Variable Service', () => {
   it('should keySend client call', async() => {
-
+    const testModule = await getTestModule("config-fixture.jsonc");
+    const variableService = testModule.get<VariableResolutionService>(VariableResolutionService);
+    const res = variableService.replacePlaceholders({
+      "transaction": "{{destination}}",
+      "commands": [
+        {
+          "destination": "{{destination}}",
+          "focusWid": "{{focusWid}}"
+        },
+        {
+          "destination": "{{destination}}",
+          "keySend": "{{keySend}}",
+          "delayAfter": 50
+        }
+      ]
+    }, {
+      "focusWid": "{{widwc}}",
+      "destination": "{{pcwc}}",
+      "keySend": "f4"
+    }, {
+      "destination": {
+        "type": "string"
+      },
+      "focusWid": {
+        "type": "number"
+      },
+      "keySend": {
+        "type": "string"
+      }
+    });
+    expect(res).toEqual({
+      "transaction": "{{pcwc}}",
+        "commands": [
+      {
+        "destination": "{{pcwc}}",
+        "focusWid": "{{widwc}}"
+      },
+      {
+        "destination": "{{pcwc}}",
+        "keySend": "f4",
+        "delayAfter": 50
+      }
+    ]
+    });
   });
 });

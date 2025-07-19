@@ -15,7 +15,7 @@ import {TransactionProcessingService} from '@/logic/implementation/transaction-p
 import {VariableProcessingService} from "@/logic/implementation/variable-processing.service";
 
 
-const handlerProviders: Provider[] = [
+const processingProviders: Provider[] = [
   MacroProcessingService,
   TransactionProcessingService,
   VariableProcessingService,
@@ -34,11 +34,10 @@ const handlerProviders: Provider[] = [
       variable: BaseProcessingService,
       command: BaseProcessingService,
     ): BaseProcessingService => {
-      let a = macro.setNext(transaction, macro);
-      let b = a.setNext(variable, macro)
-      let c = b.setNext(command, macro);
-      let d = c.setNext(null!, macro);
-
+       macro.setNext(transaction, macro)
+        .setNext(variable, macro)
+        .setNext(command, macro)
+        .setNext(null!, macro);
       return macro;
     },
   },
@@ -52,7 +51,7 @@ const handlerProviders: Provider[] = [
     ShortcutProcessingService,
     VariableResolutionService,
     CommandProcessingService,
-    ...handlerProviders,
+    ...processingProviders,
   ],
   exports: [ShortcutProcessingService],
 })
@@ -60,4 +59,4 @@ class LogicModule {
 
 }
 
-export {LogicModule, handlerProviders};
+export {LogicModule, processingProviders};

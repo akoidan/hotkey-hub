@@ -5,14 +5,32 @@ import {ClientService} from '@/client/client-service';
 import {Logger} from '@nestjs/common';
 import {ConfigService} from '@/config/config-service';
 import {ConfigReaderService} from '@/config/config-reader-service';
+import {handlerProviders} from '@/handlers/handler-module';
 import {VariableResolutionService} from '@/logic/variable-resolution.service';
+import {CommandProcessingService} from '../src/logic/implementation/command-processing.service';
 import path from 'path';
+import {AsyncStorageModule} from '@/asyncstore/async-storage.module';
+import {RandomModule} from "@/random/random.module";
+import {SemaphorModule} from "../src/semaphor/semaphor.module";
+import {DelayService} from "../src/logic/delay.service";
 import {SemaphorService} from "../src/semaphor/semaphor-service";
+import {processingProviders} from "../src/logic/logic.module";
 
 async function getTestModule(configFilePath: string): Promise<TestingModule> {
   return Test.createTestingModule({
+    imports: [AsyncStorageModule, RandomModule, SemaphorModule],
     providers: [
+      ...handlerProviders,
+      ...processingProviders,
+      ShortcutProcessingService,
+      DelayService,
       VariableResolutionService,
+      CommandProcessingService,
+      {
+        provide: ClientService,
+        useClass: class Empty {
+        },
+      },
       {
         provide: ConfigService,
         useFactory: (logger: Logger) => new ConfigService(logger, process.env, new ConfigReaderService(logger, {
@@ -28,7 +46,7 @@ async function getTestModule(configFilePath: string): Promise<TestingModule> {
 }
 
 describe('Logic service', () => {
-  it('should keySend client call', async() => {
+  it('should keySend client call', async () => {
     const testModule = await getTestModule('config-fixture.jsonc');
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const tyrs = testModule.get<ConfigService>(ConfigService);
@@ -52,7 +70,7 @@ describe('Logic service', () => {
     expect(spykeyPress).toHaveBeenCalledWith('this', {holdKeys: [], keys: ['f6']});
   });
 
-  it('should launch exe client call', async() => {
+  it('should launch exe client call', async () => {
     const testModule = await getTestModule('config-fixture.jsonc');
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const tyrs = testModule.get<ConfigService>(ConfigService);
@@ -82,7 +100,7 @@ describe('Logic service', () => {
     });
   });
 
-  it('should call macro exe client call', async() => {
+  it('should call macro exe client call', async () => {
     const testModule = await getTestModule('config-fixture.jsonc');
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const tyrs = testModule.get<ConfigService>(ConfigService);
@@ -108,7 +126,7 @@ describe('Logic service', () => {
     });
   });
 
-  it('should handle circular index with multiple destinations through alias', async() => {
+  it('should handle circular index with multiple destinations through alias', async () => {
     const testModule = await getTestModule('config-fixture.jsonc');
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const configService = testModule.get<ConfigService>(ConfigService);
@@ -153,7 +171,7 @@ describe('Logic service', () => {
     expect(spyKeyPress).toHaveBeenCalledTimes(2);
   });
 
-  it('should resolve variables in commands', async() => {
+  it('should resolve variables in commands', async () => {
     const testModule = await getTestModule('config-fixture.jsonc');
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const configService = testModule.get<ConfigService>(ConfigService);
@@ -188,7 +206,7 @@ describe('Logic service', () => {
     delete process.env.login;
   });
 
-  it('should handle complex macro with delays', async() => {
+  it('should handle complex macro with delays', async () => {
     const testModule = await getTestModule('config-fixture.jsonc');
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const configService = testModule.get<ConfigService>(ConfigService);
@@ -223,7 +241,7 @@ describe('Logic service', () => {
     expect(spyKeyPress).toHaveBeenCalledWith('this', {holdKeys: [], keys: ['enter']});
   });
 
-  it('should execute commands in circular mode', async() => {
+  it('should execute commands in circular mode', async () => {
     const testModule = await getTestModule('config-fixture.jsonc');
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const configService = testModule.get<ConfigService>(ConfigService);
@@ -257,7 +275,7 @@ describe('Logic service', () => {
     expect(spyKeyPress).toHaveBeenCalledTimes(4);
   });
 
-  it('should execute threads in circular mode', async() => {
+  it('should execute threads in circular mode', async () => {
     const testModule = await getTestModule('config-fixture.jsonc');
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const configService = testModule.get<ConfigService>(ConfigService);
@@ -292,7 +310,7 @@ describe('Logic service', () => {
   });
 
   // Note: Random circular test is not deterministic, so we just verify it calls one of the commands
-  it('should execute random command in circular mode', async() => {
+  it('should execute random command in circular mode', async () => {
     const testModule = await getTestModule('config-fixture.jsonc');
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const configService = testModule.get<ConfigService>(ConfigService);
