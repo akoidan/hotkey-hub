@@ -1,11 +1,11 @@
 import {ConfigService} from '@/config/config-service';
 import {Injectable, Logger} from '@nestjs/common';
 import clc from 'cli-color';
-import {BaseProcessingService} from '@/logic/implementation/base-processing.service';
-import {EvaluateVariableCommand, UnkownCommand} from '@/config/types/macros';
+import {BaseLocalHandler} from '@/logic/implementation/base-local-handler';
+import {ExpressionLocalCommand, UnkownCommand} from '@/config/types/local-commands';
 
 @Injectable()
-export class VariableProcessingService extends BaseProcessingService{
+export class ExpressionLocalHandler extends BaseLocalHandler {
   constructor(
     private readonly logger: Logger,
     private readonly configService: ConfigService,
@@ -13,14 +13,14 @@ export class VariableProcessingService extends BaseProcessingService{
     super();
   }
 
-  canHandle(command: UnkownCommand): command is EvaluateVariableCommand {
-    return Boolean((command as EvaluateVariableCommand).assignVariable);
+  canHandle(command: UnkownCommand): command is ExpressionLocalCommand {
+    return Boolean((command as ExpressionLocalCommand).expression);
   }
 
   /* eslint-disable */
-  async execute(command: EvaluateVariableCommand): Promise<void> {
+  async execute(command: ExpressionLocalCommand): Promise<void> {
     const variables = this.configService.getVariables();
-    let expr= command.expression;
+    let expr = command.expression;
     const reserved = new Set(["this", "arguments", "eval", "function", "return", "var", "let", "const"]);
 
     const varMap: Record<string, any> = {};
@@ -51,12 +51,13 @@ export class VariableProcessingService extends BaseProcessingService{
       for (let i = 1; i < varPath.length - 1; i++) {
         nextVal = nextVal[varPath[i]]
       }
-      nextVal[varPath[varPath.length-1]] = result;
+      nextVal[varPath[varPath.length - 1]] = result;
       this.logger.log(`${clc.bold.green(command.assignVariable)}=${clc.yellow(JSON.stringify(result))}`);
       this.configService.setVariable(mainVariable, mainValue);
     } else {
       this.configService.setVariable(command.assignVariable, result);
     }
   }
+
   /* eslint-enable */
 }

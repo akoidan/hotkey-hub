@@ -1,13 +1,12 @@
-import {Command} from '@/config/types/commands';
 import {Injectable} from '@nestjs/common';
-import {UnkownCommand} from '@/config/types/macros';
+import {UnkownCommand} from '@/config/types/local-commands';
 
 @Injectable()
-export abstract class BaseProcessingService {
-  private next: BaseProcessingService | null = null;
-  protected startChain: BaseProcessingService;
+export abstract class BaseLocalHandler {
+  protected startChain: BaseLocalHandler;
+  private next: BaseLocalHandler | null = null;
 
-  setNext(handler: BaseProcessingService, startChain: BaseProcessingService): BaseProcessingService {
+  setNext(handler: BaseLocalHandler, startChain: BaseLocalHandler): BaseLocalHandler {
     this.next = handler;
     this.startChain = startChain;
     return handler;
@@ -23,7 +22,7 @@ export abstract class BaseProcessingService {
   ): Promise<void>
 
   public async handle(
-    input: Command,
+    input: UnkownCommand,
     combDelayAfter: undefined | number,
     combDelayBefore: undefined | number,
     tId: string | undefined,

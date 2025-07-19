@@ -1,50 +1,51 @@
 import {Injectable, Logger} from '@nestjs/common';
-import {Command} from '@/config/types/commands';
+
 import {VariableResolutionService} from '@/logic/variable-resolution.service';
-import {CommandHandler} from '@/handlers/command-handler.service';
+import {CommandRemoteHandler} from '@/handlers/command-remote-handler';
 import {DelayService} from '@/logic/delay.service';
 import {SemaphorService} from '@/semaphor/semaphor-service';
-import {BaseProcessingService} from '@/logic/implementation/base-processing.service';
-import {UnkownCommand} from '@/config/types/macros';
+import {BaseLocalHandler} from '@/logic/implementation/base-local-handler';
+import {UnkownCommand} from '@/config/types/local-commands';
+import {RemoteCommand} from '@/config/types/remote-commands';
 
 @Injectable()
-export class CommandProcessingService extends BaseProcessingService {
+export class RemoteCommandHandler extends BaseLocalHandler {
   constructor(
     private readonly variableService: VariableResolutionService,
     private readonly logger: Logger,
-    private readonly comandHandler: CommandHandler,
+    private readonly comandHandler: CommandRemoteHandler,
     private readonly semaphoreService: SemaphorService,
     private readonly delayService: DelayService,
   ) {
     super();
   }
 
-  canHandle(command: UnkownCommand): command is Command {
+  canHandle(command: UnkownCommand): command is RemoteCommand {
     return true;
   }
 
   public async execute(
-    input: Command,
+    input: RemoteCommand,
     combDelayAfter: undefined | number,
     combDelayBefore: undefined | number,
     tId: string | undefined,
   ): Promise<void> {
-    const currRec = this.variableService.replaceEnvVars(input);
+    const currRec: RemoteCommand = this.variableService.replaceEnvVars(input);
     this.logger.debug(`Running ${JSON.stringify(input)}`);
     if (tId) {
       await this.delayService.awaitDelay(combDelayBefore, input.delayBefore as number | undefined, 'before', 'command');
-      await this.comandHandler.handle((currRec as Command).destination, currRec);
+      await this.comandHandler.handle(currRec.destination, currRec);
       await this.delayService.awaitDelay(combDelayAfter, input.delayAfter as number | undefined, 'after', 'command');
     } else {
       const newTransactionId = this.semaphoreService.getNewTransactionId();
-      await this.semaphoreService.spawnChild(newTransactionId, async() => {
+      await this.semaphoreService.spawnChild(`${currRec.destination}-${newTransactionId}`, async() => {
         try {
-          await this.semaphoreService.startTransaction((currRec as Command).destination, newTransactionId);
+          await this.semaphoreService.startTransaction(currRec.destination, newTransactionId);
           await this.delayService.awaitDelay(combDelayBefore, input.delayBefore as number | undefined, 'before', 'command');
-          await this.comandHandler.handle((currRec as Command).destination, currRec);
+          await this.comandHandler.handle(currRec.destination, currRec);
           await this.delayService.awaitDelay(combDelayAfter, input.delayAfter as number | undefined, 'after', 'command');
         } finally {
-          this.semaphoreService.finishTransaction((currRec as Command).destination, newTransactionId);
+          this.semaphoreService.finishTransaction(currRec.destination, newTransactionId);
         }
       });
     }

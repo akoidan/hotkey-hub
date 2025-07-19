@@ -1,40 +1,37 @@
 /* eslint-disable max-lines*/
-import {
-  z,
-} from 'zod';
+import {z} from 'zod';
 
+
+import {variablesSchema, variableValueSchema} from '@/config/types/variables';
+import {shortCut, shortcutSchema, shortcutsSchema} from '@/config/types/shortcut';
+import {globalDelaySchema} from '@/config/types/delays';
 import {
-  commandSchema,
-  focusProcessWindowCommandSchema,
-  keyPressCommandSchema,
+  delayCommandsSchema,
+  findPidsByNameRemoteCommandSchema,
+  findProcessesWindowsRemoteCommandSchema,
+  findProcessWindowsRemoteCommandSchema,
+  focusProcessWindowRemoteCommandSchema,
+  focusWindowRemoteCommandSchema,
+  keyPressRemoteCommandSchema,
   keySchema,
-  killExeByNameCommandSchema,
-  killExeByPidCommandSchema,
-  launchExeCommandSchema,
-  leftMouseClickCommandSchema,
-  mouseMoveClickCommandSchema,
-  typeTextCommandSchema,
-} from '@/config/types/commands';
+  killExeByNameRemoteCommandSchema,
+  killExeByPidRemoteCommandSchema,
+  launchExeRemoteCommandSchema,
+  leftMouseClickRemoteCommandSchema,
+  mouseMoveClickRemoteCommandSchema,
+  remoteCommandSchema,
+  typeTextRemoteCommandSchema,
+} from '@/config/types/remote-commands';
 import {
-  variablesSchema,
-  variableValueSchema,
-} from '@/config/types/variables';
-import {
-  unknownCommandSchema,
-  runMacroCommandSchema,
+  expressionLocalCommandSchema,
+  macroLocalCommandSchema,
   macroSchema,
   macrosDefinitionSchema,
   macroVariablesDescriptionSchema,
-} from '@/config/types/macros';
-import {
-  randomShortCutMappingSchema,
-  shortcutMappingWithMacroSchema,
-  commandsAndMacrosArraySchema,
-  commandsSchema,
-  combinationList,
-  shortCut,
-} from '@/config/types/shortcut';
-import {globalDelaySchema} from '@/config/types/delays';
+  threadsLocalCommandSchema,
+  transactionLocalCommandSchema,
+  unknownCommandSchema,
+} from '@/config/types/local-commands';
 
 const ipsSchema = z.record(z.string().ip())
   .describe('Definition of remote PCs where keys are PC names and values are their IP addresses.' +
@@ -58,10 +55,10 @@ const aARootSchema = z.object({
     .default(5000)
     .describe('Https port to connect to on client PC'),
   rgb: rgbSchema,
-  combinations: combinationList,
+  combinations: shortcutsSchema,
   delays: globalDelaySchema,
   macros: macrosDefinitionSchema,
-}).strict()
+}).strict();
 
 // Generate TypeScript type
 type ConfigData = z.infer<typeof aARootSchema>;
@@ -78,33 +75,38 @@ export type {
   RgbData,
 };
 
+
 export {
   rgbSchema,
   aARootSchema,
-  keySchema,
   shortCut,
   globalDelaySchema,
+  ipsSchema,
+  shortcutSchema,
+  variableValueSchema,
+  shortcutsSchema,
+  variablesSchema,
+  keyPressRemoteCommandSchema,
+  leftMouseClickRemoteCommandSchema,
+  mouseMoveClickRemoteCommandSchema,
+  launchExeRemoteCommandSchema,
+  focusProcessWindowRemoteCommandSchema,
+  focusWindowRemoteCommandSchema,
+  typeTextRemoteCommandSchema,
+  killExeByPidRemoteCommandSchema,
+  killExeByNameRemoteCommandSchema,
+  findPidsByNameRemoteCommandSchema,
+  findProcessWindowsRemoteCommandSchema,
+  findProcessesWindowsRemoteCommandSchema,
+  remoteCommandSchema,
+  keySchema,
+  delayCommandsSchema,
+  threadsLocalCommandSchema,
+  macroLocalCommandSchema,
+  unknownCommandSchema,
+  expressionLocalCommandSchema,
+  transactionLocalCommandSchema,
+  macroVariablesDescriptionSchema,
   macroSchema,
   macrosDefinitionSchema,
-  macroVariablesDescriptionSchema,
-  randomShortCutMappingSchema,
-  shortcutMappingWithMacroSchema,
-  commandSchema,
-  ipsSchema,
-  variableValueSchema,
-  keyPressCommandSchema,
-  commandsAndMacrosArraySchema,
-  launchExeCommandSchema,
-  typeTextCommandSchema,
-  focusProcessWindowCommandSchema,
-  commandsSchema,
-  leftMouseClickCommandSchema,
-  runMacroCommandSchema,
-  combinationList,
-  mouseMoveClickCommandSchema,
-  variablesSchema,
-  killExeByNameCommandSchema,
-  killExeByPidCommandSchema,
-  unknownCommandSchema,
 };
-

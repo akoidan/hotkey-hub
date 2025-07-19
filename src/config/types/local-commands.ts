@@ -2,14 +2,11 @@ import {
   z,
   ZodIssueCode, ZodType,
 } from 'zod';
-import {
-  commandSchema,
-} from '@/config/types/schema';
 import {schemaRootCache} from '@/config/types/cache';
-import {delayCommandsSchema} from '@/config/types/commands';
 import {variableRegex} from '@/config/types/variables';
+import {delayCommandsSchema, remoteCommandSchema} from "@/config/types/remote-commands";
 
-const runMacroCommandSchema = z.object({
+const macroLocalCommandSchema = z.object({
   macro: z.string().describe('Name of the macro (key from macros section object)'),
   variables: z.record(z.union([z.string(), z.number()])).optional().describe('Object of a key-values of variable name and value'),
 })
@@ -66,15 +63,24 @@ const runMacroCommandSchema = z.object({
   }).describe('Runs a macro from the macros section.');
 
 const unknownCommandSchema = z.lazy(() => z.union([
-  commandSchema,
-  runMacroCommandSchema,
-  evaluateVariableSchema,
-  transactionSchema,
+  remoteCommandSchema,
+  macroLocalCommandSchema,
+  expressionLocalCommandSchema,
+  transactionLocalCommandSchema,
+  threadsLocalCommandSchema,
 ]).describe('A remote command or a macro name'));
 
-const transactionSchema: ZodType<any> = z.lazy(() => z.object({
+const transactionLocalCommandSchema: ZodType<any> = z.lazy(() => z.object({
   commands: z.array(unknownCommandSchema).describe('Set of commands for this transaction'),
   transaction: z.string().describe('Transaction name'),
+}));
+
+const threadLocalCommandsSchema =z.array(unknownCommandSchema)
+  .describe('List of commands for this thread');
+
+const threadsLocalCommandSchema: ZodType<any> = z.lazy(() => z.object({
+  threads: z.array(threadLocalCommandsSchema)
+    .describe('List of threads'),
 }));
 
 const macroVariablesDescriptionSchema = z.record(z.object({
@@ -85,7 +91,7 @@ const macroVariablesDescriptionSchema = z.record(z.object({
   .optional())
   .describe('Set of variables descriptors for macro');
 
-const evaluateVariableSchema = z.object({
+const expressionLocalCommandSchema = z.object({
   assignVariable: z.string().describe('Variable name to assign to'),
   expression: z.string().superRefine((expr, ctx) => {
     try {
@@ -114,27 +120,33 @@ const macrosDefinitionSchema = z.record(macroSchema)
   .optional()
   .describe('A map of macros where a key is the macro name and value is its body');
 
-type EvaluateVariableCommand = z.infer<typeof evaluateVariableSchema>;
-type MacroCommand = z.infer<typeof runMacroCommandSchema>
-type TransactionCommand = z.infer<typeof transactionSchema>
+type ExpressionLocalCommand = z.infer<typeof expressionLocalCommandSchema>;
+type MacroLocalCommand = z.infer<typeof macroLocalCommandSchema>
+type TransactionLocalCommand = z.infer<typeof transactionLocalCommandSchema>
+type ThreadsLocalCommand = z.infer<typeof threadsLocalCommandSchema>
+type ThreadLocalCommand = z.infer<typeof threadLocalCommandsSchema>
 type UnkownCommand = z.infer<typeof unknownCommandSchema>
 type MacroList = z.infer<typeof macrosDefinitionSchema>
 type VariablesDefinition = z.infer<typeof macroVariablesDescriptionSchema>
 
 export {
-  runMacroCommandSchema,
+  threadsLocalCommandSchema,
+  macroLocalCommandSchema,
   unknownCommandSchema,
-  evaluateVariableSchema,
-  transactionSchema,
+  expressionLocalCommandSchema,
+  transactionLocalCommandSchema,
   macroVariablesDescriptionSchema,
   macroSchema,
+  threadLocalCommandsSchema,
   macrosDefinitionSchema,
 };
 
 export type {
-  MacroCommand,
-  TransactionCommand,
-  EvaluateVariableCommand,
+  ThreadLocalCommand,
+  ThreadsLocalCommand,
+  MacroLocalCommand,
+  TransactionLocalCommand,
+  ExpressionLocalCommand,
   VariablesDefinition,
   UnkownCommand,
   MacroList,

@@ -14,13 +14,13 @@ import {
 } from '@nestjs/common';
 import {schemaRootCache} from '@/config/types/cache';
 import {Variables} from '@/config/types/variables';
-import {MacroList} from '@/config/types/macros';
-import {ShortsData} from '@/config/types/shortcut';
+import {Shortcut} from '@/config/types/shortcut';
 import {ConfigProvider} from '@/config/interfaces';
 import {ConfigReaderService} from '@/config/config-reader-service';
 import clc from 'cli-color';
 import {DelayData} from '@/config/types/delays';
 import {ConfigCombination} from '@/config/config-model';
+import {MacroList} from "@/config/types/local-commands";
 
 @Injectable()
 export class ConfigService implements ConfigProvider {
@@ -78,7 +78,7 @@ export class ConfigService implements ConfigProvider {
     schemaRootCache.data = null!;
     schemaRootCache.macros = null!;
 
-    const combinations = (this.configData.combinations as ShortsData[])
+    const combinations = (this.configData.combinations as Shortcut[])
         .map((combination): ConfigCombination => ({
           shortCut: combination.shortCut,
           name: combination.name,
@@ -109,7 +109,7 @@ export class ConfigService implements ConfigProvider {
     return this.configData!.rgb;
   }
 
-  public getCombinations(): ShortsData[] {
+  public getCombinations(): Shortcut[] {
     return this.configData!.combinations;
   }
 

@@ -1,18 +1,6 @@
 /* eslint-disable max-lines*/
-import {
-  z,
-  ZodIssueCode,
-} from 'zod';
-import {
-  commandSchema,
-} from '@/config/types/commands';
-import {unknownCommandSchema} from '@/config/types/macros';
-
-
-const commandsAndMacrosArraySchema = z.array(unknownCommandSchema)
-  .describe('A set of events that executed sequentially in this thread');// Define the schema for the 'combinations'
-
-const commandWoMacroArraySchema = z.array(commandSchema).describe('A set of events that executed sequentially in this thread');
+import {z, ZodIssueCode} from 'zod';
+import {unknownCommandSchema} from "@/config/types/local-commands";
 
 /* eslint-disable array-element-newline */
 const allowedKeys = [
@@ -71,11 +59,12 @@ const shortCut = z
   .describe('A shorcut to be pressed. E.g. Alt+1');
 
 
-const baseShortCutMappingSchema = z.object({
+const shortcutSchema = z.object({
   delayAfter: z.number().optional().describe('Delay in milliseconds after each command for this shorcut'),
   delayBefore: z.number().optional().describe('Delay in milliseconds before each command for this shorcut'),
   name: z.string().describe('Name that is printed during startup with a shorcut'),
   shortCut,
+  commands: z.array(unknownCommandSchema).describe('List of commands for this shortcut'),
   // singleton: z.boolean().default(false).optional()
   //     .describe('If set to true pressing this shortcut again would be ignored if previous is still running'),
   iterations: z.number()
@@ -84,33 +73,7 @@ const baseShortCutMappingSchema = z.object({
       'is pressed again or number of iteration is finished. pass -1 for infinity'),
 }).strict();
 
-const commandsSchema = z.array(commandSchema);
-const shortcutMappingWithMacroSchema = z.object({
-  commands: commandsAndMacrosArraySchema.optional().describe('List of commands for different commands'),
-  threads: z.array(commandsAndMacrosArraySchema).optional()
-    .describe('This option should be defined only if commands attribute is absent.' +
-      ' Same as commands but array of arrays of commands. Top level of array executes in parallel'),
-})
-  .strict().merge(baseShortCutMappingSchema).refine(
-    (data) =>
-      (data.commands && !data.threads) ?? (!data.commands && data.threads),
-    {
-      message: 'Either commands or threads must be present, but not both.',
-      path: ['commands', 'threads'], // Error will be shown for both fields
-    }
-  );
-
-const randomShortCutMappingSchema = z.object({
-  commands: z.array(commandSchema).describe('List of commands for different commands'),
-})
-  .merge(baseShortCutMappingSchema)
-  .describe('An event schema that represent a set of commands that is executed when a certain shortkey is pressed');
-
-
-
-const shortCutMappingSchema = z.union([shortcutMappingWithMacroSchema, randomShortCutMappingSchema]);
-
-const combinationList = z.array(shortCutMappingSchema)
+const shortcutsSchema = z.array(shortcutSchema)
   .superRefine((combinations, ctx) => {
     const shortCuts = new Map<string, number>();
     combinations.forEach((value, i) => {
@@ -125,23 +88,16 @@ const combinationList = z.array(shortCutMappingSchema)
     });
   }).describe('Shorcuts mappings. Main logic');
 
-type ShortsData = z.infer<typeof shortCutMappingSchema>;
-type RandomShortcutMapping = z.infer<typeof randomShortCutMappingSchema>;
-type MacroShortcutMapping = z.infer<typeof shortcutMappingWithMacroSchema>;
+type Shortcut = z.infer<typeof shortcutSchema>;
+type Shortscut = z.infer<typeof shortcutsSchema>;
 
 export type {
-  ShortsData,
-  RandomShortcutMapping,
-  MacroShortcutMapping,
+  Shortcut,
+  Shortscut,
 };
 
 export {
-  randomShortCutMappingSchema,
-  shortcutMappingWithMacroSchema,
   shortCut,
-  commandSchema,
-  commandsAndMacrosArraySchema,
-  commandsSchema,
-  combinationList,
-  unknownCommandSchema,
+  shortcutSchema,
+  shortcutsSchema,
 };

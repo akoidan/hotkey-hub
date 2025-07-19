@@ -1,11 +1,11 @@
-import {Command, FindProcessWindowsCommand} from '@/config/types/commands';
-import {CommandHandler} from '@/handlers/command-handler.service';
 import {ConfigService} from '@/config/config-service';
 import {Injectable} from '@nestjs/common';
 import {ClientService} from '@/client/client-service';
+import {FindProcessWindowsRemoteCommand, RemoteCommand} from '@/config/types/remote-commands';
+import {CommandRemoteHandler} from '@/handlers/command-remote-handler';
 
 @Injectable()
-export class FindProcessWindowsHandler extends CommandHandler {
+export class FindProcessWindowsRemoteHandler extends CommandRemoteHandler {
   constructor(
     clientService: ClientService,
     private readonly configService: ConfigService,
@@ -13,11 +13,11 @@ export class FindProcessWindowsHandler extends CommandHandler {
     super(clientService);
   }
 
-  canHandle(command: Command): command is FindProcessWindowsCommand {
-    return 'findProcessWindows' in command;
+  canHandle(command: RemoteCommand): command is FindProcessWindowsRemoteCommand {
+    return Boolean((command as FindProcessWindowsRemoteCommand).findProcessWindows);
   }
 
-  async execute(destination: string, command: FindProcessWindowsCommand): Promise<void> {
+  async execute(destination: string, command: FindProcessWindowsRemoteCommand): Promise<void> {
     const response = await this.clientService.getProcessWindows(destination, command.findProcessWindows);
 
     if (command.assignIds) {

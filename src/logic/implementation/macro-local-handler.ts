@@ -1,32 +1,31 @@
 import {Injectable} from '@nestjs/common';
 import {ConfigService} from '@/config/config-service';
-import {UnkownCommand, MacroCommand} from '@/config/types/macros';
 import {VariableResolutionService} from '@/logic/variable-resolution.service';
 import {DelayService} from '@/logic/delay.service';
-import {BaseProcessingService} from '@/logic/implementation/base-processing.service';
+import {BaseLocalHandler} from '@/logic/implementation/base-local-handler';
+import {MacroLocalCommand, UnkownCommand} from '@/config/types/local-commands';
 
 @Injectable()
-export class MacroProcessingService extends BaseProcessingService {
-
+export class MacroLocalHandler extends BaseLocalHandler {
   constructor(
-      private readonly configService: ConfigService,
-      private readonly variableService: VariableResolutionService,
-      private readonly delayService: DelayService,
+    private readonly configService: ConfigService,
+    private readonly variableService: VariableResolutionService,
+    private readonly delayService: DelayService,
   ) {
     super();
   }
 
-  canHandle(command: UnkownCommand): command is MacroCommand {
-    return Boolean((command as MacroCommand).macro);
+  canHandle(command: UnkownCommand): command is MacroLocalCommand {
+    return Boolean((command as MacroLocalCommand).macro);
   }
 
   public async execute(
-    input: MacroCommand,
+    input: MacroLocalCommand,
     combDelayAfter: number | undefined,
     combDelayBefore: number | undefined,
     tId: string | undefined,
   ): Promise<void> {
-    const executable = this.configService.getMacros()[(input as MacroCommand).macro];
+    const executable = this.configService.getMacros()[input.macro];
     if (typeof input.delayBefore === 'number') { // ignore if it's a variable or undefined
       // if it's a macro, delay in this macro won't be passed down
       // but would be await after any commands in this macro has run yet as expected, this is why on top we are not passing it
@@ -34,9 +33,9 @@ export class MacroProcessingService extends BaseProcessingService {
     }
     for (const command of executable.commands) {
       const preparedCommand = this.variableService.replacePlaceholders(
-          command,
-          (input as MacroCommand).variables,
-          executable.variables
+        command,
+        input.variables,
+        executable.variables
       );
       const delayA = (preparedCommand.delayAfter as number | undefined) ?? combDelayAfter;
       const delayB = (preparedCommand.delayBefore as number | undefined) ?? combDelayBefore;

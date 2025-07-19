@@ -5,9 +5,9 @@ import {ClientService} from '@/client/client-service';
 import {Logger} from '@nestjs/common';
 import {ConfigService} from '@/config/config-service';
 import {ConfigReaderService} from '@/config/config-reader-service';
-import {handlerProviders} from '@/handlers/handler-module';
+import {remoteHandlerProviders} from '../src/handlers/remote-handler-module';
 import {VariableResolutionService} from '@/logic/variable-resolution.service';
-import {CommandProcessingService} from '../src/logic/implementation/command-processing.service';
+import {RemoteCommandHandler} from '../src/logic/implementation/remote-command-handler';
 import path from 'path';
 import {AsyncStorageModule} from '@/asyncstore/async-storage.module';
 import {RandomModule} from "@/random/random.module";
@@ -20,12 +20,12 @@ async function getTestModule(configFilePath: string): Promise<TestingModule> {
   return Test.createTestingModule({
     imports: [AsyncStorageModule, RandomModule, SemaphorModule],
     providers: [
-      ...handlerProviders,
+      ...remoteHandlerProviders,
       ...processingProviders,
       ShortcutProcessingService,
       DelayService,
       VariableResolutionService,
-      CommandProcessingService,
+      RemoteCommandHandler,
       {
         provide: ClientService,
         useClass: class Empty {

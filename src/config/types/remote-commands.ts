@@ -39,7 +39,7 @@ const baseSchema = z.object({
 }).strict().merge(delayCommandsSchema);
 
 
-const keyPressCommandSchema = z.object({
+const keyPressRemoteCommandSchema = z.object({
   keySend: z.union([keySchema, variableValueSchema, z.array(keySchema)])
     .describe('Key that will be pressed'),
   duration: z.number().min(50).optional().describe('duration of key being pressed'),
@@ -49,31 +49,31 @@ const keyPressCommandSchema = z.object({
     .describe('Keys that will be hold during pressing main key. E.g if you need to send Alt+1, here goes Alt'),
 }).strict().merge(baseSchema).describe('Sends a key press event (like you pressed on a keyboard) to a remote PC.');
 
-const launchExeCommandSchema = z.object({
+const launchExeRemoteCommandSchema = z.object({
   launch: z.string().describe('Full path to an executable.'),
   arguments: z.array(z.string()).optional().describe('Array of arguments to an executable'),
   waitTillFinish: z.boolean().optional().describe('Waits until executable finishes to run before running the next command'),
   assignId: z.string().optional().describe('Assigns PID of launched command to a variable that can be used after'),
 }).strict().merge(baseSchema).describe('Starts a program on a remote PC.');
 
-const focusProcessWindowCommandSchema = z.object({
+const focusProcessWindowRemoteCommandSchema = z.object({
   focusPid: z.union([variableValueSchema, z.number()]).describe('Pid of the process that has this window'),
 }).strict().merge(baseSchema).describe('Focuses window with the provided PID, making it active');
 
-const focusWindowCommandSchema = z.object({
+const focusWindowRemoteCommandSchema = z.object({
   focusWid: z.union([variableValueSchema, z.number()]).describe('Windows Id to focus'),
 }).strict().merge(baseSchema).describe('Focuses window by id. Windows Ids can be fetches with findProcessesWindows');
 
-const typeTextCommandSchema = z.object({
+const typeTextRemoteCommandSchema = z.object({
   typeText: z.union([z.string(), variableValueSchema]).describe('Any string to type'),
 }).strict().merge(baseSchema).describe('Types text on the remote PC.');
 
-const findPidsByNameSchema = z.object({
+const findPidsByNameRemoteCommandSchema = z.object({
   findPidsByName: z.string().describe('Name of the executalbe to search for process IDs'),
   assignIds: z.string().optional().describe('Assigns Ids of PIDs to a variable'),
 }).strict().merge(baseSchema).describe('Finds all processes with specified name');
 
-const findProcessWindowsSchema = z.object({
+const findProcessWindowsRemoteCommandSchema = z.object({
   findProcessWindows: z.number().describe('Process ID to get windows IDs from'),
   assignIds: z.string().optional().describe('Assigns Ids of found windows to a variable'),
 }).strict().merge(baseSchema).describe('Finds all windows of the process');
@@ -81,99 +81,99 @@ const findProcessWindowsSchema = z.object({
 const pickAssignmentPolicy = z.enum(['first', 'last', 'all'])
     .describe('If multiple ids are returned assign policy. If not specified first would be used');
 
-const findProcessesWindowsSchema = z.object({
+const findProcessesWindowsRemoteCommandSchema = z.object({
   findProcessesWindows: z.union([z.array(z.number()), variableValueSchema])
       .describe('Processes IDs to get windows IDs from. Should be array length matching variable names'),
   assignIds: z.array(z.string()).optional().describe('Assigns Ids of found windows to a variable'),
   pick: pickAssignmentPolicy.optional(),
 }).strict().merge(baseSchema).describe('Finds all windows of the process');
 
-const mouseMoveClickCommandSchema = z.object({
+const mouseMoveClickRemoteCommandSchema = z.object({
   mouseMoveX: z.union([z.number(), variableValueSchema]).describe('X coordinate'),
   mouseMoveY: z.union([z.number(), variableValueSchema]).describe('Y coordinate'),
 }).strict().merge(baseSchema).describe('Moves mouse to specified coordinates and clicks with left button');
 
-const leftMouseClickCommandSchema = z.object({
+const leftMouseClickRemoteCommandSchema = z.object({
   leftMouseClick: z.boolean(),
 }).strict().merge(baseSchema).describe('Clicks mouse on current position');
 
-const killExeByNameCommandSchema = z.object({
+const killExeByNameRemoteCommandSchema = z.object({
   killByName: z.union([z.string(), variableValueSchema]).describe('Executable file name. E.g. Chrome.exe'),
 }).strict().merge(baseSchema).describe('Kills a process on the remote PC.');
 
-const killExeByPidCommandSchema = z.object({
+const killExeByPidRemoteCommandSchema = z.object({
   killByPid: z.union([z.number(), variableValueSchema]).describe('Executalbe process ID. E.g. 1234'),
 }).strict().merge(baseSchema).describe('Kills a process on the remote PC.');
 
-const commandSchema = z.union([
-  keyPressCommandSchema,
-  leftMouseClickCommandSchema,
-  mouseMoveClickCommandSchema,
-  launchExeCommandSchema,
-  focusProcessWindowCommandSchema,
-  focusWindowCommandSchema,
-  typeTextCommandSchema,
-  killExeByPidCommandSchema,
-  killExeByNameCommandSchema,
-  findPidsByNameSchema,
-  findProcessWindowsSchema,
-  findProcessesWindowsSchema,
+const remoteCommandSchema = z.union([
+  keyPressRemoteCommandSchema,
+  leftMouseClickRemoteCommandSchema,
+  mouseMoveClickRemoteCommandSchema,
+  launchExeRemoteCommandSchema,
+  focusProcessWindowRemoteCommandSchema,
+  focusWindowRemoteCommandSchema,
+  typeTextRemoteCommandSchema,
+  killExeByPidRemoteCommandSchema,
+  killExeByNameRemoteCommandSchema,
+  findPidsByNameRemoteCommandSchema,
+  findProcessWindowsRemoteCommandSchema,
+  findProcessesWindowsRemoteCommandSchema,
 ]).describe('A remote command');
 
 
-type TypeTextCommand = z.infer<typeof typeTextCommandSchema>
-type FocusProcessWindowCommand = z.infer<typeof focusProcessWindowCommandSchema>
-type FocusWindowCommand = z.infer<typeof focusWindowCommandSchema>
-type KeyPressCommand = z.infer<typeof keyPressCommandSchema>
-type BaseCommand = z.infer<typeof baseSchema>
-type MouseMoveClickCommand = z.infer<typeof mouseMoveClickCommandSchema>
-type LeftMouseClickCommand = z.infer<typeof leftMouseClickCommandSchema>
-type ExecuteCommand = z.infer<typeof launchExeCommandSchema>
-type Command = z.infer<typeof commandSchema>
+type TypeTextRemoteCommand = z.infer<typeof typeTextRemoteCommandSchema>
+type FocusProcessWindowRemoteCommand = z.infer<typeof focusProcessWindowRemoteCommandSchema>
+type FocusWindowRemoteCommand = z.infer<typeof focusWindowRemoteCommandSchema>
+type KeyPressRemoteCommand = z.infer<typeof keyPressRemoteCommandSchema>
+type BaseRemoteCommand = z.infer<typeof baseSchema>
+type MouseMoveClickRemoteCommand = z.infer<typeof mouseMoveClickRemoteCommandSchema>
+type LeftMouseClickRemoteCommand = z.infer<typeof leftMouseClickRemoteCommandSchema>
+type ExecuteRemoteCommand = z.infer<typeof launchExeRemoteCommandSchema>
+type RemoteCommand = z.infer<typeof remoteCommandSchema>
 type Key = z.infer<typeof keySchema>;
 
 
-type KillExeByPidCommand = z.infer<typeof killExeByPidCommandSchema>
-type KillExeByNameCommand = z.infer<typeof killExeByNameCommandSchema>
+type KillExeByPidRemoteCommand = z.infer<typeof killExeByPidRemoteCommandSchema>
+type KillExeByNameRemoteCommand = z.infer<typeof killExeByNameRemoteCommandSchema>
 
-type FindPidsByNameCommand = z.infer<typeof findPidsByNameSchema>
-type FindProcessWindowsCommand = z.infer<typeof findProcessWindowsSchema>
-type FindProcessesWindowsCommand = z.infer<typeof findProcessesWindowsSchema>
+type FindPidsByNameRemoteCommand = z.infer<typeof findPidsByNameRemoteCommandSchema>
+type FindProcessWindowsRemoteCommand = z.infer<typeof findProcessWindowsRemoteCommandSchema>
+type FindProcessesWindowsRemoteCommand = z.infer<typeof findProcessesWindowsRemoteCommandSchema>
 
 export type {
-  TypeTextCommand,
-  KeyPressCommand,
-  BaseCommand,
-  MouseMoveClickCommand,
-  LeftMouseClickCommand,
-  FocusProcessWindowCommand,
-  FocusWindowCommand,
-  ExecuteCommand,
-  Command,
+  TypeTextRemoteCommand,
+  KeyPressRemoteCommand,
+  BaseRemoteCommand,
+  MouseMoveClickRemoteCommand,
+  LeftMouseClickRemoteCommand,
+  FocusProcessWindowRemoteCommand,
+  FocusWindowRemoteCommand,
+  ExecuteRemoteCommand,
+  RemoteCommand,
   Key,
-  KillExeByPidCommand,
-  KillExeByNameCommand,
-  FindPidsByNameCommand,
-  FindProcessWindowsCommand,
-  FindProcessesWindowsCommand,
+  KillExeByPidRemoteCommand,
+  KillExeByNameRemoteCommand,
+  FindPidsByNameRemoteCommand,
+  FindProcessWindowsRemoteCommand,
+  FindProcessesWindowsRemoteCommand,
 };
 
 export {
   keySchema,
   variableValueSchema,
   delayCommandsSchema,
-  keyPressCommandSchema,
-  launchExeCommandSchema,
-  focusProcessWindowCommandSchema,
-  typeTextCommandSchema,
-  mouseMoveClickCommandSchema,
-  leftMouseClickCommandSchema,
-  killExeByNameCommandSchema,
-  killExeByPidCommandSchema,
-  commandSchema,
-  findPidsByNameSchema,
-  findProcessWindowsSchema,
-  findProcessesWindowsSchema,
-  focusWindowCommandSchema,
+  keyPressRemoteCommandSchema,
+  launchExeRemoteCommandSchema,
+  focusProcessWindowRemoteCommandSchema,
+  typeTextRemoteCommandSchema,
+  mouseMoveClickRemoteCommandSchema,
+  leftMouseClickRemoteCommandSchema,
+  killExeByNameRemoteCommandSchema,
+  killExeByPidRemoteCommandSchema,
+  remoteCommandSchema,
+  findPidsByNameRemoteCommandSchema,
+  findProcessWindowsRemoteCommandSchema,
+  findProcessesWindowsRemoteCommandSchema,
+  focusWindowRemoteCommandSchema,
 };
 

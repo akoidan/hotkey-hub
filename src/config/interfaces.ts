@@ -2,7 +2,7 @@ import type {
   IpsData,
   RgbData,
 } from '@/config/types/schema';
-import type {ShortsData} from '@/config/types/shortcut';
+import type {Shortcut} from '@/config/types/shortcut';
 import type {MacroList} from '@/config/types/macros';
 import type {Variables} from '@/config/types/variables';
 import type {DelayData} from '@/config/types/delays';
@@ -12,7 +12,7 @@ export interface ConfigProvider {
 
   getOpenRgb(): RgbData;
 
-  getCombinations(): ShortsData[];
+  getCombinations(): Shortcut[];
 
   getMacros(): NonNullable<MacroList>;
 

@@ -1,11 +1,11 @@
-import {Command, FindPidsByNameCommand} from '@/config/types/commands';
-import {CommandHandler} from '@/handlers/command-handler.service';
 import {ConfigService} from '@/config/config-service';
 import {Injectable} from '@nestjs/common';
 import {ClientService} from '@/client/client-service';
+import {FindPidsByNameRemoteCommand, RemoteCommand} from '@/config/types/remote-commands';
+import {CommandRemoteHandler} from '@/handlers/command-remote-handler';
 
 @Injectable()
-export class FindPidsByNameHandler extends CommandHandler {
+export class FindPidsByNameRemoteHandler extends CommandRemoteHandler {
   constructor(
     clientService: ClientService,
     private readonly configService: ConfigService,
@@ -13,11 +13,11 @@ export class FindPidsByNameHandler extends CommandHandler {
     super(clientService);
   }
 
-  canHandle(command: Command): command is FindPidsByNameCommand {
-    return 'findPidsByName' in command;
+  canHandle(command: RemoteCommand): command is FindPidsByNameRemoteCommand {
+    return Boolean((command as FindPidsByNameRemoteCommand).findPidsByName);
   }
 
-  async execute(destination: string, command: FindPidsByNameCommand): Promise<void> {
+  async execute(destination: string, command: FindPidsByNameRemoteCommand): Promise<void> {
     const response = await this.clientService.findPidsByName(destination, {
       name: command.findPidsByName,
     });

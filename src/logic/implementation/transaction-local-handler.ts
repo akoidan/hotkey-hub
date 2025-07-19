@@ -1,34 +1,34 @@
 import {Injectable} from '@nestjs/common';
-import {MacroCommand, TransactionCommand, UnkownCommand} from '@/config/types/macros';
 import {DelayService} from '@/logic/delay.service';
 import {SemaphorService} from '@/semaphor/semaphor-service';
-import {BaseProcessingService} from '@/logic/implementation/base-processing.service';
-import {VariableResolutionService} from "@/logic/variable-resolution.service";
+import {BaseLocalHandler} from '@/logic/implementation/base-local-handler';
+import {VariableResolutionService} from '@/logic/variable-resolution.service';
+import {TransactionLocalCommand, UnkownCommand} from '@/config/types/local-commands';
 
 @Injectable()
-export class TransactionProcessingService extends BaseProcessingService {
+export class TransactionLocalHandler extends BaseLocalHandler {
   constructor(
-      private readonly semaphoreService: SemaphorService,
-      private readonly delayService: DelayService,
-      private readonly variableService: VariableResolutionService,
+    private readonly semaphoreService: SemaphorService,
+    private readonly delayService: DelayService,
+    private readonly variableService: VariableResolutionService,
   ) {
     super();
   }
 
-  canHandle(command: UnkownCommand): command is TransactionCommand {
-    return Boolean((command as TransactionCommand).transaction);
+  canHandle(command: UnkownCommand): command is TransactionLocalCommand {
+    return Boolean((command as TransactionLocalCommand).transaction);
   }
 
 
   async execute(
-    input: TransactionCommand,
+    input: TransactionLocalCommand,
     combDelayAfter: number | undefined,
     combDelayBefore: number | undefined,
     transactionId: string | undefined,
   ): Promise<void> {
     const preparedInput = this.variableService.replaceEnvVars(input);
     const tId = transactionId ?? this.semaphoreService.getNewTransactionId();
-    await this.semaphoreService.spawnChild(preparedInput.transaction, async() => {
+    await this.semaphoreService.spawnChild(`${preparedInput.transaction}-${tId}`, async() => {
       try {
         await this.semaphoreService.startTransaction(preparedInput.transaction, tId);
         if (typeof preparedInput.delayBefore === 'number') { // ignore if it's a variable or undefined

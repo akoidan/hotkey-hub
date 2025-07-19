@@ -1,11 +1,11 @@
-import {Command, FindProcessesWindowsCommand} from '@/config/types/commands';
-import {CommandHandler} from '@/handlers/command-handler.service';
 import {ConfigService} from '@/config/config-service';
 import {Injectable} from '@nestjs/common';
 import {ClientService} from '@/client/client-service';
+import {FindProcessesWindowsRemoteCommand, RemoteCommand} from '@/config/types/remote-commands';
+import {CommandRemoteHandler} from '@/handlers/command-remote-handler';
 
 @Injectable()
-export class FindProcessesWindowsHandler extends CommandHandler {
+export class FindProcessesWindowsRemoteHandler extends CommandRemoteHandler {
   constructor(
     clientService: ClientService,
     private readonly configService: ConfigService,
@@ -13,17 +13,17 @@ export class FindProcessesWindowsHandler extends CommandHandler {
     super(clientService);
   }
 
-  canHandle(command: Command): command is FindProcessesWindowsCommand {
-    return 'findProcessesWindows' in command;
+  canHandle(command: RemoteCommand): command is FindProcessesWindowsRemoteCommand {
+    return Boolean((command as FindProcessesWindowsRemoteCommand).findProcessesWindows);
   }
 
-  async execute(destination: string, command: FindProcessesWindowsCommand): Promise<void> {
+  async execute(destination: string, command: FindProcessesWindowsRemoteCommand): Promise<void> {
     const responses = await Promise.all((command.findProcessesWindows as number[])
-        .map(async(id) => this.clientService.getProcessWindows(destination, id)));
+      .map(async(id) => this.clientService.getProcessWindows(destination, id)));
     if (command.assignIds) {
-      for (let i = 0; i< command.findProcessesWindows.length; i++) {
+      for (let i = 0; i < command.findProcessesWindows.length; i++) {
         let id: any = null;
-        if (command.pick  === 'last') {
+        if (command.pick === 'last') {
           id = responses[i].wids[responses[i].wids.length - 1];
         } else if (command.pick === 'first') {
           // eslint-disable-next-line @typescript-eslint/prefer-destructuring

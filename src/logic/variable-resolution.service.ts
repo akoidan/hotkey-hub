@@ -3,11 +3,8 @@ import {
   Logger,
 } from '@nestjs/common';
 import {ConfigService} from '@/config/config-service';
-import {
-  MacroCommand,
-  VariablesDefinition,
-} from '@/config/types/macros';
 import {extractVariableName} from '@/config/types/variables';
+import {MacroLocalCommand, VariablesDefinition} from "@/config/types/local-commands";
 
 @Injectable()
 export class VariableResolutionService {
@@ -24,10 +21,7 @@ export class VariableResolutionService {
 
     const result: Partial<T> = {};
     for (const [key, value] of Object.entries(command) as [keyof T, T[keyof T]][]) {
-      if ((command as MacroCommand).variables && key === 'variables') {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        result[key] = this.handleVariablesObject(value as VariablesDefinition, values) as any;
-      } else if (Array.isArray(value)) {
+      if (Array.isArray(value)) {
         result[key] = value.map(item => this.replacePlaceholders(item, values, definition)) as any;
       } else if (typeof value === 'object') {
         result[key] = this.handleVariablesObject(value as VariablesDefinition, values) as any;
