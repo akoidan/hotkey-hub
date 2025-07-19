@@ -1,8 +1,8 @@
 import {Injectable} from '@nestjs/common';
-import {DelayService} from '@/logic/delay.service';
+import {DelayService} from '@/local/delay.service';
 import {SemaphorService} from '@/semaphor/semaphor-service';
-import {BaseLocalHandler} from '@/logic/implementation/base-local-handler';
-import {VariableResolutionService} from '@/logic/variable-resolution.service';
+import {BaseLocalHandler} from '@/local/implementation/base-local-handler';
+import {VariableResolutionService} from '@/local/variable-resolution.service';
 import {TransactionLocalCommand, UnkownCommand} from '@/config/types/local-commands';
 
 @Injectable()

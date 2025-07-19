@@ -1,5 +1,5 @@
 import type {FocusProcessWindowRemoteCommand, RemoteCommand} from '@/config/types/remote-commands';
-import {CommandRemoteHandler} from '@/handlers/command-remote-handler';
+import {CommandRemoteHandler} from '@/remote/command-remote-handler';
 
 export class FocusProcessWindowRemoteHandler extends CommandRemoteHandler {
   canHandle(command: RemoteCommand): command is FocusProcessWindowRemoteCommand {

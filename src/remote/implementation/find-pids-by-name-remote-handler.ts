@@ -2,7 +2,7 @@ import {ConfigService} from '@/config/config-service';
 import {Injectable} from '@nestjs/common';
 import {ClientService} from '@/client/client-service';
 import {FindPidsByNameRemoteCommand, RemoteCommand} from '@/config/types/remote-commands';
-import {CommandRemoteHandler} from '@/handlers/command-remote-handler';
+import {CommandRemoteHandler} from '@/remote/command-remote-handler';
 
 @Injectable()
 export class FindPidsByNameRemoteHandler extends CommandRemoteHandler {

@@ -1,6 +1,6 @@
 import {Injectable} from '@nestjs/common';
 import {SemaphorService} from '@/semaphor/semaphor-service';
-import {BaseLocalHandler} from '@/logic/implementation/base-local-handler';
+import {BaseLocalHandler} from '@/local/implementation/base-local-handler';
 import {ThreadLocalCommand, ThreadsLocalCommand, UnkownCommand} from '@/config/types/local-commands';
 
 @Injectable()

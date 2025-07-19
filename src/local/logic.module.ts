@@ -1,19 +1,19 @@
 import {Logger, Module} from '@nestjs/common';
 import {ConfigModule} from '@/config/config-module';
 import {ClientModule} from '@/client/client-module';
-import {ShortcutProcessingService} from '@/logic/shortcut-processing.service';
-import {VariableResolutionService} from '@/logic/variable-resolution.service';
-import {RemoteHandlerModule} from '@/handlers/remote-handler-module';
-import {RemoteCommandHandler} from '@/logic/implementation/remote-command-handler';
-import {DelayService} from '@/logic/delay.service';
+import {ShortcutProcessingService} from '@/local/shortcut-processing.service';
+import {VariableResolutionService} from '@/local/variable-resolution.service';
+import {RemoteHandlerModule} from '@/remote/remote-handler-module';
+import {RemoteCommandHandler} from '@/local/implementation/remote-command-handler';
+import {DelayService} from '@/local/delay.service';
 import {SemaphorModule} from '@/semaphor/semaphor.module';
 import {RandomModule} from '@/random/random.module';
 import {Provider} from '@nestjs/common/interfaces/modules/provider.interface';
-import {BaseLocalHandler} from '@/logic/implementation/base-local-handler';
-import {MacroLocalHandler} from '@/logic/implementation/macro-local-handler';
-import {TransactionLocalHandler} from '@/logic/implementation/transaction-local-handler';
-import {ExpressionLocalHandler} from '@/logic/implementation/expression-local-handler';
-import {ThreadsLocalHandler} from '@/logic/implementation/threads-local-handler';
+import {BaseLocalHandler} from '@/local/implementation/base-local-handler';
+import {MacroLocalHandler} from '@/local/implementation/macro-local-handler';
+import {TransactionLocalHandler} from '@/local/implementation/transaction-local-handler';
+import {ExpressionLocalHandler} from '@/local/implementation/expression-local-handler';
+import {ThreadsLocalHandler} from '@/local/implementation/threads-local-handler';
 
 
 const processingProviders: Provider[] = [

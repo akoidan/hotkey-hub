@@ -1,10 +1,10 @@
 import {Injectable, Logger} from '@nestjs/common';
 
-import {VariableResolutionService} from '@/logic/variable-resolution.service';
-import {CommandRemoteHandler} from '@/handlers/command-remote-handler';
-import {DelayService} from '@/logic/delay.service';
+import {VariableResolutionService} from '@/local/variable-resolution.service';
+import {CommandRemoteHandler} from '@/remote/command-remote-handler';
+import {DelayService} from '@/local/delay.service';
 import {SemaphorService} from '@/semaphor/semaphor-service';
-import {BaseLocalHandler} from '@/logic/implementation/base-local-handler';
+import {BaseLocalHandler} from '@/local/implementation/base-local-handler';
 import {UnkownCommand} from '@/config/types/local-commands';
 import {RemoteCommand} from '@/config/types/remote-commands';
 
