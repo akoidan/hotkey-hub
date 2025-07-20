@@ -19,12 +19,12 @@ export class MacroLocalHandler extends BaseLocalHandler {
     return Boolean((command as MacroLocalCommand).macro);
   }
 
-  public async execute(
+  public async *execute(
     input: MacroLocalCommand,
     combDelayAfter: number | undefined,
     combDelayBefore: number | undefined,
     tId: string | undefined,
-  ): Promise<void> {
+  ): AsyncGenerator<void> {
     const executable = this.configService.getMacros()[input.macro];
     if (typeof input.delayBefore === 'number') { // ignore if it's a variable or undefined
       // if it's a macro, delay in this macro won't be passed down
@@ -39,7 +39,7 @@ export class MacroLocalHandler extends BaseLocalHandler {
       );
       const delayA = (preparedCommand.delayAfter as number | undefined) ?? combDelayAfter;
       const delayB = (preparedCommand.delayBefore as number | undefined) ?? combDelayBefore;
-      await this.startChain.handle(preparedCommand, delayA, delayB, tId);
+      yield *this.startChain.handle(preparedCommand, delayA, delayB, tId);
     }
     // commands in this macro has been already ran in the loop
     // await delay before the next command after this macro runs

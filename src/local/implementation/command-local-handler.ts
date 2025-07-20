@@ -24,12 +24,12 @@ export class CommandLocalHandler extends BaseLocalHandler {
     return true;
   }
 
-  public async execute(
+  public async *execute(
     input: RemoteCommand,
     combDelayAfter: undefined | number,
     combDelayBefore: undefined | number,
     tId: string | undefined,
-  ): Promise<void> {
+  ): AsyncGenerator<void> {
     const currRec: RemoteCommand = this.variableService.replaceEnvVars(input);
     this.logger.debug(`Running ${JSON.stringify(input)}`);
     if (tId) {
@@ -38,14 +38,19 @@ export class CommandLocalHandler extends BaseLocalHandler {
       await this.delayService.awaitDelay(combDelayAfter, input.delayAfter as number | undefined, 'after', 'command');
     } else {
       const newTransactionId = this.semaphoreService.getNewTransactionId();
-      await this.semaphoreService.spawnChild(`${currRec.destination}-${newTransactionId}`, async() => {
+      const that = this;
+      this.logger.debug("yielding from command local");
+      yield *this.semaphoreService.spawnChild(`${currRec.destination}-${newTransactionId}`, async function* () {
         try {
-          await this.semaphoreService.startTransaction(currRec.destination, newTransactionId);
-          await this.delayService.awaitDelay(combDelayBefore, input.delayBefore as number | undefined, 'before', 'command');
-          await this.comandHandler.handle(currRec.destination, currRec);
-          await this.delayService.awaitDelay(combDelayAfter, input.delayAfter as number | undefined, 'after', 'command');
+          await that.semaphoreService.startTransaction(currRec.destination, newTransactionId);
+          await that.delayService.awaitDelay(combDelayBefore, input.delayBefore as number | undefined, 'before', 'command');
+          that.logger.debug("yielding from inner local local");
+          yield undefined;
+          that.logger.debug("after yield");
+          await that.comandHandler.handle(currRec.destination, currRec);
+          await that.delayService.awaitDelay(combDelayAfter, input.delayAfter as number | undefined, 'after', 'command');
         } finally {
-          this.semaphoreService.finishTransaction(currRec.destination, newTransactionId);
+          that.semaphoreService.finishTransaction(currRec.destination, newTransactionId);
         }
       });
     }

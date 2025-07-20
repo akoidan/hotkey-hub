@@ -19,18 +19,18 @@ export abstract class BaseLocalHandler {
     combDelayAfter: undefined | number,
     combDelayBefore: undefined | number,
     tId: string | undefined,
-  ): Promise<void>
+  ): AsyncGenerator<void>
 
-  public async handle(
+  public async *handle(
     input: UnkownCommand,
     combDelayAfter: undefined | number,
     combDelayBefore: undefined | number,
     tId: string | undefined,
-  ): Promise<void> {
+  ): AsyncGenerator<void> {
     if (this.canHandle(input)) {
-      await this.execute(input, combDelayAfter, combDelayBefore, tId);
+      yield *this.execute(input, combDelayAfter, combDelayBefore, tId);
     } else if (this.next) {
-      await this.next.handle(input, combDelayAfter, combDelayBefore, tId);
+      yield *this.next.handle(input, combDelayAfter, combDelayBefore, tId);
     } else {
       throw new Error(`No handler found for command type: ${JSON.stringify(input)}`);
     }

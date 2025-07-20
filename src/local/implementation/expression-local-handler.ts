@@ -18,7 +18,7 @@ export class ExpressionLocalHandler extends BaseLocalHandler {
   }
 
   /* eslint-disable */
-  async execute(command: ExpressionLocalCommand): Promise<void> {
+  async *execute(command: ExpressionLocalCommand): AsyncGenerator<void> {
     const variables = this.configService.getVariables();
     let expr = command.expression;
     const reserved = new Set(["this", "arguments", "eval", "function", "return", "var", "let", "const"]);

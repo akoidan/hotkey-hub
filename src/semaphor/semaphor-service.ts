@@ -42,11 +42,11 @@ export class SemaphorService {
     return this.asyncLocalStorage.getStore()!.get(SemaphorService.COMB_KEY) as string;
   }
 
-  public async spawnChild(i: string, cb: () => Promise<void>): Promise<void> {
+  public async *spawnChild(i: string, cb: () => AsyncGenerator<void>): AsyncGenerator<void> {
     const parentId = this.getCurrentOperationId();
     const newId = `${parentId}-${i}`;
     const newStorageMap: Map<string, any> = new Map<string, any>().set(SemaphorService.COMB_KEY, newId);
-    await this.asyncLocalStorage.run(newStorageMap, cb);
+    yield *this.asyncLocalStorage.run(newStorageMap, cb);
     this.logger.debug(`All actions for ${parentId} are completed`);
   }
 
