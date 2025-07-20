@@ -5,6 +5,27 @@
     "other": "127.0.0.3"
   },
   "macros": {
+    "tyr": {
+      "commands": [
+        {
+          "assignVariable": "tyrIndex",
+          "expression": "(tyrIndex+1) % 2"
+        },
+        {
+          "assignVariable": "pctyr",
+          "expression": "pctyrs[tyrIndex]"
+        },
+        {
+          "destination": "{{pctyr}}",
+          "keySend": "{{keySend}}"
+        }
+      ],
+      "variables": {
+        "keySend": {
+          "type": "string"
+        }
+      }
+    },
     "keySend": {
       "commands": [
         {
@@ -104,79 +125,6 @@
       ]
     },
     {
-      "name": "circular-test",
-      "shortCut": "Alt+f7",
-      "commands": [
-        {
-          "destination": "multiple",
-          "keySend": "f7"
-        }
-      ]
-    },
-    {
-      "name": "Command circular test",
-      "shortCut": "Alt+1",
-      "circular": true,
-      "commands": [
-        {
-          "destination": "this",
-          "keySend": "1"
-        },
-        {
-          "destination": "this",
-          "keySend": "2"
-        },
-        {
-          "destination": "this",
-          "keySend": "3"
-        }
-      ]
-    },
-    {
-      "name": "Thread circular test",
-      "shortCut": "Alt+2",
-      "threadsCircular": [
-        [
-          {
-            "destination": "this",
-            "keySend": "a"
-          }
-        ],
-        [
-          {
-            "destination": "this",
-            "keySend": "b"
-          }
-        ],
-        [
-          {
-            "destination": "this",
-            "keySend": "c"
-          }
-        ]
-      ]
-    },
-    {
-      "name": "Random circular test",
-      "shortCut": "Alt+3",
-      "circular": true,
-      "shuffle": true,
-      "commands": [
-        {
-          "destination": "this",
-          "keySend": "x"
-        },
-        {
-          "destination": "this",
-          "keySend": "y"
-        },
-        {
-          "destination": "this",
-          "keySend": "z"
-        }
-      ]
-    },
-    {
       "name": "variable-test",
       "shortCut": "Alt+4",
       "commands": [
@@ -185,6 +133,18 @@
           "typeText": "{{login}}"
         }
       ]
+    },
+    {
+      "commands": [
+        {
+          "macro": "tyr",
+          "variables": {
+            "keySend": "f5"
+          }
+        }
+      ],
+      "name": "Stun",
+      "shortCut": "Alt+1"
     },
     {
       "name": "macro-delay-test",

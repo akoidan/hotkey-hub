@@ -60,8 +60,8 @@ const processingProviders: Provider[] = [
   ],
   exports: [ShortcutProcessingService],
 })
-class LogicModule {
+class LocalModule {
 
 }
 
-export {LogicModule, processingProviders};
+export {LocalModule, processingProviders};

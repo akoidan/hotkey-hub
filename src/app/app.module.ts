@@ -5,7 +5,7 @@ import {ConfigService} from '@/config/config-service';
 import {ClientModule} from '@/client/client-module';
 import {ClientService} from '@/client/client-service';
 import {ShortcutProcessingService} from '@/local/shortcut-processing.service';
-import {LogicModule} from '@/local/logic.module';
+import {LocalModule} from '@/local/local.module';
 import {NativeModule} from '@/native/native-module';
 import clc from 'cli-color';
 import {SemaphorService} from '@/semaphor/semaphor-service';
@@ -14,7 +14,7 @@ import {RgbModule} from '@/rgb/rgb.module';
 import {RgbService} from '@/rgb/rgb-service';
 
 @Module({
-  imports: [ConfigModule, ClientModule, LogicModule, NativeModule, SemaphorModule, RgbModule],
+  imports: [ConfigModule, ClientModule, LocalModule, NativeModule, SemaphorModule, RgbModule],
   providers: [Logger, HotkeyService],
   exports: [],
 })

@@ -1,4 +1,9 @@
 {
+  "tyrIndex": 1,
+  "pctyrs": [
+    "desktop",
+    "laptop"
+  ],
   "multiple": [
     "this",
     "that"
@@ -12,5 +17,6 @@
     "this",
     "that",
     "other"
-  ]
+  ],
+  "pctyr": "laptop"
 }

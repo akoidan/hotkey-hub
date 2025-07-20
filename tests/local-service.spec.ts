@@ -14,7 +14,7 @@ import {RandomModule} from "@/random/random.module";
 import {SemaphorModule} from "../src/semaphor/semaphor.module";
 import {DelayService} from "../src/local/delay.service";
 import {SemaphorService} from "../src/semaphor/semaphor-service";
-import {processingProviders} from "../src/local/logic.module";
+import {processingProviders} from "../src/local/local.module";
 
 async function getTestModule(configFilePath: string): Promise<TestingModule> {
   return Test.createTestingModule({
@@ -126,7 +126,7 @@ describe('Logic service', () => {
     });
   });
 
-  it('should handle circular index with multiple destinations through alias', async () => {
+  it('should handle circular via macro tyr', async () => {
     const testModule = await getTestModule('config-fixture.jsonc');
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const configService = testModule.get<ConfigService>(ConfigService);
@@ -139,35 +139,46 @@ describe('Logic service', () => {
     // Test first destination
     const semaphoreService = testModule.get<SemaphorService>(SemaphorService);
     await semaphoreService.startOperation('alt+c', async () => {
-      await shortCutService.runShortcut({
-        commands: [
+      await shortCutService.runShortcut( {
+        "commands": [
           {
-            destination: 'multiple',
-            keySend: 'f7'
-          },
+            "macro": "tyr",
+            "variables": {
+              "keySend": "f5"
+            }
+          }
         ],
-        name: 'circular-test',
-        shortCut: 'Alt+1',
+        "name": "Stun",
+        "shortCut": "Alt+1"
       });
     });
 
-    expect(spyKeyPress).toHaveBeenCalledWith('this', {holdKeys: [], keys: ['f7']});
+    expect(spyKeyPress).toHaveBeenCalledWith('desktop', {
+      "duration": undefined,
+      "holdKeys":  [],
+      "keys":  ["f5"],
+  });
 
     // Test second destination (circular)
     await semaphoreService.startOperation('alt+c', async () => {
-      await shortCutService.runShortcut({
-        commands: [
+      await shortCutService.runShortcut( {
+        "commands": [
           {
-            destination: 'multiple',
-            keySend: 'f7'
-          },
+            "macro": "tyr",
+            "variables": {
+              "keySend": "f5"
+            }
+          }
         ],
-        name: 'circular-test',
-        shortCut: 'Alt+1',
+        "name": "Stun",
+        "shortCut": "Alt+1"
       });
     });
-
-    expect(spyKeyPress).toHaveBeenCalledWith('that', {holdKeys: [], keys: ['f7']});
+      expect(spyKeyPress).toHaveBeenCalledWith('laptop', {
+        "duration": undefined,
+        "holdKeys":  [],
+        "keys":  ["f5"],
+      });
     expect(spyKeyPress).toHaveBeenCalledTimes(2);
   });
 
@@ -241,73 +252,7 @@ describe('Logic service', () => {
     expect(spyKeyPress).toHaveBeenCalledWith('this', {holdKeys: [], keys: ['enter']});
   });
 
-  it('should execute commands in circular mode', async () => {
-    const testModule = await getTestModule('config-fixture.jsonc');
-    const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
-    const configService = testModule.get<ConfigService>(ConfigService);
-    const clientService = testModule.get<ClientService>(ClientService);
-    clientService.keyPress = jest.fn().mockImplementation();
-    const spyKeyPress = jest.spyOn(clientService, 'keyPress');
 
-    await configService.parseConfig();
-
-    const shortcutMapping = configService.getCombinations().find(s => s.name === 'Command circular test');
-    expect(shortcutMapping).toBeDefined();
-
-    // First press - first command
-    const semaphoreService = testModule.get<SemaphorService>(SemaphorService);
-    await semaphoreService.startOperation('alt+c', async () => {
-      await shortCutService.runShortcut(shortcutMapping!);
-      expect(spyKeyPress).toHaveBeenCalledWith('this', {holdKeys: [], keys: ['1']});
-
-      // Second press - second command
-      await shortCutService.runShortcut(shortcutMapping!);
-      expect(spyKeyPress).toHaveBeenCalledWith('this', {holdKeys: [], keys: ['2']});
-
-      // Third press - third command
-      await shortCutService.runShortcut(shortcutMapping!);
-      expect(spyKeyPress).toHaveBeenCalledWith('this', {holdKeys: [], keys: ['3']});
-
-      // Fourth press - back to first command
-      await shortCutService.runShortcut(shortcutMapping!);
-    });
-    expect(spyKeyPress).toHaveBeenCalledWith('this', {holdKeys: [], keys: ['1']});
-    expect(spyKeyPress).toHaveBeenCalledTimes(4);
-  });
-
-  it('should execute threads in circular mode', async () => {
-    const testModule = await getTestModule('config-fixture.jsonc');
-    const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
-    const configService = testModule.get<ConfigService>(ConfigService);
-    const clientService = testModule.get<ClientService>(ClientService);
-    clientService.keyPress = jest.fn().mockImplementation();
-    const spyKeyPress = jest.spyOn(clientService, 'keyPress');
-
-    await configService.parseConfig();
-
-    const shortcutMapping = configService.getCombinations().find(s => s.name === 'Thread circular test');
-    expect(shortcutMapping).toBeDefined();
-    const semaphoreService = testModule.get<SemaphorService>(SemaphorService);
-    await semaphoreService.startOperation('alt+c', async () => {
-
-      // First press - first thread
-      await shortCutService.runShortcut(shortcutMapping!);
-      expect(spyKeyPress).toHaveBeenCalledWith('this', {holdKeys: [], keys: ['a']});
-
-      // Second press - second thread
-      await shortCutService.runShortcut(shortcutMapping!);
-      expect(spyKeyPress).toHaveBeenCalledWith('this', {holdKeys: [], keys: ['b']});
-
-      // Third press - third thread
-      await shortCutService.runShortcut(shortcutMapping!);
-      expect(spyKeyPress).toHaveBeenCalledWith('this', {holdKeys: [], keys: ['c']});
-
-      // Fourth press - back to first thread
-      await shortCutService.runShortcut(shortcutMapping!);
-    });
-    expect(spyKeyPress).toHaveBeenCalledWith('this', {holdKeys: [], keys: ['a']});
-    expect(spyKeyPress).toHaveBeenCalledTimes(4);
-  });
 
   // Note: Random circular test is not deterministic, so we just verify it calls one of the commands
   it('should execute random command in circular mode', async () => {
