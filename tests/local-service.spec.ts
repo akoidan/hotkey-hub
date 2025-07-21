@@ -46,6 +46,40 @@ async function getTestModule(configFilePath: string): Promise<TestingModule> {
 }
 
 describe('Logic service', () => {
+
+  it('asd', async () => {
+    const testModule = await getTestModule('config-fixture.jsonc');
+    const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
+    const tyrs = testModule.get<ConfigService>(ConfigService);
+    const clientService = testModule.get<ClientService>(ClientService);
+    clientService.keyPress = jest.fn().mockImplementation();
+    const spykeyPress = jest.spyOn(clientService, 'keyPress');
+    await tyrs.parseConfig();
+    const semaphoreService = testModule.get<SemaphorService>(SemaphorService);
+    await semaphoreService.startOperation('alt+2', async () => {
+      await shortCutService.runShortcut( {
+        "commands": [
+          {
+            "loop": -1,
+            "commands": [
+              {
+                "expression": "console.log(1)",
+                "assignVariable": "as"
+              }
+            ]
+          }
+        ],
+        "delayAfter": 0,
+        "delayBefore": 200,
+        "name": "Tyrs attack each other",
+        "shortCut": "Alt+2"
+      });
+    })
+    expect(spykeyPress).toHaveBeenCalledWith('this', {holdKeys: [], keys: ['f6']});
+  });
+
+
+
   it('should keySend client call', async () => {
     const testModule = await getTestModule('config-fixture.jsonc');
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
