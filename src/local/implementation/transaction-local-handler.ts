@@ -30,7 +30,6 @@ export class TransactionLocalHandler extends BaseLocalHandler {
     const preparedInput = this.variableService.replaceEnvVars(input);
     const tId = transactionId ?? this.semaphoreService.getNewTransactionId();
     const that = this;
-    that.logger.debug("Yielding from threadlocalhandler 1");
     yield *this.semaphoreService.spawnChild(`${preparedInput.transaction}-${tId}`, async function* ()  {
       try {
         await that.semaphoreService.startTransaction(preparedInput.transaction, tId);
@@ -42,7 +41,6 @@ export class TransactionLocalHandler extends BaseLocalHandler {
         for (const command of preparedInput.commands) {
           const delayA = (command.delayAfter as number | undefined) ?? combDelayAfter;
           const delayB = (command.delayBefore as number | undefined) ?? combDelayBefore;
-          that.logger.debug("Yielding from threadlocalhandler 2");
           yield *that.startChain.handle(command, delayA, delayB, tId);
         }
         // commands in this macro has been already ran in the loop
