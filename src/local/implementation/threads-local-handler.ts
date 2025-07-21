@@ -18,27 +18,26 @@ export class ThreadsLocalHandler extends BaseLocalHandler {
   }
 
 
-  async* mergeAsyncGenerators(gens:AsyncGenerator<void>[]): AsyncGenerator<void> {
-    const active = gens.map((gen, i) => ({gen: gen, index: i}));
-    const running = new Map(); // Map index -> pending Promise
-
-    // Kick off initial .next() for all generators
-    for (const {gen, index} of active) {
-      running.set(index, gen.next().then(res => ({...res, index, gen})));
-    }
-
-    while (running.size > 0) {
-      // Wait for the next generator that yields
-      const nextResult = await Promise.race(running.values());
-
-      const { done, index, gen} = nextResult;
-
-      if (done) {
-        running.delete(index);
+  async* mergeAsyncGenerators(gens: AsyncGenerator<void>[]): AsyncGenerator<void> {
+    const results = new Map<number, Promise<IteratorResult<void, void>>>();
+    
+    // Initialize all generators
+    gens.forEach((gen, index) => {
+      results.set(index, gen.next());
+    });
+    
+    while (results.size > 0) {
+      const [index, result] = await Promise.race(
+        Array.from(results.entries()).map(
+          ([i, p]) => p.then(r => [i, r] as [number, IteratorResult<void, void>])
+        )
+      );
+      
+      if (result.done) {
+        results.delete(index);
       } else {
         yield undefined;
-        // Schedule the next .next() from this generator
-        running.set(index, gen.next().then((res: any) => ({...res, index, gen})));
+        results.set(index, gens[index].next());
       }
     }
   }

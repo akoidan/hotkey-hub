@@ -40,9 +40,24 @@ export class SemaphorService {
   public async *spawnChild(i: string, cb: () => AsyncGenerator<void>): AsyncGenerator<void> {
     const parentId = this.getCurrentOperationId();
     const newId = `${parentId}-${i}`;
-    const newStorageMap: Map<string, any> = new Map<string, any>().set(SemaphorService.COMB_KEY, newId);
-    yield *this.asyncLocalStorage.run(newStorageMap, cb);
+    const newStorageMap = new Map<string, any>(this.asyncLocalStorage.getStore());
+    newStorageMap.set(SemaphorService.COMB_KEY, newId);
+
+    const gen = cb();
+    let result: IteratorResult<void, void>;
+    do {
+      // awaiting run here, so we would have asynlocalstorage context
+      // otherwise e.g. with this yield *this.asyncLocalStorage.run(newStorageMap, cb)
+      // we will lose context
+      result = await this.asyncLocalStorage.run(newStorageMap, async() => gen.next());
+      // yielding result from here, so we have context of asyncStorage, otherwise
+      if (!result.done) {
+        yield result.value;
+      }
+    } while (!result.done);
+
     this.logger.debug(`All actions for ${parentId} are completed`);
+    return result.value;
   }
 
   public finishTransaction(transactionGroup: string, transactionId: string): void {
