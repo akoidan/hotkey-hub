@@ -14,29 +14,27 @@ export class ShortcutProcessingService {
   }
 
   async runShortcut(comb: Shortcut): Promise<void> {
-    if (typeof comb.iterations === 'undefined') {
-
-      for (const command of comb.commands!) {
-        this.unkownCommandProcessor.handle(command, comb.delayAfter, comb.delayBefore, undefined)
-        for await (const operation of ) {
-        }
-      }
-    } else {
-      await this.runLoop(comb);
-    }
-  }
-
-  private async runLoop(comb: Shortcut): Promise<void> {
-    if (this.iterationsInProgress[comb.shortCut]) {
+    if (comb.pausable && this.iterationsInProgress[comb.shortCut]) {
       this.iterationsInProgress[comb.shortCut] = false;
       this.logger.log(`Halting ${clc.bold.green(comb.name)}. Waiting for its command to finish...`);
     } else {
-      this.logger.log(`Starting flow ${clc.bold.green(comb.name)}`);
-      this.iterationsInProgress[comb.shortCut] = true;
-
+      for (const command of comb.commands!) {
+        const generator = this.unkownCommandProcessor.handle(command, comb.delayAfter, comb.delayBefore, undefined);
+        let i = 0;
+        while (true) {
+          const {value, done} = await generator.next();
+          if (done) {
+            this.logger.log(`Finished flow ${clc.bold.green(comb.name)}`);
+            break;
+          }
+          this.logger.log(`Opration ${clc.bold.green(i++)} finished.`);
+          if (comb.pausable && !this.iterationsInProgress[comb.shortCut]) {
+            this.logger.log(`Terminating ${clc.bold.green(comb.name)}.`);
+            await generator.return(undefined);
+            return;
+          }
+        }
       }
-      this.iterationsInProgress[comb.shortCut] = false;
-      this.logger.log(`Finished flow ${clc.bold.green(comb.name)}`);
     }
   }
 }

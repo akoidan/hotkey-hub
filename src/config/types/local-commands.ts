@@ -68,6 +68,7 @@ const unknownCommandSchema = z.lazy(() => z.union([
   expressionLocalCommandSchema,
   transactionLocalCommandSchema,
   threadsLocalCommandSchema,
+  loopLocalCommandSchema,
 ]).describe('A remote command or a macro name'));
 
 const transactionLocalCommandSchema: ZodType<any> = z.lazy(() => z.object({

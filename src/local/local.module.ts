@@ -39,7 +39,7 @@ const processingProviders: Provider[] = [
       transaction: BaseLocalHandler,
       variable: BaseLocalHandler,
       thread: BaseLocalHandler,
-      loopLocalHandler: LoopLocalHandler,
+      loopLocalHandler: BaseLocalHandler,
       command: BaseLocalHandler,
     ): BaseLocalHandler => {
       macro.setNext(transaction, macro)

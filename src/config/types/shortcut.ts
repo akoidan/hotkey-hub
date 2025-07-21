@@ -65,8 +65,8 @@ const shortcutSchema = z.object({
   name: z.string().describe('Name that is printed during startup with a shorcut'),
   shortCut,
   commands: z.array(unknownCommandSchema).describe('List of commands for this shortcut'),
-  // singleton: z.boolean().default(false).optional()
-  //     .describe('If set to true pressing this shortcut again would be ignored if previous is still running'),
+  pausable: z.boolean().default(false).optional()
+      .describe('If set to true pressing this shortcut again would be cancel current run'),
 }).strict();
 
 const shortcutsSchema = z.array(shortcutSchema)
