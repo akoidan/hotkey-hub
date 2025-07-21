@@ -46,8 +46,7 @@ export class SemaphorService {
     const parentId = this.getCurrentOperationId();
     const newId = `${parentId}-${i}`;
     const newStorageMap: Map<string, any> = new Map<string, any>().set(SemaphorService.COMB_KEY, newId);
-    // TODO
-    yield * cb();
+    yield *this.asyncLocalStorage.run(newStorageMap, cb);
     this.logger.debug(`All actions for ${parentId} are completed`);
   }
 

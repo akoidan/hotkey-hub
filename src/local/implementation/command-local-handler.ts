@@ -39,20 +39,17 @@ export class CommandLocalHandler extends BaseLocalHandler {
     } else {
       const newTransactionId = this.semaphoreService.getNewTransactionId();
       const that = this;
-      this.logger.debug("yielding from command local");
       yield *this.semaphoreService.spawnChild(`${currRec.destination}-${newTransactionId}`, async function* () {
         try {
           await that.semaphoreService.startTransaction(currRec.destination, newTransactionId);
           await that.delayService.awaitDelay(combDelayBefore, input.delayBefore as number | undefined, 'before', 'command');
-          that.logger.debug("yielding from inner local local");
-          yield undefined;
-          that.logger.debug("after yield");
           await that.comandHandler.handle(currRec.destination, currRec);
           await that.delayService.awaitDelay(combDelayAfter, input.delayAfter as number | undefined, 'after', 'command');
         } finally {
           that.semaphoreService.finishTransaction(currRec.destination, newTransactionId);
         }
       });
+      yield undefined;
     }
   }
 }

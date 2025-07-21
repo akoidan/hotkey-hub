@@ -18,7 +18,7 @@ export class ThreadsLocalHandler extends BaseLocalHandler {
   }
 
 
-  async* mergeAsyncGenerators(gens:AsyncGenerator<void>[]) {
+  async* mergeAsyncGenerators(gens:AsyncGenerator<void>[]): AsyncGenerator<void> {
     const active = gens.map((gen, i) => ({gen: gen, index: i}));
     const running = new Map(); // Map index -> pending Promise
 
@@ -31,12 +31,12 @@ export class ThreadsLocalHandler extends BaseLocalHandler {
       // Wait for the next generator that yields
       const nextResult = await Promise.race(running.values());
 
-      const {value, done, index, gen} = nextResult;
+      const { done, index, gen} = nextResult;
 
       if (done) {
         running.delete(index);
       } else {
-        yield {thread: index, value};
+        yield undefined;
         // Schedule the next .next() from this generator
         running.set(index, gen.next().then((res: any) => ({...res, index, gen})));
       }
@@ -50,10 +50,7 @@ export class ThreadsLocalHandler extends BaseLocalHandler {
     transactionId: string | undefined,
   ): AsyncGenerator<void> {
     const that = this;
-    for await (const {
-      thread,
-      value,
-    } of this.mergeAsyncGenerators((comb.threads.map(async function* (receiver: ThreadLocalCommand, i: number): AsyncGenerator<void> {
+    yield *this.mergeAsyncGenerators((comb.threads.map(async function* (receiver: ThreadLocalCommand, i: number): AsyncGenerator<void> {
       that.logger.debug("Yielding from threadlocal 1");
       yield *that.semaphorService.spawnChild(String(i), async function* (): AsyncGenerator<void> {
         for (const command of receiver) {
@@ -61,9 +58,7 @@ export class ThreadsLocalHandler extends BaseLocalHandler {
           yield *that.startChain.handle(command, undefined, undefined, transactionId);
         }
       });
-    })))) {
-
-    };
+    })));
   }
 }
 
