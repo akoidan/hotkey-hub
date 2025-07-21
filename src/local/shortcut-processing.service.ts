@@ -18,19 +18,22 @@ export class ShortcutProcessingService {
       this.iterationsInProgress[comb.shortCut] = false;
       this.logger.log(`Halting ${clc.bold.green(comb.name)}. Waiting for its command to finish...`);
     } else {
+      this.iterationsInProgress[comb.shortCut] = true;
       for (const command of comb.commands!) {
         const generator = this.unkownCommandProcessor.handle(command, comb.delayAfter, comb.delayBefore, undefined);
         let i = 0;
         while (true) {
-          const {value, done} = await generator.next();
+          const {done} = await generator.next();
           if (done) {
             this.logger.log(`Finished flow ${clc.bold.green(comb.name)}`);
             break;
           }
-          this.logger.log(`Opration ${clc.bold.green(i++)} finished.`);
+          this.logger.debug(`Opration ${clc.bold.green(i++)} finished.`);
           if (comb.pausable && !this.iterationsInProgress[comb.shortCut]) {
             this.logger.log(`Terminating ${clc.bold.green(comb.name)}.`);
-            await generator.return(undefined);
+            // await return is not required, we just skip calling next
+            // also return is not technicaly correct cause we are mearing multiple generators in one manually in thread-local-handler
+            // await generator.return(undefined);
             return;
           }
         }
