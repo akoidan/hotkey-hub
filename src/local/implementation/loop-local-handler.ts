@@ -23,7 +23,7 @@ export class LoopLocalHandler extends BaseLocalHandler {
     transactionId: string | undefined,
   ): AsyncGenerator<void> {
     for (let i = 1; comb.loop < 0 || i < comb.iterations; i++) {
-      this.logger.log(`Running ${clc.yellow(i)} iteration of ${clc.bold.green(comb.name)}`);
+      this.logger.debug(`Running ${clc.yellow(i)} iteration of ${clc.bold.green(comb.name)}`);
       for (const command of comb.commands!) {
         yield *this.startChain.handle(command, comb.delayAfter, comb.delayBefore, undefined);
       }

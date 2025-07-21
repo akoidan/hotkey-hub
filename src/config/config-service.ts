@@ -8,10 +8,7 @@ import {
   variablesSchema,
 } from '@/config/types/schema';
 import {parse} from 'jsonc-parser';
-import {
-  Injectable,
-  Logger,
-} from '@nestjs/common';
+import {Injectable, Logger} from '@nestjs/common';
 import {schemaRootCache} from '@/config/types/cache';
 import {Variables} from '@/config/types/variables';
 import {Shortcut} from '@/config/types/shortcut';
@@ -20,7 +17,7 @@ import {ConfigReaderService} from '@/config/config-reader-service';
 import clc from 'cli-color';
 import {DelayData} from '@/config/types/delays';
 import {ConfigCombination} from '@/config/config-model';
-import {MacroList} from "@/config/types/local-commands";
+import {MacroList} from '@/config/types/local-commands';
 
 @Injectable()
 export class ConfigService implements ConfigProvider {
@@ -79,11 +76,11 @@ export class ConfigService implements ConfigProvider {
     schemaRootCache.macros = null!;
 
     const combinations = (this.configData.combinations as Shortcut[])
-        .map((combination): ConfigCombination => ({
-          shortCut: combination.shortCut,
-          name: combination.name,
-        }))
-        .sort((a, b) => a.shortCut.localeCompare(b.shortCut));
+      .map((combination): ConfigCombination => ({
+        shortCut: combination.shortCut,
+        name: combination.name,
+      }))
+      .sort((a, b) => a.shortCut.localeCompare(b.shortCut));
 
     combinations.forEach((combination) => {
       this.logger.log(`${clc.green.bold(combination.shortCut)}: ${combination.name}`);

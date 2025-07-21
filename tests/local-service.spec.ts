@@ -56,7 +56,7 @@ describe('Logic service', () => {
     const spykeyPress = jest.spyOn(clientService, 'keyPress');
     await tyrs.parseConfig();
     const semaphoreService = testModule.get<SemaphorService>(SemaphorService);
-    await semaphoreService.startOperation('alt+2', async () => {
+    await semaphoreService.runOperation('alt+2', async () => {
       await shortCutService.runShortcut({
         "commands": [
           {
@@ -88,7 +88,7 @@ describe('Logic service', () => {
     const spykeyPress = jest.spyOn(clientService, 'keyPress');
     await tyrs.parseConfig();
     const semaphoreService = testModule.get<SemaphorService>(SemaphorService);
-    await semaphoreService.startOperation('alt+2', async () => {
+    await semaphoreService.runOperation('alt+2', async () => {
       await shortCutService.runShortcut({
         "commands": [
           {
@@ -138,7 +138,7 @@ describe('Logic service', () => {
     const spykeyPress = jest.spyOn(clientService, 'keyPress');
     await tyrs.parseConfig();
     const semaphoreService = testModule.get<SemaphorService>(SemaphorService);
-    await semaphoreService.startOperation('alt+c', async () => {
+    await semaphoreService.runOperation('alt+c', async () => {
       await shortCutService.runShortcut({
         commands: [
           {
@@ -162,7 +162,7 @@ describe('Logic service', () => {
     const spyLaucnhExe = jest.spyOn(clientService, 'launchExe');
     await tyrs.parseConfig();
     const semaphoreService = testModule.get<SemaphorService>(SemaphorService);
-    await semaphoreService.startOperation('alt+c', async () => {
+    await semaphoreService.runOperation('alt+c', async () => {
       await shortCutService.runShortcut({
         commands: [
           {
@@ -192,7 +192,7 @@ describe('Logic service', () => {
     const spyLaucnhExe = jest.spyOn(clientService, 'killExeById');
     await tyrs.parseConfig();
     const semaphoreService = testModule.get<SemaphorService>(SemaphorService);
-    await semaphoreService.startOperation('alt+c', async () => {
+    await semaphoreService.runOperation('alt+c', async () => {
       await shortCutService.runShortcut({
         commands: [
           {
@@ -221,7 +221,7 @@ describe('Logic service', () => {
 
     // Test first destination
     const semaphoreService = testModule.get<SemaphorService>(SemaphorService);
-    await semaphoreService.startOperation('alt+c', async () => {
+    await semaphoreService.runOperation('alt+c', async () => {
       await shortCutService.runShortcut( {
         "commands": [
           {
@@ -243,7 +243,7 @@ describe('Logic service', () => {
   });
 
     // Test second destination (circular)
-    await semaphoreService.startOperation('alt+c', async () => {
+    await semaphoreService.runOperation('alt+c', async () => {
       await shortCutService.runShortcut( {
         "commands": [
           {
@@ -281,7 +281,7 @@ describe('Logic service', () => {
     await configService.parseConfig();
 
     const semaphoreService = testModule.get<SemaphorService>(SemaphorService);
-    await semaphoreService.startOperation('alt+c', async () => {
+    await semaphoreService.runOperation('alt+c', async () => {
       await shortCutService.runShortcut({
         commands: [
           {
@@ -313,7 +313,7 @@ describe('Logic service', () => {
     await configService.parseConfig();
 
     const semaphoreService = testModule.get<SemaphorService>(SemaphorService);
-    await semaphoreService.startOperation('alt+c', async () => {
+    await semaphoreService.runOperation('alt+c', async () => {
       await shortCutService.runShortcut({
         commands: [
           {
@@ -351,7 +351,7 @@ describe('Logic service', () => {
     const shortcutMapping = configService.getCombinations().find(s => s.name === 'Random circular test');
     expect(shortcutMapping).toBeDefined();
     const semaphoreService = testModule.get<SemaphorService>(SemaphorService);
-    await semaphoreService.startOperation('alt+c', async () => {
+    await semaphoreService.runOperation('alt+c', async () => {
       await shortCutService.runShortcut(shortcutMapping!);
     });
     expect(spyKeyPress).toHaveBeenCalledTimes(1);

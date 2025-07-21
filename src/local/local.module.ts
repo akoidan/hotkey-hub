@@ -15,6 +15,7 @@ import {TransactionLocalHandler} from '@/local/implementation/transaction-local-
 import {ExpressionLocalHandler} from '@/local/implementation/expression-local-handler';
 import {ThreadsLocalHandler} from '@/local/implementation/threads-local-handler';
 import {LoopLocalHandler} from "@/local/implementation/loop-local-handler";
+import {RgbModule} from "@/rgb/rgb.module";
 
 
 const processingProviders: Provider[] = [
@@ -54,7 +55,7 @@ const processingProviders: Provider[] = [
 ];
 
 @Module({
-  imports: [ConfigModule, ClientModule, RemoteHandlerModule, SemaphorModule, RandomModule],
+  imports: [ConfigModule, ClientModule, RemoteHandlerModule, SemaphorModule, RandomModule, RgbModule],
   providers: [
     Logger,
     DelayService,
