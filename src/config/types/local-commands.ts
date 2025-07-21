@@ -78,6 +78,15 @@ const transactionLocalCommandSchema: ZodType<any> = z.lazy(() => z.object({
 const threadLocalCommandsSchema =z.array(unknownCommandSchema)
   .describe('List of commands for this thread');
 
+const loopLocalCommandSchema: ZodType<any> = z.lazy(() => z.object({
+  commands: z.array(unknownCommandSchema).describe('Set of commands for this transaction'),
+  loop: z.number()
+  .optional()
+  .describe('Repeat commands in this schema in loop intil this shortcut ' +
+    'is pressed again or number of iteration is finished. pass -1 for infinity'),
+}));
+
+
 const threadsLocalCommandSchema: ZodType<any> = z.lazy(() => z.object({
   threads: z.array(threadLocalCommandsSchema)
     .describe('List of threads'),
@@ -124,12 +133,14 @@ type ExpressionLocalCommand = z.infer<typeof expressionLocalCommandSchema>;
 type MacroLocalCommand = z.infer<typeof macroLocalCommandSchema>
 type TransactionLocalCommand = z.infer<typeof transactionLocalCommandSchema>
 type ThreadsLocalCommand = z.infer<typeof threadsLocalCommandSchema>
+type LoopLocalCOmmand = z.infer<typeof loopLocalCommandSchema>
 type ThreadLocalCommand = z.infer<typeof threadLocalCommandsSchema>
 type UnkownCommand = z.infer<typeof unknownCommandSchema>
 type MacroList = z.infer<typeof macrosDefinitionSchema>
 type VariablesDefinition = z.infer<typeof macroVariablesDescriptionSchema>
 
 export {
+  loopLocalCommandSchema,
   threadsLocalCommandSchema,
   macroLocalCommandSchema,
   unknownCommandSchema,
@@ -142,6 +153,7 @@ export {
 };
 
 export type {
+  LoopLocalCOmmand,
   ThreadLocalCommand,
   ThreadsLocalCommand,
   MacroLocalCommand,

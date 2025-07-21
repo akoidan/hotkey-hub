@@ -67,10 +67,6 @@ const shortcutSchema = z.object({
   commands: z.array(unknownCommandSchema).describe('List of commands for this shortcut'),
   // singleton: z.boolean().default(false).optional()
   //     .describe('If set to true pressing this shortcut again would be ignored if previous is still running'),
-  iterations: z.number()
-    .optional()
-    .describe('Repeat commands in this schema in loop intil this shortcut ' +
-      'is pressed again or number of iteration is finished. pass -1 for infinity'),
 }).strict();
 
 const shortcutsSchema = z.array(shortcutSchema)

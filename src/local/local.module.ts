@@ -14,6 +14,7 @@ import {MacroLocalHandler} from '@/local/implementation/macro-local-handler';
 import {TransactionLocalHandler} from '@/local/implementation/transaction-local-handler';
 import {ExpressionLocalHandler} from '@/local/implementation/expression-local-handler';
 import {ThreadsLocalHandler} from '@/local/implementation/threads-local-handler';
+import {LoopLocalHandler} from "@/local/implementation/loop-local-handler";
 
 
 const processingProviders: Provider[] = [
@@ -22,6 +23,7 @@ const processingProviders: Provider[] = [
   ExpressionLocalHandler,
   CommandLocalHandler,
   ThreadsLocalHandler,
+  LoopLocalHandler,
   {
     provide: BaseLocalHandler,
     inject: [
@@ -29,6 +31,7 @@ const processingProviders: Provider[] = [
       TransactionLocalHandler,
       ExpressionLocalHandler,
       ThreadsLocalHandler,
+      LoopLocalHandler,
       CommandLocalHandler,
     ],
     useFactory: (
@@ -36,11 +39,13 @@ const processingProviders: Provider[] = [
       transaction: BaseLocalHandler,
       variable: BaseLocalHandler,
       thread: BaseLocalHandler,
+      loopLocalHandler: LoopLocalHandler,
       command: BaseLocalHandler,
     ): BaseLocalHandler => {
       macro.setNext(transaction, macro)
         .setNext(variable, macro)
         .setNext(thread, macro)
+        .setNext(loopLocalHandler, macro)
         .setNext(command, macro)
         .setNext(null!, macro);
       return macro;
