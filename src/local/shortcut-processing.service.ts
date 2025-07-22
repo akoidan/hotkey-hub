@@ -19,34 +19,11 @@ export class ShortcutProcessingService {
   }
 
   async runShortcut(comb: Shortcut): Promise<void> {
-    await this.semaphorService.runOperation(comb.shortCut, async () => {
+    await this.semaphorService.runOperation(comb.shortCut, async() => {
       const id = this.semaphorService.getCurrentOperationId();
       try {
-        if (!this.iterationsInProgress[comb.shortCut]) {
-          this.iterationsInProgress[comb.shortCut] = [];
-        }
         await this.rgbService.updateColors(comb.shortCut, true);
-        const statuses = this.iterationsInProgress[comb.shortCut].map(proc => proc.status);
-        if (comb.pausable && statuses.includes(ProcessStatus.TERMINATING)) {
-          // eslint-disable-next-line max-len
-          this.logger.log(`${clc.bold.green(comb.shortCut)} pressed. Waiting previous to finish exe ${clc.bold.green(comb.name)}`);
-        } else if (comb.pausable && statuses.includes(ProcessStatus.RUNNING)) {
-          this.iterationsInProgress[comb.shortCut]
-            .filter(proc => proc.status === ProcessStatus.RUNNING)
-            .forEach(proc => {
-              proc.status = ProcessStatus.TERMINATING;
-            });
-          this.logger.log(`${clc.bold.green(comb.shortCut)} pressed. Terminating ${clc.bold.green(comb.name)}`);
-          this.logger.debug('Waiting for remaining queue to finish their exectuion.');
-        } else {
-          this.logger.log(`${clc.bold.green(comb.shortCut)} pressed. Running ${clc.bold.green(comb.name)}`);
-          this.iterationsInProgress[comb.shortCut].push({
-            id,
-            status: ProcessStatus.RUNNING,
-          });
-          await this.runProcess(comb, id);
-          this.logger.debug(`All iterations for ${clc.bold.green(comb.name)} are finished`);
-        }
+        await this.runPausableProcess(comb, id);
       } finally {
         const index = this.iterationsInProgress[comb.shortCut].findIndex(proc => proc.id === id);
         if (index >= 0) {
@@ -59,7 +36,34 @@ export class ShortcutProcessingService {
     });
   }
 
-  async runProcess(comb: Shortcut, id: string): Promise<void> {
+  private async runPausableProcess(comb: Shortcut, id: string): Promise<void> {
+    if (!this.iterationsInProgress[comb.shortCut]) {
+      this.iterationsInProgress[comb.shortCut] = [];
+    }
+    const statuses = this.iterationsInProgress[comb.shortCut].map(proc => proc.status);
+    if (comb.pausable && statuses.includes(ProcessStatus.TERMINATING)) {
+      // eslint-disable-next-line max-len
+      this.logger.log(`${clc.bold.green(comb.shortCut)} pressed. Waiting previous to finish exe ${clc.bold.green(comb.name)}`);
+    } else if (comb.pausable && statuses.includes(ProcessStatus.RUNNING)) {
+      this.logger.log(`${clc.bold.green(comb.shortCut)} pressed. Terminating ${clc.bold.green(comb.name)}`);
+      this.logger.debug('Waiting for remaining queue to finish their exectuion.');
+      this.iterationsInProgress[comb.shortCut]
+        .filter(proc => proc.status === ProcessStatus.RUNNING)
+        .forEach(proc => {
+          proc.status = ProcessStatus.TERMINATING;
+        });
+    } else {
+      this.logger.log(`${clc.bold.green(comb.shortCut)} pressed. Running ${clc.bold.green(comb.name)}`);
+      this.iterationsInProgress[comb.shortCut].push({
+        id,
+        status: ProcessStatus.RUNNING,
+      });
+      await this.runGeneratorLoop(comb, id);
+      this.logger.debug(`All iterations for ${clc.bold.green(comb.name)} are finished`);
+    }
+  }
+
+  async runGeneratorLoop(comb: Shortcut, id: string): Promise<void> {
     for (const command of comb.commands!) {
       const generator = this.unkownCommandProcessor.handle(command, comb.delayAfter, comb.delayBefore, undefined);
       let done = false;
