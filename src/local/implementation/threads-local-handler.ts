@@ -2,7 +2,7 @@
 import {Injectable, Logger} from '@nestjs/common';
 import {SemaphorService} from '@/semaphor/semaphor-service';
 import {BaseLocalHandler} from '@/local/implementation/base-local-handler';
-import {ThreadLocalCommand, ThreadsLocalCommand, UnkownCommand} from '@/config/types/local-commands';
+import {ThreadLocalArray, ThreadsLocalCommand, UnkownCommand} from '@/config/types/local-commands';
 
 @Injectable()
 export class ThreadsLocalHandler extends BaseLocalHandler {
@@ -49,7 +49,7 @@ export class ThreadsLocalHandler extends BaseLocalHandler {
     transactionId: string | undefined,
   ): AsyncGenerator<void> {
     const that = this;
-    yield *this.mergeAsyncGenerators((comb.threads.map(async function* (receiver: ThreadLocalCommand, i: number): AsyncGenerator<void> {
+    yield *this.mergeAsyncGenerators((comb.threads.map(async function* (receiver: ThreadLocalArray, i: number): AsyncGenerator<void> {
       yield *that.semaphorService.spawnChild(String(i), async function* (): AsyncGenerator<void> {
         for (const command of receiver) {
           yield *that.startChain.handle(command, undefined, undefined, transactionId);

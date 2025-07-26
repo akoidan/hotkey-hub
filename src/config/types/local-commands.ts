@@ -1,10 +1,10 @@
-import {
-  z,
-  ZodIssueCode, ZodType,
-} from 'zod';
+/* eslint-disable max-lines, @typescript-eslint/no-use-before-define */
+import type {ZodType} from 'zod';
+import {z, ZodIssueCode} from 'zod';
 import {schemaRootCache} from '@/config/types/cache';
 import {variableRegex} from '@/config/types/variables';
-import {delayCommandsSchema, remoteCommandSchema} from "@/config/types/remote-commands";
+import type {RemoteCommand} from '@/config/types/remote-commands';
+import {delayCommandsSchema, remoteCommandSchema} from '@/config/types/remote-commands';
 
 const macroLocalCommandSchema = z.object({
   macro: z.string().describe('Name of the macro (key from macros section object)'),
@@ -40,7 +40,11 @@ const macroLocalCommandSchema = z.object({
     if (!definedMacros[command.macro] || !command.variables) {
       return;
     }
-    for (const [key, value] of Object.entries(definedMacros[command.macro]?.variables)) {
+    const variables = definedMacros[command.macro]?.variables;
+    if (!variables) {
+      return;
+    }
+    for (const [key, value] of Object.entries(variables)) {
       let isVariable = false;
       if (typeof command.variables?.[key] === 'string' && variableRegex.test(command.variables?.[key])) {
         isVariable = true;
@@ -60,46 +64,7 @@ const macroLocalCommandSchema = z.object({
         });
       }
     }
-  }).describe('Runs a macro from the macros section.');
-
-const unknownCommandSchema = z.lazy(() => z.union([
-  remoteCommandSchema,
-  macroLocalCommandSchema,
-  expressionLocalCommandSchema,
-  transactionLocalCommandSchema,
-  threadsLocalCommandSchema,
-  loopLocalCommandSchema,
-]).describe('A remote command or a macro name'));
-
-const transactionLocalCommandSchema: ZodType<any> = z.lazy(() => z.object({
-  commands: z.array(unknownCommandSchema).describe('Set of commands for this transaction'),
-  transaction: z.string().describe('Transaction name'),
-}));
-
-const threadLocalCommandsSchema =z.array(unknownCommandSchema)
-  .describe('List of commands for this thread');
-
-const loopLocalCommandSchema: ZodType<any> = z.lazy(() => z.object({
-  commands: z.array(unknownCommandSchema).describe('Set of commands for this transaction'),
-  loop: z.number()
-  .optional()
-  .describe('Repeat commands in this schema in loop intil this shortcut ' +
-    'is pressed again or number of iteration is finished. pass -1 for infinity'),
-}));
-
-
-const threadsLocalCommandSchema: ZodType<any> = z.lazy(() => z.object({
-  threads: z.array(threadLocalCommandsSchema)
-    .describe('List of threads'),
-}));
-
-const macroVariablesDescriptionSchema = z.record(z.object({
-  type: z.enum(['string', 'number']).describe('To validate the type, or cast from env variables'),
-  optional: z.boolean().optional().describe('If set to true, the key is be removed is var is not passed'),
-})
-  .strict()
-  .optional())
-  .describe('Set of variables descriptors for macro');
+  }).describe('Runs a macro from the macros section');
 
 const expressionLocalCommandSchema = z.object({
   assignVariable: z.string().describe('Variable name to assign to'),
@@ -115,7 +80,44 @@ const expressionLocalCommandSchema = z.object({
       });
     }
   }).describe('JS like expression that evaluates to some values. E.g. x*2.'),
-}).strict().describe('Allows to create/assign a variable by expression. In this case you need to set "destination" property to a string "null"');
+}).strict()
+  .describe('Allows to create/assign a variable by expression. In this case you need to set "destination" property to a string "null"');
+
+const unknownCommandSchema = z.lazy(() => z.union([
+  remoteCommandSchema,
+  macroLocalCommandSchema,
+  expressionLocalCommandSchema,
+  transactionLocalCommandSchema,
+  threadsLocalCommandSchema,
+  loopLocalCommandSchema,
+]).describe('A remote command or a macro name')) as ZodType<UnkownCommand>; // z.lazy requires manual type definition cause of reqursive type
+
+const transactionLocalCommandSchema = z.lazy(() => z.object({
+  commands: z.array(unknownCommandSchema).describe('Set of commands for this transaction'),
+  transaction: z.string().describe('Transaction name'),
+})) as any as ZodType<{ commands: UnkownCommand[], transaction: string }>;
+
+const threadLocalArraySchema = z.array(unknownCommandSchema)
+  .describe('List of commands for this thread') as any as ZodType<UnkownCommand[]>;  // z.lazy requires manual type definition cause of reqursive type
+
+const loopLocalCommandSchema = z.lazy(() => z.object({
+  commands: z.array(unknownCommandSchema).describe('Set of commands for this transaction'),
+  loop: z.number()
+    .describe('Repeat commands in this schema in loop intil this shortcut ' +
+      'is pressed again or number of iteration is finished. pass -1 for infinity'),
+})) as any as ZodType<{ commands: UnkownCommand[], loop: number }>;  // z.lazy requires manual type definition cause of reqursive type
+
+const threadsLocalCommandSchema = z.lazy(() => z.object({
+  threads: z.array(threadLocalArraySchema)
+    .describe('List of threads'),
+})) as ZodType<{ threads: UnkownCommand[][] }>;  // z.lazy requires manual type definition cause of reqursive type
+
+const macroVariablesDescriptionSchema = z.record(z.object({
+  type: z.enum(['string', 'number']).describe('To validate the type, or cast from env variables'),
+  optional: z.boolean().optional().describe('If set to true, the key is be removed is var is not passed'),
+}).strict()
+  .optional())
+  .describe('Set of variables descriptors for macro');
 
 
 const macroSchema = z.object({
@@ -134,11 +136,16 @@ type ExpressionLocalCommand = z.infer<typeof expressionLocalCommandSchema>;
 type MacroLocalCommand = z.infer<typeof macroLocalCommandSchema>
 type TransactionLocalCommand = z.infer<typeof transactionLocalCommandSchema>
 type ThreadsLocalCommand = z.infer<typeof threadsLocalCommandSchema>
-type LoopLocalCOmmand = z.infer<typeof loopLocalCommandSchema>
-type ThreadLocalCommand = z.infer<typeof threadLocalCommandsSchema>
-type UnkownCommand = z.infer<typeof unknownCommandSchema>
+type LoopLocalCommand = z.infer<typeof loopLocalCommandSchema>
+type ThreadLocalArray = z.infer<typeof threadLocalArraySchema>
 type MacroList = z.infer<typeof macrosDefinitionSchema>
 type VariablesDefinition = z.infer<typeof macroVariablesDescriptionSchema>
+type UnkownCommand = RemoteCommand
+  | MacroLocalCommand
+  | ExpressionLocalCommand
+  | TransactionLocalCommand
+  | ThreadsLocalCommand
+  | LoopLocalCommand;
 
 export {
   loopLocalCommandSchema,
@@ -149,13 +156,13 @@ export {
   transactionLocalCommandSchema,
   macroVariablesDescriptionSchema,
   macroSchema,
-  threadLocalCommandsSchema,
+  threadLocalArraySchema,
   macrosDefinitionSchema,
 };
 
 export type {
-  LoopLocalCOmmand,
-  ThreadLocalCommand,
+  LoopLocalCommand,
+  ThreadLocalArray,
   ThreadsLocalCommand,
   MacroLocalCommand,
   TransactionLocalCommand,
