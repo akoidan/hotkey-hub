@@ -5,6 +5,7 @@ import {
 import {Client} from 'openrgb-sdk';
 import ClientType from 'openrgb-sdk/types/client';
 import {ConfigService} from '@/config/config-service';
+import {RgbServiceI} from "@/rgb/rgb-model";
 
 
 interface Color {
@@ -14,7 +15,7 @@ interface Color {
 }
 
 @Injectable()
-export class RgbService {
+export class RgbService implements RgbServiceI {
   private colors: Color[] | null = null;
   private client: ClientType | null = null;
   private keyMap: Record<string, number> = {};

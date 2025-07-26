@@ -1,4 +1,3 @@
-/* eslint-disable*/
 import {Injectable, Logger} from '@nestjs/common';
 import {BaseLocalHandler} from '@/local/implementation/base-local-handler';
 import {LoopLocalCOmmand, ThreadsLocalCommand, UnkownCommand} from '@/config/types/local-commands';

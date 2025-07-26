@@ -17,16 +17,16 @@
         },
         {
           "destination": "{{pctyr}}",
-          "keySend": "{{keySend}}"
+          "keyPress": "{{keyPress}}"
         }
       ],
       "variables": {
-        "keySend": {
+        "keyPress": {
           "type": "string"
         }
       }
     },
-    "keySend": {
+    "keyPress": {
       "commands": [
         {
           "transaction": "{{destination}}",
@@ -37,7 +37,7 @@
             },
             {
               "destination": "{{destination}}",
-              "keySend": "{{keySend}}",
+              "keyPress": "{{keyPress}}",
               "delayAfter": 50
             }
           ]
@@ -50,7 +50,7 @@
         "focusWid": {
           "type": "number"
         },
-        "keySend": {
+        "keyPress": {
           "type": "string"
         }
       }
@@ -63,11 +63,11 @@
         },
         {
           "destination": "{{destination}}",
-          "keySend": "tab"
+          "keyPress": "tab"
         },
         {
           "destination": "{{destination}}",
-          "keySend": "enter",
+          "keyPress": "enter",
           "delayAfter": "{{delayAfter}}"
         }
       ],
@@ -88,11 +88,11 @@
     {
       "commands": [
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusWid": "{{widwc}}",
             "destination": "{{pcwc}}",
-            "keySend": "f4"
+            "keyPress": "f4"
           }
         }
       ],
@@ -105,7 +105,7 @@
       "commands": [
         {
           "destination": "this",
-          "keySend": "f6"
+          "keyPress": "f6"
         }
       ]
     },
@@ -139,7 +139,7 @@
         {
           "macro": "tyr",
           "variables": {
-            "keySend": "f5"
+            "keyPress": "f5"
           }
         }
       ],

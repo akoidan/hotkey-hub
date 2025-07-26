@@ -14,7 +14,7 @@ export class KeyPressRemoteHandler extends CommandRemoteHandler {
   }
 
   canHandle(command: RemoteCommand): command is KeyPressRemoteCommand {
-    return Boolean((command as KeyPressRemoteCommand).keySend);
+    return Boolean((command as KeyPressRemoteCommand).keyPress);
   }
 
   async execute(destination: string, command: KeyPressRemoteCommand): Promise<void> {
@@ -31,7 +31,7 @@ export class KeyPressRemoteHandler extends CommandRemoteHandler {
       duration = this.randomService.calcDiviation(command.duration, command.durationDiviation);
     }
     await this.clientService.keyPress(destination, {
-      keys: (Array.isArray(command.keySend) ? command.keySend : [command.keySend]) as Key[],
+      keys: (Array.isArray(command.keyPress) ? command.keyPress : [command.keyPress]) as Key[],
       holdKeys,
       duration,
     });

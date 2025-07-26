@@ -40,7 +40,7 @@ const baseSchema = z.object({
 
 
 const keyPressRemoteCommandSchema = z.object({
-  keySend: z.union([keySchema, variableValueSchema, z.array(keySchema)])
+  keyPress: z.union([keySchema, variableValueSchema, z.array(keySchema)])
     .describe('Key that will be pressed'),
   duration: z.number().min(50).optional().describe('duration of key being pressed'),
   durationDiviation: z.number().default(0).optional().describe('Controlls randomness of duration'),

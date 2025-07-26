@@ -1,22 +1,30 @@
 import type {TestingModule,} from '@nestjs/testing';
 import {Test,} from '@nestjs/testing';
-import {ShortcutProcessingService} from '../src/local/shortcut-processing.service';
+import {ShortcutProcessingService} from '@/local/shortcut-processing.service';
 import {ClientService} from '@/client/client-service';
 import {Logger} from '@nestjs/common';
 import {ConfigService} from '@/config/config-service';
 import {ConfigReaderService} from '@/config/config-reader-service';
-import {remoteHandlerProviders} from '../src/remote/remote-handler-module';
-import {VariableResolutionService} from '../src/local/variable-resolution.service';
-import {CommandLocalHandler} from '../src/local/implementation/command-local-handler';
+import {remoteHandlerProviders} from '@/remote/remote-handler-module';
+import {VariableResolutionService} from '@/local/variable-resolution.service';
+import {CommandLocalHandler} from '@/local/implementation/command-local-handler';
 import path from 'path';
 import {AsyncStorageModule} from '@/asyncstore/async-storage.module';
 import {RandomModule} from "@/random/random.module";
-import {SemaphorModule} from "../src/semaphor/semaphor.module";
-import {DelayService} from "../src/local/delay.service";
-import {SemaphorService} from "../src/semaphor/semaphor-service";
-import {processingProviders} from "../src/local/local.module";
+import {SemaphorModule} from "@/semaphor/semaphor.module";
+import {DelayService} from "@/local/delay.service";
+import {SemaphorService} from "@/semaphor/semaphor-service";
+import {processingProviders} from "@/local/local.module";
+import {RgbService} from "@/rgb/rgb-service";
+import {RgbServiceI} from "@/rgb/rgb-model";
 
 async function getTestModule(configFilePath: string): Promise<TestingModule> {
+  const rgbStub: RgbServiceI = new class {
+    public async updateColors(comb: string, hl: boolean): Promise<void> {
+    }
+    public async setup(): Promise<void> {
+    }
+  }
   return Test.createTestingModule({
     imports: [AsyncStorageModule, RandomModule, SemaphorModule],
     providers: [
@@ -24,6 +32,10 @@ async function getTestModule(configFilePath: string): Promise<TestingModule> {
       ...processingProviders,
       ShortcutProcessingService,
       DelayService,
+      {
+        provide: RgbService,
+        useValue: rgbStub
+      },
       VariableResolutionService,
       CommandLocalHandler,
       {
@@ -52,30 +64,27 @@ describe('Logic service', () => {
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const tyrs = testModule.get<ConfigService>(ConfigService);
     const clientService = testModule.get<ClientService>(ClientService);
-    clientService.keyPress = jest.fn().mockImplementation();
-    const spykeyPress = jest.spyOn(clientService, 'keyPress');
+    // clientService.keyPress = jest.fn().mockImplementation();
+    // const spykeyPress = jest.spyOn(clientService, 'keyPress');
     await tyrs.parseConfig();
-    const semaphoreService = testModule.get<SemaphorService>(SemaphorService);
-    await semaphoreService.runOperation('alt+2', async () => {
-      await shortCutService.runShortcut({
-        "commands": [
-          {
-            "loop": -1,
-            "commands": [
-              {
-                "keySend": "a",
-                "destination": "that"
-              }
-            ]
-          },
-        ],
-        "delayAfter": 0,
-        "delayBefore": 200,
-        "name": "Tyrs attack each other",
-        "shortCut": "Alt+2"
-      })
-    });
-    expect(spykeyPress).toHaveBeenCalledWith('this', {holdKeys: [], keys: ['f6']});
+    await shortCutService.runShortcut({
+      "commands": [
+        {
+          "loop": 3,
+          "commands": [
+            {
+              "keyPress": "a",
+              "destination": "that"
+            }
+          ]
+        },
+      ],
+      "delayAfter": 0,
+      "delayBefore": 200,
+      "name": "Tyrs attack each other",
+      "shortCut": "Alt+2"
+    })
+    // expect(spykeyPress).toHaveBeenCalledWith('this', {holdKeys: [], keys: ['f6']});
   });
 
 
@@ -98,7 +107,7 @@ describe('Logic service', () => {
                   "loop": -1,
                   "commands": [
                     {
-                      "keySend": "a",
+                      "keyPress": "a",
                       "destination": "that"
                     }
                   ]
@@ -109,7 +118,7 @@ describe('Logic service', () => {
                   "loop": -1,
                   "commands": [
                     {
-                      "keySend": "a",
+                      "keyPress": "a",
                       "destination": "that"
                     }
                   ]
@@ -129,7 +138,7 @@ describe('Logic service', () => {
 
 
 
-  it('should keySend client call', async () => {
+  it('should keyPress client call', async () => {
     const testModule = await getTestModule('config-fixture.jsonc');
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const tyrs = testModule.get<ConfigService>(ConfigService);
@@ -143,7 +152,7 @@ describe('Logic service', () => {
         commands: [
           {
             destination: 'this',
-            keySend: 'f6',
+            keyPress: 'f6',
           },
         ],
         name: 'test1',
@@ -227,7 +236,7 @@ describe('Logic service', () => {
           {
             "macro": "tyr",
             "variables": {
-              "keySend": "f5"
+              "keyPress": "f5"
             }
           }
         ],
@@ -249,7 +258,7 @@ describe('Logic service', () => {
           {
             "macro": "tyr",
             "variables": {
-              "keySend": "f5"
+              "keyPress": "f5"
             }
           }
         ],

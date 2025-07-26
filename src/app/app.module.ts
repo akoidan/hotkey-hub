@@ -8,6 +8,7 @@ import {LocalModule} from '@/local/local.module';
 import {NativeModule} from '@/native/native-module';
 import clc from 'cli-color';
 import {INativeModule, ModifierKey, Native} from '@/native/native-model';
+import {Shortcut} from "@/config/types/shortcut";
 
 @Module({
   imports: [ConfigModule, ClientModule, LocalModule, NativeModule],
@@ -32,7 +33,7 @@ export class AppModule implements OnModuleInit {
         Object.keys(this.configService.getIps())
           .map(async(desination) => this.clientService.ping(desination))
       );
-      this.configService.getCombinations().forEach((comb) => {
+      this.configService.getCombinations().forEach((comb: Shortcut) => {
         try {
           this.logger.debug(`Registering ${clc.bold.green(comb.shortCut)} shortcut`);
           const modifiers: ModifierKey[] = comb.shortCut.split('+').map(a => a.toLowerCase()) as ModifierKey[];

@@ -35,7 +35,7 @@ async function getTestModule(configFilePath: string): Promise<TestingModule> {
 }
 
 describe('Variable Service', () => {
-  it('should keySend client call', async() => {
+  it('should keyPress client call', async() => {
     const testModule = await getTestModule("config-fixture.jsonc");
     const variableService = testModule.get<VariableResolutionService>(VariableResolutionService);
     const res = variableService.replacePlaceholders({
@@ -47,14 +47,14 @@ describe('Variable Service', () => {
         },
         {
           "destination": "{{destination}}",
-          "keySend": "{{keySend}}",
+          "keyPress": "{{keyPress}}",
           "delayAfter": 50
         }
       ]
     }, {
       "focusWid": "{{widwc}}",
       "destination": "{{pcwc}}",
-      "keySend": "f4"
+      "keyPress": "f4"
     }, {
       "destination": {
         "type": "string"
@@ -62,7 +62,7 @@ describe('Variable Service', () => {
       "focusWid": {
         "type": "number"
       },
-      "keySend": {
+      "keyPress": {
         "type": "string"
       }
     });
@@ -75,7 +75,7 @@ describe('Variable Service', () => {
       },
       {
         "destination": "{{pcwc}}",
-        "keySend": "f4",
+        "keyPress": "f4",
         "delayAfter": 50
       }
     ]
