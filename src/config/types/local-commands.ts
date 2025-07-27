@@ -5,8 +5,11 @@ import {variableRegex} from '@/config/types/variables';
 import {type RemoteCommand, delayCommandsSchema, remoteCommandSchema} from '@/config/types/remote-commands';
 
 const macroLocalCommandSchema = z.object({
-  macro: z.string().describe('Name of the macro (key from macros section object)'),
-  variables: z.record(z.union([z.string(), z.number()])).optional().describe('Object of a key-values of variable name and value'),
+  macro: z.string().describe('Name of the macro to execute, which must match a key defined in the macros section. ' +
+    'Macros help reduce configuration repetition by reusing command sequences.'),
+  variables: z.record(z.union([z.string(), z.number()])).optional()
+    .describe('Variables to pass to the macro. Object where keys are variable names and values are their values. ' +
+      'Values can be strings or numbers and must match the types defined in the macro\'s variables section.')
 })
   .strict()
   .merge(delayCommandsSchema)
@@ -62,10 +65,13 @@ const macroLocalCommandSchema = z.object({
         });
       }
     }
-  }).describe('Macro command allow to avoid duplication of config. Its similar to a function call. This section will call a macro from the macros section.');
+  }).describe('Executes a predefined macro, which is a reusable sequence of commands. ' +
+    'Similar to a function call, macros can accept parameters through variables. ' +
+    'This helps avoid duplicating complex command sequences and makes configurations more maintainable.');
 
 const expressionLocalCommandSchema = z.object({
-  assignVariable: z.string().describe('Variable name to assign to'),
+  assignVariable: z.string().describe('Name of the variable to store the expression result. ' +
+    'This variable can be referenced in subsequent commands using {{variableName}} syntax.'),
   expression: z.string().superRefine((expr, ctx) => {
     try {
       // eslint-disable-next-line
@@ -91,23 +97,29 @@ const unknownCommandSchema = z.lazy(() => z.union([
 ])).describe('A command that would be executed on this machine') as ZodType<UnkownCommand>; // z.lazy requires manual type definition cause of reqursive type
 
 const transactionLocalCommandSchema = z.lazy(() => z.object({
-  commands: z.array(unknownCommandSchema).describe('Set of commands for this transaction'),
-  transaction: z.string().describe('Transaction name'),
-})) as any as ZodType<{ commands: UnkownCommand[], transaction: string }>;
+  commands: z.array(unknownCommandSchema).describe('Sequence of commands to execute as part of this transaction. ' +
+    'All commands in a transaction are executed atomically - they either all succeed or all fail.'),
+  transaction: z.string().describe('Unique name for the transaction. Helps with logging and debugging transaction execution.')
+})).describe('Allow to run commands in a transaction. By specifying transaction name you will prevent having 2 transaction with the same name at the time.' +
+  ' By default all remote commands run in transaction with a transaction name of a remotePc from ips section of this config. For example if you specify same transaction name you can prevent running other commands in the middle of this transaction with the same transaction name.') as any as ZodType<{ commands: UnkownCommand[], transaction: string }>;
 
 const threadLocalArraySchema = z.array(unknownCommandSchema)
   .describe('List of commands for this thread') as any as ZodType<UnkownCommand[]>;  // z.lazy requires manual type definition cause of reqursive type
 
 const loopLocalCommandSchema = z.lazy(() => z.object({
-  commands: z.array(unknownCommandSchema).describe('Set of commands for this transaction'),
+  commands: z.array(unknownCommandSchema).describe('Sequence of commands to repeat in the loop. ' +
+    'Each iteration will execute all commands in order.'),
   loop: z.number()
-    .describe('Run commands in this loop N times. If you pass a negative number it will run for infinity. If a command on top is pausable pressing shorcut again will exit this loop.'),
-})) as any as ZodType<{ commands: UnkownCommand[], loop: number }>;  // z.lazy requires manual type definition cause of reqursive type
+    .describe('Number of times to repeat the commands sequence. ' +
+      'Positive number: Executes that many iterations. ' +
+      'Negative number: Runs indefinitely until manually stopped. ' +
+      'If the parent command is pausable, pressing the shortcut again will exit the loop.'),
+})).describe('Allow to run same commands multiple time or in iteration or loop') as any as ZodType<{ commands: UnkownCommand[], loop: number }>;  // z.lazy requires manual type definition cause of reqursive type
 
 const threadsLocalCommandSchema = z.lazy(() => z.object({
   threads: z.array(threadLocalArraySchema)
     .describe('List of threads'),
-})) as ZodType<{ threads: UnkownCommand[][] }>;  // z.lazy requires manual type definition cause of reqursive type
+})).describe('Allows to execute commands in parallel. Or in threads.') as ZodType<{ threads: UnkownCommand[][] }>;  // z.lazy requires manual type definition cause of reqursive type
 
 const macroVariablesDescriptionSchema = z.record(z.object({
   type: z.enum(['string', 'number']).describe('To validate the type, or cast from env variables'),

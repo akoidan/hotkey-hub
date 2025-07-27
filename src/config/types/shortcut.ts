@@ -55,18 +55,27 @@ const shortcut = z
     return allowedKeys.includes(mainKey!);
     // eslint-disable-next-line max-len
     }, `Shortcut requires format Modifier+Key. E.g. 'Alt+1'. Allowed modifiers: '${modifierKeys.join('\', \'')}'. Allowed keys: '${allowedKeys.join('\', \'')}'.`)
-  .describe('A shorcut to be pressed. E.g. Alt+1');
+  .describe('A keyboard shortcut in the format Modifier+Key (e.g., Alt+1, Ctrl+Shift+A). ' +
+    'Must include at least one modifier key and one regular key. ' +
+    'Can have up to 3 modifier keys combined (e.g., Ctrl+Alt+Shift+S).');
 
 
 const shortcutSchema = z.object({
-  delayAfter: z.number().optional().describe('Delay in milliseconds after each command for this shorcut'),
-  delayBefore: z.number().optional().describe('Delay in milliseconds before each command for this shorcut'),
-  name: z.string().describe('Name that is printed during startup with a shorcut'),
+  delayAfter: z.number().optional()
+    .describe('Delay in milliseconds to wait after executing each command in this shortcut\'s command list. ' +
+      'Useful for ensuring commands have time to complete.'),
+  delayBefore: z.number().optional()
+    .describe('Delay in milliseconds to wait before executing each command in this shortcut\'s command list. ' +
+      'Useful for timing coordination between shortcuts.'),
+  name: z.string().describe('Descriptive name for this shortcut binding. ' +
+    'This name is displayed during startup and helps identify the shortcut\'s purpose.'),
   shortCut: shortcut,
-  commands: z.array(unknownCommandSchema).describe('List of commands for this shortcut'),
+  commands: z.array(unknownCommandSchema).describe('Ordered list of commands to execute when this shortcut is triggered. ' +
+    'Commands are executed sequentially unless specified otherwise (e.g., in parallel threads).'),
   pausable: z.boolean().default(false).optional()
-      .describe('If set to true pressing this shortcut again would be cancel current run'),
-}).strict();
+    .describe('If true, pressing the shortcut again while commands are running will cancel the execution. ' +
+      'Useful for long-running command sequences that you might need to stop.')
+}).strict().describe('This allows to bind a shortcut to a commands list and define execution behaviour. E.g. press `alt+1` on local PC to send a mouseClick on a remote one');
 
 const shortcutsSchema = z.array(shortcutSchema)
   .superRefine((combinations, ctx) => {
@@ -81,7 +90,9 @@ const shortcutsSchema = z.array(shortcutSchema)
       }
       shortCuts.set(value.shortCut.toLowerCase(), i);
     });
-  }).describe('Shorcuts mappings. Main logic');
+  }).describe('Array of shortcut definitions that map keyboard combinations to command sequences. ' +
+    'Each shortcut must have a unique key combination. ' +
+    'This is the main configuration that defines what happens when specific keys are pressed.');
 
 type Shortcut = z.infer<typeof shortcutSchema>;
 
