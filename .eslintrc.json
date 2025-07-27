@@ -25,7 +25,8 @@
     "unicorn/filename-case": [1, {
       "case": "kebabCase"
     }],
-    "max-lines": ["error", { "max": 155 }],
+    "max-lines": ["error", { "max": 200 }],
+    "@typescript-eslint/no-this-alias": 0,
     "indent": 0,
     "no-await-in-loop": 0,
     "filenames/match-regex": [1, "^[a-z0-9\\-]+(\\.[a-z]+)?$", true],

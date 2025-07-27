@@ -1,6 +1,8 @@
 import {z} from 'zod';
 
-const variablesSchema = z.record(z.any()).describe('if number, parseInt will be used');
+const variablesSchema = z.record(z.any())
+  .describe('Variable definitions for configuration.' +
+    ' Values can be any type (numeric strings auto-convert to integers). Use {{varName}} to reference.');
 
 const variableRegex = /\{\{\w+\}\}/u;
 
@@ -12,8 +14,11 @@ function extractVariableName(variable: unknown): string|undefined {
 }
 
 const variableValueSchema = z.string().regex(variableRegex)
-  .describe('Inject variable with this name. Either can be an environment variable, ' +
-    'either a variables passed to a macro from variables section');
+  .describe('Reference to a variable using double curly brace syntax: {{variableName}}. ' +
+    'The value will be replaced at runtime with either:\n' +
+    '1. A matching variable from variables.json\n' +
+    '2. A matching environment variable\n' +
+    '3. A variable created during execution (e.g., from assignId or expression commands)');
 
 type Variables = z.infer<typeof variablesSchema>
 

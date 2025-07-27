@@ -1,22 +1,23 @@
-import type {Command, Key, KeyPressCommand} from '@/config/types/commands';
-import {CommandHandler} from '@/handlers/command-handler.service';
 import {RandomService} from '@/random/random-service';
 import {ClientService} from '@/client/client-service';
 import {Injectable} from '@nestjs/common';
+import {Key, KeyPressRemoteCommand, RemoteCommand} from '@/config/types/remote-commands';
+import {CommandRemoteHandler} from '@/remote/command-remote-handler';
 
 @Injectable()
-export class KeyPressHandler extends CommandHandler {
+export class KeyPressRemoteHandler extends CommandRemoteHandler {
   constructor(
     clientService: ClientService,
     private readonly randomService: RandomService,
   ) {
     super(clientService);
   }
-  canHandle(command: Command): command is KeyPressCommand {
-    return 'keySend' in command;
+
+  canHandle(command: RemoteCommand): command is KeyPressRemoteCommand {
+    return Boolean((command as KeyPressRemoteCommand).keyPress);
   }
 
-  async execute(destination: string, command: KeyPressCommand): Promise<void> {
+  async execute(destination: string, command: KeyPressRemoteCommand): Promise<void> {
     let holdKeys: Key[] = [];
     if (Array.isArray(command.holdKeys)) {
       // eslint-disable-next-line @typescript-eslint/prefer-destructuring
@@ -25,12 +26,12 @@ export class KeyPressHandler extends CommandHandler {
       holdKeys = [command.holdKeys as Key];
     }
 
-    let duration: number|undefined = command.duration;
+    let duration: number | undefined = command.duration;
     if (command.duration && command.durationDiviation) {
       duration = this.randomService.calcDiviation(command.duration, command.durationDiviation);
     }
     await this.clientService.keyPress(destination, {
-      keys: (Array.isArray(command.keySend) ? command.keySend : [command.keySend]) as Key[],
+      keys: (Array.isArray(command.keyPress) ? command.keyPress : [command.keyPress]) as Key[],
       holdKeys,
       duration,
     });

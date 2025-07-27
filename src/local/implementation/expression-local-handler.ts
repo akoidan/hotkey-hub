@@ -1,28 +1,26 @@
 import {ConfigService} from '@/config/config-service';
 import {Injectable, Logger} from '@nestjs/common';
-import type {Command, EvaluateVariable} from '@/config/types/commands';
-import {CommandHandler} from '@/handlers/command-handler.service';
-import {ClientService} from '@/client/client-service';
 import clc from 'cli-color';
+import {BaseLocalHandler} from '@/local/base-local-handler';
+import {ExpressionLocalCommand, UnkownCommand} from '@/config/types/local-commands';
 
 @Injectable()
-export class EvaluateVariableHandler extends CommandHandler {
+export class ExpressionLocalHandler extends BaseLocalHandler {
   constructor(
-    clientService: ClientService,
     private readonly logger: Logger,
     private readonly configService: ConfigService,
   ) {
-    super(clientService);
+    super();
   }
 
-  canHandle(command: Command): command is EvaluateVariable {
-    return 'assignVariable' in command;
+  canHandle(command: UnkownCommand): command is ExpressionLocalCommand {
+    return Boolean((command as ExpressionLocalCommand).expression);
   }
 
   /* eslint-disable */
-  async execute(destination: string, command: EvaluateVariable): Promise<void> {
+  async *execute(command: ExpressionLocalCommand): AsyncGenerator<void> {
     const variables = this.configService.getVariables();
-    let expr= command.expression;
+    let expr = command.expression;
     const reserved = new Set(["this", "arguments", "eval", "function", "return", "var", "let", "const"]);
 
     const varMap: Record<string, any> = {};
@@ -53,12 +51,13 @@ export class EvaluateVariableHandler extends CommandHandler {
       for (let i = 1; i < varPath.length - 1; i++) {
         nextVal = nextVal[varPath[i]]
       }
-      nextVal[varPath[varPath.length-1]] = result;
+      nextVal[varPath[varPath.length - 1]] = result;
       this.logger.log(`${clc.bold.green(command.assignVariable)}=${clc.yellow(JSON.stringify(result))}`);
       this.configService.setVariable(mainVariable, mainValue);
     } else {
       this.configService.setVariable(command.assignVariable, result);
     }
   }
+
   /* eslint-enable */
 }

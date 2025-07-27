@@ -1,26 +1,23 @@
 import {
   aARootSchema,
-  AliasesData,
-  ConfigData, ConfigDataWoMacro,
+  ConfigData,
+  ConfigDataWoMacro,
   IpsData,
-  macrosDefinitionSchema,
+  macrosListSchema,
   RgbData,
   variablesSchema,
 } from '@/config/types/schema';
 import {parse} from 'jsonc-parser';
-import {
-  Injectable,
-  Logger,
-} from '@nestjs/common';
+import {Injectable, Logger} from '@nestjs/common';
 import {schemaRootCache} from '@/config/types/cache';
 import {Variables} from '@/config/types/variables';
-import {MacroList} from '@/config/types/macros';
-import {ShortsData} from '@/config/types/shortcut';
+import {Shortcut} from '@/config/types/shortcut';
 import {ConfigProvider} from '@/config/interfaces';
 import {ConfigReaderService} from '@/config/config-reader-service';
 import clc from 'cli-color';
 import {DelayData} from '@/config/types/delays';
 import {ConfigCombination} from '@/config/config-model';
+import {MacroList} from '@/config/types/local-commands';
 
 @Injectable()
 export class ConfigService implements ConfigProvider {
@@ -53,7 +50,7 @@ export class ConfigService implements ConfigProvider {
     const macroConfigString = await this.configReader.loadMacroConfigString();
     const separateMacros: NonNullable<MacroList> = macroConfigString ? parse(macroConfigString) as NonNullable<MacroList> : {};
     schemaRootCache.macros = separateMacros;
-    await macrosDefinitionSchema.parseAsync(separateMacros);
+    await macrosListSchema.parseAsync(separateMacros);
     schemaRootCache.macros = null!;
     return separateMacros;
   }
@@ -78,12 +75,12 @@ export class ConfigService implements ConfigProvider {
     schemaRootCache.data = null!;
     schemaRootCache.macros = null!;
 
-    const combinations = (this.configData.combinations as ShortsData[])
-        .map((combination): ConfigCombination => ({
-          shortCut: combination.shortCut,
-          name: combination.name,
-        }))
-        .sort((a, b) => a.shortCut.localeCompare(b.shortCut));
+    const combinations = (this.configData.combinations as Shortcut[])
+      .map((combination): ConfigCombination => ({
+        shortCut: combination.shortCut,
+        name: combination.name,
+      }))
+      .sort((a, b) => a.shortCut.localeCompare(b.shortCut));
 
     combinations.forEach((combination) => {
       this.logger.log(`${clc.green.bold(combination.shortCut)}: ${combination.name}`);
@@ -109,12 +106,8 @@ export class ConfigService implements ConfigProvider {
     return this.configData!.rgb;
   }
 
-  public getCombinations(): ShortsData[] {
+  public getCombinations(): Shortcut[] {
     return this.configData!.combinations;
-  }
-
-  public getAliases(): NonNullable<AliasesData> {
-    return this.configData!.aliases ?? {};
   }
 
   public getMacros(): NonNullable<MacroList> {

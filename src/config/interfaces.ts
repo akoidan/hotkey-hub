@@ -1,21 +1,15 @@
-import type {
-  AliasesData,
-  IpsData,
-  RgbData,
-} from '@/config/types/schema';
-import type {ShortsData} from '@/config/types/shortcut';
-import type {MacroList} from '@/config/types/macros';
+import type {IpsData, RgbData} from '@/config/types/schema';
+import type {Shortcut} from '@/config/types/shortcut';
 import type {Variables} from '@/config/types/variables';
 import type {DelayData} from '@/config/types/delays';
+import type {MacroList} from '@/config/types/local-commands';
 
 export interface ConfigProvider {
   getIps(): IpsData;
 
   getOpenRgb(): RgbData;
 
-  getCombinations(): ShortsData[];
-
-  getAliases(): NonNullable<AliasesData>;
+  getCombinations(): Shortcut[];
 
   getMacros(): NonNullable<MacroList>;
 

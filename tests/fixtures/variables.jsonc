@@ -1,1 +1,34 @@
-{}
+{
+  "tyrIndex": 1,
+  "pctyrs": [
+    "desktop",
+    "laptop"
+  ],
+  "multiple": [
+    "this",
+    "that"
+  ],
+  "all": [
+    "this",
+    "that",
+    "other"
+  ],
+  "circular_three": [
+    "this",
+    "that",
+    "other"
+  ],
+  "pctyr": "laptop",
+  "windowIds": [
+    "123",
+    "456"
+  ],
+  "window1": [
+    "123",
+    "456"
+  ],
+  "window2": [
+    "123",
+    "456"
+  ]
+}

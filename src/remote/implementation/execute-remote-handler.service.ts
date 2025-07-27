@@ -1,14 +1,11 @@
-import {
-  Command,
-  ExecuteCommand,
-} from '@/config/types/commands';
-import {CommandHandler} from '@/handlers/command-handler.service';
 import {ConfigService} from '@/config/config-service';
 import {Injectable} from '@nestjs/common';
 import {ClientService} from '@/client/client-service';
+import {ExecuteRemoteCommand, RemoteCommand} from '@/config/types/remote-commands';
+import {CommandRemoteHandler} from '@/remote/command-remote-handler';
 
 @Injectable()
-export class ExecuteHandler extends CommandHandler {
+export class ExecuteRemoteHandler extends CommandRemoteHandler {
   constructor(
     clientService: ClientService,
     private readonly configService: ConfigService,
@@ -16,11 +13,11 @@ export class ExecuteHandler extends CommandHandler {
     super(clientService);
   }
 
-  canHandle(command: Command): command is ExecuteCommand {
-    return 'launch' in command;
+  canHandle(command: RemoteCommand): command is ExecuteRemoteCommand {
+    return Boolean((command as ExecuteRemoteCommand).launch);
   }
 
-  async execute(destination: string, command: ExecuteCommand): Promise<void> {
+  async execute(destination: string, command: ExecuteRemoteCommand): Promise<void> {
     const response = await this.clientService.launchExe(destination, {
       path: command.launch,
       arguments: command.arguments ?? [],

@@ -1,18 +1,5 @@
-/* eslint-disable max-lines*/
-import {
-  z,
-  ZodIssueCode,
-} from 'zod';
-import {
-  commandSchema,
-} from '@/config/types/commands';
-import {commandOrMacroSchema} from '@/config/types/macros';
-
-
-const commandsAndMacrosArraySchema = z.array(commandOrMacroSchema)
-  .describe('A set of events that executed sequentially in this thread');// Define the schema for the 'combinations'
-
-const commandWoMacroArraySchema = z.array(commandSchema).describe('A set of events that executed sequentially in this thread');
+import {z, ZodIssueCode} from 'zod';
+import {unknownCommandSchema} from '@/config/types/local-commands';
 
 /* eslint-disable array-element-newline */
 const allowedKeys = [
@@ -49,7 +36,7 @@ const modifierKeys = [
 /* eslint-enable array-element-newline */
 
 // Zod schema for shortcuts
-const shortCut = z
+const shortcut = z
   .string()
   .refine((value) => {
     const modifiers = value.toLowerCase().split('+');
@@ -67,60 +54,29 @@ const shortCut = z
     }
     return allowedKeys.includes(mainKey!);
     // eslint-disable-next-line max-len
-    }, `Shortcut requires format Modifier+Key. E.g. 'Alt+1'. Allowed modifiers: '${modifierKeys.join('\', \'')}'. Allowed keys: '${allowedKeys.join('\', \'')}'.`)
-  .describe('A shorcut to be pressed. E.g. Alt+1');
+    }, 'Shortcut requires format Modifier+Key. E.g. \'Alt+1\'.'
+    + `Allowed modifiers: '${modifierKeys.join('\', \'')}'. Allowed keys: '${allowedKeys.join('\', \'')}'.`)
+  .describe('Keyboard shortcut format: Modifier+Key (e.g., Alt+1, Ctrl+Shift+A).' +
+    ' Needs at least one modifier. Max 3 modifiers (e.g., Ctrl+Alt+Shift+S).');
 
 
-const baseShortCutMappingSchema = z.object({
-  delayAfter: z.number().optional().describe('Delay in milliseconds after each command for this shorcut'),
-  delayBefore: z.number().optional().describe('Delay in milliseconds before each command for this shorcut'),
-  name: z.string().describe('Name that is printed during startup with a shorcut'),
-  shortCut,
-  // singleton: z.boolean().default(false).optional()
-  //     .describe('If set to true pressing this shortcut again would be ignored if previous is still running'),
-  iterations: z.number()
-    .optional()
-    .describe('Repeat commands in this schema in loop intil this shortcut ' +
-      'is pressed again or number of iteration is finished. pass -1 for infinity'),
-}).strict();
-
-const commandsSchema = z.array(commandSchema);
-const shortcutMappingWithMacroSchema = z.object({
-  commands: commandsAndMacrosArraySchema.optional().describe('List of commands for different commands'),
-  threads: z.array(commandsAndMacrosArraySchema).optional()
-    .describe('This option should be defined only if commands attribute is absent.' +
-      ' Same as commands but array of arrays of commands. Top level of array executes in parallel'),
+const shortcutSchema = z.object({
+  delayAfter: z.number().optional()
+    .describe('Delay (ms) after each command. Ensures commands have time to complete.'),
+  delayBefore: z.number().optional()
+    .describe('Delay (ms) before each command. Helps coordinate timing between different shortcuts.'),
+  name: z.string().describe('Name shown during startup. Helps identify the shortcut\'s purpose.'),
+  shortCut: shortcut,
+  commands: z.array(unknownCommandSchema).describe('Commands to run when shortcut triggered. ' +
+    'Executes in order unless parallel execution specified.'),
+  pausable: z.boolean().default(false).optional()
+    .describe('If true, pressing shortcut again cancels running commands. Useful for stopping long-running sequences.'),
 })
-  .strict().merge(baseShortCutMappingSchema).refine(
-    (data) =>
-      (data.commands && !data.threads) ?? (!data.commands && data.threads),
-    {
-      message: 'Either commands or threads must be present, but not both.',
-      path: ['commands', 'threads'], // Error will be shown for both fields
-    }
-  );
+  .strict()
+  .describe('This allows to bind a shortcut to a commands list and define execution behaviour.' +
+    ' E.g. press `alt+1` on local PC to send a mouseClick on a remote one');
 
-const randomShortCutMappingSchema = z.object({
-  circular: z.boolean().optional().describe('If set to true. Commands in this chain will be executed in a circular way.' +
-    ' So each press = 1 command. Instead of full commands'),
-  shuffle: z.boolean().optional().describe('If circular set to true, commands in this event would be executed randomly by 1'),
-  commands: z.array(commandSchema).describe('List of commands for different commands'),
-})
-  .merge(baseShortCutMappingSchema)
-  .describe('An event schema that represent a set of commands that is executed when a certain shortkey is pressed');
-
-
-const threadCircularShortCutMappingSchema = z.object({
-  threadsCircular: z.array(commandWoMacroArraySchema)
-    .describe('Similar to circular in commands but will run only one thread upon activation. Each time the next thead will run.'),
-})
-  .merge(baseShortCutMappingSchema)
-  .describe('An event schema that represent a set of commands that is executed when a certain shortkey is pressed');
-
-
-const shortCutMappingSchema = z.union([shortcutMappingWithMacroSchema, randomShortCutMappingSchema, threadCircularShortCutMappingSchema]);
-
-const combinationList = z.array(shortCutMappingSchema)
+const shortcutsSchema = z.array(shortcutSchema)
   .superRefine((combinations, ctx) => {
     const shortCuts = new Map<string, number>();
     combinations.forEach((value, i) => {
@@ -133,28 +89,17 @@ const combinationList = z.array(shortCutMappingSchema)
       }
       shortCuts.set(value.shortCut.toLowerCase(), i);
     });
-  }).describe('Shorcuts mappings. Main logic');
+  }).describe('Array of shortcut definitions that map keyboard combinations to command sequences. ' +
+    'Each shortcut must have a unique key combination. ' +
+    'This is the main configuration that defines what happens when specific keys are pressed.');
 
-type ShortsData = z.infer<typeof shortCutMappingSchema>;
-type RandomShortcutMapping = z.infer<typeof randomShortCutMappingSchema>;
-type MacroShortcutMapping = z.infer<typeof shortcutMappingWithMacroSchema>;
-type MacroShortcutMappingCircular = z.infer<typeof threadCircularShortCutMappingSchema>;
+type Shortcut = z.infer<typeof shortcutSchema>;
 
 export type {
-  ShortsData,
-  RandomShortcutMapping,
-  MacroShortcutMapping,
-  MacroShortcutMappingCircular,
+  Shortcut,
 };
 
 export {
-  randomShortCutMappingSchema,
-  shortcutMappingWithMacroSchema,
-  threadCircularShortCutMappingSchema,
-  shortCut,
-  commandSchema,
-  commandsAndMacrosArraySchema,
-  commandsSchema,
-  combinationList,
-  commandOrMacroSchema,
+  shortcutSchema,
+  shortcutsSchema,
 };

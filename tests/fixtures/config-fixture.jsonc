@@ -4,20 +4,57 @@
     "that": "127.0.0.2",
     "other": "127.0.0.3"
   },
-  "aliases": {
-    "multiple": {
-      "ipNames": ["this", "that"],
-      "circular": true
-    },
-    "all": {
-      "ipNames": ["this", "that", "other"]
-    },
-    "circular_three": {
-      "ipNames": ["this", "that", "other"],
-      "circular": true
-    }
-  },
   "macros": {
+    "tyr": {
+      "commands": [
+        {
+          "assignVariable": "tyrIndex",
+          "expression": "(tyrIndex+1) % 2"
+        },
+        {
+          "assignVariable": "pctyr",
+          "expression": "pctyrs[tyrIndex]"
+        },
+        {
+          "destination": "{{pctyr}}",
+          "keyPress": "{{keyPress}}"
+        }
+      ],
+      "variables": {
+        "keyPress": {
+          "type": "string"
+        }
+      }
+    },
+    "keyPress": {
+      "commands": [
+        {
+          "transaction": "{{destination}}",
+          "commands": [
+            {
+              "destination": "{{destination}}",
+              "focusWid": "{{focusWid}}"
+            },
+            {
+              "destination": "{{destination}}",
+              "keyPress": "{{keyPress}}",
+              "delayAfter": 50
+            }
+          ]
+        }
+      ],
+      "variables": {
+        "destination": {
+          "type": "string"
+        },
+        "focusWid": {
+          "type": "number"
+        },
+        "keyPress": {
+          "type": "string"
+        }
+      }
+    },
     "loginProceed": {
       "commands": [
         {
@@ -26,11 +63,11 @@
         },
         {
           "destination": "{{destination}}",
-          "keySend": "tab"
+          "keyPress": "tab"
         },
         {
           "destination": "{{destination}}",
-          "keySend": "enter",
+          "keyPress": "enter",
           "delayAfter": "{{delayAfter}}"
         }
       ],
@@ -49,12 +86,26 @@
   },
   "combinations": [
     {
+      "commands": [
+        {
+          "macro": "keyPress",
+          "variables": {
+            "focusWid": "{{widwc}}",
+            "destination": "{{pcwc}}",
+            "keyPress": "f4"
+          }
+        }
+      ],
+      "name": "Target me",
+      "shortCut": "Alt+s"
+    },
+    {
       "name": "test1",
       "shortCut": "Alt+c",
       "commands": [
         {
           "destination": "this",
-          "keySend": "f6"
+          "keyPress": "f6"
         }
       ]
     },
@@ -65,80 +116,11 @@
         {
           "destination": "this",
           "launch": "C:\\Windows\\System32\\shutdown.exe",
-          "arguments": ["/s", "/t", "0"]
-        }
-      ]
-    },
-    {
-      "name": "circular-test",
-      "shortCut": "Alt+f7",
-      "commands": [
-        {
-          "destination": "multiple",
-          "keySend": "f7"
-        }
-      ]
-    },
-    {
-      "name": "Command circular test",
-      "shortCut": "Alt+1",
-      "circular": true,
-      "commands": [
-        {
-          "destination": "this",
-          "keySend": "1"
-        },
-        {
-          "destination": "this",
-          "keySend": "2"
-        },
-        {
-          "destination": "this",
-          "keySend": "3"
-        }
-      ]
-    },
-    {
-      "name": "Thread circular test",
-      "shortCut": "Alt+2",
-      "threadsCircular": [
-        [
-          {
-            "destination": "this",
-            "keySend": "a"
-          }
-        ],
-        [
-          {
-            "destination": "this",
-            "keySend": "b"
-          }
-        ],
-        [
-          {
-            "destination": "this",
-            "keySend": "c"
-          }
-        ]
-      ]
-    },
-    {
-      "name": "Random circular test",
-      "shortCut": "Alt+3",
-      "circular": true,
-      "shuffle": true,
-      "commands": [
-        {
-          "destination": "this",
-          "keySend": "x"
-        },
-        {
-          "destination": "this",
-          "keySend": "y"
-        },
-        {
-          "destination": "this",
-          "keySend": "z"
+          "arguments": [
+            "/s",
+            "/t",
+            "0"
+          ]
         }
       ]
     },
@@ -151,6 +133,18 @@
           "typeText": "{{login}}"
         }
       ]
+    },
+    {
+      "commands": [
+        {
+          "macro": "tyr",
+          "variables": {
+            "keyPress": "f5"
+          }
+        }
+      ],
+      "name": "Stun",
+      "shortCut": "Alt+1"
     },
     {
       "name": "macro-delay-test",

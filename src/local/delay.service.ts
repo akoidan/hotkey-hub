@@ -13,14 +13,14 @@ export class DelayService {
     private readonly logger: Logger,
   ) {
   }
- 
 
   // Awaits delay if specified in global config or in local command data
   // Applies a hugeDelay from global config if chance is succeded
   public async awaitDelay(
     combDelay: undefined | number,
     commandDelay: undefined | number,
-    type: 'before' | 'after'
+    type: 'before' | 'after',
+    name: string = '',
   ): Promise<void> {
     const delays = this.configService.getDelays();
     if (commandDelay !== undefined) {
@@ -40,7 +40,7 @@ export class DelayService {
     if (!combDelay) {
       return;
     }
-    this.logger.debug(`Sleeping for ${combDelay}ms`);
+    this.logger.debug(`Sleeping ${type} ${name} for ${combDelay}ms`);
     await new Promise(resolve => {
       setTimeout(resolve, combDelay);
     });

@@ -225,7 +225,7 @@
       "commands": [
         {
           "destination": "tyrs",
-          "keySend": "f5"
+          "keyPress": "f5"
         }
       ],
       "name": "Stun",
@@ -235,7 +235,7 @@
       "commands": [
         {
           "destination": "tyrs",
-          "keySend": "3"
+          "keyPress": "3"
         }
       ],
       "name": "Raging Force Tyr(-Pdef)",
@@ -246,42 +246,42 @@
       "threads": [
         [
           {
-            "macro": "keySend",
+            "macro": "keyPress",
             "variables": {
               "focusPid": "{{craft}}",
               "destination": "craft",
-              "keySend": "2"
+              "keyPress": "2"
             },
             "delayAfter": 400,
           },
           {
-            "macro": "keySend",
+            "macro": "keyPress",
             "variables": {
               "focusPid": "{{se}}",
               "destination": "se",
-              "keySend": "f5"
+              "keyPress": "f5"
             }
           }
         ],
         [
           {
-            "macro": "keySend",
+            "macro": "keyPress",
             "variables": {
               "focusPid": "{{spoil}}",
               "destination": "spoil",
-              "keySend": "2"
+              "keyPress": "2"
             }
           }
         ],
         [
           {
             "destination": "tyrs",
-            "keySend": "4"
+            "keyPress": "4"
           },
           {
             "delayBefore": 800,
             "destination": "tyr",
-            "keySend": "3"
+            "keyPress": "3"
           }
         ]
       ],
@@ -291,11 +291,11 @@
     {
       "commands": [
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{wc}}",
             "destination": "wc",
-            "keySend": "3"
+            "keyPress": "3"
           }
         }
       ],
@@ -305,11 +305,11 @@
     {
       "commands": [
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{wc}}",
             "destination": "wc",
-            "keySend": "2"
+            "keyPress": "2"
           }
         }
       ],
@@ -319,11 +319,11 @@
     {
       "commands": [
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{se}}",
             "destination": "se",
-            "keySend": "f5"
+            "keyPress": "f5"
           }
         }
       ],
@@ -333,31 +333,31 @@
     {
       "commands": [
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{pp}}",
             "destination": "pp",
-            "keySend": "2"
+            "keyPress": "2"
           }
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{ee}}",
             "destination": "ee",
-            "keySend": "o"
+            "keyPress": "o"
           }
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{wc}}",
             "destination": "wc",
-            "keySend": "f8"
+            "keyPress": "f8"
           }
         },
         {
-          "keySend": "f9",
+          "keyPress": "f9",
           "destination": "wc"
         }
       ],
@@ -367,45 +367,45 @@
     {
       "commands": [
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{pp}}",
             "destination": "pp",
-            "keySend": "3"
+            "keyPress": "3"
           }
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{wc}}",
             "destination": "wc",
-            "keySend": "f10"
+            "keyPress": "f10"
           }
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "delayAfter": 8000,
           "variables": {
             "focusPid": "{{ee}}",
             "destination": "ee",
-            "keySend": "p"
+            "keyPress": "p"
           }
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{pp}}",
             "destination": "pp",
-            "keySend": "4"
+            "keyPress": "4"
           },
           "delayAfter": 4000
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{ee}}",
             "destination": "ee",
-            "keySend": "l"
+            "keyPress": "l"
           }
         }
       ],
@@ -415,44 +415,44 @@
     {
       "commands": [
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{ee}}",
             "destination": "ee",
-            "keySend": "h"
+            "keyPress": "h"
           }
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{pp}}",
             "destination": "pp",
-            "keySend": "5"
+            "keyPress": "5"
           }
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{bish}}",
             "destination": "bish",
-            "keySend": "f12"
+            "keyPress": "f12"
           },
           "delayAfter": 13000
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{pp}}",
             "destination": "pp",
-            "keySend": "6"
+            "keyPress": "6"
           }
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{ee}}",
             "destination": "ee",
-            "keySend": "j"
+            "keyPress": "j"
           },
           "delayAfter": 300
         },
@@ -467,24 +467,24 @@
     {
       "commands": [
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{spoil}}",
             "destination": "spoil",
-            "keySend": "f6"
+            "keyPress": "f6"
           }
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{craft}}",
             "destination": "craft",
-            "keySend": "f6"
+            "keyPress": "f6"
           }
         },
         {
           "destination": "tyrs",
-          "keySend": "f6"
+          "keyPress": "f6"
         }
       ],
       "name": "To Me",
@@ -493,11 +493,11 @@
     {
       "commands": [
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{craft}}",
             "destination": "craft",
-            "keySend": "f4"
+            "keyPress": "f4"
           }
         }
       ],
@@ -507,11 +507,11 @@
     {
       "commands": [
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{spoil}}",
             "destination": "spoil",
-            "keySend": "4"
+            "keyPress": "4"
           }
         }
       ],
@@ -522,7 +522,7 @@
       "commands": [
         {
           "destination": "tyrs",
-          "keySend": "1"
+          "keyPress": "1"
         }
       ],
       "name": "Fury Fist",
@@ -533,46 +533,46 @@
       "commands": [
         {
           "destination": "tyrs",
-          "keySend": "f9"
+          "keyPress": "f9"
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{spoil}}",
             "destination": "spoil",
-            "keySend": "f11"
+            "keyPress": "f11"
           }
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{craft}}",
             "destination": "craft",
-            "keySend": "f11"
+            "keyPress": "f11"
           }
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{se}}",
             "destination": "se",
-            "keySend": "-"
+            "keyPress": "-"
           }
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{ee}}",
             "destination": "ee",
-            "keySend": "-"
+            "keyPress": "-"
           }
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{bish}}",
             "destination": "bish",
-            "keySend": "-"
+            "keyPress": "-"
           }
         }
       ],
@@ -583,29 +583,29 @@
       "threads": [
         [
           {
-            "macro": "keySend",
+            "macro": "keyPress",
             "variables": {
               "focusPid": "{{bish}}",
               "destination": "bish",
-              "keySend": "f3"
+              "keyPress": "f3"
             }
           },
           {
-            "macro": "keySend",
+            "macro": "keyPress",
             "variables": {
               "focusPid": "{{ee}}",
               "destination": "ee",
-              "keySend": "f4"
+              "keyPress": "f4"
             }
           }
         ],
         [
           {
-            "macro": "keySend",
+            "macro": "keyPress",
             "variables": {
               "focusPid": "{{se}}",
               "destination": "se",
-              "keySend": "f4"
+              "keyPress": "f4"
             }
           }
         ]
@@ -617,21 +617,21 @@
       "threads": [
         [
           {
-            "macro": "keySend",
+            "macro": "keyPress",
             "variables": {
               "focusPid": "{{ee}}",
               "destination": "ee",
-              "keySend": "f9"
+              "keyPress": "f9"
             }
           }
         ],
         [
           {
-            "macro": "keySend",
+            "macro": "keyPress",
             "variables": {
               "focusPid": "{{se}}",
               "destination": "se",
-              "keySend": "f9"
+              "keyPress": "f9"
             }
           }
         ]
@@ -642,11 +642,11 @@
     {
       "commands": [
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{ee}}",
             "destination": "ee",
-            "keySend": "3"
+            "keyPress": "3"
           }
         }
       ],
@@ -657,29 +657,29 @@
       "threads": [
         [
           {
-            "macro": "keySend",
+            "macro": "keyPress",
             "variables": {
               "focusPid": "{{bish}}",
               "destination": "bish",
-              "keySend": "f4"
+              "keyPress": "f4"
             }
           },
           {
-            "macro": "keySend",
+            "macro": "keyPress",
             "variables": {
               "focusPid": "{{ee}}",
               "destination": "ee",
-              "keySend": "f4"
+              "keyPress": "f4"
             }
           }
         ],
         [
           {
-            "macro": "keySend",
+            "macro": "keyPress",
             "variables": {
               "focusPid": "{{se}}",
               "destination": "se",
-              "keySend": "f4"
+              "keyPress": "f4"
             }
           }
         ]
@@ -690,11 +690,11 @@
     {
       "commands": [
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{bish}}",
             "destination": "bish",
-            "keySend": "f5"
+            "keyPress": "f5"
           }
         }
       ],
@@ -704,11 +704,11 @@
     {
       "commands": [
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{bish}}",
             "destination": "bish",
-            "keySend": "f9"
+            "keyPress": "f9"
           }
         }
       ],
@@ -719,29 +719,29 @@
       "threads": [
         [
           {
-            "macro": "keySend",
+            "macro": "keyPress",
             "variables": {
               "focusPid": "{{bish}}",
               "destination": "bish",
-              "keySend": "1"
+              "keyPress": "1"
             }
           },
           {
-            "macro": "keySend",
+            "macro": "keyPress",
             "variables": {
               "focusPid": "{{ee}}",
               "destination": "ee",
-              "keySend": "1"
+              "keyPress": "1"
             }
           }
         ],
         [
           {
-            "macro": "keySend",
+            "macro": "keyPress",
             "variables": {
               "focusPid": "{{se}}",
               "destination": "se",
-              "keySend": "1"
+              "keyPress": "1"
             }
           }
         ]
@@ -753,29 +753,29 @@
       "threads": [
         [
           {
-            "macro": "keySend",
+            "macro": "keyPress",
             "variables": {
               "focusPid": "{{bish}}",
               "destination": "bish",
-              "keySend": "2"
+              "keyPress": "2"
             }
           },
           {
-            "macro": "keySend",
+            "macro": "keyPress",
             "variables": {
               "focusPid": "{{ee}}",
               "destination": "ee",
-              "keySend": "2"
+              "keyPress": "2"
             }
           }
         ],
         [
           {
-            "macro": "keySend",
+            "macro": "keyPress",
             "variables": {
               "focusPid": "{{se}}",
               "destination": "se",
-              "keySend": "2"
+              "keyPress": "2"
             }
           }
         ]
@@ -786,11 +786,11 @@
     {
       "commands": [
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{bish}}",
             "destination": "bish",
-            "keySend": "f8"
+            "keyPress": "f8"
           }
         }
       ],
@@ -800,11 +800,11 @@
     {
       "commands": [
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{bish}}",
             "destination": "bish",
-            "keySend": "f10"
+            "keyPress": "f10"
           }
         }
       ],
@@ -814,11 +814,11 @@
     {
       "commands": [
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{bish}}",
             "destination": "bish",
-            "keySend": "f11"
+            "keyPress": "f11"
           }
         }
       ],
@@ -828,11 +828,11 @@
     {
       "commands": [
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{bish}}",
             "destination": "bish",
-            "keySend": "7"
+            "keyPress": "7"
           }
         }
       ],
@@ -842,11 +842,11 @@
     {
       "commands": [
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{ee}}",
             "destination": "ee",
-            "keySend": "f12"
+            "keyPress": "f12"
           }
         }
       ],
@@ -856,36 +856,36 @@
     {
       "commands": [
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{bish}}",
             "destination": "bish",
-            "keySend": "f6"
+            "keyPress": "f6"
           }
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "delayAfter": 200,
           "variables": {
             "focusPid": "{{bd}}",
             "destination": "bd",
-            "keySend": "f6"
+            "keyPress": "f6"
           }
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{sws}}",
             "destination": "sws",
-            "keySend": "f6"
+            "keyPress": "f6"
           }
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{wc}}",
             "destination": "wc",
-            "keySend": "f6"
+            "keyPress": "f6"
           }
         },
         {
@@ -893,27 +893,27 @@
           "destination": "da"
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{se}}",
             "destination": "se",
-            "keySend": "f6"
+            "keyPress": "f6"
           }
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{ee}}",
             "destination": "ee",
-            "keySend": "f6"
+            "keyPress": "f6"
           }
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{pp}}",
             "destination": "pp",
-            "keySend": "f6"
+            "keyPress": "f6"
           }
         }
       ],
@@ -923,11 +923,11 @@
     {
       "commands": [
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{wc}}",
             "destination": "wc",
-            "keySend": "4"
+            "keyPress": "4"
           }
         }
       ],
@@ -970,65 +970,65 @@
       "commands": [
         {
           "destination": "tyrs",
-          "keySend": "="
+          "keyPress": "="
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{spoil}}",
             "destination": "spoil",
-            "keySend": "="
+            "keyPress": "="
           }
         },
         {
           // DO NOT trigger first, otherwise it will triger another shorcut
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{sws}}",
             "destination": "sws",
-            "keySend": "="
+            "keyPress": "="
           },
           "delayAfter": 700
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{bd}}",
             "destination": "bd",
-            "keySend": "="
+            "keyPress": "="
           },
           "delayAfter": 700
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{da}}",
             "destination": "da",
-            "keySend": "="
+            "keyPress": "="
           }
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{bish}}",
             "destination": "bish",
-            "keySend": "="
+            "keyPress": "="
           }
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{wc}}",
             "destination": "wc",
-            "keySend": "="
+            "keyPress": "="
           }
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{craft}}",
             "destination": "craft",
-            "keySend": "="
+            "keyPress": "="
           }
         }
       ],
@@ -1039,7 +1039,7 @@
       "commands": [
         {
           "destination": "tyrs",
-          "keySend": "7"
+          "keyPress": "7"
         }
       ],
       "name": "Tyrs target each other",
@@ -1050,21 +1050,21 @@
         [
           {
             "destination": "monk",
-            "keySend": "f2",
+            "keyPress": "f2",
             "holdKeys": "control"
           }
         ],
         [
           {
             "destination": "tyrant",
-            "keySend": "f2",
+            "keyPress": "f2",
             "holdKeys": "control"
           }
         ],
         [
           {
             "destination": "raider",
-            "keySend": "f2",
+            "keyPress": "f2",
             "holdKeys": "control"
           }
         ]
@@ -1076,7 +1076,7 @@
       "commands": [
         {
           "destination": "tyrs",
-          "keySend": "2"
+          "keyPress": "2"
         }
       ],
       "name": "Tyrs target each other",
@@ -1085,87 +1085,87 @@
     {
       "commands": [
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{spoil}}",
             "destination": "spoil",
-            "keySend": "8"
+            "keyPress": "8"
           }
         },
         {
           "destination": "tyrs",
-          "keySend": "8"
+          "keyPress": "8"
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{bish}}",
             "destination": "bish",
-            "keySend": "8"
+            "keyPress": "8"
           }
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{wc}}",
             "destination": "wc",
-            "keySend": "8"
+            "keyPress": "8"
           }
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{se}}",
             "destination": "se",
-            "keySend": "8"
+            "keyPress": "8"
           }
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{ee}}",
             "destination": "ee",
-            "keySend": "8"
+            "keyPress": "8"
           }
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{pp}}",
             "destination": "pp",
-            "keySend": "8"
+            "keyPress": "8"
           }
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{craft}}",
             "destination": "craft",
-            "keySend": "8"
+            "keyPress": "8"
           }
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{bd}}",
             "destination": "bd",
-            "keySend": "8"
+            "keyPress": "8"
           }
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{sws}}",
             "destination": "sws",
-            "keySend": "8"
+            "keyPress": "8"
           }
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{da}}",
             "destination": "da",
-            "keySend": "8"
+            "keyPress": "8"
           }
         }
       ],
@@ -1175,87 +1175,87 @@
     {
       "commands": [
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{spoil}}",
             "destination": "spoil",
-            "keySend": "9"
+            "keyPress": "9"
           }
         },
         {
           "destination": "tyrs",
-          "keySend": "9"
+          "keyPress": "9"
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{bish}}",
             "destination": "bish",
-            "keySend": "9"
+            "keyPress": "9"
           }
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{wc}}",
             "destination": "wc",
-            "keySend": "9"
+            "keyPress": "9"
           }
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{se}}",
             "destination": "se",
-            "keySend": "9"
+            "keyPress": "9"
           }
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{ee}}",
             "destination": "ee",
-            "keySend": "9"
+            "keyPress": "9"
           }
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{pp}}",
             "destination": "pp",
-            "keySend": "9"
+            "keyPress": "9"
           }
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{craft}}",
             "destination": "craft",
-            "keySend": "9"
+            "keyPress": "9"
           }
         },
          {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{bd}}",
             "destination": "bd",
-            "keySend": "9"
+            "keyPress": "9"
           }
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{sws}}",
             "destination": "sws",
-            "keySend": "9"
+            "keyPress": "9"
           }
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{da}}",
             "destination": "da",
-            "keySend": "9"
+            "keyPress": "9"
           }
         }
       ],
@@ -1265,87 +1265,87 @@
     {
       "commands": [
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{spoil}}",
             "destination": "spoil",
-            "keySend": "0"
+            "keyPress": "0"
           }
         },
         {
           "destination": "tyrs",
-          "keySend": "0"
+          "keyPress": "0"
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{bish}}",
             "destination": "bish",
-            "keySend": "0"
+            "keyPress": "0"
           }
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{wc}}",
             "destination": "wc",
-            "keySend": "0"
+            "keyPress": "0"
           }
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{se}}",
             "destination": "se",
-            "keySend": "0"
+            "keyPress": "0"
           }
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{ee}}",
             "destination": "ee",
-            "keySend": "0"
+            "keyPress": "0"
           }
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{pp}}",
             "destination": "pp",
-            "keySend": "0"
+            "keyPress": "0"
           }
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{craft}}",
             "destination": "craft",
-            "keySend": "0"
+            "keyPress": "0"
           }
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{bd}}",
             "destination": "bd",
-            "keySend": "0"
+            "keyPress": "0"
           }
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{sws}}",
             "destination": "sws",
-            "keySend": "0"
+            "keyPress": "0"
           }
         },
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{da}}",
             "destination": "da",
-            "keySend": "0"
+            "keyPress": "0"
           }
         }
       ],
@@ -1355,11 +1355,11 @@
     {
       "commands": [
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{bish}}",
             "destination": "bish",
-            "keySend": "3"
+            "keyPress": "3"
           }
         }
       ],
@@ -1369,11 +1369,11 @@
     {
       "commands": [
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "focusPid": "{{bish}}",
             "destination": "bish",
-            "keySend": "4"
+            "keyPress": "4"
           }
         }
       ],
@@ -1384,28 +1384,28 @@
       "threads": [
         [
           {
-            "macro": "keySend",
+            "macro": "keyPress",
             "variables": {
               "focusPid": "{{craft}}",
               "destination": "craft",
-              "keySend": "2"
+              "keyPress": "2"
             }
           }
         ],
         [
           {
-            "macro": "keySend",
+            "macro": "keyPress",
             "variables": {
               "focusPid": "{{spoil}}",
               "destination": "spoil",
-              "keySend": "2"
+              "keyPress": "2"
             }
           }
         ],
         [
           {
             "destination": "tyrs",
-            "keySend": "f4"
+            "keyPress": "f4"
           }
         ]
       ],
@@ -1415,7 +1415,7 @@
     {
       "commands": [
         {
-          "keySend": "5",
+          "keyPress": "5",
           "destination": "tyrs"
         }
       ],
@@ -1425,11 +1425,11 @@
     {
       "commands": [
         {
-          "macro": "keySend",
+          "macro": "keyPress",
           "variables": {
             "destination": "se",
             "focusPid": "{{se}}",
-            "keySend": "3"
+            "keyPress": "3"
           }
         }
       ],
