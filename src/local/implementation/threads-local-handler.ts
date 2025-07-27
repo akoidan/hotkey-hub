@@ -50,7 +50,7 @@ export class ThreadsLocalHandler extends BaseLocalHandler {
   ): AsyncGenerator<void> {
     const that = this;
     yield *this.mergeAsyncGenerators((comb.threads.map(async function* (receiver: ThreadLocalArray, i: number): AsyncGenerator<void> {
-      yield *that.semaphorService.spawnChild(String(i), async function* (): AsyncGenerator<void> {
+      yield *that.semaphorService.spawnGeneratorChild(String(i), async function* (): AsyncGenerator<void> {
         for (const command of receiver) {
           yield *that.startChain.handle(command, undefined, undefined, transactionId);
         }

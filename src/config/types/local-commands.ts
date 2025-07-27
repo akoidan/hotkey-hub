@@ -1,10 +1,8 @@
 /* eslint-disable max-lines, @typescript-eslint/no-use-before-define */
-import type {ZodType} from 'zod';
-import {z, ZodIssueCode} from 'zod';
+import {z, ZodIssueCode, type ZodType} from 'zod';
 import {schemaRootCache} from '@/config/types/cache';
 import {variableRegex} from '@/config/types/variables';
-import type {RemoteCommand} from '@/config/types/remote-commands';
-import {delayCommandsSchema, remoteCommandSchema} from '@/config/types/remote-commands';
+import {type RemoteCommand, delayCommandsSchema, remoteCommandSchema} from '@/config/types/remote-commands';
 
 const macroLocalCommandSchema = z.object({
   macro: z.string().describe('Name of the macro (key from macros section object)'),

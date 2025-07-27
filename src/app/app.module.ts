@@ -8,7 +8,7 @@ import {LocalModule} from '@/local/local.module';
 import {NativeModule} from '@/native/native-module';
 import clc from 'cli-color';
 import {INativeModule, ModifierKey, Native} from '@/native/native-model';
-import {Shortcut} from "@/config/types/shortcut";
+import {Shortcut} from '@/config/types/shortcut';
 
 @Module({
   imports: [ConfigModule, ClientModule, LocalModule, NativeModule],

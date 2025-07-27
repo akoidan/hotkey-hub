@@ -4,7 +4,7 @@ import {VariableResolutionService} from '@/local/variable-resolution.service';
 import {DelayService} from '@/local/delay.service';
 import {BaseLocalHandler} from '@/local/implementation/base-local-handler';
 import {MacroLocalCommand, UnkownCommand} from '@/config/types/local-commands';
-import {Delay} from "@/config/types/remote-commands";
+import {Delay} from '@/config/types/remote-commands';
 
 @Injectable()
 export class MacroLocalHandler extends BaseLocalHandler {

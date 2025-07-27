@@ -1,7 +1,7 @@
 import {Injectable, Logger} from '@nestjs/common';
 import {BaseLocalHandler} from '@/local/implementation/base-local-handler';
-import {LoopLocalCommand, ThreadsLocalCommand, UnkownCommand} from '@/config/types/local-commands';
-import clc from "cli-color";
+import {LoopLocalCommand, UnkownCommand} from '@/config/types/local-commands';
+import clc from 'cli-color';
 
 @Injectable()
 export class LoopLocalHandler extends BaseLocalHandler {
@@ -15,12 +15,7 @@ export class LoopLocalHandler extends BaseLocalHandler {
     return Boolean((command as LoopLocalCommand).loop);
   }
 
-  async* execute(
-    comb: LoopLocalCommand,
-    combDelayAfter: number | undefined,
-    combDelayBefore: number | undefined,
-    transactionId: string | undefined,
-  ): AsyncGenerator<void> {
+  async* execute(comb: LoopLocalCommand,): AsyncGenerator<void> {
     for (let i = 0; comb.loop < 0 || i < comb.loop; i++) {
       this.logger.debug(`Running ${clc.yellow(i+1)} iteration`);
       for (const command of comb.commands!) {

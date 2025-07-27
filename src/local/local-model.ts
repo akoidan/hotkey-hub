@@ -1,7 +1,7 @@
 export enum ProcessStatus {
-  TERMINATING,
-  RUNNING,
-  STOPPED,
+  TERMINATING = 'TERMINATING',
+  RUNNING = 'RUNNING',
+  STOPPED = 'STOPPED',
 }
 
 export interface IterationDescription {

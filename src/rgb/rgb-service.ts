@@ -5,7 +5,7 @@ import {
 import {Client} from 'openrgb-sdk';
 import ClientType from 'openrgb-sdk/types/client';
 import {ConfigService} from '@/config/config-service';
-import {RgbServiceI} from "@/rgb/rgb-model";
+import {RgbServiceI} from '@/rgb/rgb-model';
 
 
 interface Color {

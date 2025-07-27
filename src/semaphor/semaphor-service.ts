@@ -25,7 +25,7 @@ export class SemaphorService {
     const parts = shortCut.split('+');
     const randomValue = `${parts[parts.length - 1]}-${this.getNewTransactionId()}`;
     this.transactionGroups[randomValue] = [];
-    await this.asyncLocalStorage.run(new Map(), async () => {
+    await this.asyncLocalStorage.run(new Map(), async() => {
       this.asyncLocalStorage.getStore()!.set(SemaphorService.COMB_KEY, randomValue);
       this.asyncLocalStorage.getStore()!.set(SemaphorService.COMB_KEYSTROKE, shortCut);
       await cb();
@@ -37,7 +37,15 @@ export class SemaphorService {
     return this.asyncLocalStorage.getStore()!.get(SemaphorService.COMB_KEY) as string;
   }
 
-  public async *spawnChild(i: string, cb: () => AsyncGenerator<void>): AsyncGenerator<void> {
+  public async spawnPromiseChild(i: string, cb: () => Promise<void>): Promise<void> {
+    const parentId = this.getCurrentOperationId();
+    const newId = `${parentId}-${i}`;
+    const newStorageMap: Map<string, any> = new Map<string, any>().set(SemaphorService.COMB_KEY, newId);
+    await this.asyncLocalStorage.run(newStorageMap, cb);
+    this.logger.debug(`All actions for ${parentId} are completed`);
+  }
+
+  public async *spawnGeneratorChild(i: string, cb: () => AsyncGenerator<void>): AsyncGenerator<void> {
     const parentId = this.getCurrentOperationId();
     const newId = `${parentId}-${i}`;
     const newStorageMap = new Map<string, any>(this.asyncLocalStorage.getStore());

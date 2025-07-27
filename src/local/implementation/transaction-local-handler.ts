@@ -1,10 +1,10 @@
-import {Injectable, Logger, LoggerService} from '@nestjs/common';
+import {Injectable, Logger} from '@nestjs/common';
 import {DelayService} from '@/local/delay.service';
 import {SemaphorService} from '@/semaphor/semaphor-service';
 import {BaseLocalHandler} from '@/local/implementation/base-local-handler';
 import {VariableResolutionService} from '@/local/variable-resolution.service';
 import {TransactionLocalCommand, UnkownCommand} from '@/config/types/local-commands';
-import {Delay} from "@/config/types/remote-commands";
+import {Delay} from '@/config/types/remote-commands';
 
 @Injectable()
 export class TransactionLocalHandler extends BaseLocalHandler {
@@ -31,7 +31,7 @@ export class TransactionLocalHandler extends BaseLocalHandler {
     const preparedInput = this.variableService.replaceEnvVars(input);
     const tId = transactionId ?? this.semaphoreService.getNewTransactionId();
     const that = this;
-    yield *this.semaphoreService.spawnChild(`${preparedInput.transaction}-${tId}`, async function* ()  {
+    yield *this.semaphoreService.spawnGeneratorChild(`${preparedInput.transaction}-${tId}`, async function* generatorProcess()  {
       try {
         await that.semaphoreService.startTransaction(preparedInput.transaction, tId);
         if (typeof (preparedInput as Delay).delayBefore === 'number') { // ignore if it's a variable or undefined

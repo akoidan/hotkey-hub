@@ -1,6 +1,6 @@
 /* eslint-disable max-lines*/
 import {z, ZodIssueCode} from 'zod';
-import {unknownCommandSchema} from "@/config/types/local-commands";
+import {unknownCommandSchema} from '@/config/types/local-commands';
 
 /* eslint-disable array-element-newline */
 const allowedKeys = [

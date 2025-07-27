@@ -14,8 +14,8 @@ import {MacroLocalHandler} from '@/local/implementation/macro-local-handler';
 import {TransactionLocalHandler} from '@/local/implementation/transaction-local-handler';
 import {ExpressionLocalHandler} from '@/local/implementation/expression-local-handler';
 import {ThreadsLocalHandler} from '@/local/implementation/threads-local-handler';
-import {LoopLocalHandler} from "@/local/implementation/loop-local-handler";
-import {RgbModule} from "@/rgb/rgb.module";
+import {LoopLocalHandler} from '@/local/implementation/loop-local-handler';
+import {RgbModule} from '@/rgb/rgb.module';
 
 
 const processingProviders: Provider[] = [
