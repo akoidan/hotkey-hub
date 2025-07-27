@@ -95,7 +95,8 @@ const findPidsByNameRemoteCommandSchema = z.object({
     .describe('Name of the executable file to search for. Example: "Chrome.exe". Case-sensitive on some operating systems.'),
   assignIds: z.string()
     .optional()
-    .describe('Assign list of pids to a variable. Note variable type would be an array in this case. Use expression to pick any of the results'),
+    .describe('Assign list of pids to a variable.' +
+      ' Note variable type would be an array in this case. Use expression to pick any of the results'),
 })
   .strict()
   .merge(baseSchema)
@@ -104,9 +105,9 @@ const findPidsByNameRemoteCommandSchema = z.object({
 const findProcessWindowsRemoteCommandSchema = z.object({
   findProcessWindows: z.union([z.number(), variableValueSchema])
     .describe('Process ID to find window IDs for. Process must be running with visible windows.'),
-  assignIds: z.array(z.string())
+  assignIds: z.string()
     .optional()
-    .describe('Variable names to store found window IDs. Use these variables in later window management commands.'),
+    .describe('Variable name to store list of windows ids'),
 })
   .strict()
   .merge(baseSchema)
@@ -120,8 +121,8 @@ const findProcessesWindowsRemoteCommandSchema = z.object({
         ' The length of this array should match the length of assignIds if specified.'),
   assignIds: z.array(z.string())
     .optional()
-    .describe('List of variable names to store the found window IDs.' +
-      ' Each process\'s window IDs will be assigned to the corresponding variable.'),
+    .describe('List of variable names to store the found windows IDs.' +
+      ' Each process\'s window IDs array will be assigned to the corresponding variable.'),
 })
   .strict()
   .merge(baseSchema)

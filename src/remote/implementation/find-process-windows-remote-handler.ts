@@ -18,7 +18,7 @@ export class FindProcessWindowsRemoteHandler extends CommandRemoteHandler {
   }
 
   async execute(destination: string, command: FindProcessWindowsRemoteCommand): Promise<void> {
-    const response = await this.clientService.getProcessWindows(destination, command.findProcessWindows);
+    const response = await this.clientService.getProcessWindows(destination, command.findProcessWindows as number);
 
     if (command.assignIds) {
       await this.configService.setVariable(command.assignIds, response.wids);
