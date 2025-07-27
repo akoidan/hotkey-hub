@@ -178,7 +178,7 @@ describe('Logic service', () => {
         {
           destination: 'this',
           findProcessWindows: 789,
-          assignIds: 'windowIds'
+          assignIds: 'windowIds',
         },
       ],
       name: 'Find process windows test',

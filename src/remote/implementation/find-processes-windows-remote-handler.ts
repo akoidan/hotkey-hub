@@ -22,17 +22,7 @@ export class FindProcessesWindowsRemoteHandler extends CommandRemoteHandler {
       .map(async(id) => this.clientService.getProcessWindows(destination, id)));
     if (command.assignIds) {
       for (let i = 0; i < command.findProcessesWindows.length; i++) {
-        let id: any = null;
-        if (command.pick === 'last') {
-          id = responses[i].wids[responses[i].wids.length - 1];
-        } else if (command.pick === 'first') {
-          // eslint-disable-next-line @typescript-eslint/prefer-destructuring
-          id = responses[i].wids[0];
-        } else {
-          id = responses[i].wids;
-        }
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        await this.configService.setVariable(command.assignIds[i], id);
+        await this.configService.setVariable(command.assignIds[i], responses[i].wids);
       }
     }
   }

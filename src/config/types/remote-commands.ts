@@ -93,12 +93,9 @@ const typeTextRemoteCommandSchema = z.object({
 const findPidsByNameRemoteCommandSchema = z.object({
   findPidsByName: z.union([z.string(), variableValueSchema])
     .describe('Name of the executable file to search for. Example: "Chrome.exe". Case-sensitive on some operating systems.'),
-  assignIds: z.array(z.string())
+  assignIds: z.string()
     .optional()
-    .describe('List of variable names to store the found process IDs. The variables can be used in subsequent commands that accept PIDs.'),
-  pick: z.enum(['first', 'last', 'all'])
-    .optional()
-    .describe('If multiple ids are returned assign policy. If not specified first would be used'),
+    .describe('Assign list of pids to a variable. Note variable type would be an array in this case. Use expression to pick any of the results'),
 })
   .strict()
   .merge(baseSchema)
@@ -110,21 +107,12 @@ const findProcessWindowsRemoteCommandSchema = z.object({
   assignIds: z.array(z.string())
     .optional()
     .describe('Variable names to store found window IDs. Use these variables in later window management commands.'),
-  pick: z.enum(['first', 'last', 'all'])
-    .optional()
-    .describe('If multiple ids are returned assign policy. If not specified first would be used'),
 })
   .strict()
   .merge(baseSchema)
   .describe('Finds all visible windows belonging to a specific process.' +
     ' Useful for window management automation when a process has multiple windows.');
 
-const pickAssignmentPolicy = z.enum(['first', 'last', 'all'])
-  .describe('Policy for assigning multiple results to variables:\n' +
-    '- first: Use only the first result\n' +
-    '- last: Use only the last result\n' +
-    '- all: Use all results (must have enough variables defined in assignIds)\n' +
-    'Defaults to "first" if not specified.');
 
 const findProcessesWindowsRemoteCommandSchema = z.object({
   findProcessesWindows: z.union([z.array(z.number()), variableValueSchema])
@@ -134,7 +122,6 @@ const findProcessesWindowsRemoteCommandSchema = z.object({
     .optional()
     .describe('List of variable names to store the found window IDs.' +
       ' Each process\'s window IDs will be assigned to the corresponding variable.'),
-  pick: pickAssignmentPolicy.optional(),
 })
   .strict()
   .merge(baseSchema)
