@@ -9,7 +9,7 @@ import {DelayService} from '@/local/delay.service';
 import {SemaphorModule} from '@/semaphor/semaphor.module';
 import {RandomModule} from '@/random/random.module';
 import {Provider} from '@nestjs/common/interfaces/modules/provider.interface';
-import {BaseLocalHandler} from '@/local/implementation/base-local-handler';
+import {BaseLocalHandler} from '@/local/base-local-handler';
 import {MacroLocalHandler} from '@/local/implementation/macro-local-handler';
 import {TransactionLocalHandler} from '@/local/implementation/transaction-local-handler';
 import {ExpressionLocalHandler} from '@/local/implementation/expression-local-handler';

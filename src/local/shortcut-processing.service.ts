@@ -1,6 +1,6 @@
 import {Injectable, Logger} from '@nestjs/common';
 import clc from 'cli-color';
-import {BaseLocalHandler} from '@/local/implementation/base-local-handler';
+import {BaseLocalHandler} from '@/local/base-local-handler';
 import {Shortcut} from '@/config/types/shortcut';
 import {SemaphorService} from '@/semaphor/semaphor-service';
 import {RgbService} from '@/rgb/rgb-service';

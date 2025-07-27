@@ -1,5 +1,5 @@
 import {Injectable, Logger} from '@nestjs/common';
-import {BaseLocalHandler} from '@/local/implementation/base-local-handler';
+import {BaseLocalHandler} from '@/local/base-local-handler';
 import {LoopLocalCommand, UnkownCommand} from '@/config/types/local-commands';
 import clc from 'cli-color';
 

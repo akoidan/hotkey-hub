@@ -2,7 +2,7 @@ import {Injectable} from '@nestjs/common';
 import {ConfigService} from '@/config/config-service';
 import {VariableResolutionService} from '@/local/variable-resolution.service';
 import {DelayService} from '@/local/delay.service';
-import {BaseLocalHandler} from '@/local/implementation/base-local-handler';
+import {BaseLocalHandler} from '@/local/base-local-handler';
 import {MacroLocalCommand, UnkownCommand} from '@/config/types/local-commands';
 import {Delay} from '@/config/types/remote-commands';
 
