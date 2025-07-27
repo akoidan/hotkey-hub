@@ -3,7 +3,7 @@ import {z} from 'zod';
 
 
 import {variablesSchema, variableValueSchema} from '@/config/types/variables';
-import {shortCut, shortcutSchema, shortcutsSchema} from '@/config/types/shortcut';
+import {shortcutSchema, shortcutsSchema} from '@/config/types/shortcut';
 import {globalDelaySchema} from '@/config/types/delays';
 import {
   delayCommandsSchema,
@@ -23,10 +23,10 @@ import {
   typeTextRemoteCommandSchema,
 } from '@/config/types/remote-commands';
 import {
-  expressionLocalCommandSchema,
+  expressionLocalCommandSchema, loopLocalCommandSchema,
   macroLocalCommandSchema,
-  macroSchema,
-  macrosDefinitionSchema,
+  macroDefinitionSchema,
+  macrosListSchema,
   macroVariablesDescriptionSchema,
   threadsLocalCommandSchema,
   transactionLocalCommandSchema,
@@ -57,7 +57,7 @@ const aARootSchema = z.object({
   rgb: rgbSchema,
   combinations: shortcutsSchema,
   delays: globalDelaySchema,
-  macros: macrosDefinitionSchema,
+  macros: macrosListSchema,
 }).strict();
 
 // Generate TypeScript type
@@ -75,16 +75,15 @@ export type {
   RgbData,
 };
 
-
 export {
   rgbSchema,
   aARootSchema,
-  shortCut,
   globalDelaySchema,
   ipsSchema,
   shortcutSchema,
   variableValueSchema,
   shortcutsSchema,
+  loopLocalCommandSchema,
   variablesSchema,
   keyPressRemoteCommandSchema,
   leftMouseClickRemoteCommandSchema,
@@ -107,6 +106,6 @@ export {
   expressionLocalCommandSchema,
   transactionLocalCommandSchema,
   macroVariablesDescriptionSchema,
-  macroSchema,
-  macrosDefinitionSchema,
+  macroDefinitionSchema,
+  macrosListSchema,
 };

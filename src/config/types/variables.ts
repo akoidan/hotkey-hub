@@ -12,8 +12,7 @@ function extractVariableName(variable: unknown): string|undefined {
 }
 
 const variableValueSchema = z.string().regex(variableRegex)
-  .describe('Inject variable with this name. Either can be an environment variable, ' +
-    'either a variables passed to a macro from variables section');
+  .describe('Pass a variable in curly braces to replace this value with a variable from an environment variable or variables.json file. Example of format: {{varName}}');
 
 type Variables = z.infer<typeof variablesSchema>
 

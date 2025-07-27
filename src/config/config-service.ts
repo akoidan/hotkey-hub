@@ -3,7 +3,7 @@ import {
   ConfigData,
   ConfigDataWoMacro,
   IpsData,
-  macrosDefinitionSchema,
+  macrosListSchema,
   RgbData,
   variablesSchema,
 } from '@/config/types/schema';
@@ -50,7 +50,7 @@ export class ConfigService implements ConfigProvider {
     const macroConfigString = await this.configReader.loadMacroConfigString();
     const separateMacros: NonNullable<MacroList> = macroConfigString ? parse(macroConfigString) as NonNullable<MacroList> : {};
     schemaRootCache.macros = separateMacros;
-    await macrosDefinitionSchema.parseAsync(separateMacros);
+    await macrosListSchema.parseAsync(separateMacros);
     schemaRootCache.macros = null!;
     return separateMacros;
   }

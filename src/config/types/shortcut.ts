@@ -1,4 +1,3 @@
-/* eslint-disable max-lines*/
 import {z, ZodIssueCode} from 'zod';
 import {unknownCommandSchema} from '@/config/types/local-commands';
 
@@ -37,7 +36,7 @@ const modifierKeys = [
 /* eslint-enable array-element-newline */
 
 // Zod schema for shortcuts
-const shortCut = z
+const shortcut = z
   .string()
   .refine((value) => {
     const modifiers = value.toLowerCase().split('+');
@@ -63,7 +62,7 @@ const shortcutSchema = z.object({
   delayAfter: z.number().optional().describe('Delay in milliseconds after each command for this shorcut'),
   delayBefore: z.number().optional().describe('Delay in milliseconds before each command for this shorcut'),
   name: z.string().describe('Name that is printed during startup with a shorcut'),
-  shortCut,
+  shortCut: shortcut,
   commands: z.array(unknownCommandSchema).describe('List of commands for this shortcut'),
   pausable: z.boolean().default(false).optional()
       .describe('If set to true pressing this shortcut again would be cancel current run'),
@@ -85,15 +84,12 @@ const shortcutsSchema = z.array(shortcutSchema)
   }).describe('Shorcuts mappings. Main logic');
 
 type Shortcut = z.infer<typeof shortcutSchema>;
-type Shortscut = z.infer<typeof shortcutsSchema>;
 
 export type {
   Shortcut,
-  Shortscut,
 };
 
 export {
-  shortCut,
   shortcutSchema,
   shortcutsSchema,
 };

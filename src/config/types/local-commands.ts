@@ -62,7 +62,7 @@ const macroLocalCommandSchema = z.object({
         });
       }
     }
-  }).describe('Runs a macro from the macros section');
+  }).describe('Macro command allow to avoid duplication of config. Its similar to a function call. This section will call a macro from the macros section.');
 
 const expressionLocalCommandSchema = z.object({
   assignVariable: z.string().describe('Variable name to assign to'),
@@ -88,7 +88,7 @@ const unknownCommandSchema = z.lazy(() => z.union([
   transactionLocalCommandSchema,
   threadsLocalCommandSchema,
   loopLocalCommandSchema,
-]).describe('A remote command or a macro name')) as ZodType<UnkownCommand>; // z.lazy requires manual type definition cause of reqursive type
+])).describe('A command that would be executed on this machine') as ZodType<UnkownCommand>; // z.lazy requires manual type definition cause of reqursive type
 
 const transactionLocalCommandSchema = z.lazy(() => z.object({
   commands: z.array(unknownCommandSchema).describe('Set of commands for this transaction'),
@@ -101,8 +101,7 @@ const threadLocalArraySchema = z.array(unknownCommandSchema)
 const loopLocalCommandSchema = z.lazy(() => z.object({
   commands: z.array(unknownCommandSchema).describe('Set of commands for this transaction'),
   loop: z.number()
-    .describe('Repeat commands in this schema in loop intil this shortcut ' +
-      'is pressed again or number of iteration is finished. pass -1 for infinity'),
+    .describe('Run commands in this loop N times. If you pass a negative number it will run for infinity. If a command on top is pausable pressing shorcut again will exit this loop.'),
 })) as any as ZodType<{ commands: UnkownCommand[], loop: number }>;  // z.lazy requires manual type definition cause of reqursive type
 
 const threadsLocalCommandSchema = z.lazy(() => z.object({
@@ -118,7 +117,7 @@ const macroVariablesDescriptionSchema = z.record(z.object({
   .describe('Set of variables descriptors for macro');
 
 
-const macroSchema = z.object({
+const macroDefinitionSchema = z.object({
   commands: z.array(unknownCommandSchema).describe('Set of commands for this macro'),
   variables: macroVariablesDescriptionSchema,
 })
@@ -126,7 +125,7 @@ const macroSchema = z.object({
   .describe('A macro that can be injected instead of command. That will run commands from its body. Can be also injected with variables.' +
     ' Think of it like a function');
 
-const macrosDefinitionSchema = z.record(macroSchema)
+const macrosListSchema = z.record(macroDefinitionSchema)
   .optional()
   .describe('A map of macros where a key is the macro name and value is its body');
 
@@ -136,7 +135,7 @@ type TransactionLocalCommand = z.infer<typeof transactionLocalCommandSchema>
 type ThreadsLocalCommand = z.infer<typeof threadsLocalCommandSchema>
 type LoopLocalCommand = z.infer<typeof loopLocalCommandSchema>
 type ThreadLocalArray = z.infer<typeof threadLocalArraySchema>
-type MacroList = z.infer<typeof macrosDefinitionSchema>
+type MacroList = z.infer<typeof macrosListSchema>
 type VariablesDefinition = z.infer<typeof macroVariablesDescriptionSchema>
 type UnkownCommand = RemoteCommand
   | MacroLocalCommand
@@ -153,9 +152,9 @@ export {
   expressionLocalCommandSchema,
   transactionLocalCommandSchema,
   macroVariablesDescriptionSchema,
-  macroSchema,
+  macroDefinitionSchema,
   threadLocalArraySchema,
-  macrosDefinitionSchema,
+  macrosListSchema,
 };
 
 export type {
