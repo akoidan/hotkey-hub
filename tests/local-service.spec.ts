@@ -1,21 +1,21 @@
 import type {TestingModule,} from '@nestjs/testing';
 import {Test,} from '@nestjs/testing';
-import {ShortcutProcessingService} from '@/local/shortcut-processing.service';
-import {ClientService} from '@/client/client-service';
+import {ShortcutProcessingService} from '../src/local/shortcut-processing.service';
+import {ClientService} from '../src/client/client-service';
 import {Logger} from '@nestjs/common';
-import {ConfigService} from '@/config/config-service';
-import {ConfigReaderService} from '@/config/config-reader-service';
-import {remoteHandlerProviders} from '@/remote/remote-handler-module';
-import {VariableResolutionService} from '@/local/variable-resolution.service';
-import {CommandLocalHandler} from '@/local/implementation/command-local-handler';
+import {ConfigService} from '../src/config/config-service';
+import {ConfigReaderService} from '../src/config/config-reader-service';
+import {remoteHandlerProviders} from '../src/remote/remote-handler-module';
+import {VariableResolutionService} from '../src/local/variable-resolution.service';
+import {CommandLocalHandler} from '../src/local/implementation/command-local-handler';
 import path from 'path';
-import {AsyncStorageModule} from '@/asyncstore/async-storage.module';
-import {RandomModule} from "@/random/random.module";
-import {SemaphorModule} from "@/semaphor/semaphor.module";
-import {DelayService} from "@/local/delay.service";
-import {processingProviders} from "@/local/local.module";
-import {RgbService} from "@/rgb/rgb-service";
-import {RgbServiceI} from "@/rgb/rgb-model";
+import {AsyncStorageModule} from '../src/asyncstore/async-storage.module';
+import {RandomModule} from "../src/random/random.module";
+import {SemaphorModule} from "../src/semaphor/semaphor.module";
+import {DelayService} from "../src/local/delay.service";
+import {processingProviders} from "../src/local/local.module";
+import {RgbService} from "../src/rgb/rgb-service";
+import {RgbServiceI} from "../src/rgb/rgb-model";
 
 async function getTestModule(configFilePath: string): Promise<TestingModule> {
   const rgbStub: RgbServiceI = new class {
@@ -58,6 +58,233 @@ async function getTestModule(configFilePath: string): Promise<TestingModule> {
 }
 
 describe('Logic service', () => {
+  it('should execute key press remote command', async () => {
+    const testModule = await getTestModule('config-fixture.jsonc');
+    const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
+    const tyrs = testModule.get<ConfigService>(ConfigService);
+    const clientService = testModule.get<ClientService>(ClientService);
+    clientService.keyPress = jest.fn().mockImplementation();
+    const spyKeyPress = jest.spyOn(clientService, 'keyPress');
+    await tyrs.parseConfig();
+
+    await shortCutService.runShortcut({
+      commands: [
+        {
+          destination: 'this',
+          keyPress: 'a',
+          holdKeys: ['shift'],
+          duration: 100
+        },
+      ],
+      name: 'Key press test',
+      shortCut: 'Alt+K',
+    });
+
+    expect(spyKeyPress).toHaveBeenCalledWith('this', {
+      keys: ['a'],
+      holdKeys: ['shift'],
+      duration: 100
+    });
+  });
+
+  it('should execute mouse click remote command', async () => {
+    const testModule = await getTestModule('config-fixture.jsonc');
+    const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
+    const tyrs = testModule.get<ConfigService>(ConfigService);
+    const clientService = testModule.get<ClientService>(ClientService);
+    clientService.mouseMoveClick = jest.fn().mockImplementation();
+    const spyMouseClick = jest.spyOn(clientService, 'mouseMoveClick');
+    await tyrs.parseConfig();
+
+    await shortCutService.runShortcut({
+      commands: [
+        {
+          destination: 'this',
+          mouseMoveX: 100,
+          mouseMoveY: 200
+        },
+      ],
+      name: 'Mouse click test',
+      shortCut: 'Alt+M',
+    });
+
+    expect(spyMouseClick).toHaveBeenCalledWith('this', {
+      x: 100,
+      y: 200
+    });
+  });
+
+  it('should execute find pids by name remote command', async () => {
+    const testModule = await getTestModule('config-fixture.jsonc');
+    const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
+    const tyrs = testModule.get<ConfigService>(ConfigService);
+    const clientService = testModule.get<ClientService>(ClientService);
+    clientService.findPidsByName = jest.fn().mockImplementation();
+    const spyFindPids = jest.spyOn(clientService, 'findPidsByName');
+    await tyrs.parseConfig();
+
+    await shortCutService.runShortcut({
+      commands: [
+        {
+          destination: 'this',
+          findPidsByName: 'notepad.exe'
+        },
+      ],
+      name: 'Find pids test',
+      shortCut: 'Alt+F',
+    });
+
+    expect(spyFindPids).toHaveBeenCalledWith('this', {
+      name: 'notepad.exe'
+    });
+  });
+
+  it('should execute kill process by name remote command', async () => {
+    const testModule = await getTestModule('config-fixture.jsonc');
+    const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
+    const tyrs = testModule.get<ConfigService>(ConfigService);
+    const clientService = testModule.get<ClientService>(ClientService);
+    clientService.killExeByName = jest.fn().mockImplementation();
+    const spyKillProcess = jest.spyOn(clientService, 'killExeByName');
+    await tyrs.parseConfig();
+
+    await shortCutService.runShortcut({
+      commands: [
+        {
+          destination: 'this',
+          killByName: 'notepad.exe'
+        },
+      ],
+      name: 'Kill process test',
+      shortCut: 'Alt+K',
+    });
+
+    expect(spyKillProcess).toHaveBeenCalledWith('this', {
+      name: 'notepad.exe'
+    });
+  });
+
+  it('should execute find process windows remote command', async () => {
+    const testModule = await getTestModule('config-fixture.jsonc');
+    const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
+    const tyrs = testModule.get<ConfigService>(ConfigService);
+    const clientService = testModule.get<ClientService>(ClientService);
+    clientService.getProcessWindows = jest.fn().mockImplementation(() => ({ wids: ['123', '456'] }));
+    const spyGetWindows = jest.spyOn(clientService, 'getProcessWindows');
+    await tyrs.parseConfig();
+
+    await shortCutService.runShortcut({
+      commands: [
+        {
+          destination: 'this',
+          findProcessWindows: 789,
+          assignIds: 'windowIds'
+        },
+      ],
+      name: 'Find process windows test',
+      shortCut: 'Alt+W',
+    });
+
+    expect(spyGetWindows).toHaveBeenCalledWith('this', 789);
+  });
+
+  it('should execute find processes windows remote command', async () => {
+    const testModule = await getTestModule('config-fixture.jsonc');
+    const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
+    const tyrs = testModule.get<ConfigService>(ConfigService);
+    const clientService = testModule.get<ClientService>(ClientService);
+    clientService.getProcessWindows = jest.fn().mockImplementation(() => ({ wids: ['123', '456'] }));
+    const spyGetWindows = jest.spyOn(clientService, 'getProcessWindows');
+    await tyrs.parseConfig();
+
+    await shortCutService.runShortcut({
+      commands: [
+        {
+          destination: 'this',
+          findProcessesWindows: [789, 101],
+          assignIds: ['window1', 'window2'],
+          pick: 'first'
+        },
+      ],
+      name: 'Find processes windows test',
+      shortCut: 'Alt+W',
+    });
+
+    expect(spyGetWindows).toHaveBeenCalledWith('this', 789);
+    expect(spyGetWindows).toHaveBeenCalledWith('this', 101);
+    expect(spyGetWindows).toHaveBeenCalledTimes(2);
+  });
+
+  it('should execute focus process window remote command', async () => {
+    const testModule = await getTestModule('config-fixture.jsonc');
+    const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
+    const tyrs = testModule.get<ConfigService>(ConfigService);
+    const clientService = testModule.get<ClientService>(ClientService);
+    clientService.focusExe = jest.fn().mockImplementation();
+    const spyFocusExe = jest.spyOn(clientService, 'focusExe');
+    await tyrs.parseConfig();
+
+    await shortCutService.runShortcut({
+      commands: [
+        {
+          destination: 'this',
+          focusPid: 789
+        },
+      ],
+      name: 'Focus process window test',
+      shortCut: 'Alt+F',
+    });
+
+    expect(spyFocusExe).toHaveBeenCalledWith('this', { pid: 789 });
+  });
+
+  it('should execute focus window remote command', async () => {
+    const testModule = await getTestModule('config-fixture.jsonc');
+    const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
+    const tyrs = testModule.get<ConfigService>(ConfigService);
+    const clientService = testModule.get<ClientService>(ClientService);
+    clientService.focusWindow = jest.fn().mockImplementation();
+    const spyFocusWindow = jest.spyOn(clientService, 'focusWindow');
+    await tyrs.parseConfig();
+
+    await shortCutService.runShortcut({
+      commands: [
+        {
+          destination: 'this',
+          focusWid: 789
+        },
+      ],
+      name: 'Focus window test',
+      shortCut: 'Alt+F',
+    });
+
+    expect(spyFocusWindow).toHaveBeenCalledWith('this', { wid: 789 });
+  });
+
+  it('should execute type text remote command', async () => {
+    const testModule = await getTestModule('config-fixture.jsonc');
+    const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
+    const tyrs = testModule.get<ConfigService>(ConfigService);
+    const clientService = testModule.get<ClientService>(ClientService);
+    clientService.typeText = jest.fn().mockImplementation();
+    const spyTypeText = jest.spyOn(clientService, 'typeText');
+    await tyrs.parseConfig();
+
+    await shortCutService.runShortcut({
+      commands: [
+        {
+          destination: 'this',
+          typeText: 'Hello World'
+        },
+      ],
+      name: 'Type text test',
+      shortCut: 'Alt+T',
+    });
+
+    expect(spyTypeText).toHaveBeenCalledWith('this', {
+      text: 'Hello World'
+    });
+  });
 
   it('Loop', async () => {
     const testModule = await getTestModule('config-fixture.jsonc');

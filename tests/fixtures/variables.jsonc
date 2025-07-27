@@ -18,5 +18,11 @@
     "that",
     "other"
   ],
-  "pctyr": "laptop"
+  "pctyr": "laptop",
+  "windowIds": [
+    "123",
+    "456"
+  ],
+  "window1": "123",
+  "window2": "123"
 }
