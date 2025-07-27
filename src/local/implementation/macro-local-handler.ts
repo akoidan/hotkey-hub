@@ -4,6 +4,7 @@ import {VariableResolutionService} from '@/local/variable-resolution.service';
 import {DelayService} from '@/local/delay.service';
 import {BaseLocalHandler} from '@/local/implementation/base-local-handler';
 import {MacroLocalCommand, UnkownCommand} from '@/config/types/local-commands';
+import {Delay} from "@/config/types/remote-commands";
 
 @Injectable()
 export class MacroLocalHandler extends BaseLocalHandler {
@@ -37,8 +38,8 @@ export class MacroLocalHandler extends BaseLocalHandler {
         input.variables,
         executable.variables
       );
-      const delayA = (preparedCommand.delayAfter as number | undefined) ?? combDelayAfter;
-      const delayB = (preparedCommand.delayBefore as number | undefined) ?? combDelayBefore;
+      const delayA = ((preparedCommand as Delay).delayAfter as number | undefined) ?? combDelayAfter;
+      const delayB = ((preparedCommand as Delay).delayBefore as number | undefined) ?? combDelayBefore;
       yield *this.startChain.handle(preparedCommand, delayA, delayB, tId);
     }
     // commands in this macro has been already ran in the loop

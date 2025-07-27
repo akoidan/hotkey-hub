@@ -139,6 +139,7 @@ type KillExeByNameRemoteCommand = z.infer<typeof killExeByNameRemoteCommandSchem
 type FindPidsByNameRemoteCommand = z.infer<typeof findPidsByNameRemoteCommandSchema>
 type FindProcessWindowsRemoteCommand = z.infer<typeof findProcessWindowsRemoteCommandSchema>
 type FindProcessesWindowsRemoteCommand = z.infer<typeof findProcessesWindowsRemoteCommandSchema>
+type Delay = z.infer<typeof delayCommandsSchema>;
 
 export type {
   TypeTextRemoteCommand,
@@ -151,6 +152,7 @@ export type {
   ExecuteRemoteCommand,
   RemoteCommand,
   Key,
+  Delay,
   KillExeByPidRemoteCommand,
   KillExeByNameRemoteCommand,
   FindPidsByNameRemoteCommand,

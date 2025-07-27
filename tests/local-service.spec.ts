@@ -64,8 +64,8 @@ describe('Logic service', () => {
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const tyrs = testModule.get<ConfigService>(ConfigService);
     const clientService = testModule.get<ClientService>(ClientService);
-    // clientService.keyPress = jest.fn().mockImplementation();
-    // const spykeyPress = jest.spyOn(clientService, 'keyPress');
+    clientService.keyPress = jest.fn().mockImplementation();
+    const spykeyPress = jest.spyOn(clientService, 'keyPress');
     await tyrs.parseConfig();
     await shortCutService.runShortcut({
       "commands": [
@@ -84,7 +84,8 @@ describe('Logic service', () => {
       "name": "Tyrs attack each other",
       "shortCut": "Alt+2"
     })
-    // expect(spykeyPress).toHaveBeenCalledWith('this', {holdKeys: [], keys: ['f6']});
+    expect(spykeyPress).toHaveBeenCalledWith('that', {holdKeys: [], keys: ['a']});
+    expect(spykeyPress).toHaveBeenCalledTimes(3);
   });
 
 
