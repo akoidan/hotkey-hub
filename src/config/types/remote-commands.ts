@@ -21,7 +21,7 @@ const delayCommandsSchema = z.object({
       'Useful when the command needs time to take effect.'),
   delayBefore: z.union([z.number(), variableValueSchema]).optional()
     .describe('Delay in milliseconds to wait before executing this command. ' +
-      'Useful for creating sequences with precise timing.')
+      'Useful for creating sequences with precise timing.'),
 }).strict();
 
 const baseSchema = z.object({
@@ -112,13 +112,20 @@ const findProcessesWindowsRemoteCommandSchema = z.object({
 }).strict().merge(baseSchema).describe('Finds all visible windows belonging to multiple processes. Similar to findProcessWindows but works with multiple processes at once for efficiency.');
 
 const mouseMoveClickRemoteCommandSchema = z.object({
-  mouseMoveX: z.union([z.number(), variableValueSchema]).describe('X coordinate'),
-  mouseMoveY: z.union([z.number(), variableValueSchema]).describe('Y coordinate'),
-}).strict().merge(baseSchema).describe('Moves mouse to specified coordinates and clicks with left button');
+  mouseMoveX: z.union([z.number(), variableValueSchema]).describe('X coordinate on the screen where the mouse should move. ' +
+    'Can be a fixed number or a variable containing a screen coordinate.'),
+  mouseMoveY: z.union([z.number(), variableValueSchema]).describe('Y coordinate on the screen where the mouse should move. ' +
+    'Can be a fixed number or a variable containing a screen coordinate.'),
+}).strict().merge(baseSchema).describe('Moves mouse cursor to specified screen coordinates and performs a left-click. ' +
+  'This combines mouse movement and clicking into a single atomic action. ' +
+  'Useful for automating UI interactions that require precise cursor positioning.');
 
 const leftMouseClickRemoteCommandSchema = z.object({
-  leftMouseClick: z.boolean(),
-}).strict().merge(baseSchema).describe('Clicks mouse on current position');
+  leftMouseClick: z.boolean().describe('Set to true to perform a left mouse click. ' +
+    'The click will occur at the current cursor position without moving the mouse.'),
+}).strict().merge(baseSchema).describe('Performs a left mouse click at the current cursor position. ' +
+  'Unlike mouseMoveClick, this command does not move the cursor before clicking. ' +
+  'Useful when the cursor is already positioned where you want to click.');
 
 const killExeByNameRemoteCommandSchema = z.object({
   killByName: z.union([z.string(), variableValueSchema]).describe('Name of the executable file to terminate. Example: "Chrome.exe". Case-sensitive on some operating systems.'),
@@ -126,7 +133,10 @@ const killExeByNameRemoteCommandSchema = z.object({
 
 const killExeByPidRemoteCommandSchema = z.object({
   killByPid: z.union([z.number(), variableValueSchema]).describe('Process ID (PID) of the process to terminate. Example: 1234. Must be a valid running process ID.'),
-}).strict().merge(baseSchema).describe('Terminates a specific process by its PID on the remote PC. More precise than killByName as it targets a single specific process.');
+})
+  .strict()
+  .merge(baseSchema)
+  .describe('Terminates a specific process by its PID on the remote PC. More precise than killByName as it targets a single specific process.');
 
 const remoteCommandSchema = z.union([
   keyPressRemoteCommandSchema,

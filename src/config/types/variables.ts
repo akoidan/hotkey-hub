@@ -1,6 +1,7 @@
 import {z} from 'zod';
 
-const variablesSchema = z.record(z.any()).describe('Object containing variable definitions that can be referenced throughout the configuration. ' +
+const variablesSchema = z.record(z.any())
+  .describe('Object containing variable definitions that can be referenced throughout the configuration. ' +
   'Values can be any type, but numeric strings will be automatically converted to integers using parseInt. ' +
   'These variables can be referenced using {{variableName}} syntax in supported fields.');
 

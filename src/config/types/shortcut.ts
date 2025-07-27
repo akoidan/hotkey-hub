@@ -74,8 +74,11 @@ const shortcutSchema = z.object({
     'Commands are executed sequentially unless specified otherwise (e.g., in parallel threads).'),
   pausable: z.boolean().default(false).optional()
     .describe('If true, pressing the shortcut again while commands are running will cancel the execution. ' +
-      'Useful for long-running command sequences that you might need to stop.')
-}).strict().describe('This allows to bind a shortcut to a commands list and define execution behaviour. E.g. press `alt+1` on local PC to send a mouseClick on a remote one');
+      'Useful for long-running command sequences that you might need to stop.'),
+})
+  .strict()
+  .describe('This allows to bind a shortcut to a commands list and define execution behaviour.' +
+    ' E.g. press `alt+1` on local PC to send a mouseClick on a remote one');
 
 const shortcutsSchema = z.array(shortcutSchema)
   .superRefine((combinations, ctx) => {

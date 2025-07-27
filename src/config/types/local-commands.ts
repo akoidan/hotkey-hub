@@ -9,7 +9,7 @@ const macroLocalCommandSchema = z.object({
     'Macros help reduce configuration repetition by reusing command sequences.'),
   variables: z.record(z.union([z.string(), z.number()])).optional()
     .describe('Variables to pass to the macro. Object where keys are variable names and values are their values. ' +
-      'Values can be strings or numbers and must match the types defined in the macro\'s variables section.')
+      'Values can be strings or numbers and must match the types defined in the macro\'s variables section.'),
 })
   .strict()
   .merge(delayCommandsSchema)
@@ -99,12 +99,15 @@ const unknownCommandSchema = z.lazy(() => z.union([
 const transactionLocalCommandSchema = z.lazy(() => z.object({
   commands: z.array(unknownCommandSchema).describe('Sequence of commands to execute as part of this transaction. ' +
     'All commands in a transaction are executed atomically - they either all succeed or all fail.'),
-  transaction: z.string().describe('Unique name for the transaction. Helps with logging and debugging transaction execution.')
+  transaction: z.string().describe('Unique name for the transaction. Helps with logging and debugging transaction execution.'),
 })).describe('Allow to run commands in a transaction. By specifying transaction name you will prevent having 2 transaction with the same name at the time.' +
-  ' By default all remote commands run in transaction with a transaction name of a remotePc from ips section of this config. For example if you specify same transaction name you can prevent running other commands in the middle of this transaction with the same transaction name.') as any as ZodType<{ commands: UnkownCommand[], transaction: string }>;
+  ' By default all remote commands run in transaction with a transaction name of a remotePc from ips section of this config.' +
+  ' For example if you specify same transaction name you can prevent running other commands in the middle of this transaction' +
+  ' with the same transaction name.') as any as ZodType<{ commands: UnkownCommand[], transaction: string }>;
 
 const threadLocalArraySchema = z.array(unknownCommandSchema)
-  .describe('List of commands for this thread') as any as ZodType<UnkownCommand[]>;  // z.lazy requires manual type definition cause of reqursive type
+  .describe('List of commands to execute in a single thread. Commands within a thread run sequentially, ' +
+    'but different threads run in parallel. This allows for complex timing and coordination between commands.') as any as ZodType<UnkownCommand[]>;  // z.lazy requires manual type definition cause of reqursive type
 
 const loopLocalCommandSchema = z.lazy(() => z.object({
   commands: z.array(unknownCommandSchema).describe('Sequence of commands to repeat in the loop. ' +
@@ -118,7 +121,9 @@ const loopLocalCommandSchema = z.lazy(() => z.object({
 
 const threadsLocalCommandSchema = z.lazy(() => z.object({
   threads: z.array(threadLocalArraySchema)
-    .describe('List of threads'),
+    .describe('List of command sequences to run in parallel threads. Each array element represents a separate thread. ' +
+      'Commands within each thread run sequentially, while different threads execute simultaneously. ' +
+      'This is useful for coordinating multiple independent actions or optimizing execution time.'),
 })).describe('Allows to execute commands in parallel. Or in threads.') as ZodType<{ threads: UnkownCommand[][] }>;  // z.lazy requires manual type definition cause of reqursive type
 
 const macroVariablesDescriptionSchema = z.record(z.object({

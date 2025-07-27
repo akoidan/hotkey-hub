@@ -6,7 +6,6 @@ import {variablesSchema, variableValueSchema} from '@/config/types/variables';
 import {shortcutSchema, shortcutsSchema} from '@/config/types/shortcut';
 import {globalDelaySchema} from '@/config/types/delays';
 import {
-  delayCommandsSchema,
   findPidsByNameRemoteCommandSchema,
   findProcessesWindowsRemoteCommandSchema,
   findProcessWindowsRemoteCommandSchema,
