@@ -54,27 +54,23 @@ const shortcut = z
     }
     return allowedKeys.includes(mainKey!);
     // eslint-disable-next-line max-len
-    }, `Shortcut requires format Modifier+Key. E.g. 'Alt+1'. Allowed modifiers: '${modifierKeys.join('\', \'')}'. Allowed keys: '${allowedKeys.join('\', \'')}'.`)
-  .describe('A keyboard shortcut in the format Modifier+Key (e.g., Alt+1, Ctrl+Shift+A). ' +
-    'Must include at least one modifier key and one regular key. ' +
-    'Can have up to 3 modifier keys combined (e.g., Ctrl+Alt+Shift+S).');
+    }, 'Shortcut requires format Modifier+Key. E.g. \'Alt+1\'.'
+    + `Allowed modifiers: '${modifierKeys.join('\', \'')}'. Allowed keys: '${allowedKeys.join('\', \'')}'.`)
+  .describe('Keyboard shortcut format: Modifier+Key (e.g., Alt+1, Ctrl+Shift+A).' +
+    ' Needs at least one modifier. Max 3 modifiers (e.g., Ctrl+Alt+Shift+S).');
 
 
 const shortcutSchema = z.object({
   delayAfter: z.number().optional()
-    .describe('Delay in milliseconds to wait after executing each command in this shortcut\'s command list. ' +
-      'Useful for ensuring commands have time to complete.'),
+    .describe('Delay (ms) after each command. Ensures commands have time to complete.'),
   delayBefore: z.number().optional()
-    .describe('Delay in milliseconds to wait before executing each command in this shortcut\'s command list. ' +
-      'Useful for timing coordination between shortcuts.'),
-  name: z.string().describe('Descriptive name for this shortcut binding. ' +
-    'This name is displayed during startup and helps identify the shortcut\'s purpose.'),
+    .describe('Delay (ms) before each command. Helps coordinate timing between different shortcuts.'),
+  name: z.string().describe('Name shown during startup. Helps identify the shortcut\'s purpose.'),
   shortCut: shortcut,
-  commands: z.array(unknownCommandSchema).describe('Ordered list of commands to execute when this shortcut is triggered. ' +
-    'Commands are executed sequentially unless specified otherwise (e.g., in parallel threads).'),
+  commands: z.array(unknownCommandSchema).describe('Commands to run when shortcut triggered. ' +
+    'Executes in order unless parallel execution specified.'),
   pausable: z.boolean().default(false).optional()
-    .describe('If true, pressing the shortcut again while commands are running will cancel the execution. ' +
-      'Useful for long-running command sequences that you might need to stop.'),
+    .describe('If true, pressing shortcut again cancels running commands. Useful for stopping long-running sequences.'),
 })
   .strict()
   .describe('This allows to bind a shortcut to a commands list and define execution behaviour.' +

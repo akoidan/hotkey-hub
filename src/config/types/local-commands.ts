@@ -97,17 +97,17 @@ const unknownCommandSchema = z.lazy(() => z.union([
 ])).describe('A command that would be executed on this machine') as ZodType<UnkownCommand>; // z.lazy requires manual type definition cause of reqursive type
 
 const transactionLocalCommandSchema = z.lazy(() => z.object({
-  commands: z.array(unknownCommandSchema).describe('Sequence of commands to execute as part of this transaction. ' +
-    'All commands in a transaction are executed atomically - they either all succeed or all fail.'),
-  transaction: z.string().describe('Unique name for the transaction. Helps with logging and debugging transaction execution.'),
-})).describe('Allow to run commands in a transaction. By specifying transaction name you will prevent having 2 transaction with the same name at the time.' +
-  ' By default all remote commands run in transaction with a transaction name of a remotePc from ips section of this config.' +
-  ' For example if you specify same transaction name you can prevent running other commands in the middle of this transaction' +
-  ' with the same transaction name.') as any as ZodType<{ commands: UnkownCommand[], transaction: string }>;
+  commands: z.array(unknownCommandSchema)
+    .describe('Commands to execute atomically in this transaction. All commands either succeed or fail together.'),
+  transaction: z.string()
+    .describe('Unique name for the transaction. Helps with logging and debugging transaction execution.'),
+})).describe('Run commands in a transaction.' +
+  ' Prevents concurrent transactions with same name.' +
+  ' Uses PC name for remote commands. Ensures atomic execution.') as any as ZodType<{ commands: UnkownCommand[], transaction: string }>;
 
 const threadLocalArraySchema = z.array(unknownCommandSchema)
-  .describe('List of commands to execute in a single thread. Commands within a thread run sequentially, ' +
-    'but different threads run in parallel. This allows for complex timing and coordination between commands.') as any as ZodType<UnkownCommand[]>;  // z.lazy requires manual type definition cause of reqursive type
+  .describe('List of commands to execute in a single thread.' +
+    ' Commands run sequentially in their thread, while threads run in parallel.') as any as ZodType<UnkownCommand[]>;  // z.lazy requires manual type definition cause of reqursive type
 
 const loopLocalCommandSchema = z.lazy(() => z.object({
   commands: z.array(unknownCommandSchema).describe('Sequence of commands to repeat in the loop. ' +
@@ -117,14 +117,16 @@ const loopLocalCommandSchema = z.lazy(() => z.object({
       'Positive number: Executes that many iterations. ' +
       'Negative number: Runs indefinitely until manually stopped. ' +
       'If the parent command is pausable, pressing the shortcut again will exit the loop.'),
-})).describe('Allow to run same commands multiple time or in iteration or loop') as any as ZodType<{ commands: UnkownCommand[], loop: number }>;  // z.lazy requires manual type definition cause of reqursive type
+  // z.lazy requires manual type definition cause of reqursive type
+})).describe(
+  'Allow to run same commands multiple time or in iteration or loop'
+) as any as ZodType<{ commands: UnkownCommand[], loop: number }>;
 
 const threadsLocalCommandSchema = z.lazy(() => z.object({
-  threads: z.array(threadLocalArraySchema)
-    .describe('List of command sequences to run in parallel threads. Each array element represents a separate thread. ' +
-      'Commands within each thread run sequentially, while different threads execute simultaneously. ' +
-      'This is useful for coordinating multiple independent actions or optimizing execution time.'),
-})).describe('Allows to execute commands in parallel. Or in threads.') as ZodType<{ threads: UnkownCommand[][] }>;  // z.lazy requires manual type definition cause of reqursive type
+  threads: z.array(threadLocalArraySchema).describe('Command sequences to run in parallel.' +
+    ' Each thread runs sequentially while threads run simultaneously.'),
+  // z.lazy requires manual type definition cause of reqursive type
+})).describe('Allows to execute commands in parallel. Or in threads.') as ZodType<{ threads: UnkownCommand[][] }>;
 
 const macroVariablesDescriptionSchema = z.record(z.object({
   type: z.enum(['string', 'number']).describe('To validate the type, or cast from env variables'),
@@ -139,8 +141,7 @@ const macroDefinitionSchema = z.object({
   variables: macroVariablesDescriptionSchema,
 })
   .strict()
-  .describe('A macro that can be injected instead of command. That will run commands from its body. Can be also injected with variables.' +
-    ' Think of it like a function');
+  .describe('A reusable command sequence that can accept variables. Similar to a function that runs a predefined set of commands.');
 
 const macrosListSchema = z.record(macroDefinitionSchema)
   .optional()

@@ -35,9 +35,8 @@ import {
 } from '@/config/types/local-commands';
 
 const ipsSchema = z.record(z.string().ip())
-  .describe('Defines the mapping of remote PC names to their IP addresses. Each key is a unique identifier for a remote PC, and its value is the IP address where that PC can be reached. ' +
-    'The IP address must be accessible from the remote PC. ' +
-    'For remote access over the internet, you can either use a VPN or a tunneling service like https://ngrok.com/ to create a public address.');
+  .describe('Maps PC names to IP addresses. Each key identifies a remote PC, value is its IP. IP must be accessible from remote PC. ' +
+    'For internet access, use VPN or tunneling (e.g. ngrok.com).');
 
 const rgbSchema = z.object({
   deviceName: z.string().describe('Device name of the keyboard. ' +
@@ -46,19 +45,16 @@ const rgbSchema = z.object({
   serverPort: z.number().default(6742).describe('Port of the openrgb server').optional(),
   serverAddr: z.string().default('localhost').describe('Address of the openrgb server').optional(),
 }).optional()
-  .describe('Configures RGB keyboard lighting to provide visual feedback for executing shortcuts. ' +
-      'When enabled, it will change keyboard colors to highlight active shortcuts. ' +
-      'Requires an OpenRGB server running (see https://openrgb.org/) and a keyboard that allow to light up individual keys and supported by OpenRGB. ' +
-      'If this section is omitted, RGB features will be disabled.');
+  .describe('RGB keyboard lighting for shortcut feedback. Changes key colors during execution.' +
+    ' Needs OpenRGB server and compatible keyboard. See https://openrgb.org/.');
 
 const aARootSchema = z.object({
   ips: ipsSchema,
   clientPort: z.number()
     .optional()
     .default(5000)
-    .describe('The HTTPS port number used for secure connections to the client PC. ' +
-      'This port must be accessible and not blocked by firewalls. ' +
-      'Default is 5000 if not specified.'),
+    .describe('HTTPS port for secure client PC connections. ' +
+      'Must be accessible and not blocked by firewalls. Default is 5000 if not specified.'),
   rgb: rgbSchema,
   combinations: shortcutsSchema,
   delays: globalDelaySchema,
