@@ -69,8 +69,14 @@ const shortcutSchema = z.object({
   shortCut: shortcut,
   commands: z.array(unknownCommandSchema).describe('Commands to run when shortcut triggered. ' +
     'Executes in order unless parallel execution specified.'),
-  pausable: z.boolean().default(false).optional()
-    .describe('If true, pressing shortcut again cancels running commands. Useful for stopping long-running sequences.'),
+  behaviour: z.enum(['stacking', 'pausable', 'restart'])
+    .default('pausable')
+    .optional()
+    .describe('Controls the the behaviour of the process when you press again the shortcut ' +
+      'and the old process is still running.' +
+      'Stacking = Current process will keep running and new one will spawn as well.' +
+      'Pausable = Current process will stop running and new one won\'t start.' +
+      'Restart = Current process will stop running and new one will start'),
 })
   .strict()
   .describe('This allows to bind a shortcut to a commands list and define execution behaviour.' +

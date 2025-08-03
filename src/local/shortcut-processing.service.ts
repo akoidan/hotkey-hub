@@ -23,7 +23,16 @@ export class ShortcutProcessingService {
       const id = this.semaphorService.getCurrentOperationId();
       try {
         await this.rgbService.updateColors(comb.shortCut, true);
-        await this.runPausableProcess(comb, id);
+        if (!this.iterationsInProgress[comb.shortCut]) {
+          this.iterationsInProgress[comb.shortCut] = [];
+        }
+        if (comb.behaviour === 'pausable') {
+          await this.runPausableProcess(comb, id);
+        } else if (comb.behaviour === 'restart') {
+          await this.runRestartableProcess(comb, id);
+        } else { // comb.behaviour === 'stackable'
+          await this.runGeneratorLoop(comb, id);
+        }
       } finally {
         const index = this.iterationsInProgress[comb.shortCut].findIndex(proc => proc.id === id);
         if (index >= 0) {
@@ -36,15 +45,26 @@ export class ShortcutProcessingService {
     });
   }
 
-  private async runPausableProcess(comb: Shortcut, id: string): Promise<void> {
-    if (!this.iterationsInProgress[comb.shortCut]) {
-      this.iterationsInProgress[comb.shortCut] = [];
-    }
+
+  private async runRestartableProcess(comb: Shortcut, id: string): Promise<void> {
     const statuses = this.iterationsInProgress[comb.shortCut].map(proc => proc.status);
-    if (comb.pausable && statuses.includes(ProcessStatus.TERMINATING)) {
+    if (statuses.includes(ProcessStatus.RUNNING)) {
+      this.logger.debug(`Stopping instance of ${clc.bold.green(comb.name)}`);
+      this.iterationsInProgress[comb.shortCut]
+        .filter(proc => proc.status === ProcessStatus.RUNNING)
+        .forEach(proc => {
+          proc.status = ProcessStatus.TERMINATING;
+        });
+    }
+    await this.runGeneratorLoop(comb, id);
+  }
+
+  private async runPausableProcess(comb: Shortcut, id: string): Promise<void> {
+    const statuses = this.iterationsInProgress[comb.shortCut].map(proc => proc.status);
+    if (statuses.includes(ProcessStatus.TERMINATING)) {
       // eslint-disable-next-line max-len
       this.logger.log(`${clc.bold.green(comb.shortCut)} pressed. Waiting previous to finish exe ${clc.bold.green(comb.name)}`);
-    } else if (comb.pausable && statuses.includes(ProcessStatus.RUNNING)) {
+    } else if (statuses.includes(ProcessStatus.RUNNING)) {
       this.logger.log(`${clc.bold.green(comb.shortCut)} pressed. Terminating ${clc.bold.green(comb.name)}`);
       this.logger.debug('Waiting for remaining queue to finish their exectuion.');
       this.iterationsInProgress[comb.shortCut]
@@ -53,22 +73,21 @@ export class ShortcutProcessingService {
           proc.status = ProcessStatus.TERMINATING;
         });
     } else {
-      this.logger.log(`${clc.bold.green(comb.shortCut)} pressed. Running ${clc.bold.green(comb.name)}`);
-      this.iterationsInProgress[comb.shortCut].push({
-        id,
-        status: ProcessStatus.RUNNING,
-      });
       await this.runGeneratorLoop(comb, id);
-      this.logger.debug(`All iterations for ${clc.bold.green(comb.name)} are finished`);
     }
   }
 
   async runGeneratorLoop(comb: Shortcut, id: string): Promise<void> {
+    this.iterationsInProgress[comb.shortCut].push({
+      id,
+      status: ProcessStatus.RUNNING,
+    });
+    this.logger.log(`${clc.bold.green(comb.shortCut)} pressed. Running ${clc.bold.green(comb.name)}`);
     for (const command of comb.commands!) {
       const generator = this.unkownCommandProcessor.handle(command, comb.delayAfter, comb.delayBefore, undefined);
       let done = false;
       while (!done) {
-        if (comb.pausable && this.iterationsInProgress[comb.shortCut].find(proc => proc.id === id)!.status === ProcessStatus.TERMINATING) {
+        if (this.iterationsInProgress[comb.shortCut].find(proc => proc.id === id)!.status === ProcessStatus.TERMINATING) {
           this.logger.debug(`Terminating ${clc.bold.green(comb.name)}.`);
           // await return is not required, we just skip calling next
           // also return is not technicaly correct cause we are mearing multiple generators in one manually in thread-local-handler
@@ -79,5 +98,6 @@ export class ShortcutProcessingService {
         done = res.done ?? false;
       }
     }
+    this.logger.debug(`All iterations for ${clc.bold.green(comb.name)} are finished`);
   }
 }
