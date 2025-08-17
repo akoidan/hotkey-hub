@@ -47,7 +47,9 @@ export class ShortcutProcessingService {
 
 
   private async runRestartableProcess(comb: Shortcut, id: string): Promise<void> {
-    const running = this.iterationsInProgress[comb.shortCut].map(proc => proc.status).filter(s => s === ProcessStatus.RUNNING);
+    const running = this.iterationsInProgress[comb.shortCut]
+      .map(proc => proc.status)
+      .filter(s => s === ProcessStatus.RUNNING);
     if (running.length >0) {
       this.logger.debug(`Stopping ${running.join(',')} instances of ${clc.bold.green(comb.name)}`);
       this.iterationsInProgress[comb.shortCut]
