@@ -7,6 +7,10 @@ export class TypeTextRemoteHandler extends CommandRemoteHandler {
   }
 
   async execute(destination: string, command: TypeTextRemoteCommand): Promise<void> {
-    await this.clientService.typeText(destination, {text: command.typeText});
+    await this.clientService.typeText(destination, {
+      text: command.typeText,
+      keyDelayDeviation: command.keyDelayDeviation,
+      keyDelay: command.keyDelay,
+    });
   }
 }

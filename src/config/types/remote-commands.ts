@@ -85,6 +85,15 @@ const focusWindowRemoteCommandSchema = z.object({
 
 const typeTextRemoteCommandSchema = z.object({
   typeText: z.union([z.string(), variableValueSchema]).describe('Any string to type'),
+  keyDelay: z.number()
+    .default(0)
+    .optional()
+    .describe('Delay between keystroke in milliseconds. By default types as fast as possible, around 40ms per char'),
+  keyDelayDeviation: z.number()
+    .positive()
+    .default(0)
+    .optional()
+    .describe('Deviation for randomness of delay. E.g if keyDelay = 100 and deviation = 0.2. Then value would be 80-120ms'),
 })
   .strict()
   .merge(baseSchema)

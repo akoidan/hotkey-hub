@@ -55,7 +55,7 @@
         }
       }
     },
-    "loginProceed": {
+    "typeLoginPassword": {
       "commands": [
         {
           "destination": "{{destination}}",
@@ -151,7 +151,7 @@
       "shortCut": "Alt+5",
       "commands": [
         {
-          "macro": "loginProceed",
+          "macro": "typeLoginPassword",
           "variables": {
             "destination": "this",
             "login": "testuser",

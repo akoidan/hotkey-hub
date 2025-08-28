@@ -18,51 +18,36 @@ export class VariableResolutionService {
     if (!values) {
       return command;
     }
-
-    const result: Partial<T> = {};
-    for (const [key, value] of Object.entries(command) as [keyof T, T[keyof T]][]) {
-      if (Array.isArray(value)) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-assignment
-        result[key] = value.map(item => this.replacePlaceholders(item, values, definition)) as any;
-      } else if (typeof value === 'object') {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        result[key] = this.handleVariablesObject(value as VariablesDefinition, values) as any;
-      } else {
-        const varName = extractVariableName(value)!;
-        if (!definition[varName]) {
-          result[key] = value;
-        } else if (values[varName]) {
-          this.logger.debug(`Replaced variable ${varName} to ${values[varName] as string} for ${JSON.stringify(command)}`);
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          result[key] = values[varName] as any;
-        } else if (definition[varName]!.optional) {
-          this.logger.debug(`Omitting variable ${varName} from ${JSON.stringify(command)} since it's optional`);
-        } else {
-          throw Error(`Unable to resolve macros variable ${varName} when running ${JSON.stringify(command)}`);
-        }
+    if (Array.isArray(command)) {
+      // thread each array element as the whole object
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+      return command.map(item => this.replacePlaceholders(item, values, definition)) as any;
+    } else if (typeof command === 'object') {
+      const result: Partial<T> = {};
+      for (const [key, value] of Object.entries(command) as [keyof T, T[keyof T]][]) {
+        // thread objects as primitive, do not go down
+        result[key] = this.replacePlaceholders(value as VariablesDefinition, values, definition) as any;
       }
+      return result as T;
     }
-
-    return result as T;
+    return this.replacePrimitive(command, values ,definition);
   }
 
-  private handleVariablesObject(
-    variables: VariablesDefinition,
-    values: Record<string, unknown>
-  ): VariablesDefinition {
-    const result: VariablesDefinition = {...variables};
-    for (const [key, value] of Object.entries(variables)) {
-      const varName = extractVariableName(value);
-      if (varName) {
-        if (!values[varName]) {
-          // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-          throw Error(`Unable to resolve macros variable ${value}`);
-        }
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        result[key] = values[varName] as any;
-      }
+  private replacePrimitive<T>(command: T, values: Record<string, unknown>, definition: VariablesDefinition,): T {
+    const varName = extractVariableName(command)!;
+    if (!varName || !definition[varName]) {
+      return command;
     }
-    return result;
+    if (values[varName]) {
+      this.logger.debug(`Replaced variable ${varName} to ${values[varName] as string} for ${JSON.stringify(command)}`);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      return values[varName] as T;
+    }
+    if (definition[varName]!.optional) {
+      this.logger.debug(`Omitting variable ${varName} from ${JSON.stringify(command)} since it's optional`);
+      return command;
+    }
+    throw Error(`Unable to resolve macros variable ${varName} when running ${JSON.stringify(command)}`);
   }
 
   replaceEnvVars<T extends object>(obj: T): T {

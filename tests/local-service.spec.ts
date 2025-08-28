@@ -475,7 +475,7 @@ describe('Logic service', () => {
     await shortCutService.runShortcut({
       commands: [
         {
-          macro: 'loginProceed',
+          macro: 'typeLoginPassword',
           variables: {
             destination: 'this',
             login: 'testuser',
