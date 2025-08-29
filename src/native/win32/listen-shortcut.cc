@@ -12,8 +12,14 @@
 extern std::map<std::string, int> modifier_names;
 extern std::map<std::string, int> key_names;
 
+enum RequestType {
+    Register,
+    Unregister
+};
+
 // Structure for registration request
 struct RegistrationRequest {
+    RequestType type;
     UINT modifiers;
     int vk;
     Napi::ThreadSafeFunction callback;
@@ -106,39 +112,45 @@ void PrinterThread() {
 
             if (!g_threadRunning) break;
 
-            // Process registration request
+            // Process request
             if (g_currentRequest) {
-                std::cout << "[Thread] Processing registration - modifiers: 0x" << std::hex 
-                         << g_currentRequest->modifiers << ", vk: 0x" << g_currentRequest->vk 
-                         << std::dec << std::endl;
+                bool success = false;
+                if (g_currentRequest->type == Register) {
+                    std::cout << "[Thread] Processing registration - modifiers: 0x" << std::hex 
+                             << g_currentRequest->modifiers << ", vk: 0x" << g_currentRequest->vk 
+                             << std::dec << std::endl;
 
-                int hotkeyId = g_nextHotkeyId++;
-                bool success = RegisterHotKey(hwnd, hotkeyId, g_currentRequest->modifiers, g_currentRequest->vk);
+                    int hotkeyId = g_nextHotkeyId++;
+                    success = RegisterHotKey(hwnd, hotkeyId, g_currentRequest->modifiers, g_currentRequest->vk);
 
-                if (!success) {
-                    DWORD error = GetLastError();
-                    
-                    if (error == ERROR_HOTKEY_ALREADY_REGISTERED) {
-                        g_currentRequest->errorMessage = "Hotkey is already registered by another application";
+                    if (!success) {
+                        DWORD error = GetLastError();
+                        if (error == ERROR_HOTKEY_ALREADY_REGISTERED) {
+                            g_currentRequest->errorMessage = "Hotkey is already registered by another application";
+                        } else {
+                            g_currentRequest->errorMessage = "Failed to register hotkey. Error code: " + std::to_string(error);
+                        }
+                        std::cout << "[Thread] " << g_currentRequest->errorMessage << std::endl;
                     } else {
-                        g_currentRequest->errorMessage = "Failed to register hotkey. Error code: " + std::to_string(error);
+                        std::cout << "[Thread] Hotkey " << hotkeyId << " registered successfully" << std::endl;
+                        g_callbacks[hotkeyId] = std::move(g_currentRequest->callback);
+                        g_currentRequest->hotkeyId = hotkeyId;
                     }
-                    
-                    std::cout << "[Thread] " << g_currentRequest->errorMessage << std::endl;
-                } else {
-                    std::cout << "[Thread] Hotkey " << hotkeyId << " registered successfully. Press " 
-                             << (g_currentRequest->modifiers & MOD_ALT ? "Alt+" : "") 
-                             << (g_currentRequest->modifiers & MOD_CONTROL ? "Ctrl+" : "") 
-                             << (g_currentRequest->modifiers & MOD_SHIFT ? "Shift+" : "") 
-                             << (g_currentRequest->modifiers & MOD_WIN ? "Win+" : "") 
-                             << char(g_currentRequest->vk) << std::endl;
-
-                    g_callbacks[hotkeyId] = std::move(g_currentRequest->callback);
+                } else if (g_currentRequest->type == Unregister) {
+                    int hotkeyId = g_currentRequest->hotkeyId;
+                    std::cout << "[Thread] Unregistering hotkey " << hotkeyId << std::endl;
+                    success = UnregisterHotKey(hwnd, hotkeyId);
+                    if (!success) {
+                        DWORD error = GetLastError();
+                        g_currentRequest->errorMessage = "Failed to unregister hotkey. Error code: " + std::to_string(error);
+                        std::cout << "[Thread] " << g_currentRequest->errorMessage << std::endl;
+                    } else {
+                        std::cout << "[Thread] Successfully unregistered hotkey " << hotkeyId << std::endl;
+                    }
                 }
 
                 // Store result
                 g_currentRequest->success = success;
-                g_currentRequest->hotkeyId = success ? hotkeyId : -1;
                 g_currentRequest->pending = false;
 
                 // Notify main thread
@@ -214,6 +226,7 @@ Napi::Value RegisterHotkey(const Napi::CallbackInfo& info) {
 
     // Create registration request
     RegistrationRequest request;
+    request.type = Register;
     request.modifiers = modifiers;
     request.vk = vk;
     request.callback = std::move(tsfn);
@@ -270,14 +283,24 @@ Napi::Value UnregisterHotkey(const Napi::CallbackInfo& info) {
 
     int hotkeyId = info[0].As<Napi::Number>().Int32Value();
     
+    std::unique_lock<std::mutex> lock(g_mutex);
     auto it = g_callbacks.find(hotkeyId);
     if (it != g_callbacks.end()) {
-        it->second.Release();
+        // Move callback out first
+        auto callback = std::move(it->second);
         g_callbacks.erase(it);
-    }
-
-    if (g_hwnd) {
-        UnregisterHotKey(g_hwnd, hotkeyId);
+        
+        // Send unregister request
+        RegistrationRequest request;
+        request.type = Unregister;
+        request.hotkeyId = hotkeyId;
+        request.pending = true;
+        g_currentRequest = &request;
+        g_printerCV.notify_one();
+        
+        // Wait for completion
+        g_mainCV.wait_for(lock, std::chrono::seconds(5));
+        callback.Release();
     }
 
     return env.Undefined();

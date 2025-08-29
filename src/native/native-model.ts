@@ -18,6 +18,9 @@ interface HotkeyNativeModule {
    * Cleans up all registered hotkeys
    */
   cleanupHotkeys(): void;
+
+  // loaded by nodejs
+  path: string;
 }
 
 type INativeModule = HotkeyNativeModule
