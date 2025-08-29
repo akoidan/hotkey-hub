@@ -24,11 +24,12 @@ import {
 import {
   expressionLocalCommandSchema,
   loopLocalCommandSchema,
-  threadLocalArraySchema,
-  macroLocalCommandSchema,
   macroDefinitionSchema,
+  macroLocalCommandSchema,
+  reloadConfigLocalCommandSchema,
   macrosListSchema,
   macroVariablesDescriptionSchema,
+  threadLocalArraySchema,
   threadsLocalCommandSchema,
   transactionLocalCommandSchema,
   unknownCommandSchema,
@@ -40,10 +41,15 @@ const ipsSchema = z.record(z.string().ip())
 
 const rgbSchema = z.object({
   deviceName: z.string().describe('Device name of the keyboard. ' +
-      'You can extract it with "openrgb --list-devices" command. Select the name after number'),
+    'You can extract it with "openrgb --list-devices" command. Select the name after number'),
   clientName: z.string().default('RPC').describe('Name of this client when connecting to openrg').optional(),
   serverPort: z.number().default(6742).describe('Port of the openrgb server').optional(),
   serverAddr: z.string().default('localhost').describe('Address of the openrgb server').optional(),
+  keyMapFn: z.string()
+    .default('x.toLowerCase().replace(\' arrow\', \'\').replace(\'key: \', \'\').replace(\' (ansi)\', \'\').replace(\' \', \'_\')')
+    .describe('Mapping of keyboard api key name to default map key names. ' +
+      'This should be a JS expression that accept variable "x" and evaluates to a string')
+    .optional(),
 }).optional()
   .describe('RGB keyboard lighting for shortcut feedback. Changes key colors during execution.' +
     ' Needs OpenRGB server and compatible keyboard. See https://openrgb.org/.');
@@ -111,4 +117,5 @@ export {
   macroVariablesDescriptionSchema,
   macroDefinitionSchema,
   macrosListSchema,
+  reloadConfigLocalCommandSchema,
 };

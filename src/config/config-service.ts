@@ -38,11 +38,12 @@ export class ConfigService implements ConfigProvider {
     this.logger.debug(`Created new instance of config service ${configReader.getId()}`);
   }
 
-  public async validateVariableConf(): Promise<void> {
+  public async validateVariableConf(): Promise<Record<string, any>> {
     this.logger.debug('Validating variables config');
     const variablesConfigString = await this.configReader.loadVariablesConfigString();
-    this.variables = variablesConfigString ? parse(variablesConfigString) as Variables : {};
-    await variablesSchema.parseAsync(this.variables);
+    const variables = variablesConfigString ? parse(variablesConfigString) as Variables : {};
+    await variablesSchema.parseAsync(variables);
+    return variables;
   }
 
   public async validateMacroConf(): Promise<NonNullable<MacroList>> {
@@ -55,7 +56,10 @@ export class ConfigService implements ConfigProvider {
     return separateMacros;
   }
 
-  public async validateOwnConfig(separateMacros: NonNullable<MacroList>): Promise<void> {
+  public async validateOwnConfig(separateMacros: NonNullable<MacroList>): Promise<{
+    macros: NonNullable<MacroList>,
+    configData: ConfigData
+  }> {
     this.logger.debug('Validating global config');
     const configString = await this.configReader.loadConfigString();
     const confValueWithMacro = parse(configString) as ConfigData;
@@ -70,12 +74,15 @@ export class ConfigService implements ConfigProvider {
 
     await aARootSchema.parseAsync(confValueWithMacro);
 
-    this.configData = schemaRootCache.data;
-    this.macros = schemaRootCache.macros;
+    const configData = schemaRootCache.data;
+    const macros = schemaRootCache.macros ?? {};
     schemaRootCache.data = null!;
     schemaRootCache.macros = null!;
+    return {macros, configData};
+  }
 
-    const combinations = (this.configData.combinations as Shortcut[])
+  private printShortcuts(): void {
+    const combinations = (this.configData!.combinations as Shortcut[])
       .map((combination): ConfigCombination => ({
         shortCut: combination.shortCut,
         name: combination.name,
@@ -87,15 +94,23 @@ export class ConfigService implements ConfigProvider {
     });
   }
 
-  public async parseConfig(): Promise<void> {
-    this.logger.debug('parsing config');
+  public async loadConfig(): Promise<void> {
     if (this.configData) {
       throw new Error('Config already loaded');
     }
-    await this.validateVariableConf();
+    await this.parseConfig();
+    this.printShortcuts();
+  }
+
+  public async parseConfig(): Promise<void> {
+    this.logger.debug('parsing config');
+    const variables = await this.validateVariableConf();
     const separateMacros = await this.validateMacroConf();
-    await this.validateOwnConfig(separateMacros);
-    await this.setVariable('delays', this.configData!.delays);
+    const {macros, configData} = await this.validateOwnConfig(separateMacros);
+    this.macros = macros;
+    this.configData = configData;
+    this.variables = variables;
+    await this.setVariable('delays', configData.delays);
   }
 
   public getIps(): IpsData {

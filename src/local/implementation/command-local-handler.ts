@@ -5,7 +5,7 @@ import {CommandRemoteHandler} from '@/remote/command-remote-handler';
 import {DelayService} from '@/local/delay.service';
 import {SemaphorService} from '@/semaphor/semaphor-service';
 import {BaseLocalHandler} from '@/local/base-local-handler';
-import {UnkownCommand} from '@/config/types/local-commands';
+import {UnknownCommand} from '@/config/types/local-commands';
 import {RemoteCommand} from '@/config/types/remote-commands';
 
 @Injectable()
@@ -20,7 +20,7 @@ export class CommandLocalHandler extends BaseLocalHandler {
     super();
   }
 
-  canHandle(command: UnkownCommand): command is RemoteCommand {
+  canHandle(command: UnknownCommand): command is RemoteCommand {
     return true;
   }
 

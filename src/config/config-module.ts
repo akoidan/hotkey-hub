@@ -28,13 +28,13 @@ import {ConfigPathClass} from '@/config/types/config-path';
       inject: [Logger, ConfigReaderService],
     },
   ],
-  exports: [ConfigService],
+  exports: [ConfigService, ConfigPathClass],
 })
 export class ConfigModule implements OnModuleInit {
   constructor(private readonly configService: ConfigService) {
   }
 
   async onModuleInit(): Promise<void> {
-    await this.configService.parseConfig();
+    await this.configService.loadConfig();
   }
 }

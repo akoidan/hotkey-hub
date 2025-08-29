@@ -44,7 +44,7 @@ const keyPressRemoteCommandSchema = z.object({
     .describe('Key(s) to press. Can be a single key, variable containing a key, or array of keys for multiple presses.'),
   duration: z.number().min(50).optional()
     .describe('How long to hold the key down in milliseconds. Minimum 50ms to ensure reliable key registration.'),
-  durationDiviation: z.number().default(0).optional()
+  durationDeviation: z.number().default(0).optional()
     .describe('Adds randomness to key press duration. Value is the maximum +/- deviation in milliseconds. ' +
       'Useful for simulating human-like input patterns.'),
   holdKeys: z.union([keySchema, variableValueSchema, z.array(keySchema)])

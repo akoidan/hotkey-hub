@@ -101,7 +101,13 @@ export class RgbService implements RgbServiceI {
   }
 
   private encodeKey(led: { name: string; value: { red: any; green: any; blue: any } }): string {
-    // mapiing for HyperX Alloy keyboard
+    // mapping for HyperX Alloy keyboard
+    const {keyMapFn} = this.configService.getOpenRgb()!;
+    if (keyMapFn) {
+      // eslint-disable-next-line @typescript-eslint/no-implied-eval,no-new-func
+      const f = new Function('x', `return (${keyMapFn});`);
+      return f(led.name) as string;
+    }
     return led.name
         .toLowerCase()
         .replace(' arrow', '')
