@@ -2,7 +2,6 @@ import {Logger, Module, OnModuleInit} from '@nestjs/common';
 import {ConfigModule} from '@/config/config-module';
 import {ClientModule} from '@/client/client-module';
 import {LocalModule} from '@/local/local.module';
-import {NativeModule} from '@/native/native-module';
 import {KeybindingService} from '@/local/keybinding-service';
 import clc from 'cli-color';
 import {ConfigService} from '@/config/config-service';

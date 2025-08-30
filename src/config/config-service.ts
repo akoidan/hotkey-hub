@@ -8,7 +8,7 @@ import {
   variablesSchema,
 } from '@/config/types/schema';
 import {parse} from 'jsonc-parser';
-import {Injectable, Logger} from '@nestjs/common';
+import {Inject, Injectable, Logger} from '@nestjs/common';
 import {schemaRootCache} from '@/config/types/cache';
 import {Variables} from '@/config/types/variables';
 import {Shortcut} from '@/config/types/shortcut';
@@ -18,6 +18,7 @@ import clc from 'cli-color';
 import {DelayData} from '@/config/types/delays';
 import {ConfigCombination} from '@/config/config-model';
 import {MacroList} from '@/config/types/local-commands';
+import {ENV} from '@/config/types/config-path';
 
 @Injectable()
 export class ConfigService implements ConfigProvider {
@@ -32,6 +33,7 @@ export class ConfigService implements ConfigProvider {
   // eslint-disable-next-line @typescript-eslint/max-params
   constructor(
     private readonly logger: Logger,
+    @Inject(ENV)
     private readonly envVars: Record<string, string | undefined>,
     private readonly configReader: ConfigReaderService,
   ) {

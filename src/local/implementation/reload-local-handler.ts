@@ -22,7 +22,7 @@ export class ReloadLocalHandler extends BaseLocalHandler {
 
   canHandle(command: UnknownCommand): command is ReloadConfigLocalCommand {
     const cc = command as ReloadConfigLocalCommand;
-    return typeof cc.reloadConfig !== 'undefined' || cc.reloadMacro !== 'undefined' || typeof cc.reloadVariables !== 'undefined';
+    return typeof cc.reloadConfig !== 'undefined' || typeof cc.reloadMacro !== 'undefined' || typeof cc.reloadVariables !== 'undefined';
   }
 
   public async* execute(

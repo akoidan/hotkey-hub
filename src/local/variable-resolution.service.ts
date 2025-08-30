@@ -26,7 +26,7 @@ export class VariableResolutionService {
       const result: Partial<T> = {};
       for (const [key, value] of Object.entries(command) as [keyof T, T[keyof T]][]) {
         // thread objects as primitive, do not go down
-        result[key] = this.replacePlaceholders(value as VariablesDefinition, values, definition) as any;
+        result[key] = this.replacePlaceholders(value as VariablesDefinition, values, definition) as T[keyof T];
       }
       return result as T;
     }
