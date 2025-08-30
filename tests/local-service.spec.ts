@@ -19,8 +19,8 @@ import {RgbServiceI} from "../src/rgb/rgb-model";
 import {ConfigPathClass, ENV} from '../src/config/types/config-path';
 import process from 'node:process';
 import {ReloadLocalHandler} from '../src/local/implementation/reload-local-handler';
-import {KeybindingService} from '../src/local/keybinding-service';
 
+const globalEnv = {};
 async function getTestModule(configFilePath: string): Promise<TestingModule> {
   const rgbStub: RgbServiceI = new class {
     public async updateColors(comb: string, hl: boolean): Promise<void> {
@@ -61,7 +61,7 @@ async function getTestModule(configFilePath: string): Promise<TestingModule> {
       ConfigReaderService,
       {
         provide: ENV,
-        useValue: process.env,
+        useValue: globalEnv,
       },
       Logger,
     ],
@@ -453,7 +453,7 @@ describe('Logic service', () => {
     const spyTypeText = jest.spyOn(clientService, 'typeText');
 
     // Set up environment variable
-    process.env.login = 'testuser123';
+    (globalEnv as any)['login'] = 'testuser123';
 
     await configService.parseConfig();
 
