@@ -28,56 +28,50 @@ export class KeybindingService {
   }
 
   async registerShortcuts(): Promise<void> {
-    try {
-      await Promise.all(
-        Object.keys(this.configService.getIps())
-          .map(async(destination) => this.clientService.ping(destination))
-      );
-      const allNewShortcuts = new Set<string>();
-      for (const comb of this.configService.getCombinations()) {
-        try {
-          const name = this.registerShorCut(comb);
-          allNewShortcuts.add(name);
-        } catch (e) {
-          throw new Error(`Unable to register ${comb.shortCut} because ${e.message}`);
-        }
+    await Promise.all(
+      Object.keys(this.configService.getIps())
+        .map(async(destination) => this.clientService.ping(destination))
+    );
+    const allNewShortcuts = new Set<string>();
+    for (const comb of this.configService.getCombinations()) {
+      try {
+        const name = this.registerShorCut(comb);
+        allNewShortcuts.add(name);
+      } catch (e) {
+        throw new Error(`Unable to register ${comb.shortCut} because ${e.message}`);
       }
-      for (const [oldCb, oldCbValue] of Object.entries(this.callbacks)) {
-        if (!allNewShortcuts.has(oldCb)) {
-          this.native.unregisterHotkey(oldCbValue.id);
-          // eslint-disable-next-line  @typescript-eslint/no-dynamic-delete
-          delete this.callbacks[oldCb];
-          this.logger.debug(`Unregistering ${clc.bold.green(oldCbValue.shortcut.shortCut)} shortcut`);
-        }
+    }
+    for (const [oldCb, oldCbValue] of Object.entries(this.callbacks)) {
+      if (!allNewShortcuts.has(oldCb)) {
+        this.native.unregisterHotkey(oldCbValue.id);
+        // eslint-disable-next-line  @typescript-eslint/no-dynamic-delete
+        delete this.callbacks[oldCb];
+        this.logger.debug(`Unregistering ${clc.bold.green(oldCbValue.shortcut.shortCut)} shortcut`);
       }
-    } catch (err) {
-      this.logger.error(`Unable to init main module: ${(err as Error).message}`, (err as Error).stack);
-      this.native.cleanupHotkeys();
-      throw err;
     }
   }
 
   private registerShorCut(comb: Shortcut): string {
-      const modifiers: ModifierKey[] = comb.shortCut.split('+').map(a => a.toLowerCase()) as ModifierKey[];
-      const key = modifiers.pop() as string;
-      modifiers.sort();
-      const name = `${modifiers.join('+')}+${key}`;
-      if (this.callbacks[name]) {
-        this.logger.debug(`Reloading ${clc.green(comb.shortCut)} shortcut body`);
-        this.callbacks[name] = {
-          id: this.callbacks[name].id,
-          shortcut: comb,
-        };
-      } else {
-        this.logger.debug(`Registering ${clc.green(comb.shortCut)} shortcut`);
-        const id = this.native.registerHotkey(key, modifiers, () => {
-          this.shortcutProcessingService.runShortcut(this.callbacks[name].shortcut).catch((err: unknown) => this.logger.error(err));
-        });
-        this.callbacks[name] = {
-          id,
-          shortcut: comb,
-        };
-      }
-      return name;
+    const modifiers: ModifierKey[] = comb.shortCut.split('+').map(a => a.toLowerCase()) as ModifierKey[];
+    const key = modifiers.pop() as string;
+    modifiers.sort();
+    const name = `${modifiers.join('+')}+${key}`;
+    if (this.callbacks[name]) {
+      this.logger.debug(`Reloading ${clc.green(comb.shortCut)} shortcut body`);
+      this.callbacks[name] = {
+        id: this.callbacks[name].id,
+        shortcut: comb,
+      };
+    } else {
+      this.logger.debug(`Registering ${clc.green(comb.shortCut)} shortcut`);
+      const id = this.native.registerHotkey(key, modifiers, () => {
+        this.shortcutProcessingService.runShortcut(this.callbacks[name].shortcut).catch((err: unknown) => this.logger.error(err));
+      });
+      this.callbacks[name] = {
+        id,
+        shortcut: comb,
+      };
+    }
+    return name;
   }
 }
