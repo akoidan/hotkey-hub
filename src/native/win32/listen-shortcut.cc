@@ -175,6 +175,7 @@ void PrinterThread() {
 // Register hotkey
 Napi::Value RegisterHotkey(const Napi::CallbackInfo& info) {
     Napi::Env env = info.Env();
+    LOG_MAIN("RegisterHotkey called");
 
     if (info.Length() < 3) {
         Napi::TypeError::New(env, "Wrong number of arguments").ThrowAsJavaScriptException();
@@ -275,6 +276,7 @@ Napi::Value RegisterHotkey(const Napi::CallbackInfo& info) {
 // Unregister hotkey
 Napi::Value UnregisterHotkey(const Napi::CallbackInfo& info) {
     Napi::Env env = info.Env();
+    LOG_MAIN("UnregisterHotkey called");
 
     if (info.Length() < 1 || !info[0].IsNumber()) {
         Napi::TypeError::New(env, "Wrong arguments").ThrowAsJavaScriptException();
@@ -297,7 +299,7 @@ Napi::Value UnregisterHotkey(const Napi::CallbackInfo& info) {
         request.pending = true;
         g_currentRequest = &request;
         g_printerCV.notify_one();
-        
+
         // Wait for completion
         g_mainCV.wait_for(lock, std::chrono::seconds(5));
         callback.Release();
@@ -309,6 +311,7 @@ Napi::Value UnregisterHotkey(const Napi::CallbackInfo& info) {
 // Cleanup
 Napi::Value CleanupHotkeys(const Napi::CallbackInfo& info) {
     Napi::Env env = info.Env();
+    LOG_MAIN("CleanupHotkeys called");
     
     if (g_printerThread) {
         g_threadRunning = false;
