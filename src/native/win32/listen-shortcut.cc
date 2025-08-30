@@ -8,6 +8,7 @@
 #include <condition_variable>
 #include "./headers/modifier-names.h"
 #include "./headers/key-names.h"
+#include "./headers/logger.h"
 
 extern std::map<std::string, int> modifier_names;
 extern std::map<std::string, int> key_names;
@@ -58,7 +59,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 }
 
 void PrinterThread() {
-    std::cout << "[Thread] Starting..." << std::endl;
+    LOG_THREAD("Starting...");
     
     // Register window class
     const wchar_t CLASS_NAME[] = L"HotkeyTest";
@@ -68,7 +69,7 @@ void PrinterThread() {
     wc.lpszClassName = CLASS_NAME;
     
     if (!RegisterClassW(&wc)) {
-        std::cout << "Failed to register window class. Error: " << GetLastError() << std::endl;
+        LOG_THREAD("Failed to register window class. Error: " << GetLastError());
         return;
     }
 
@@ -86,12 +87,12 @@ void PrinterThread() {
     );
 
     if (hwnd == NULL) {
-        std::cout << "Failed to create window. Error: " << GetLastError() << std::endl;
+        LOG_THREAD("Failed to create window. Error: " << GetLastError());
         return;
     }
 
     g_hwnd = hwnd;
-    std::cout << "[Thread] Window created: " << std::hex << hwnd << std::dec << std::endl;
+    LOG_THREAD("Window created: " << std::hex << hwnd << std::dec);
 
     // Message loop with registration handling
     MSG msg = {};
@@ -116,9 +117,9 @@ void PrinterThread() {
             if (g_currentRequest) {
                 bool success = false;
                 if (g_currentRequest->type == Register) {
-                    std::cout << "[Thread] Processing registration - modifiers: 0x" << std::hex 
+                    LOG_THREAD("Processing registration - modifiers: 0x" << std::hex 
                              << g_currentRequest->modifiers << ", vk: 0x" << g_currentRequest->vk 
-                             << std::dec << std::endl;
+                             << std::dec);
 
                     int hotkeyId = g_nextHotkeyId++;
                     success = RegisterHotKey(hwnd, hotkeyId, g_currentRequest->modifiers, g_currentRequest->vk);
@@ -130,22 +131,22 @@ void PrinterThread() {
                         } else {
                             g_currentRequest->errorMessage = "Failed to register hotkey. Error code: " + std::to_string(error);
                         }
-                        std::cout << "[Thread] " << g_currentRequest->errorMessage << std::endl;
+                        LOG_THREAD(g_currentRequest->errorMessage);
                     } else {
-                        std::cout << "[Thread] Hotkey " << hotkeyId << " registered successfully" << std::endl;
+                        LOG_THREAD("Hotkey " << hotkeyId << " registered successfully");
                         g_callbacks[hotkeyId] = std::move(g_currentRequest->callback);
                         g_currentRequest->hotkeyId = hotkeyId;
                     }
                 } else if (g_currentRequest->type == Unregister) {
                     int hotkeyId = g_currentRequest->hotkeyId;
-                    std::cout << "[Thread] Unregistering hotkey " << hotkeyId << std::endl;
+                    LOG_THREAD("Unregistering hotkey " << hotkeyId);
                     success = UnregisterHotKey(hwnd, hotkeyId);
                     if (!success) {
                         DWORD error = GetLastError();
                         g_currentRequest->errorMessage = "Failed to unregister hotkey. Error code: " + std::to_string(error);
-                        std::cout << "[Thread] " << g_currentRequest->errorMessage << std::endl;
+                        LOG_THREAD(g_currentRequest->errorMessage);
                     } else {
-                        std::cout << "[Thread] Successfully unregistered hotkey " << hotkeyId << std::endl;
+                        LOG_THREAD("Successfully unregistered hotkey " << hotkeyId);
                     }
                 }
 
@@ -173,7 +174,6 @@ void PrinterThread() {
 
 // Register hotkey
 Napi::Value RegisterHotkey(const Napi::CallbackInfo& info) {
-    std::cout << "[Main] Registering new hotkey" << std::endl;
     Napi::Env env = info.Env();
 
     if (info.Length() < 3) {
@@ -329,7 +329,7 @@ Napi::Value CleanupHotkeys(const Napi::CallbackInfo& info) {
 
 // Initialize module
 Napi::Object hotkey_init(Napi::Env env, Napi::Object exports) {
-    std::cout << "Initializing Windows module..." << std::endl;
+    LOG_MAIN("Initializing Windows module...");
     
     // Start the thread
     g_threadRunning = true;
