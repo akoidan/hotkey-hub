@@ -16,42 +16,42 @@ export class ConfigReaderService {
   constructor(
     private readonly logger: Logger,
     @Inject(ConfigPathClass)
-    private readonly configsPathSerivice: ConfigPath,
+    private readonly configsPathService: ConfigPath,
   ) {
   }
 
   public getId(): string {
-    return this.configsPathSerivice.configFilePath;
+    return this.configsPathService.configFilePath;
   }
 
   public async loadConfigString(): Promise<string> {
-    this.logger.debug(`Loading config from ${this.configsPathSerivice.configFilePath}`);
-    return fs.readFile(this.configsPathSerivice.configFilePath, 'utf8');
+    this.logger.debug(`Loading config from ${this.configsPathService.configFilePath}`);
+    return fs.readFile(this.configsPathService.configFilePath, 'utf8');
   }
 
   public async loadMacroConfigString(): Promise<string | null> {
-    this.logger.debug(`Loading macro config from ${this.configsPathSerivice.macroFilePath}`);
+    this.logger.debug(`Loading macro config from ${this.configsPathService.macroFilePath}`);
     try {
-      return await fs.readFile(this.configsPathSerivice.macroFilePath, 'utf8');
+      return await fs.readFile(this.configsPathService.macroFilePath, 'utf8');
     } catch (error) {
-      this.logger.warn(`Unable to load global macros from ${this.configsPathSerivice.macroFilePath} because of ${error?.message ?? error}`);
+      this.logger.warn(`Unable to load global macros from ${this.configsPathService.macroFilePath} because of ${error?.message ?? error}`);
       return null;
     }
   }
 
   public async loadVariablesConfigString(): Promise<string | null> {
-    this.logger.debug(`Loading variable config from ${this.configsPathSerivice.variablesFilePath}`);
+    this.logger.debug(`Loading variable config from ${this.configsPathService.variablesFilePath}`);
     try {
-      return await fs.readFile(this.configsPathSerivice.variablesFilePath, 'utf8');
+      return await fs.readFile(this.configsPathService.variablesFilePath, 'utf8');
     } catch (error) {
       // eslint-disable-next-line max-len
-      this.logger.warn(`Unable to load variables from ${this.configsPathSerivice.variablesFilePath} because of ${error?.message ?? error}`);
+      this.logger.warn(`Unable to load variables from ${this.configsPathService.variablesFilePath} because of ${error?.message ?? error}`);
       return null;
     }
   }
 
   public async saveVariablesConfigString(variables: unknown): Promise<void> {
-    await fs.writeFile(this.configsPathSerivice.variablesFilePath, JSON.stringify(variables, null, 2));
-     this.logger.debug(`Save variables to ${this.configsPathSerivice.variablesFilePath}`);
+    await fs.writeFile(this.configsPathService.variablesFilePath, JSON.stringify(variables, null, 2));
+     this.logger.debug(`Save variables to ${this.configsPathService.variablesFilePath}`);
   }
 }

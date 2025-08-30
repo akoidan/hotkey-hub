@@ -47,6 +47,8 @@ interface KillExeByPidRequest {
 
 interface TypeTextRequest {
   text: string;
+  keyDelayDeviation?: number;
+  keyDelay?: number;
 }
 
 interface LaunchPidResponse {

@@ -3,7 +3,7 @@ import {DelayService} from '@/local/delay.service';
 import {SemaphorService} from '@/semaphor/semaphor-service';
 import {BaseLocalHandler} from '@/local/base-local-handler';
 import {VariableResolutionService} from '@/local/variable-resolution.service';
-import {TransactionLocalCommand, UnkownCommand} from '@/config/types/local-commands';
+import {TransactionLocalCommand, UnknownCommand} from '@/config/types/local-commands';
 import {Delay} from '@/config/types/remote-commands';
 
 @Injectable()
@@ -17,7 +17,7 @@ export class TransactionLocalHandler extends BaseLocalHandler {
     super();
   }
 
-  canHandle(command: UnkownCommand): command is TransactionLocalCommand {
+  canHandle(command: UnknownCommand): command is TransactionLocalCommand {
     return Boolean((command as TransactionLocalCommand).transaction);
   }
 

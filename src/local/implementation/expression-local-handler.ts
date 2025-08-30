@@ -2,7 +2,7 @@ import {ConfigService} from '@/config/config-service';
 import {Injectable, Logger} from '@nestjs/common';
 import clc from 'cli-color';
 import {BaseLocalHandler} from '@/local/base-local-handler';
-import {ExpressionLocalCommand, UnkownCommand} from '@/config/types/local-commands';
+import {ExpressionLocalCommand, UnknownCommand} from '@/config/types/local-commands';
 
 @Injectable()
 export class ExpressionLocalHandler extends BaseLocalHandler {
@@ -13,7 +13,7 @@ export class ExpressionLocalHandler extends BaseLocalHandler {
     super();
   }
 
-  canHandle(command: UnkownCommand): command is ExpressionLocalCommand {
+  canHandle(command: UnknownCommand): command is ExpressionLocalCommand {
     return Boolean((command as ExpressionLocalCommand).expression);
   }
 
@@ -52,11 +52,12 @@ export class ExpressionLocalHandler extends BaseLocalHandler {
         nextVal = nextVal[varPath[i]]
       }
       nextVal[varPath[varPath.length - 1]] = result;
-      this.logger.log(`${clc.bold.green(command.assignVariable)}=${clc.yellow(JSON.stringify(result))}`);
-      this.configService.setVariable(mainVariable, mainValue);
+      await this.configService.setVariable(mainVariable, mainValue);
     } else {
-      this.configService.setVariable(command.assignVariable, result);
+      await this.configService.setVariable(command.assignVariable, result);
     }
+    this.logger.log(`${clc.bold.green(command.assignVariable)}=${clc.yellow(JSON.stringify(result))}`);
+    yield undefined;
   }
 
   /* eslint-enable */

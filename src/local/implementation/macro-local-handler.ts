@@ -3,7 +3,7 @@ import {ConfigService} from '@/config/config-service';
 import {VariableResolutionService} from '@/local/variable-resolution.service';
 import {DelayService} from '@/local/delay.service';
 import {BaseLocalHandler} from '@/local/base-local-handler';
-import {MacroLocalCommand, UnkownCommand} from '@/config/types/local-commands';
+import {MacroLocalCommand, UnknownCommand} from '@/config/types/local-commands';
 import {Delay} from '@/config/types/remote-commands';
 
 @Injectable()
@@ -16,7 +16,7 @@ export class MacroLocalHandler extends BaseLocalHandler {
     super();
   }
 
-  canHandle(command: UnkownCommand): command is MacroLocalCommand {
+  canHandle(command: UnknownCommand): command is MacroLocalCommand {
     return Boolean((command as MacroLocalCommand).macro);
   }
 

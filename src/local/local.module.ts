@@ -1,4 +1,4 @@
-import {Logger, Module} from '@nestjs/common';
+import {Logger, Module, OnModuleInit} from '@nestjs/common';
 import {ConfigModule} from '@/config/config-module';
 import {ClientModule} from '@/client/client-module';
 import {ShortcutProcessingService} from '@/local/shortcut-processing.service';
@@ -16,6 +16,9 @@ import {ExpressionLocalHandler} from '@/local/implementation/expression-local-ha
 import {ThreadsLocalHandler} from '@/local/implementation/threads-local-handler';
 import {LoopLocalHandler} from '@/local/implementation/loop-local-handler';
 import {RgbModule} from '@/rgb/rgb.module';
+import {KeybindingService} from '@/local/keybinding-service';
+import {ReloadLocalHandler} from '@/local/implementation/reload-local-handler';
+import {NativeModule} from '@/native/native-module';
 
 
 const processingProviders: Provider[] = [
@@ -25,6 +28,7 @@ const processingProviders: Provider[] = [
   CommandLocalHandler,
   ThreadsLocalHandler,
   LoopLocalHandler,
+  ReloadLocalHandler,
   {
     provide: BaseLocalHandler,
     inject: [
@@ -33,6 +37,7 @@ const processingProviders: Provider[] = [
       ExpressionLocalHandler,
       ThreadsLocalHandler,
       LoopLocalHandler,
+      ReloadLocalHandler,
       CommandLocalHandler,
     ],
     useFactory: (
@@ -41,12 +46,14 @@ const processingProviders: Provider[] = [
       variable: BaseLocalHandler,
       thread: BaseLocalHandler,
       loopLocalHandler: BaseLocalHandler,
+      reloadLocalHandler: ReloadLocalHandler,
       command: BaseLocalHandler,
     ): BaseLocalHandler => {
       macro.setNext(transaction, macro)
         .setNext(variable, macro)
         .setNext(thread, macro)
         .setNext(loopLocalHandler, macro)
+        .setNext(reloadLocalHandler, macro)
         .setNext(command, macro)
         .setNext(null!, macro);
       return macro;
@@ -55,19 +62,28 @@ const processingProviders: Provider[] = [
 ];
 
 @Module({
-  imports: [ConfigModule, ClientModule, RemoteHandlerModule, SemaphorModule, RandomModule, RgbModule],
+  imports: [ConfigModule, ClientModule, RemoteHandlerModule, SemaphorModule, RandomModule, RgbModule, NativeModule],
   providers: [
     Logger,
     DelayService,
+    KeybindingService,
     ShortcutProcessingService,
     VariableResolutionService,
     CommandLocalHandler,
     ...processingProviders,
   ],
-  exports: [ShortcutProcessingService],
+  exports: [KeybindingService],
 })
-class LocalModule {
+class LocalModule implements OnModuleInit {
+  constructor(
+    private readonly rlh: ReloadLocalHandler,
+    private readonly kbs: KeybindingService
+  ) {
+  }
 
+  onModuleInit(): void {
+   this.rlh.setKeyBindingService(this.kbs);
+  }
 }
 
 export {LocalModule, processingProviders};

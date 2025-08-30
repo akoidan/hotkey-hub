@@ -16,7 +16,11 @@ import {DelayService} from "../src/local/delay.service";
 import {processingProviders} from "../src/local/local.module";
 import {RgbService} from "../src/rgb/rgb-service";
 import {RgbServiceI} from "../src/rgb/rgb-model";
+import {ConfigPathClass, ENV} from '../src/config/types/config-path';
+import process from 'node:process';
+import {ReloadLocalHandler} from '../src/local/implementation/reload-local-handler';
 
+const globalEnv = {};
 async function getTestModule(configFilePath: string): Promise<TestingModule> {
   const rgbStub: RgbServiceI = new class {
     public async updateColors(comb: string, hl: boolean): Promise<void> {
@@ -25,7 +29,7 @@ async function getTestModule(configFilePath: string): Promise<TestingModule> {
     public async setup(): Promise<void> {
     }
   }
-  return Test.createTestingModule({
+  const testModule = await Test.createTestingModule({
     imports: [AsyncStorageModule, RandomModule, SemaphorModule],
     providers: [
       ...remoteHandlerProviders,
@@ -44,17 +48,27 @@ async function getTestModule(configFilePath: string): Promise<TestingModule> {
         },
       },
       {
-        provide: ConfigService,
-        useFactory: (logger: Logger) => new ConfigService(logger, process.env, new ConfigReaderService(logger, {
+        provide: ConfigPathClass,
+        useValue: {
           configFilePath: path.join(__dirname, 'fixtures', configFilePath),
           variablesFilePath: path.join(__dirname, 'fixtures', 'variables.jsonc'),
           macroFilePath: null!,
-        })),
-        inject: [Logger],
+          setConfigPaths(config?: string, macro?: string, variable?: string) {
+          }
+        }
+      },
+      ConfigService,
+      ConfigReaderService,
+      {
+        provide: ENV,
+        useValue: globalEnv,
       },
       Logger,
     ],
   }).compile();
+  const a = testModule.get<ReloadLocalHandler>(ReloadLocalHandler);
+  a.setKeyBindingService({} as any);
+  return testModule;
 }
 
 describe('Logic service', () => {
@@ -439,7 +453,7 @@ describe('Logic service', () => {
     const spyTypeText = jest.spyOn(clientService, 'typeText');
 
     // Set up environment variable
-    process.env.login = 'testuser123';
+    (globalEnv as any)['login'] = 'testuser123';
 
     await configService.parseConfig();
 
@@ -475,7 +489,7 @@ describe('Logic service', () => {
     await shortCutService.runShortcut({
       commands: [
         {
-          macro: 'loginProceed',
+          macro: 'typeLoginPassword',
           variables: {
             destination: 'this',
             login: 'testuser',

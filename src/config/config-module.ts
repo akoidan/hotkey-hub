@@ -7,7 +7,7 @@ import {ConfigService} from '@/config/config-service';
 import * as process from 'node:process';
 import {ConfigsPathService} from '@/config/configs-path.service';
 import {ConfigReaderService} from '@/config/config-reader-service';
-import {ConfigPathClass} from '@/config/types/config-path';
+import {ConfigPathClass, ENV} from '@/config/types/config-path';
 
 @Module({
   providers: [
@@ -18,23 +18,19 @@ import {ConfigPathClass} from '@/config/types/config-path';
       useExisting: ConfigsPathService,
     },
     ConfigReaderService,
+    ConfigService,
     {
-      provide: ConfigService,
-      useFactory: (logger: Logger, reader: ConfigReaderService): ConfigService => new ConfigService(
-        logger,
-        process.env,
-        reader,
-      ),
-      inject: [Logger, ConfigReaderService],
+      provide: ENV,
+      useValue: process.env,
     },
   ],
-  exports: [ConfigService],
+  exports: [ConfigService, ConfigPathClass],
 })
 export class ConfigModule implements OnModuleInit {
   constructor(private readonly configService: ConfigService) {
   }
 
   async onModuleInit(): Promise<void> {
-    await this.configService.parseConfig();
+    await this.configService.loadConfig();
   }
 }

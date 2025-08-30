@@ -1,7 +1,7 @@
 import {Injectable, Logger} from '@nestjs/common';
 import {SemaphorService} from '@/semaphor/semaphor-service';
 import {BaseLocalHandler} from '@/local/base-local-handler';
-import {ThreadLocalArray, ThreadsLocalCommand, UnkownCommand} from '@/config/types/local-commands';
+import {ThreadLocalArray, ThreadsLocalCommand, UnknownCommand} from '@/config/types/local-commands';
 
 @Injectable()
 export class ThreadsLocalHandler extends BaseLocalHandler {
@@ -12,7 +12,7 @@ export class ThreadsLocalHandler extends BaseLocalHandler {
     super();
   }
 
-  canHandle(command: UnkownCommand): command is ThreadsLocalCommand {
+  canHandle(command: UnknownCommand): command is ThreadsLocalCommand {
     return Boolean((command as ThreadsLocalCommand).threads);
   }
 

@@ -1,5 +1,5 @@
 import {Injectable} from '@nestjs/common';
-import {UnkownCommand} from '@/config/types/local-commands';
+import {UnknownCommand} from '@/config/types/local-commands';
 
 @Injectable()
 export abstract class BaseLocalHandler {
@@ -12,17 +12,17 @@ export abstract class BaseLocalHandler {
     return handler;
   }
 
-  abstract canHandle(command: UnkownCommand): boolean;
+  abstract canHandle(command: UnknownCommand): boolean;
 
   abstract execute(
-    input: UnkownCommand,
+    input: UnknownCommand,
     combDelayAfter: undefined | number,
     combDelayBefore: undefined | number,
     tId: string | undefined,
   ): AsyncGenerator<void>
 
   public async *handle(
-    input: UnkownCommand,
+    input: UnknownCommand,
     combDelayAfter: undefined | number,
     combDelayBefore: undefined | number,
     tId: string | undefined,

@@ -1,6 +1,6 @@
 import {Injectable, Logger} from '@nestjs/common';
 import {BaseLocalHandler} from '@/local/base-local-handler';
-import {LoopLocalCommand, UnkownCommand} from '@/config/types/local-commands';
+import {LoopLocalCommand, UnknownCommand} from '@/config/types/local-commands';
 import clc from 'cli-color';
 
 @Injectable()
@@ -11,7 +11,7 @@ export class LoopLocalHandler extends BaseLocalHandler {
     super();
   }
 
-  canHandle(command: UnkownCommand): command is LoopLocalCommand {
+  canHandle(command: UnknownCommand): command is LoopLocalCommand {
     return Boolean((command as LoopLocalCommand).loop);
   }
 

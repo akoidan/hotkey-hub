@@ -2,7 +2,7 @@
 import {z, ZodIssueCode, type ZodType} from 'zod';
 import {schemaRootCache} from '@/config/types/cache';
 import {variableRegex} from '@/config/types/variables';
-import {type RemoteCommand, delayCommandsSchema, remoteCommandSchema} from '@/config/types/remote-commands';
+import {delayCommandsSchema, type RemoteCommand, remoteCommandSchema} from '@/config/types/remote-commands';
 
 const macroLocalCommandSchema = z.object({
   macro: z.string().describe('Name of the macro to execute, which must match a key defined in the macros section. ' +
@@ -69,6 +69,22 @@ const macroLocalCommandSchema = z.object({
     'Similar to a function call, macros can accept parameters through variables. ' +
     'This helps avoid duplicating complex command sequences and makes configurations more maintainable.');
 
+
+const reloadConfigLocalCommandSchema = z.object({
+  reloadConfig: z.string()
+    .default('')
+    .describe('Path to a new config. Leave it as empty string to use current path')
+    .optional(),
+  reloadMacro: z.string()
+    .default('')
+    .describe('Path to a new macro config file. Leave it as empty string to use current path')
+    .optional(),
+  reloadVariables: z.string()
+    .default('')
+    .describe('Path to a variable config file. Leave it as empty string to use current path')
+    .optional(),
+}).describe('Reloads config or loads config from a new place');
+
 const expressionLocalCommandSchema = z.object({
   assignVariable: z.string().describe('Name of the variable to store the expression result. ' +
     'This variable can be referenced in subsequent commands using {{variableName}} syntax.'),
@@ -94,7 +110,8 @@ const unknownCommandSchema = z.lazy(() => z.union([
   transactionLocalCommandSchema,
   threadsLocalCommandSchema,
   loopLocalCommandSchema,
-])).describe('A command that would be executed on this machine') as ZodType<UnkownCommand>; // z.lazy requires manual type definition cause of reqursive type
+  reloadConfigLocalCommandSchema,
+])).describe('A command that would be executed on this machine') as ZodType<UnknownCommand>; // z.lazy requires manual type definition cause of reqursive type
 
 const transactionLocalCommandSchema = z.lazy(() => z.object({
   commands: z.array(unknownCommandSchema)
@@ -103,11 +120,11 @@ const transactionLocalCommandSchema = z.lazy(() => z.object({
     .describe('Unique name for the transaction. Helps with logging and debugging transaction execution.'),
 })).describe('Run commands in a transaction.' +
   ' Prevents concurrent transactions with same name.' +
-  ' Uses PC name for remote commands. Ensures atomic execution.') as any as ZodType<{ commands: UnkownCommand[], transaction: string }>;
+  ' Uses PC name for remote commands. Ensures atomic execution.') as any as ZodType<{ commands: UnknownCommand[], transaction: string }>;
 
 const threadLocalArraySchema = z.array(unknownCommandSchema)
   .describe('List of commands to execute in a single thread.' +
-    ' Commands run sequentially in their thread, while threads run in parallel.') as any as ZodType<UnkownCommand[]>;  // z.lazy requires manual type definition cause of reqursive type
+    ' Commands run sequentially in their thread, while threads run in parallel.') as any as ZodType<UnknownCommand[]>;  // z.lazy requires manual type definition cause of reqursive type
 
 const loopLocalCommandSchema = z.lazy(() => z.object({
   commands: z.array(unknownCommandSchema).describe('Sequence of commands to repeat in the loop. ' +
@@ -120,13 +137,13 @@ const loopLocalCommandSchema = z.lazy(() => z.object({
   // z.lazy requires manual type definition cause of reqursive type
 })).describe(
   'Allow to run same commands multiple time or in iteration or loop'
-) as any as ZodType<{ commands: UnkownCommand[], loop: number }>;
+) as any as ZodType<{ commands: UnknownCommand[], loop: number }>;
 
 const threadsLocalCommandSchema = z.lazy(() => z.object({
   threads: z.array(threadLocalArraySchema).describe('Command sequences to run in parallel.' +
     ' Each thread runs sequentially while threads run simultaneously.'),
   // z.lazy requires manual type definition cause of reqursive type
-})).describe('Allows to execute commands in parallel. Or in threads.') as ZodType<{ threads: UnkownCommand[][] }>;
+})).describe('Allows to execute commands in parallel. Or in threads.') as ZodType<{ threads: UnknownCommand[][] }>;
 
 const macroVariablesDescriptionSchema = z.record(z.object({
   type: z.enum(['string', 'number']).describe('To validate the type, or cast from env variables'),
@@ -148,6 +165,7 @@ const macrosListSchema = z.record(macroDefinitionSchema)
   .describe('A map of macros where a key is the macro name and value is its body');
 
 type ExpressionLocalCommand = z.infer<typeof expressionLocalCommandSchema>;
+type ReloadConfigLocalCommand = z.infer<typeof reloadConfigLocalCommandSchema>;
 type MacroLocalCommand = z.infer<typeof macroLocalCommandSchema>
 type TransactionLocalCommand = z.infer<typeof transactionLocalCommandSchema>
 type ThreadsLocalCommand = z.infer<typeof threadsLocalCommandSchema>
@@ -155,12 +173,13 @@ type LoopLocalCommand = z.infer<typeof loopLocalCommandSchema>
 type ThreadLocalArray = z.infer<typeof threadLocalArraySchema>
 type MacroList = z.infer<typeof macrosListSchema>
 type VariablesDefinition = z.infer<typeof macroVariablesDescriptionSchema>
-type UnkownCommand = RemoteCommand
+type UnknownCommand = RemoteCommand
   | MacroLocalCommand
   | ExpressionLocalCommand
   | TransactionLocalCommand
   | ThreadsLocalCommand
-  | LoopLocalCommand;
+  | LoopLocalCommand
+  | ReloadConfigLocalCommand;
 
 export {
   loopLocalCommandSchema,
@@ -173,6 +192,7 @@ export {
   macroDefinitionSchema,
   threadLocalArraySchema,
   macrosListSchema,
+  reloadConfigLocalCommandSchema,
 };
 
 export type {
@@ -183,6 +203,7 @@ export type {
   TransactionLocalCommand,
   ExpressionLocalCommand,
   VariablesDefinition,
-  UnkownCommand,
+  UnknownCommand,
+  ReloadConfigLocalCommand,
   MacroList,
 };

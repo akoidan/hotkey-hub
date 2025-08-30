@@ -26,6 +26,8 @@ async function getTestModule(configFilePath: string): Promise<TestingModule> {
           configFilePath: path.join(__dirname, 'fixtures', configFilePath),
           variablesFilePath: path.join(__dirname, 'fixtures', 'variables.jsonc'),
           macroFilePath: null!,
+          setConfigPaths(config?: string, macro?: string, variable?: string) {
+          }
         })),
         inject: [Logger],
       },
