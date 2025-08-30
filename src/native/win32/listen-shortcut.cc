@@ -45,7 +45,7 @@ static RegistrationRequest* g_currentRequest = nullptr;
 // Window procedure
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     if (uMsg == WM_HOTKEY) {
-        std::cout << "Hotkey pressed! ID: " << wParam << std::endl;
+        LOG_THREAD("Hotkey pressed! ID: " + std::to_string(wParam));
         auto it = g_callbacks.find(wParam);
         if (it != g_callbacks.end()) {
             auto callback = [wParam](Napi::Env env, Napi::Function jsCallback) {
