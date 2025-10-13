@@ -111,6 +111,7 @@ export class RgbService implements RgbServiceI {
     return led.name
         .toLowerCase()
         .replace(' arrow', '')
+        .replace('pause/break', 'pause')
         .replace('key: ', '')
         .replace(' (ansi)', '')
         .replace(' ', '_');

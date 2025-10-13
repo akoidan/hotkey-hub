@@ -5,6 +5,17 @@ interface MouseClickRequest {
   y: number;
 }
 
+interface MouseMoveHumanRequest {
+  x: number;
+  y: number;
+  destinationRandomX?: number;
+  destinationRandomY?: number;
+  delayBetweenIterations?: number;
+  pixelsPerIteration?: number;
+  curveIntensity?: number;
+  curveIntensityDeviation?: number;
+}
+
 interface SendKeyRequest {
   keys: Key[];
   holdKeys: Key[];
@@ -68,4 +79,5 @@ export type {
   FocusWindowRequest,
   FindPidsByNameResponse,
   FindProcessWindowsResponse,
+  MouseMoveHumanRequest,
 };

@@ -6,7 +6,7 @@ import {
   KillExeByPidRequest,
   LaunchExeRequest,
   LaunchPidResponse,
-  MouseClickRequest,
+  MouseClickRequest, MouseMoveHumanRequest,
   SendKeyRequest,
   TypeTextRequest,
 } from '@/client/dtos';
@@ -32,8 +32,12 @@ export class ClientService {
     return this.client.post(client, '/window/focus-exe', request);
   }
 
-  async mouseMoveClick(client: string, request: MouseClickRequest): Promise<void> {
-    return this.client.post(client, '/mouse/mouse-move-click', request);
+  async mouseMove(client: string, request: MouseClickRequest): Promise<void> {
+    return this.client.post(client, '/mouse/mouse-move', request);
+  }
+
+  async mouseMoveHuman(client: string, request: MouseMoveHumanRequest): Promise<void> {
+    return this.client.post(client, '/mouse/mouse-move-human', request);
   }
 
   async leftMouseClick(client: string): Promise<void> {
