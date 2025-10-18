@@ -33,7 +33,7 @@ export class RgbService implements RgbServiceI {
     }
     const keys = comb.split('+');
     const key = keys[keys.length - 1].toLowerCase();
-    if (typeof this.keyMap[key] !== 'undefined') { // escape is 0
+    if (typeof this.keyMap[key] === 'undefined') { // escape is 0
       this.logger.error(`key ${key} is not present in keymap ${JSON.stringify(this.keyMap)}`);
       return;
     }
@@ -94,7 +94,11 @@ export class RgbService implements RgbServiceI {
       await this.client!.connect();
       // remove this hack when openrgb-sdk is fixed
       this.logger.debug('Setting keyboard colors...');
-      this.client!.updateLeds(this.deviceId!, this.colors);
+      //doesnt work
+      //      this.client!.updateLeds(this.deviceId!, this.colors);
+      for (let i =0; i < this.colors.length; i++) {
+        this.client!.updateSingleLed(this.deviceId!, i, this.colors[i]);
+      }
     } catch (error) {
       this.logger.error(`Unable to init keyboard because of ${error?.message ?? error}`, error.stack);
     }
