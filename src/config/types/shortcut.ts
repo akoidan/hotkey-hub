@@ -54,11 +54,16 @@ const shortcut = z
     }
     return allowedKeys.includes(mainKey!);
     // eslint-disable-next-line max-len
-    }, 'Shortcut requires format Modifier+Key. E.g. \'Alt+1\'.'
+  }, 'Shortcut requires format Modifier+Key. E.g. \'Alt+1\'.'
     + `Allowed modifiers: '${modifierKeys.join('\', \'')}'. Allowed keys: '${allowedKeys.join('\', \'')}'.`)
   .describe('Keyboard shortcut format: Modifier+Key (e.g., Alt+1, Ctrl+Shift+A).' +
     ' Needs at least one modifier. Max 3 modifiers (e.g., Ctrl+Alt+Shift+S).');
 
+const behaviourSchema = z.enum(['stacking', 'pausable', 'restart']);
+const behaviourObjectSchema = z.object({
+  groupWith: z.string().optional().describe('If type is "restart" or "pausable" then groupWith will restart/pause all shortcuts with the same name'),
+  type: behaviourSchema,
+});
 
 const shortcutSchema = z.object({
   delayAfter: z.number().optional()
@@ -69,7 +74,7 @@ const shortcutSchema = z.object({
   shortCut: shortcut,
   commands: z.array(unknownCommandSchema).describe('Commands to run when shortcut triggered. ' +
     'Executes in order unless parallel execution specified.'),
-  behaviour: z.enum(['stacking', 'pausable', 'restart'])
+  behaviour: z.union([behaviourSchema, behaviourObjectSchema])
     .default('pausable')
     .optional()
     .describe('Controls the the behaviour of the process when you press again the shortcut ' +
@@ -100,12 +105,16 @@ const shortcutsSchema = z.array(shortcutSchema)
     'This is the main configuration that defines what happens when specific keys are pressed.');
 
 type Shortcut = z.infer<typeof shortcutSchema>;
+type BehaviourObject = z.infer<typeof behaviourObjectSchema>;
 
 export type {
   Shortcut,
+  BehaviourObject,
 };
 
 export {
   shortcutSchema,
+  behaviourObjectSchema,
+  behaviourSchema,
   shortcutsSchema,
 };
