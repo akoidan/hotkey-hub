@@ -40,6 +40,8 @@ export class ShortcutProcessingService {
         const index = this.iterationsInProgress[groupWith].findIndex(proc => proc.id === id);
         if (index >= 0) {
           this.iterationsInProgress[groupWith].splice(index, 1);
+        } else {
+          this.logger.error(`Unable to delete ${groupWith} iteration`);
         }
         if (this.iterationsInProgress[groupWith].length === 0) {
           await this.rgbService.updateColors(comb.shortCut, false);
