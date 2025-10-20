@@ -43,7 +43,7 @@ export class ShortcutProcessingService {
         } else {
           this.logger.error(`Unable to delete ${groupWith} iteration`);
         }
-        if (this.iterationsInProgress[groupWith].length === 0) {
+        if (this.iterationsInProgress[groupWith].filter(proc => proc.shortCut.shortCut === comb.shortCut).length === 0) {
           await this.rgbService.updateColors(comb.shortCut, false);
         }
       }
