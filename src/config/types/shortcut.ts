@@ -59,9 +59,21 @@ const shortcut = z
   .describe('Keyboard shortcut format: Modifier+Key (e.g., Alt+1, Ctrl+Shift+A).' +
     ' Needs at least one modifier. Max 3 modifiers (e.g., Ctrl+Alt+Shift+S).');
 
-const behaviourSchema = z.enum(['stacking', 'pausable', 'restart']);
+enum BehaviourEnum {
+  'stacking'= 'stacking',
+  'pausable'= 'pausable',
+  'restart'= 'restart'
+}
+const behaviourSchema = z.nativeEnum(BehaviourEnum)
+  .describe('Stacking = Current process will keep running and new one will spawn as well.' +
+  ' Since all executable items run in transaction by default.' +
+  'The next iteration will wait until current is finished. The default behaviour\n' +
+  'Pausable = Current process will stop running and new one won\'t start.\n' +
+  'Restart = Current process will stop running and new one will start\n');
+
 const behaviourObjectSchema = z.object({
-  groupWith: z.string().optional().describe('If type is "restart" or "pausable" then groupWith will restart/pause all shortcuts with the same name'),
+  groupWith: z.string().optional()
+    .describe('If type is "restart" or "pausable" then groupWith will restart/pause all shortcuts with the same name'),
   type: behaviourSchema,
 });
 
@@ -75,13 +87,10 @@ const shortcutSchema = z.object({
   commands: z.array(unknownCommandSchema).describe('Commands to run when shortcut triggered. ' +
     'Executes in order unless parallel execution specified.'),
   behaviour: z.union([behaviourSchema, behaviourObjectSchema])
-    .default('pausable')
+    .default(BehaviourEnum.stacking)
     .optional()
     .describe('Controls the the behaviour of the process when you press again the shortcut ' +
-      'and the old process is still running.' +
-      'Stacking = Current process will keep running and new one will spawn as well.' +
-      'Pausable = Current process will stop running and new one won\'t start.' +
-      'Restart = Current process will stop running and new one will start'),
+      'and the old process is still running.'),
 })
   .strict()
   .describe('This allows to bind a shortcut to a commands list and define execution behaviour.' +
@@ -114,6 +123,7 @@ export type {
 
 export {
   shortcutSchema,
+  BehaviourEnum,
   behaviourObjectSchema,
   behaviourSchema,
   shortcutsSchema,

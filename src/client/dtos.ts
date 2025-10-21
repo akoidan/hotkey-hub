@@ -32,6 +32,18 @@ interface LaunchExeRequest {
   waitTillFinish: boolean;
 }
 
+interface WindowBounds {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+interface SetWindowBoundsRequest {
+  wid: number;
+  bounds: WindowBounds;
+}
+
 interface KillExeByNameRequest {
   name: string;
 }
@@ -78,6 +90,8 @@ export type {
   KillExeByPidRequest,
   FocusWindowRequest,
   FindPidsByNameResponse,
+  SetWindowBoundsRequest,
+  WindowBounds,
   FindProcessWindowsResponse,
   MouseMoveHumanRequest,
 };

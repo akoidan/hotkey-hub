@@ -1,11 +1,10 @@
 import {Injectable, Logger} from '@nestjs/common';
 import clc from 'cli-color';
 import {BaseLocalHandler} from '@/local/base-local-handler';
-import {BehaviourObject, Shortcut} from '@/config/types/shortcut';
+import {BehaviourEnum, BehaviourObject, Shortcut} from '@/config/types/shortcut';
 import {SemaphorService} from '@/semaphor/semaphor-service';
 import {RgbService} from '@/rgb/rgb-service';
 import {IterationDescription, ProcessStatus} from '@/local/local-model';
-import {BehaviorSubject} from 'rxjs';
 
 @Injectable()
 export class ShortcutProcessingService {
@@ -29,9 +28,9 @@ export class ShortcutProcessingService {
         if (!this.iterationsInProgress[groupWith]) {
           this.iterationsInProgress[groupWith] = [];
         }
-        if (behaviour === 'pausable') {
+        if (behaviour === BehaviourEnum.pausable) {
           await this.runPausableProcess(comb, id, groupWith);
-        } else if (behaviour === 'restart') {
+        } else if (behaviour === BehaviourEnum.restart) {
           await this.runRestartableProcess(comb, id, groupWith);
         } else { // comb.behaviour === 'stackable'
           await this.runGeneratorLoop(comb, id, groupWith);
@@ -39,9 +38,10 @@ export class ShortcutProcessingService {
       } finally {
         const index = this.iterationsInProgress[groupWith].findIndex(proc => proc.id === id);
         if (index >= 0) {
+          // if pausable, it won't start at all, so there's a possibility it's not running
           this.iterationsInProgress[groupWith].splice(index, 1);
         } else {
-          this.logger.error(`Unable to delete ${groupWith} iteration`);
+          this.logger.debug(`Not deleting operation ${id} since it's not starting`)
         }
         if (this.iterationsInProgress[groupWith].filter(proc => proc.shortCut.shortCut === comb.shortCut).length === 0) {
           await this.rgbService.updateColors(comb.shortCut, false);
