@@ -75,7 +75,6 @@ export class ConfigService implements ConfigProvider {
     schemaRootCache.data = configValueWoMacro;
 
     await aARootSchema.parseAsync(confValueWithMacro);
-
     const configData = schemaRootCache.data;
     const macros = schemaRootCache.macros ?? {};
     schemaRootCache.data = null!;

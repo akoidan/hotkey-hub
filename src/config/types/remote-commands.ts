@@ -40,7 +40,7 @@ const baseSchema = z.object({
 
 
 const setWindowBoundsRemoteSchema = z.object({
-  setWindowIdBound: z.number().describe('Window id'),
+  setWindowIdBound: z.union([variableValueSchema, z.number()]).describe('Window id'),
   windowProperties: z.object({
     x: z.number().describe('x position'),
     y: z.number().describe('y position'),
