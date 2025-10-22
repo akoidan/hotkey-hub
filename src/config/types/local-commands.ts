@@ -70,20 +70,41 @@ const macroLocalCommandSchema = z.object({
     'This helps avoid duplicating complex command sequences and makes configurations more maintainable.');
 
 
-const reloadConfigLocalCommandSchema = z.object({
-  reloadConfig: z.string()
-    .default('')
-    .describe('Path to a new config. Leave it as empty string to use current path')
-    .optional(),
-  reloadMacro: z.string()
-    .default('')
-    .describe('Path to a new macro config file. Leave it as empty string to use current path')
-    .optional(),
-  reloadVariables: z.string()
-    .default('')
-    .describe('Path to a variable config file. Leave it as empty string to use current path')
-    .optional(),
-}).describe('Reloads config or loads config from a new place');
+const reloadConfigLocalCommandSchema = z.union([
+  z.object({
+    reloadConfig: z.string()
+      .nonempty()
+      .describe('Path to a new config. Leave it empty to use current path'),
+    reloadMacro: z.string()
+      .optional()
+      .describe('Path to a new macro config file. Leave it empty to use current path'),
+    reloadVariables: z.string()
+      .optional()
+      .describe('Path to a variable config file. Leave it empty to use current path'),
+  }).strict(),
+  z.object({
+    reloadConfig: z.string()
+      .optional()
+      .describe('Path to a new config. Leave it empty to use current path'),
+    reloadMacro: z.string()
+      .nonempty()
+      .describe('Path to a new macro config file. Leave it empty to use current path'),
+    reloadVariables: z.string()
+      .optional()
+      .describe('Path to a variable config file. Leave it empty to use current path'),
+  }).strict(),
+  z.object({
+    reloadConfig: z.string()
+      .optional()
+      .describe('Path to a new config. Leave it empty to use current path'),
+    reloadMacro: z.string()
+      .optional()
+      .describe('Path to a new macro config file. Leave it empty to use current path'),
+    reloadVariables: z.string()
+      .nonempty()
+      .describe('Path to a variable config file. Leave it empty to use current path'),
+  }).strict(),
+]).describe('Reloads config or loads config from a new place');
 
 const expressionLocalCommandSchema = z.object({
   assignVariable: z.string().describe('Name of the variable to store the expression result. ' +
