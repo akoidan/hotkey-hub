@@ -48,7 +48,7 @@ export class VariableResolutionService {
     if (!varName || !definition[varName]) {
       return command;
     }
-    if (values.hasOwnProperty(varName)) {
+    if (Object.hasOwn(values, varName)) {
       this.logger.debug(`Replaced variable ${varName} to ${values[varName] as string} for ${JSON.stringify(command)}`);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       return this.evaluateVariable(varName, varExpress!, values[varName]);
@@ -60,7 +60,9 @@ export class VariableResolutionService {
     throw Error(`Unable to resolve macros variable ${varName} when running ${JSON.stringify(command)}`);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
   private evaluateVariable<T>(varName: string, variableExpression: string, varValue: unknown): T {
+    // eslint-disable-next-line no-new-func,@typescript-eslint/no-implied-eval,@typescript-eslint/no-unsafe-return
     return Function(varName, `return ${variableExpression};`)(varValue);
   }
 
