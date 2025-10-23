@@ -25,16 +25,16 @@ export class DelayService {
     const delays = this.configService.getDelays();
     if (commandDelay !== undefined) {
       combDelay = commandDelay;
-      if (combDelay && delays.commandDiviation) {
-        combDelay = this.randomService.calcDiviation(commandDelay, delays.commandDiviation);
+      if (combDelay && delays.commandDeviation) {
+        combDelay = this.randomService.calcDeviation(commandDelay, delays.commandDeviation);
       }
     }
 
     const configDelay = type === 'before' ? delays.beforeCommand : delays.afterCommand;
     if (combDelay === undefined && configDelay !== undefined) {
-      combDelay = this.randomService.calcDiviation(configDelay, delays.standardDiviation);
+      combDelay = this.randomService.calcDeviation(configDelay, delays.standardDeviation);
       if (delays.randomHugeDelay && delays.randomHugeDelayChance && Math.random() < delays.randomHugeDelayChance) {
-        combDelay += this.randomService.calcDiviation(delays.randomHugeDelay, delays.randomHugeDelayDiviation);
+        combDelay += this.randomService.calcDeviation(delays.randomHugeDelay, delays.randomHugeDelayDeviation);
       }
     }
     if (!combDelay) {

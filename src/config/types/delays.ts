@@ -11,7 +11,7 @@ const globalDelaySchema = z.object({
     .describe('Base delay (in milliseconds) after each command. Can be randomized using standardDeviation.')
     .optional(),
 
-  standardDiviation: z.number()
+  standardDeviation: z.number()
     .positive()
     .max(1)
     .default(0)
@@ -20,7 +20,7 @@ const globalDelaySchema = z.object({
       + 'E.g. 0.2 with 1000ms delay gives random delay between 800ms and 1200ms.')
     .optional(),
 
-  commandDiviation: z.number()
+  commandDeviation: z.number()
     .positive()
     .max(1)
     .default(0)
@@ -29,7 +29,7 @@ const globalDelaySchema = z.object({
       + 'E.g. 0.2 with 1000ms delay gives random delay between 800ms and 1200ms.')
     .optional(),
 
-  randomHugeDelayDiviation: z.number()
+  randomHugeDelayDeviation: z.number()
     .positive()
     .max(1)
     .default(0)
