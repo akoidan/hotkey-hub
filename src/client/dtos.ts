@@ -5,6 +5,17 @@ interface MouseClickRequest {
   y: number;
 }
 
+interface MouseMoveHumanRequest {
+  x: number;
+  y: number;
+  destinationRandomX?: number;
+  destinationRandomY?: number;
+  delayBetweenIterations?: number;
+  pixelsPerIteration?: number;
+  curveIntensity?: number;
+  curveIntensityDeviation?: number;
+}
+
 interface SendKeyRequest {
   keys: Key[];
   holdKeys: Key[];
@@ -19,6 +30,18 @@ interface LaunchExeRequest {
   path: string;
   arguments: string[];
   waitTillFinish: boolean;
+}
+
+interface WindowBounds {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+interface SetWindowBoundsRequest {
+  wid: number;
+  bounds: WindowBounds;
 }
 
 interface KillExeByNameRequest {
@@ -67,5 +90,8 @@ export type {
   KillExeByPidRequest,
   FocusWindowRequest,
   FindPidsByNameResponse,
+  SetWindowBoundsRequest,
+  WindowBounds,
   FindProcessWindowsResponse,
+  MouseMoveHumanRequest,
 };

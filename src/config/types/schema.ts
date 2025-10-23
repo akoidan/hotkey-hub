@@ -50,7 +50,7 @@ const rgbSchema = z.object({
     .describe('Mapping of keyboard api key name to default map key names. ' +
       'This should be a JS expression that accept variable "x" and evaluates to a string')
     .optional(),
-}).optional()
+}).strict().optional()
   .describe('RGB keyboard lighting for shortcut feedback. Changes key colors during execution.' +
     ' Needs OpenRGB server and compatible keyboard. See https://openrgb.org/.');
 

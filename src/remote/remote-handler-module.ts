@@ -17,6 +17,9 @@ import {FindProcessesWindowsRemoteHandler} from '@/remote/implementation/find-pr
 import {FocusWindowRemoteHandler} from '@/remote/implementation/focus-window-remote-handler';
 import {FindProcessWindowsRemoteHandler} from '@/remote/implementation/find-process-windows-remote-handler';
 import {CommandRemoteHandler} from '@/remote/command-remote-handler';
+import {
+  SetWindowBoundsRemoteHandler,
+} from '@/remote/implementation/set-window-bounds-remote-handler.service';
 
 const remoteHandlerProviders: Provider[] = [
   Logger,
@@ -32,6 +35,7 @@ const remoteHandlerProviders: Provider[] = [
   FindProcessWindowsRemoteHandler,
   FindProcessesWindowsRemoteHandler,
   FocusWindowRemoteHandler,
+  SetWindowBoundsRemoteHandler,
   {
     provide: CommandRemoteHandler,
     inject: [
@@ -47,6 +51,7 @@ const remoteHandlerProviders: Provider[] = [
       FindProcessWindowsRemoteHandler,
       FindProcessesWindowsRemoteHandler,
       FocusWindowRemoteHandler,
+      SetWindowBoundsRemoteHandler,
     ],
     useFactory: (
         keyPressHandler: CommandRemoteHandler,
@@ -61,6 +66,7 @@ const remoteHandlerProviders: Provider[] = [
         findProcessWindowsHandler: CommandRemoteHandler,
         findProcessesWindowsHandler: CommandRemoteHandler,
         focusWindowHandler: CommandRemoteHandler,
+        setWindowBoundsHandler: SetWindowBoundsRemoteHandler,
     ): CommandRemoteHandler => {
       keyPressHandler
           .setNext(focusProcessWindowHandler)
@@ -73,7 +79,8 @@ const remoteHandlerProviders: Provider[] = [
           .setNext(findPidsByNameHandler)
           .setNext(findProcessWindowsHandler)
           .setNext(findProcessesWindowsHandler)
-          .setNext(focusWindowHandler);
+          .setNext(focusWindowHandler)
+          .setNext(setWindowBoundsHandler);
       return keyPressHandler;
     },
   },

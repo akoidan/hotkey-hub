@@ -27,6 +27,9 @@ export class MacroLocalHandler extends BaseLocalHandler {
     tId: string | undefined,
   ): AsyncGenerator<void> {
     const executable = this.configService.getMacros()[input.macro];
+    if (!executable) {
+      throw new Error(`Macro ${input.macro} not found.`);
+    }
     if (typeof input.delayBefore === 'number') { // ignore if it's a variable or undefined
       // if it's a macro, delay in this macro won't be passed down
       // but would be await after any commands in this macro has run yet as expected, this is why on top we are not passing it

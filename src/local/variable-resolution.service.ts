@@ -3,8 +3,8 @@ import {
   Logger,
 } from '@nestjs/common';
 import {ConfigService} from '@/config/config-service';
-import {extractVariableName} from '@/config/types/variables';
 import {VariablesDefinition} from '@/config/types/local-commands';
+import {variableRegex} from '@/config/types/variables';
 
 @Injectable()
 export class VariableResolutionService {
@@ -33,15 +33,25 @@ export class VariableResolutionService {
     return this.replacePrimitive(command, values ,definition);
   }
 
+  private extractVariableName(variable: unknown): { varName: string|undefined, varExpress: string|undefined} {
+    if (typeof variable === 'string') {
+      const name = variableRegex.exec(variable);
+      if (name) {
+        return {varName: name.groups!.variable, varExpress: variable.substring(2, variable.length -2)} ;
+      }
+    }
+    return  {varName: undefined, varExpress: undefined} ;
+  }
+
   private replacePrimitive<T>(command: T, values: Record<string, unknown>, definition: VariablesDefinition,): T {
-    const varName = extractVariableName(command)!;
+    const {varName, varExpress} = this.extractVariableName(command)!;
     if (!varName || !definition[varName]) {
       return command;
     }
-    if (values[varName]) {
+    if (Object.hasOwn(values, varName)) {
       this.logger.debug(`Replaced variable ${varName} to ${values[varName] as string} for ${JSON.stringify(command)}`);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      return values[varName] as T;
+      return this.evaluateVariable(varName, varExpress!, values[varName]);
     }
     if (definition[varName]!.optional) {
       this.logger.debug(`Omitting variable ${varName} from ${JSON.stringify(command)} since it's optional`);
@@ -50,17 +60,23 @@ export class VariableResolutionService {
     throw Error(`Unable to resolve macros variable ${varName} when running ${JSON.stringify(command)}`);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
+  private evaluateVariable<T>(varName: string, variableExpression: string, varValue: unknown): T {
+    // eslint-disable-next-line no-new-func,@typescript-eslint/no-implied-eval,@typescript-eslint/no-unsafe-return
+    return Function(varName, `return ${variableExpression};`)(varValue);
+  }
+
   replaceEnvVars<T extends object>(obj: T): T {
     const result: Partial<T> = {};
     for (const [key, value] of Object.entries(obj) as [keyof T, T[keyof T]][]) {
-      const varName = extractVariableName(value);
+      const {varName, varExpress} = this.extractVariableName(value);
       if (varName) {
         const globalVars = this.configService.getGlobalVars();
         const scriptVars = this.configService.getVariables();
         if (scriptVars[varName]) {
-          result[key] = scriptVars[varName] as T[keyof T];
+          result[key] = this.evaluateVariable<T[keyof T]>(varName, varExpress!, scriptVars[varName]);
         } else if (globalVars[varName]) {
-          result[key] = globalVars[varName] as T[keyof T];
+          result[key] = this.evaluateVariable<T[keyof T]>(varName, varExpress!, globalVars[varName]);
         } else {
           throw Error(`Unknown environment variable ${value as string}`);
         }

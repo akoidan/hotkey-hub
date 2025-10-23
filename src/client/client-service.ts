@@ -6,8 +6,8 @@ import {
   KillExeByPidRequest,
   LaunchExeRequest,
   LaunchPidResponse,
-  MouseClickRequest,
-  SendKeyRequest,
+  MouseClickRequest, MouseMoveHumanRequest,
+  SendKeyRequest, SetWindowBoundsRequest,
   TypeTextRequest,
 } from '@/client/dtos';
 import {Injectable} from '@nestjs/common';
@@ -32,8 +32,12 @@ export class ClientService {
     return this.client.post(client, '/window/focus-exe', request);
   }
 
-  async mouseMoveClick(client: string, request: MouseClickRequest): Promise<void> {
-    return this.client.post(client, '/mouse/mouse-move-click', request);
+  async mouseMove(client: string, request: MouseClickRequest): Promise<void> {
+    return this.client.post(client, '/mouse/mouse-move', request);
+  }
+
+  async mouseMoveHuman(client: string, request: MouseMoveHumanRequest): Promise<void> {
+    return this.client.post(client, '/mouse/mouse-move-human', request);
   }
 
   async leftMouseClick(client: string): Promise<void> {
@@ -42,6 +46,10 @@ export class ClientService {
 
   async launchExe(client: string, request: LaunchExeRequest): Promise<LaunchPidResponse> {
     return this.client.post(client, '/process/launch-exe', request, 3000, true);
+  }
+
+  async setWindowBounds(client: string, request: SetWindowBoundsRequest): Promise<LaunchPidResponse> {
+    return this.client.post(client, '/window/bounds', request, 5000);
   }
 
   async killExeByName(client: string, request: KillExeByNameRequest): Promise<void> {

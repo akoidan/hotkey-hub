@@ -4,14 +4,7 @@ const variablesSchema = z.record(z.any())
   .describe('Variable definitions for configuration.' +
     ' Values can be any type (numeric strings auto-convert to integers). Use {{varName}} to reference.');
 
-const variableRegex = /\{\{\w+\}\}/u;
-
-function extractVariableName(variable: unknown): string|undefined {
-  if (typeof variable === 'string' && variableRegex.test(variable)) {
-    return variable.substring(2, variable.length -2);
-  }
-  return undefined;
-}
+const variableRegex = /\{\{\s*(?<variable>[a-zA-Z_$][\w$]*)(?:\[[^\]]+\]|\.[a-zA-Z_$][\w$]*)*\s*\}\}/u;
 
 const variableValueSchema = z.string().regex(variableRegex)
   .describe('Reference to a variable using double curly brace syntax: {{variableName}}. ' +
@@ -22,6 +15,6 @@ const variableValueSchema = z.string().regex(variableRegex)
 
 type Variables = z.infer<typeof variablesSchema>
 
-export {variablesSchema, variableValueSchema, variableRegex, extractVariableName};
+export {variablesSchema, variableValueSchema, variableRegex};
 
 export type {Variables};

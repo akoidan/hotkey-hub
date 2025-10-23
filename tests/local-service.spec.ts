@@ -106,8 +106,8 @@ describe('Logic service', () => {
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const tyrs = testModule.get<ConfigService>(ConfigService);
     const clientService = testModule.get<ClientService>(ClientService);
-    clientService.mouseMoveClick = jest.fn().mockImplementation();
-    const spyMouseClick = jest.spyOn(clientService, 'mouseMoveClick');
+    clientService.mouseMoveHuman = jest.fn().mockImplementation();
+    const spyMouseClick = jest.spyOn(clientService, 'mouseMoveHuman');
     await tyrs.parseConfig();
 
     await shortCutService.runShortcut({
@@ -123,6 +123,7 @@ describe('Logic service', () => {
     });
 
     expect(spyMouseClick).toHaveBeenCalledWith('this', {
+      pixelsPerIteration: 20,
       x: 100,
       y: 200
     });
@@ -335,8 +336,8 @@ describe('Logic service', () => {
     const tyrs = testModule.get<ConfigService>(ConfigService);
     const clientService = testModule.get<ClientService>(ClientService);
     clientService.leftMouseClick = jest.fn().mockImplementation();
-    clientService.mouseMoveClick = jest.fn().mockImplementation();
-    const skyMouseMoveClick = jest.spyOn(clientService, 'mouseMoveClick');
+    clientService.mouseMoveHuman = jest.fn().mockImplementation();
+    const skyMouseMoveClick = jest.spyOn(clientService, 'mouseMoveHuman');
     const skyMouseClick = jest.spyOn(clientService, 'leftMouseClick');
     await tyrs.parseConfig();
     await shortCutService.runShortcut({
@@ -364,7 +365,7 @@ describe('Logic service', () => {
       name: "Tyrs attack each other",
       shortCut: "Alt+2"
     })
-    expect(skyMouseMoveClick).toHaveBeenCalledWith('that', {x: 537, y: 123});
+    expect(skyMouseMoveClick).toHaveBeenCalledWith('that', {x: 537, y: 123, pixelsPerIteration: 20});
     expect(skyMouseClick).toHaveBeenCalledWith('that');
   });
 

@@ -39,6 +39,16 @@ const baseSchema = z.object({
 }).strict().merge(delayCommandsSchema);
 
 
+const setWindowBoundsRemoteSchema = z.object({
+  setWindowIdBound: z.union([variableValueSchema, z.number()]).describe('Window id'),
+  windowProperties: z.object({
+    x: z.number().describe('x position'),
+    y: z.number().describe('y position'),
+    width: z.number().describe('width'),
+    height: z.number().describe('height'),
+  }).strict(),
+}).strict().merge(baseSchema).describe('Sets window width height and x y position' );
+
 const keyPressRemoteCommandSchema = z.object({
   keyPress: z.union([keySchema, variableValueSchema, z.array(keySchema)])
     .describe('Key(s) to press. Can be a single key, variable containing a key, or array of keys for multiple presses.'),
@@ -177,6 +187,7 @@ const killExeByPidRemoteCommandSchema = z.object({
 
 const remoteCommandSchema = z.union([
   keyPressRemoteCommandSchema,
+  setWindowBoundsRemoteSchema,
   leftMouseClickRemoteCommandSchema,
   mouseMoveClickRemoteCommandSchema,
   launchExeRemoteCommandSchema,
@@ -195,6 +206,7 @@ type TypeTextRemoteCommand = z.infer<typeof typeTextRemoteCommandSchema>
 type FocusProcessWindowRemoteCommand = z.infer<typeof focusProcessWindowRemoteCommandSchema>
 type FocusWindowRemoteCommand = z.infer<typeof focusWindowRemoteCommandSchema>
 type KeyPressRemoteCommand = z.infer<typeof keyPressRemoteCommandSchema>
+type SetWindowBoundsRemoteCommand = z.infer<typeof setWindowBoundsRemoteSchema>
 type BaseRemoteCommand = z.infer<typeof baseSchema>
 type MouseMoveClickRemoteCommand = z.infer<typeof mouseMoveClickRemoteCommandSchema>
 type LeftMouseClickRemoteCommand = z.infer<typeof leftMouseClickRemoteCommandSchema>
@@ -214,6 +226,7 @@ type Delay = z.infer<typeof delayCommandsSchema>;
 export type {
   TypeTextRemoteCommand,
   KeyPressRemoteCommand,
+  SetWindowBoundsRemoteCommand,
   BaseRemoteCommand,
   MouseMoveClickRemoteCommand,
   LeftMouseClickRemoteCommand,
@@ -235,6 +248,7 @@ export {
   variableValueSchema,
   delayCommandsSchema,
   keyPressRemoteCommandSchema,
+  setWindowBoundsRemoteSchema,
   launchExeRemoteCommandSchema,
   focusProcessWindowRemoteCommandSchema,
   typeTextRemoteCommandSchema,

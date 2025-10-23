@@ -70,20 +70,34 @@ const macroLocalCommandSchema = z.object({
     'This helps avoid duplicating complex command sequences and makes configurations more maintainable.');
 
 
-const reloadConfigLocalCommandSchema = z.object({
-  reloadConfig: z.string()
-    .default('')
-    .describe('Path to a new config. Leave it as empty string to use current path')
-    .optional(),
-  reloadMacro: z.string()
-    .default('')
-    .describe('Path to a new macro config file. Leave it as empty string to use current path')
-    .optional(),
-  reloadVariables: z.string()
-    .default('')
-    .describe('Path to a variable config file. Leave it as empty string to use current path')
-    .optional(),
-}).describe('Reloads config or loads config from a new place');
+// Define reusable field schemas
+const fieldDescriptions = {
+  reloadConfig: 'Path to a new config. Leave it empty to use current path',
+  reloadMacro: 'Path to a new macro config file. Leave it empty to use current path',
+  reloadVariables: 'Path to a variable config file. Leave it empty to use current path',
+};
+
+// Base: all optional
+const base = z.object({
+  reloadConfig: z.string().optional().describe(fieldDescriptions.reloadConfig),
+  reloadMacro: z.string().optional().describe(fieldDescriptions.reloadMacro),
+  reloadVariables: z.string().optional().describe(fieldDescriptions.reloadVariables),
+}).strict();
+
+// Helper: mark one field as required+nonempty
+function requireField<K extends keyof typeof fieldDescriptions>(
+  key: K
+): z.ZodObject<{ [P in keyof typeof fieldDescriptions]: P extends K ? z.ZodString : z.ZodOptional<z.ZodString>; }, 'strict'> {
+  return base.extend({
+    [key]: z.string().nonempty().describe(fieldDescriptions[key]),
+  }) as z.ZodObject<{ [P in keyof typeof fieldDescriptions]: P extends K ? z.ZodString : z.ZodOptional<z.ZodString>; }, 'strict'>;
+}
+
+const reloadConfigLocalCommandSchema = z.union([
+  requireField('reloadConfig'),
+  requireField('reloadMacro'),
+  requireField('reloadVariables'),
+]).describe('Reloads config or loads config from a new place');
 
 const expressionLocalCommandSchema = z.object({
   assignVariable: z.string().describe('Name of the variable to store the expression result. ' +
@@ -118,7 +132,7 @@ const transactionLocalCommandSchema = z.lazy(() => z.object({
     .describe('Commands to execute atomically in this transaction. All commands either succeed or fail together.'),
   transaction: z.string()
     .describe('Unique name for the transaction. Helps with logging and debugging transaction execution.'),
-})).describe('Run commands in a transaction.' +
+}).strict()).describe('Run commands in a transaction.' +
   ' Prevents concurrent transactions with same name.' +
   ' Uses PC name for remote commands. Ensures atomic execution.') as any as ZodType<{ commands: UnknownCommand[], transaction: string }>;
 
@@ -135,7 +149,7 @@ const loopLocalCommandSchema = z.lazy(() => z.object({
       'Negative number: Runs indefinitely until manually stopped. ' +
       'If the parent command is pausable, pressing the shortcut again will exit the loop.'),
   // z.lazy requires manual type definition cause of reqursive type
-})).describe(
+}).strict()).describe(
   'Allow to run same commands multiple time or in iteration or loop'
 ) as any as ZodType<{ commands: UnknownCommand[], loop: number }>;
 
@@ -143,7 +157,7 @@ const threadsLocalCommandSchema = z.lazy(() => z.object({
   threads: z.array(threadLocalArraySchema).describe('Command sequences to run in parallel.' +
     ' Each thread runs sequentially while threads run simultaneously.'),
   // z.lazy requires manual type definition cause of reqursive type
-})).describe('Allows to execute commands in parallel. Or in threads.') as ZodType<{ threads: UnknownCommand[][] }>;
+}).strict()).describe('Allows to execute commands in parallel. Or in threads.') as ZodType<{ threads: UnknownCommand[][] }>;
 
 const macroVariablesDescriptionSchema = z.record(z.object({
   type: z.enum(['string', 'number']).describe('To validate the type, or cast from env variables'),

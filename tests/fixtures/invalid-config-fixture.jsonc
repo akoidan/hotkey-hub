@@ -1,0 +1,19 @@
+{
+  "ips": {
+    "this": "127.0.0.1",
+    "that": "127.0.0.2",
+    "other": "127.0.0.3"
+  },
+  "combinations": [
+    {
+      "name": "test1",
+      "shortCut": "Alt+c",
+      "commands": [
+        {
+          "destination:": "this",
+          "keyPress": "f6"
+        }
+      ]
+    }
+  ]
+}

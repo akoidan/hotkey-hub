@@ -57,11 +57,12 @@ export class SemaphorService {
       // awaiting run here, so we would have asynlocalstorage context
       // otherwise e.g. with this yield *this.asyncLocalStorage.run(newStorageMap, cb)
       // we will lose context
-      result = await this.asyncLocalStorage.run(newStorageMap, async() => gen.next());
-      // yielding result from here, so we have context of asyncStorage, otherwise
-      if (!result.done) {
-        yield result.value;
-      }
+      result = await this.asyncLocalStorage.run(newStorageMap, async() => {
+        this.logger.debug('Calling gen.next()');
+        return gen.next();
+      });
+      yield result.value;
+      this.logger.debug('Yield from semaphor');
     } while (!result.done);
 
     this.logger.debug(`All actions for ${parentId} are completed`);
