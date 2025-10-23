@@ -139,7 +139,7 @@ const transactionLocalCommandSchema = z.lazy(() => z.object({
     .describe('Commands to execute atomically in this transaction. All commands either succeed or fail together.'),
   transaction: z.string()
     .describe('Unique name for the transaction. Helps with logging and debugging transaction execution.'),
-})).describe('Run commands in a transaction.' +
+}).strict()).describe('Run commands in a transaction.' +
   ' Prevents concurrent transactions with same name.' +
   ' Uses PC name for remote commands. Ensures atomic execution.') as any as ZodType<{ commands: UnknownCommand[], transaction: string }>;
 
@@ -156,7 +156,7 @@ const loopLocalCommandSchema = z.lazy(() => z.object({
       'Negative number: Runs indefinitely until manually stopped. ' +
       'If the parent command is pausable, pressing the shortcut again will exit the loop.'),
   // z.lazy requires manual type definition cause of reqursive type
-})).describe(
+}).strict()).describe(
   'Allow to run same commands multiple time or in iteration or loop'
 ) as any as ZodType<{ commands: UnknownCommand[], loop: number }>;
 
@@ -164,7 +164,7 @@ const threadsLocalCommandSchema = z.lazy(() => z.object({
   threads: z.array(threadLocalArraySchema).describe('Command sequences to run in parallel.' +
     ' Each thread runs sequentially while threads run simultaneously.'),
   // z.lazy requires manual type definition cause of reqursive type
-})).describe('Allows to execute commands in parallel. Or in threads.') as ZodType<{ threads: UnknownCommand[][] }>;
+}).strict()).describe('Allows to execute commands in parallel. Or in threads.') as ZodType<{ threads: UnknownCommand[][] }>;
 
 const macroVariablesDescriptionSchema = z.record(z.object({
   type: z.enum(['string', 'number']).describe('To validate the type, or cast from env variables'),

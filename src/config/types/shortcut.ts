@@ -75,7 +75,7 @@ const behaviourObjectSchema = z.object({
   groupWith: z.string().optional()
     .describe('If type is "restart" or "pausable" then groupWith will restart/pause all shortcuts with the same name'),
   type: behaviourSchema,
-});
+}).strict();
 
 const shortcutSchema = z.object({
   delayAfter: z.number().optional()
