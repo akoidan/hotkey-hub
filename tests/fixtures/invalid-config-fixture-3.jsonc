@@ -1,0 +1,54 @@
+{
+  "ips": {
+    "this": "127.0.0.1",
+    "that": "127.0.0.2",
+    "other": "127.0.0.3"
+  },
+  "macros": {
+    "keyPress": {
+      "commands": [
+        {
+          "transaction": "{{destination}}",
+          "commands": [
+            {
+              "destination": "{{destination}}",
+              "focusWid": "{{focusWid}}"
+            },
+            {
+              "destination": "{{destination}}",
+              "keyPress": "{{keyPress}}",
+              "delayAfter": 50
+            }
+          ]
+        }
+      ],
+      "variables": {
+        "destination": {
+          "type": "string"
+        },
+        "focusWid": {
+          "type": "number"
+        },
+        "keyPress": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "combinations": [
+    {
+      "commands": [
+        {
+          "macro": "keyPress",
+          "variables": {
+            "focusWid1": "{{widwc}}",
+            "destination": "{{pcwc}}",
+            "keyPress": "f4"
+          }
+        }
+      ],
+      "name": "Target me",
+      "shortCut": "Alt+s"
+    }
+  ]
+}
