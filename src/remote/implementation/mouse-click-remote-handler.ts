@@ -10,7 +10,7 @@ export class MouseClickRemoteHandler extends CommandRemoteHandler {
     await this.clientService.mouseMoveHuman(destination, {
       x: command.mouseMoveX as number,
       y: command.mouseMoveY as number,
-      pixelsPerIteration: 20
+      pixelsPerIteration: 20,
     });
   }
 }

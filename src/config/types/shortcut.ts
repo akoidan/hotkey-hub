@@ -62,7 +62,7 @@ const shortcut = z
 enum BehaviourEnum {
   'stacking'= 'stacking',
   'pausable'= 'pausable',
-  'restart'= 'restart'
+  'restart'= 'restart',
 }
 const behaviourSchema = z.nativeEnum(BehaviourEnum)
   .describe('Stacking = Current process will keep running and new one will spawn as well.' +

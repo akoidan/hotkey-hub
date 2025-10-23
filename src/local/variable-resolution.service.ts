@@ -4,6 +4,7 @@ import {
 } from '@nestjs/common';
 import {ConfigService} from '@/config/config-service';
 import {VariablesDefinition} from '@/config/types/local-commands';
+import {variableRegex} from '@/config/types/variables';
 
 @Injectable()
 export class VariableResolutionService {
@@ -34,9 +35,9 @@ export class VariableResolutionService {
 
   private extractVariableName(variable: unknown): { varName: string|undefined, varExpress: string|undefined} {
     if (typeof variable === 'string') {
-      const name = variable.match(/\{\{\s*([a-zA-Z_$][\w$]*)(?:\[[^\]]+\]|\.[a-zA-Z_$][\w$]*)*\s*\}\}/u);
+      const name = variableRegex.exec(variable);
       if (name) {
-        return {varName: name[1], varExpress: variable.substring(2, variable.length -2)} ;
+        return {varName: name.groups!.variable, varExpress: variable.substring(2, variable.length -2)} ;
       }
     }
     return  {varName: undefined, varExpress: undefined} ;
