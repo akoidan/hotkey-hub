@@ -1,5 +1,5 @@
 /* eslint-disable max-lines*/
-import {z, ZodArray, ZodObject, ZodTypeAny, ZodUnion} from 'zod';
+import {z, ZodArray, ZodEffects, ZodLazy, ZodObject, ZodTypeAny, ZodUnion} from 'zod';
 
 
 import {variablesSchema, variableValueSchema} from '@/config/types/variables';
@@ -70,33 +70,94 @@ const aATypeRootSchema = z.object({
     'All sections must follow their respective schemas strictly.');
 
 
-function makeAllFieldsVariableCompatible<T extends ZodTypeAny>(schema: T): ZodTypeAny {
-  if (schema instanceof ZodObject) {
-    const shape = schema.shape;
-    const newShape: Record<string, ZodTypeAny> = {};
-
-    for (const key in shape) {
-      newShape[key] = makeAllFieldsVariableCompatible(shape[key]);
+function makeAllFieldsVariableCompatible<T extends ZodTypeAny>(
+  schema: T,
+  path: string[] = [],
+  depth: number = 0,
+  seen: WeakSet<ZodTypeAny> = new WeakSet()
+): ZodTypeAny {
+  // Prevent infinite recursion on circular references
+  if (seen.has(schema)) {
+    console.log(`[CIRCULAR] Path: ${path.join('.')}`);
+    return schema;
+  }
+  seen.add(schema);
+  
+  const currentPath = [...path, schema.constructor.name];
+  console.log(`[DEPTH ${depth}] Processing ${currentPath.join(' -> ')}`);
+  
+  try {
+    // Handle ZodLazy - we need to create a new lazy schema that wraps the processed inner schema
+    if (schema instanceof ZodLazy) {
+      console.log(`[LAZY] Creating wrapped lazy schema at path: ${currentPath.join('.')}`);
+      return z.lazy(() => {
+        const innerSchema = schema._def.getter() as ZodTypeAny;
+        return makeAllFieldsVariableCompatible(innerSchema, [...currentPath, 'lazy'], depth + 1, seen);
+      });
     }
+    
+    // Handle ZodEffect - we need to preserve the effect while making its inner schema variable-compatible
+    if (schema instanceof ZodEffects) {
+      console.log(`[EFFECT] Creating wrapped effect schema at path: ${currentPath.join('.')}`);
+      const innerSchema = (schema as any)._def.schema as ZodTypeAny;
+      if (!innerSchema) {
+        return schema;
+      }
+      
+      // Create a new effect that wraps the processed inner schema
+      const processedInner = makeAllFieldsVariableCompatible(innerSchema, [...currentPath, 'effect'], depth + 1, seen);
+      
+      // Recreate the effect with the same type and checks
+      return new ZodEffects({
+        ...schema._def,
+        schema: processedInner
+      });
+    }
+
+    if (schema instanceof ZodObject) {
+      console.log(`[OBJECT] Processing object with keys: ${Object.keys(schema.shape).join(', ')}`);
+      const shape = schema.shape;
+      const newShape: Record<string, ZodTypeAny> = {};
+
+      for (const key in shape) {
+        console.log(`[OBJECT] Processing key: ${key}`);
+        newShape[key] = makeAllFieldsVariableCompatible(shape[key], [...currentPath, key], depth + 1, seen);
+      }
 
     return z.object(newShape);
   }
 
-  if (schema instanceof ZodArray) {
-    return z
-      .array(makeAllFieldsVariableCompatible(schema.element))
-      .or(variableValueSchema);
-  }
+    if (schema instanceof ZodArray) {
+      console.log(`[ARRAY] Processing array element at path: ${currentPath.join('.')}`);
+      return z
+        .array(makeAllFieldsVariableCompatible(schema.element, [...currentPath, '[]'], depth + 1, seen))
+        .or(variableValueSchema);
+    }
 
-  if (schema instanceof ZodUnion) {
-    const options = (schema._def as any).options as ZodTypeAny[];
-    const newOptions = options.map(makeAllFieldsVariableCompatible);
-    // @ts-ignore
-    return z.union([...newOptions, variableValueSchema]);
-  }
+    if (schema instanceof ZodUnion) {
+      const options = (schema._def as any).options as ZodTypeAny[];
+      console.log(`[UNION] Processing ${options.length} union options at path: ${currentPath.join('.')}`);
+      const newOptions = options.map((opt, i) => 
+        makeAllFieldsVariableCompatible(opt, [...currentPath, `union_${i}`], depth + 1, seen)
+      );
+      // @ts-ignore
+      return z.union([...newOptions, variableValueSchema]);
+    }
 
-  // Base case: wrap any leaf type with union($ref)
-  return z.union([schema, variableValueSchema]);
+    // Base case: wrap any leaf type with union($ref) but only if it's not already variable-compatible
+    console.log(`[LEAF] Wrapping leaf type at path: ${currentPath.join('.')} (${schema.constructor.name})`);
+    
+    // Check if the schema is already variable-compatible
+    if (schema instanceof ZodUnion && 
+        schema._def.options.some((opt: any) => opt === variableValueSchema)) {
+      return schema;
+    }
+    
+    return z.union([schema, variableValueSchema]);
+  } catch (error) {
+    console.error(`Error processing schema at path ${currentPath.join('.')}:`, error);
+    throw error;
+  }
 }
 
 const aARootSchema = aATypeRootSchema.extend({
