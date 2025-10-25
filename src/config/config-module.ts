@@ -8,12 +8,10 @@ import * as process from 'node:process';
 import {ConfigsPathService} from '@/config/configs-path.service';
 import {ConfigReaderService} from '@/config/config-reader-service';
 import {ConfigPathClass, ENV} from '@/config/types/config-path';
-import {VariableRefService} from '@/config/variable-ref.service';
 
 @Module({
   providers: [
     Logger,
-    VariableRefService,
     ConfigsPathService,
     {
       provide: ConfigPathClass,

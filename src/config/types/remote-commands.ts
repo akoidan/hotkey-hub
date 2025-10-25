@@ -1,14 +1,9 @@
 /* eslint-disable max-lines*/
-import {
-  z,
-  ZodIssueCode,
-} from 'zod';
+import {z, ZodIssueCode} from 'zod';
 import {schemaRootCache} from '@/config/types/cache';
 import type {ConfigDataWoMacro} from '@/config/types/schema';
-import {
-  variableRegex,
-  variableValueSchema,
-} from '@/config/types/variables';
+import type {VariableValue} from '@/config/types/variables';
+import {variableValueSchema} from '@/config/types/variables';
 
 // import KeyboardAction from '@nut-tree-fork/libnut/dist/lib/libnut-keyboard.class.js';
 // const possibleKeys: string[] = [...KeyboardAction.KeyLookupMap.values()] as string[];
@@ -16,18 +11,18 @@ import {
 const keySchema = z.enum(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8', 'f9', 'f10', 'f11', 'f12', 'f13', 'f14', 'f15', 'f16', 'f17', 'f18', 'f19', 'f20', 'f21', 'f22', 'f23', 'f24', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'numpad_0', 'numpad_1', 'numpad_2', 'numpad_3', 'numpad_4', 'numpad_5', 'numpad_6', 'numpad_7', 'numpad_8', 'numpad_9', 'numpad_decimal', 'space', 'escape', 'tab', 'alt', 'control', 'right_alt', 'right_control', 'win', 'right_win', 'cmd', 'right_cmd', 'menu', 'fn', 'shift', 'command', 'right_shift', 'command', '`', '-', '=', 'backspace', '[', ']', '\\', ';', '\'', 'enter', ',', '.', '/', 'left', 'up', 'right', 'down', 'printscreen', 'insert', 'delete', 'home', 'end', 'pageup', 'pagedown', 'add', 'subtract', 'multiply', 'divide', 'enter', 'caps_lock', 'scroll_lock', 'num_lock', 'audio_mute', 'audio_vol_down', 'audio_vol_up', 'audio_play', 'audio_stop', 'audio_pause', 'audio_prev', 'audio_next', 'audio_rewind', 'audio_forward', 'audio_repeat', 'audio_random']).describe('One of the keyboard keys.');
 
 const delayCommandsSchema = z.object({
-  delayAfter: z.number().optional()
+  delayAfter: z.union([variableValueSchema, z.number()]).optional()
     .describe('Delay (ms) after command completes, before next command. Ensures command has time to take effect.'),
-  delayBefore: z.number().optional()
+  delayBefore: z.union([variableValueSchema, z.number()]).optional()
     .describe('Delay (ms) before executing command. Helps create precisely timed sequences.'),
 }).strict();
 
 const baseSchema = z.object({
-  destination: z.string().superRefine((destination, ctx) => {
+  destination: z.union([variableValueSchema, z.string()]).superRefine((destination, ctx) => {
     const data: ConfigDataWoMacro = schemaRootCache.data ?? {ips: {}};
     const ipsKeys = new Set(Object.keys(data.ips ?? {}));
 
-    if (!data.ips[destination] && !variableRegex.test(destination)) {
+    if (!(destination as VariableValue).$ref) {
       const allOptions = JSON.stringify(Array.from(ipsKeys));
       ctx.addIssue({
         code: ZodIssueCode.custom,
@@ -39,26 +34,26 @@ const baseSchema = z.object({
 }).strict().merge(delayCommandsSchema);
 
 const windowPropertiesSchema = z.object({
-  x: z.number().describe('x position'),
-  y: z.number().describe('y position'),
-  width: z.number().describe('width'),
-  height: z.number().describe('height'),
+  x: z.union([variableValueSchema, z.number()]).describe('x position'),
+  y: z.union([variableValueSchema, z.number()]).describe('y position'),
+  width: z.union([variableValueSchema, z.number()]).describe('width'),
+  height: z.union([variableValueSchema, z.number()]).describe('height'),
 }).strict().describe('Definition of window location and size');
 
 const setWindowBoundsRemoteSchema = z.object({
-  setWindowIdBound: z.number().describe('Window id'),
-  windowProperties: windowPropertiesSchema,
+  setWindowIdBound: z.union([variableValueSchema, z.number()]).describe('Window id'),
+  windowProperties: z.union([windowPropertiesSchema, variableValueSchema]),
 }).strict().merge(baseSchema).describe('Sets window width height and x y position' );
 
 const keyPressRemoteCommandSchema = z.object({
-  keyPress: z.union([keySchema, z.array(keySchema)])
+  keyPress: z.union([keySchema, z.array(keySchema), variableValueSchema])
     .describe('Key(s) to press. Can be a single key or array of keys for multiple presses.'),
   duration: z.number().min(50).optional()
     .describe('How long to hold the key down in milliseconds. Minimum 50ms to ensure reliable key registration.'),
   durationDeviation: z.number().default(0).optional()
     .describe('Adds randomness to key press duration. Value is the maximum +/- deviation in milliseconds. ' +
       'Useful for simulating human-like input patterns.'),
-  holdKeys: z.union([keySchema, z.array(keySchema)])
+  holdKeys: z.union([keySchema, z.array(keySchema), variableValueSchema])
     .optional()
     .describe('Modifier keys to hold (e.g., Alt for Alt+1, Ctrl+Shift for Ctrl+Shift+A). Can be a key or key array.'),
 }).strict().merge(baseSchema).describe('Simulates keyboard input on the remote PC by sending key press events. ' +

@@ -1,4 +1,4 @@
-import {ConfigData, ConfigDataWoMacro, IpsData, macrosListSchema, RgbData} from '@/config/types/schema';
+import {aARootSchema, ConfigData, ConfigDataWoMacro, IpsData, macrosListSchema, RgbData} from '@/config/types/schema';
 import {parse} from 'jsonc-parser';
 import {Inject, Injectable, Logger} from '@nestjs/common';
 /* eslint-disable max-lines*/
@@ -13,7 +13,6 @@ import {DelayData} from '@/config/types/delays';
 import {ConfigCombination} from '@/config/config-model';
 import {MacroList} from '@/config/types/local-commands';
 import {ENV} from '@/config/types/config-path';
-import {VariableRefService} from '@/config/variable-ref.service';
 
 @Injectable()
 export class ConfigService implements ConfigProvider {
@@ -31,7 +30,6 @@ export class ConfigService implements ConfigProvider {
     @Inject(ENV)
     private readonly envVars: Record<string, string | undefined>,
     private readonly configReader: ConfigReaderService,
-    private readonly variableRefService: VariableRefService,
   ) {
     this.logger.debug(`Created new instance of config service ${configReader.getId()}`);
   }
@@ -114,7 +112,7 @@ export class ConfigService implements ConfigProvider {
     const macroConfigString = await this.configReader.loadMacroConfigString();
     const separateMacros: NonNullable<MacroList> = macroConfigString ? parse(macroConfigString) as NonNullable<MacroList> : {};
     schemaRootCache.macros = separateMacros;
-    await this.validateWithErrorHandling(this.variableRefService.getAaMacroListSchema(), separateMacros, 'Macro Config');
+    await this.validateWithErrorHandling(macrosListSchema, separateMacros, 'Macro Config');
     schemaRootCache.macros = null!;
     return separateMacros;
   }
@@ -134,7 +132,7 @@ export class ConfigService implements ConfigProvider {
       schemaRootCache.macros = separateMacros;
     }
     schemaRootCache.data = configValueWoMacro;
-    await this.validateWithErrorHandling(this.variableRefService.getAaRootSchema(), confValueWithMacro, 'main confg');
+    await this.validateWithErrorHandling(aARootSchema, confValueWithMacro, 'main confg');
     const configData = schemaRootCache.data;
     const macros = schemaRootCache.macros ?? {};
     schemaRootCache.data = null!;
