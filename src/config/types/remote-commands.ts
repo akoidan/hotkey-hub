@@ -61,28 +61,29 @@ const keyPressRemoteCommandSchema = z.object({
   'Use this for automating keyboard input or triggering keyboard shortcuts.');
 
 const launchExeRemoteCommandSchema = z.object({
-  launch: z.string().describe('Full absolute path to the executable file to run on the remote PC.'),
-  arguments: z.array(z.string()).optional()
+  launch: z.union([variableValueSchema, z.string()])
+    .describe('Full absolute path to the executable file to run on the remote PC.'),
+  arguments: z.union([variableValueSchema, z.array(z.string())]).optional()
     .describe('Command-line arguments to pass to the executable. Each array element is a separate argument.'),
-  waitTillFinish: z.boolean().optional()
+  waitTillFinish: z.union([variableValueSchema, z.boolean()]).optional()
     .describe('If true, waits for the launched program to complete before executing the next command. ' +
       'If false (default), continues with next command immediately after launch.'),
-  assignId: z.string().optional()
+  assignId: z.union([variableValueSchema, z.string()]).optional()
     .describe('Variable name to store the Process ID (PID) of the launched program. ' +
-      'The stored PID can be used in subsequent commands for window management or process control.'),
+      'The stored PID can be used in subsequent commands for window management or process control.')
 }).strict().merge(baseSchema).describe('Starts a program on a remote PC.');
 
 const focusProcessWindowRemoteCommandSchema = z.object({
-  focusPid: z.number()
-    .describe('Process ID (PID) of the window to focus. Can be obtained from findPidsByName command or launch command with assignId.'),
+  focusPid: z.union([variableValueSchema, z.number()])
+    .describe('Process ID (PID) of the window to focus. Can be obtained from findPidsByName command or launch command with assignId.')
 })
   .strict()
   .merge(baseSchema)
   .describe('Brings a window to front and gives it focus by process ID. Useful for window automation and ensuring windows are active.');
 
 const focusWindowRemoteCommandSchema = z.object({
-  focusWid: z.number()
-    .describe('Window ID to focus. Can be obtained from findProcessWindows or findProcessesWindows commands.'),
+  focusWid: z.union([variableValueSchema, z.number()])
+    .describe('Window ID to focus. Can be obtained from findProcessWindows or findProcessesWindows commands.')
 })
   .strict()
   .merge(baseSchema)
@@ -90,39 +91,42 @@ const focusWindowRemoteCommandSchema = z.object({
     ' Window IDs can be retrieved using findProcessWindows or findProcessesWindows commands.');
 
 const typeTextRemoteCommandSchema = z.object({
-  typeText: z.string().describe('Any string to type'),
-  keyDelay: z.number()
+  typeText: z.union([variableValueSchema, z.string()])
+    .describe('Any string to type'),
+  keyDelay: z.union([variableValueSchema, z.number()])
     .default(0)
     .optional()
     .describe('Delay between keystroke in milliseconds. By default types as fast as possible, around 40ms per char'),
-  keyDelayDeviation: z.number()
-    .positive()
+  keyDelayDeviation: z.union([
+    variableValueSchema,
+    z.number().positive()
+  ])
     .default(0)
     .optional()
-    .describe('Deviation for randomness of delay. E.g if keyDelay = 100 and deviation = 0.2. Then value would be 80-120ms'),
+    .describe('Deviation for randomness of delay. E.g if keyDelay = 100 and deviation = 0.2. Then value would be 80-120ms')
 })
   .strict()
   .merge(baseSchema)
   .describe('Types text on the remote PC.');
 
 const findPidsByNameRemoteCommandSchema = z.object({
-  findPidsByName: z.string()
+  findPidsByName: z.union([variableValueSchema, z.string()])
     .describe('Name of the executable file to search for. Example: "Chrome.exe". Case-sensitive on some operating systems.'),
-  assignIds: z.string()
+  assignIds: z.union([variableValueSchema, z.string()])
     .optional()
     .describe('Assign list of pids to a variable.' +
-      ' Note variable type would be an array in this case. Use expression to pick any of the results'),
+      ' Note variable type would be an array in this case. Use expression to pick any of the results')
 })
   .strict()
   .merge(baseSchema)
   .describe('Gets PIDs for all processes with given executable name. Use assignIds to store PIDs as variables for later use.');
 
 const findProcessWindowsRemoteCommandSchema = z.object({
-  findProcessWindows: z.number()
+  findProcessWindows: z.union([variableValueSchema, z.number()])
     .describe('Process ID to find window IDs for. Process must be running with visible windows.'),
-  assignIds: z.string()
+  assignIds: z.union([variableValueSchema, z.string()])
     .optional()
-    .describe('Variable name to store list of windows ids'),
+    .describe('Variable name to store list of windows ids')
 })
   .strict()
   .merge(baseSchema)
@@ -131,13 +135,13 @@ const findProcessWindowsRemoteCommandSchema = z.object({
 
 
 const findProcessesWindowsRemoteCommandSchema = z.object({
-  findProcessesWindows: z.array(z.number())
+  findProcessesWindows: z.union([variableValueSchema, z.array(z.number())])
       .describe('Array of Process IDs (PIDs) to find window IDs for.' +
         ' The length of this array should match the length of assignIds if specified.'),
-  assignIds: z.array(z.string())
+  assignIds: z.union([variableValueSchema, z.array(z.string())])
     .optional()
     .describe('List of variable names to store the found windows IDs.' +
-      ' Each process\'s window IDs array will be assigned to the corresponding variable.'),
+      ' Each process\'s window IDs array will be assigned to the corresponding variable.')
 })
   .strict()
   .merge(baseSchema)
@@ -145,10 +149,10 @@ const findProcessesWindowsRemoteCommandSchema = z.object({
     ' Similar to findProcessWindows but works with multiple processes at once for efficiency.');
 
 const mouseMoveClickRemoteCommandSchema = z.object({
-  mouseMoveX: z.number()
+  mouseMoveX: z.union([variableValueSchema, z.number()])
     .describe('X coordinate for mouse cursor.'),
-  mouseMoveY: z.number()
-    .describe('Y coordinate for mouse cursor.'),
+  mouseMoveY: z.union([variableValueSchema, z.number()])
+    .describe('Y coordinate for mouse cursor.')
 })
   .strict()
   .merge(baseSchema)
@@ -156,25 +160,25 @@ const mouseMoveClickRemoteCommandSchema = z.object({
     ' Combines movement and clicking into one action.');
 
 const leftMouseClickRemoteCommandSchema = z.object({
-  leftMouseClick: z.boolean()
+  leftMouseClick: z.union([variableValueSchema, z.boolean()])
     .describe('Set to true to perform a left mouse click. ' +
-    'The click will occur at the current cursor position without moving the mouse.'),
+    'The click will occur at the current cursor position without moving the mouse.')
 })
   .strict()
   .merge(baseSchema)
   .describe('Performs a left mouse click at the current cursor position without moving the mouse. Use when cursor is already positioned.');
 
 const killExeByNameRemoteCommandSchema = z.object({
-  killByName: z.string()
-    .describe('Name of the executable file to terminate. Example: "Chrome.exe". Case-sensitive on some operating systems.'),
+  killByName: z.union([variableValueSchema, z.string()])
+    .describe('Name of the executable file to terminate. Example: "Chrome.exe". Case-sensitive on some operating systems.')
 })
   .strict()
   .merge(baseSchema)
   .describe('Terminates all processes with the specified executable name. Use with caution - kills all instances of the program.');
 
 const killExeByPidRemoteCommandSchema = z.object({
-  killByPid: z.number()
-    .describe('Process ID (PID) of the process to terminate. Example: 1234. Must be a valid running process ID.'),
+  killByPid: z.union([variableValueSchema, z.number()])
+    .describe('Process ID (PID) of the process to terminate. Example: 1234. Must be a valid running process ID.')
 })
   .strict()
   .merge(baseSchema)
