@@ -107,10 +107,22 @@ function makeAllFieldsVariableCompatible<T extends ZodTypeAny>(
       // Create a new effect that wraps the processed inner schema
       const processedInner = makeAllFieldsVariableCompatible(innerSchema, [...currentPath, 'effect'], depth + 1, seen);
       
-      // Recreate the effect with the same type and checks
+      // Create a new effect that first checks for variable references
       return new ZodEffects({
         ...schema._def,
-        schema: processedInner
+        schema: processedInner,
+        effect: {
+          ...schema._def.effect,
+          type: 'refinement',
+          refinement: (val: any, ctx: any) => {
+            // Skip refinement if the value is a variable reference
+            if (val && typeof val === 'object' && '$ref' in val) {
+              return true;
+            }
+            // Otherwise, apply the original refinement
+            return schema._def.effect.refinement(val, ctx);
+          }
+        }
       });
     }
 
@@ -153,7 +165,19 @@ function makeAllFieldsVariableCompatible<T extends ZodTypeAny>(
       return schema;
     }
     
-    return z.union([schema, variableValueSchema]);
+    // Create a new schema that first checks for variable references
+    return z.union([
+      schema,
+      variableValueSchema.refine(
+        (val) => {
+          if (val && typeof val === 'object' && '$ref' in val) {
+            return true;
+          }
+          return schema.safeParse(val).success;
+        },
+        { message: 'Value does not match schema' }
+      )
+    ]);
   } catch (error) {
     console.error(`Error processing schema at path ${currentPath.join('.')}:`, error);
     throw error;
