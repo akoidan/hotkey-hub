@@ -1,13 +1,13 @@
 /* eslint-disable max-lines, @typescript-eslint/no-use-before-define */
 import {z, ZodIssueCode, type ZodType} from 'zod';
 import {schemaRootCache} from '@/config/types/cache';
-import {variableRegex} from '@/config/types/variables';
+import {variableRegex, VariableValue, variableValueSchema} from '@/config/types/variables';
 import {delayCommandsSchema, type RemoteCommand, remoteCommandSchema} from '@/config/types/remote-commands';
 
 const macroLocalCommandSchema = z.object({
   macro: z.string().describe('Name of the macro to execute, which must match a key defined in the macros section. ' +
     'Macros help reduce configuration repetition by reusing command sequences.'),
-  variables: z.record(z.union([z.string(), z.number()])).optional()
+  variables: z.record(z.union([z.string(), z.number(), variableValueSchema])).optional()
     .describe('Variables to pass to the macro. Object where keys are variable names and values are their values. ' +
       'Values can be strings or numbers and must match the types defined in the macro\'s variables section.'),
 })
@@ -47,7 +47,7 @@ const macroLocalCommandSchema = z.object({
     }
     for (const [key, value] of Object.entries(variables)) {
       let isVariable = false;
-      if (typeof command.variables?.[key] === 'string' && variableRegex.test(command.variables?.[key])) {
+      if ((command.variables?.[key] as VariableValue)?.$ref) {
         isVariable = true;
       }
       if (command.variables?.[key] && value!.type !== typeof command.variables?.[key] && !isVariable) {
@@ -130,7 +130,7 @@ const unknownCommandSchema = z.lazy(() => z.union([
 const transactionLocalCommandSchema = z.lazy(() => z.object({
   commands: z.array(unknownCommandSchema)
     .describe('Commands to execute atomically in this transaction. All commands either succeed or fail together.'),
-  transaction: z.string()
+  transaction: z.union([variableValueSchema, z.string()])
     .describe('Unique name for the transaction. Helps with logging and debugging transaction execution.'),
 }).strict()).describe('Run commands in a transaction.' +
   ' Prevents concurrent transactions with same name.' +

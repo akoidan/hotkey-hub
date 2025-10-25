@@ -90,6 +90,7 @@ export {
   globalDelaySchema,
   ipsSchema,
   behaviourSchema,
+  variableValueSchema,
   behaviourObjectSchema,
   windowPropertiesSchema,
   shortcutSchema,

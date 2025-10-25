@@ -22,7 +22,7 @@ const baseSchema = z.object({
     const data: ConfigDataWoMacro = schemaRootCache.data ?? {ips: {}};
     const ipsKeys = new Set(Object.keys(data.ips ?? {}));
 
-    if (!(destination as VariableValue).$ref) {
+    if (!(destination as VariableValue).$ref && !data.ips[destination as string] ) {
       const allOptions = JSON.stringify(Array.from(ipsKeys));
       ctx.addIssue({
         code: ZodIssueCode.custom,
@@ -48,9 +48,15 @@ const setWindowBoundsRemoteSchema = z.object({
 const keyPressRemoteCommandSchema = z.object({
   keyPress: z.union([keySchema, z.array(keySchema), variableValueSchema])
     .describe('Key(s) to press. Can be a single key or array of keys for multiple presses.'),
-  duration: z.number().min(50).optional()
+  duration: z.union([
+    variableValueSchema,
+    z.number().min(50),
+  ]).optional()
     .describe('How long to hold the key down in milliseconds. Minimum 50ms to ensure reliable key registration.'),
-  durationDeviation: z.number().default(0).optional()
+  durationDeviation: z.union([
+    variableValueSchema,
+    z.number().min(0).default(0)
+  ]).optional()
     .describe('Adds randomness to key press duration. Value is the maximum +/- deviation in milliseconds. ' +
       'Useful for simulating human-like input patterns.'),
   holdKeys: z.union([keySchema, z.array(keySchema), variableValueSchema])
@@ -99,7 +105,7 @@ const typeTextRemoteCommandSchema = z.object({
     .describe('Delay between keystroke in milliseconds. By default types as fast as possible, around 40ms per char'),
   keyDelayDeviation: z.union([
     variableValueSchema,
-    z.number().positive()
+    z.number().positive(),
   ])
     .default(0)
     .optional()

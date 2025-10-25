@@ -1,23 +1,14 @@
 import {zodToJsonSchema} from 'zod-to-json-schema';
+import {
+  aARootSchema,
+  macrosListSchema,
+} from '@/config/types/schema';
 import {promises as fs} from 'fs';
 import path from 'path';
-import {Logger} from '@nestjs/common';
-import {Test} from '@nestjs/testing';
-import {VariableRefService} from '@/config/variable-ref.service';
-
 
 async function main(): Promise<void> {
-  const a = await Test.createTestingModule({
-    providers: [
-      VariableRefService,
-      Logger,
-    ],
-  }).compile();;
-  const vrs = a.get<VariableRefService>(VariableRefService);
-  const aaRootSchema = vrs.getAaRootSchema();
-  const aaMacroListSchema = vrs.getAaMacroListSchema();
-  const rootSchema = zodToJsonSchema(aaRootSchema, 'config');
-  const macroSchema = zodToJsonSchema(aaMacroListSchema, 'macros');
+  const rootSchema = zodToJsonSchema(aARootSchema, 'config');
+  const macroSchema = zodToJsonSchema(macrosListSchema, 'macros');
   const rootSchemaPath = path.resolve(__dirname, '..', '..', 'json-schema.json');
   const macroSchemaPath = path.resolve(__dirname, '..', '..', 'macros-schema.json');
   await Promise.any([

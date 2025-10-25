@@ -19,11 +19,11 @@ export class FindPidsByNameRemoteHandler extends CommandRemoteHandler {
 
   async execute(destination: string, command: FindPidsByNameRemoteCommand): Promise<void> {
     const response = await this.clientService.findPidsByName(destination, {
-      name: command.findPidsByName,
+      name: command.findPidsByName as string,
     });
 
     if (command.assignIds) {
-      await this.configService.setVariable(command.assignIds, response.pids);
+      await this.configService.setVariable(command.assignIds as string, response.pids);
     }
   }
 }

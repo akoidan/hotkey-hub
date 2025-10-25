@@ -34,18 +34,18 @@ export class CommandLocalHandler extends BaseLocalHandler {
     this.logger.debug(`Running ${JSON.stringify(input)}`);
     if (tId) {
       await this.delayService.awaitDelay(combDelayBefore, input.delayBefore as number | undefined, 'before', 'command');
-      await this.comandHandler.handle(currRec.destination, currRec);
+      await this.comandHandler.handle(currRec.destination as string, currRec);
       await this.delayService.awaitDelay(combDelayAfter, input.delayAfter as number | undefined, 'after', 'command');
     } else {
       const newTransactionId = this.semaphoreService.getNewTransactionId();
-      await this.semaphoreService.spawnPromiseChild(`${currRec.destination}-${newTransactionId}`, async() => {
+      await this.semaphoreService.spawnPromiseChild(`${currRec.destination as string}-${newTransactionId}`, async() => {
         try {
-          await this.semaphoreService.startTransaction(currRec.destination, newTransactionId);
+          await this.semaphoreService.startTransaction(currRec.destination as string, newTransactionId);
           await this.delayService.awaitDelay(combDelayBefore, input.delayBefore as number | undefined, 'before', 'command');
-          await this.comandHandler.handle(currRec.destination, currRec);
+          await this.comandHandler.handle(currRec.destination as string, currRec);
           await this.delayService.awaitDelay(combDelayAfter, input.delayAfter as number | undefined, 'after', 'command');
         } finally {
-          this.semaphoreService.finishTransaction(currRec.destination, newTransactionId);
+          this.semaphoreService.finishTransaction(currRec.destination as string, newTransactionId);
         }
       });
       yield undefined;
