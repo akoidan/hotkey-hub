@@ -198,21 +198,27 @@
         [
           {
             "destination": "bd",
-            "killByPid": "{{bd}}",
+            "killByPid": {
+              "$ref": "bd"
+            },
             "delayAfter": 2000
           }
         ],
         [
           {
             "destination": "sws",
-            "killByPid": "{{sws}}",
+            "killByPid": {
+              "$ref": "sws"
+            },
             "delayAfter": 2000
           }
         ],
         [
           {
             "destination": "craft",
-            "killByPid": "{{craft}}",
+            "killByPid": {
+              "$ref": "craft"
+            },
             "delayAfter": 2000
           }
         ]
@@ -248,7 +254,9 @@
           {
             "macro": "keyPress",
             "variables": {
-              "focusPid": "{{craft}}",
+              "focusPid": {
+                "$ref": "craft"
+              },
               "destination": "craft",
               "keyPress": "2"
             },
@@ -257,7 +265,9 @@
           {
             "macro": "keyPress",
             "variables": {
-              "focusPid": "{{se}}",
+              "focusPid": {
+                "$ref": "se"
+              },
               "destination": "se",
               "keyPress": "f5"
             }
@@ -267,7 +277,9 @@
           {
             "macro": "keyPress",
             "variables": {
-              "focusPid": "{{spoil}}",
+              "focusPid": {
+                "$ref": "spoil"
+              },
               "destination": "spoil",
               "keyPress": "2"
             }
@@ -293,7 +305,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{wc}}",
+            "focusPid": {
+              "$ref": "wc"
+            },
             "destination": "wc",
             "keyPress": "3"
           }
@@ -307,7 +321,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{wc}}",
+            "focusPid": {
+              "$ref": "wc"
+            },
             "destination": "wc",
             "keyPress": "2"
           }
@@ -321,7 +337,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{se}}",
+            "focusPid": {
+              "$ref": "se"
+            },
             "destination": "se",
             "keyPress": "f5"
           }
@@ -335,7 +353,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{pp}}",
+            "focusPid": {
+              "$ref": "pp"
+            },
             "destination": "pp",
             "keyPress": "2"
           }
@@ -343,7 +363,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{ee}}",
+            "focusPid": {
+              "$ref": "ee"
+            },
             "destination": "ee",
             "keyPress": "o"
           }
@@ -351,7 +373,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{wc}}",
+            "focusPid": {
+              "$ref": "wc"
+            },
             "destination": "wc",
             "keyPress": "f8"
           }
@@ -369,7 +393,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{pp}}",
+            "focusPid": {
+              "$ref": "pp"
+            },
             "destination": "pp",
             "keyPress": "3"
           }
@@ -377,7 +403,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{wc}}",
+            "focusPid": {
+              "$ref": "wc"
+            },
             "destination": "wc",
             "keyPress": "f10"
           }
@@ -386,7 +414,9 @@
           "macro": "keyPress",
           "delayAfter": 8000,
           "variables": {
-            "focusPid": "{{ee}}",
+            "focusPid": {
+              "$ref": "ee"
+            },
             "destination": "ee",
             "keyPress": "p"
           }
@@ -394,7 +424,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{pp}}",
+            "focusPid": {
+              "$ref": "pp"
+            },
             "destination": "pp",
             "keyPress": "4"
           },
@@ -403,7 +435,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{ee}}",
+            "focusPid": {
+              "$ref": "ee"
+            },
             "destination": "ee",
             "keyPress": "l"
           }
@@ -417,7 +451,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{ee}}",
+            "focusPid": {
+              "$ref": "ee"
+            },
             "destination": "ee",
             "keyPress": "h"
           }
@@ -425,7 +461,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{pp}}",
+            "focusPid": {
+              "$ref": "pp"
+            },
             "destination": "pp",
             "keyPress": "5"
           }
@@ -433,7 +471,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{bish}}",
+            "focusPid": {
+              "$ref": "bish"
+            },
             "destination": "bish",
             "keyPress": "f12"
           },
@@ -442,7 +482,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{pp}}",
+            "focusPid": {
+              "$ref": "pp"
+            },
             "destination": "pp",
             "keyPress": "6"
           }
@@ -450,14 +492,18 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{ee}}",
+            "focusPid": {
+              "$ref": "ee"
+            },
             "destination": "ee",
             "keyPress": "j"
           },
           "delayAfter": 300
         },
         {
-          "focusPid": "{{bish}}",
+          "focusPid": {
+            "$ref": "bish"
+          },
           "destination": "bish"
         }
       ],
@@ -469,7 +515,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{spoil}}",
+            "focusPid": {
+              "$ref": "spoil"
+            },
             "destination": "spoil",
             "keyPress": "f6"
           }
@@ -477,7 +525,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{craft}}",
+            "focusPid": {
+              "$ref": "craft"
+            },
             "destination": "craft",
             "keyPress": "f6"
           }
@@ -495,7 +545,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{craft}}",
+            "focusPid": {
+              "$ref": "craft"
+            },
             "destination": "craft",
             "keyPress": "f4"
           }
@@ -509,7 +561,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{spoil}}",
+            "focusPid": {
+              "$ref": "spoil"
+            },
             "destination": "spoil",
             "keyPress": "4"
           }
@@ -538,7 +592,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{spoil}}",
+            "focusPid": {
+              "$ref": "spoil"
+            },
             "destination": "spoil",
             "keyPress": "f11"
           }
@@ -546,7 +602,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{craft}}",
+            "focusPid": {
+              "$ref": "craft"
+            },
             "destination": "craft",
             "keyPress": "f11"
           }
@@ -554,7 +612,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{se}}",
+            "focusPid": {
+              "$ref": "se"
+            },
             "destination": "se",
             "keyPress": "-"
           }
@@ -562,7 +622,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{ee}}",
+            "focusPid": {
+              "$ref": "ee"
+            },
             "destination": "ee",
             "keyPress": "-"
           }
@@ -570,7 +632,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{bish}}",
+            "focusPid": {
+              "$ref": "bish"
+            },
             "destination": "bish",
             "keyPress": "-"
           }
@@ -585,7 +649,9 @@
           {
             "macro": "keyPress",
             "variables": {
-              "focusPid": "{{bish}}",
+              "focusPid": {
+                "$ref": "bish"
+              },
               "destination": "bish",
               "keyPress": "f3"
             }
@@ -593,7 +659,9 @@
           {
             "macro": "keyPress",
             "variables": {
-              "focusPid": "{{ee}}",
+              "focusPid": {
+                "$ref": "ee"
+              },
               "destination": "ee",
               "keyPress": "f4"
             }
@@ -603,7 +671,9 @@
           {
             "macro": "keyPress",
             "variables": {
-              "focusPid": "{{se}}",
+              "focusPid": {
+                "$ref": "se"
+              },
               "destination": "se",
               "keyPress": "f4"
             }
@@ -619,7 +689,9 @@
           {
             "macro": "keyPress",
             "variables": {
-              "focusPid": "{{ee}}",
+              "focusPid": {
+                "$ref": "ee"
+              },
               "destination": "ee",
               "keyPress": "f9"
             }
@@ -629,7 +701,9 @@
           {
             "macro": "keyPress",
             "variables": {
-              "focusPid": "{{se}}",
+              "focusPid": {
+                "$ref": "se"
+              },
               "destination": "se",
               "keyPress": "f9"
             }
@@ -644,7 +718,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{ee}}",
+            "focusPid": {
+              "$ref": "ee"
+            },
             "destination": "ee",
             "keyPress": "3"
           }
@@ -659,7 +735,9 @@
           {
             "macro": "keyPress",
             "variables": {
-              "focusPid": "{{bish}}",
+              "focusPid": {
+                "$ref": "bish"
+              },
               "destination": "bish",
               "keyPress": "f4"
             }
@@ -667,7 +745,9 @@
           {
             "macro": "keyPress",
             "variables": {
-              "focusPid": "{{ee}}",
+              "focusPid": {
+                "$ref": "ee"
+              },
               "destination": "ee",
               "keyPress": "f4"
             }
@@ -677,7 +757,9 @@
           {
             "macro": "keyPress",
             "variables": {
-              "focusPid": "{{se}}",
+              "focusPid": {
+                "$ref": "se"
+              },
               "destination": "se",
               "keyPress": "f4"
             }
@@ -692,7 +774,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{bish}}",
+            "focusPid": {
+              "$ref": "bish"
+            },
             "destination": "bish",
             "keyPress": "f5"
           }
@@ -706,7 +790,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{bish}}",
+            "focusPid": {
+              "$ref": "bish"
+            },
             "destination": "bish",
             "keyPress": "f9"
           }
@@ -721,7 +807,9 @@
           {
             "macro": "keyPress",
             "variables": {
-              "focusPid": "{{bish}}",
+              "focusPid": {
+                "$ref": "bish"
+              },
               "destination": "bish",
               "keyPress": "1"
             }
@@ -729,7 +817,9 @@
           {
             "macro": "keyPress",
             "variables": {
-              "focusPid": "{{ee}}",
+              "focusPid": {
+                "$ref": "ee"
+              },
               "destination": "ee",
               "keyPress": "1"
             }
@@ -739,7 +829,9 @@
           {
             "macro": "keyPress",
             "variables": {
-              "focusPid": "{{se}}",
+              "focusPid": {
+                "$ref": "se"
+              },
               "destination": "se",
               "keyPress": "1"
             }
@@ -755,7 +847,9 @@
           {
             "macro": "keyPress",
             "variables": {
-              "focusPid": "{{bish}}",
+              "focusPid": {
+                "$ref": "bish"
+              },
               "destination": "bish",
               "keyPress": "2"
             }
@@ -763,7 +857,9 @@
           {
             "macro": "keyPress",
             "variables": {
-              "focusPid": "{{ee}}",
+              "focusPid": {
+                "$ref": "ee"
+              },
               "destination": "ee",
               "keyPress": "2"
             }
@@ -773,7 +869,9 @@
           {
             "macro": "keyPress",
             "variables": {
-              "focusPid": "{{se}}",
+              "focusPid": {
+                "$ref": "se"
+              },
               "destination": "se",
               "keyPress": "2"
             }
@@ -788,7 +886,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{bish}}",
+            "focusPid": {
+              "$ref": "bish"
+            },
             "destination": "bish",
             "keyPress": "f8"
           }
@@ -802,7 +902,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{bish}}",
+            "focusPid": {
+              "$ref": "bish"
+            },
             "destination": "bish",
             "keyPress": "f10"
           }
@@ -816,7 +918,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{bish}}",
+            "focusPid": {
+              "$ref": "bish"
+            },
             "destination": "bish",
             "keyPress": "f11"
           }
@@ -830,7 +934,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{bish}}",
+            "focusPid": {
+              "$ref": "bish"
+            },
             "destination": "bish",
             "keyPress": "7"
           }
@@ -844,7 +950,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{ee}}",
+            "focusPid": {
+              "$ref": "ee"
+            },
             "destination": "ee",
             "keyPress": "f12"
           }
@@ -858,7 +966,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{bish}}",
+            "focusPid": {
+              "$ref": "bish"
+            },
             "destination": "bish",
             "keyPress": "f6"
           }
@@ -867,7 +977,9 @@
           "macro": "keyPress",
           "delayAfter": 200,
           "variables": {
-            "focusPid": "{{bd}}",
+            "focusPid": {
+              "$ref": "bd"
+            },
             "destination": "bd",
             "keyPress": "f6"
           }
@@ -875,7 +987,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{sws}}",
+            "focusPid": {
+              "$ref": "sws"
+            },
             "destination": "sws",
             "keyPress": "f6"
           }
@@ -883,19 +997,25 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{wc}}",
+            "focusPid": {
+              "$ref": "wc"
+            },
             "destination": "wc",
             "keyPress": "f6"
           }
         },
         {
-          "focusPid": "{{da}}",
+          "focusPid": {
+            "$ref": "da"
+          },
           "destination": "da"
         },
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{se}}",
+            "focusPid": {
+              "$ref": "se"
+            },
             "destination": "se",
             "keyPress": "f6"
           }
@@ -903,7 +1023,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{ee}}",
+            "focusPid": {
+              "$ref": "ee"
+            },
             "destination": "ee",
             "keyPress": "f6"
           }
@@ -911,7 +1033,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{pp}}",
+            "focusPid": {
+              "$ref": "pp"
+            },
             "destination": "pp",
             "keyPress": "f6"
           }
@@ -925,7 +1049,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{wc}}",
+            "focusPid": {
+              "$ref": "wc"
+            },
             "destination": "wc",
             "keyPress": "4"
           }
@@ -938,7 +1064,9 @@
       "commands": [
         {
           "destination": "wc",
-          "focusPid": "{{wc}}",
+          "focusPid": {
+            "$ref": "wc"
+          },
           "delayAfter": 500
         },
         {
@@ -954,7 +1082,9 @@
       "commands": [
         {
           "destination": "pp",
-          "focusPid": "{{pp}}",
+          "focusPid": {
+            "$ref": "pp"
+          },
           "delayAfter": 500
         },
         {
@@ -975,7 +1105,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{spoil}}",
+            "focusPid": {
+              "$ref": "spoil"
+            },
             "destination": "spoil",
             "keyPress": "="
           }
@@ -984,7 +1116,9 @@
           // DO NOT trigger first, otherwise it will triger another shorcut
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{sws}}",
+            "focusPid": {
+              "$ref": "sws"
+            },
             "destination": "sws",
             "keyPress": "="
           },
@@ -993,7 +1127,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{bd}}",
+            "focusPid": {
+              "$ref": "bd"
+            },
             "destination": "bd",
             "keyPress": "="
           },
@@ -1002,7 +1138,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{da}}",
+            "focusPid": {
+              "$ref": "da"
+            },
             "destination": "da",
             "keyPress": "="
           }
@@ -1010,7 +1148,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{bish}}",
+            "focusPid": {
+              "$ref": "bish"
+            },
             "destination": "bish",
             "keyPress": "="
           }
@@ -1018,7 +1158,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{wc}}",
+            "focusPid": {
+              "$ref": "wc"
+            },
             "destination": "wc",
             "keyPress": "="
           }
@@ -1026,7 +1168,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{craft}}",
+            "focusPid": {
+              "$ref": "craft"
+            },
             "destination": "craft",
             "keyPress": "="
           }
@@ -1087,7 +1231,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{spoil}}",
+            "focusPid": {
+              "$ref": "spoil"
+            },
             "destination": "spoil",
             "keyPress": "8"
           }
@@ -1099,7 +1245,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{bish}}",
+            "focusPid": {
+              "$ref": "bish"
+            },
             "destination": "bish",
             "keyPress": "8"
           }
@@ -1107,7 +1255,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{wc}}",
+            "focusPid": {
+              "$ref": "wc"
+            },
             "destination": "wc",
             "keyPress": "8"
           }
@@ -1115,7 +1265,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{se}}",
+            "focusPid": {
+              "$ref": "se"
+            },
             "destination": "se",
             "keyPress": "8"
           }
@@ -1123,7 +1275,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{ee}}",
+            "focusPid": {
+              "$ref": "ee"
+            },
             "destination": "ee",
             "keyPress": "8"
           }
@@ -1131,7 +1285,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{pp}}",
+            "focusPid": {
+              "$ref": "pp"
+            },
             "destination": "pp",
             "keyPress": "8"
           }
@@ -1139,7 +1295,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{craft}}",
+            "focusPid": {
+              "$ref": "craft"
+            },
             "destination": "craft",
             "keyPress": "8"
           }
@@ -1147,7 +1305,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{bd}}",
+            "focusPid": {
+              "$ref": "bd"
+            },
             "destination": "bd",
             "keyPress": "8"
           }
@@ -1155,7 +1315,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{sws}}",
+            "focusPid": {
+              "$ref": "sws"
+            },
             "destination": "sws",
             "keyPress": "8"
           }
@@ -1163,7 +1325,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{da}}",
+            "focusPid": {
+              "$ref": "da"
+            },
             "destination": "da",
             "keyPress": "8"
           }
@@ -1177,7 +1341,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{spoil}}",
+            "focusPid": {
+              "$ref": "spoil"
+            },
             "destination": "spoil",
             "keyPress": "9"
           }
@@ -1189,7 +1355,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{bish}}",
+            "focusPid": {
+              "$ref": "bish"
+            },
             "destination": "bish",
             "keyPress": "9"
           }
@@ -1197,7 +1365,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{wc}}",
+            "focusPid": {
+              "$ref": "wc"
+            },
             "destination": "wc",
             "keyPress": "9"
           }
@@ -1205,7 +1375,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{se}}",
+            "focusPid": {
+              "$ref": "se"
+            },
             "destination": "se",
             "keyPress": "9"
           }
@@ -1213,7 +1385,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{ee}}",
+            "focusPid": {
+              "$ref": "ee"
+            },
             "destination": "ee",
             "keyPress": "9"
           }
@@ -1221,7 +1395,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{pp}}",
+            "focusPid": {
+              "$ref": "pp"
+            },
             "destination": "pp",
             "keyPress": "9"
           }
@@ -1229,7 +1405,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{craft}}",
+            "focusPid": {
+              "$ref": "craft"
+            },
             "destination": "craft",
             "keyPress": "9"
           }
@@ -1237,7 +1415,9 @@
          {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{bd}}",
+            "focusPid": {
+              "$ref": "bd"
+            },
             "destination": "bd",
             "keyPress": "9"
           }
@@ -1245,7 +1425,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{sws}}",
+            "focusPid": {
+              "$ref": "sws"
+            },
             "destination": "sws",
             "keyPress": "9"
           }
@@ -1253,7 +1435,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{da}}",
+            "focusPid": {
+              "$ref": "da"
+            },
             "destination": "da",
             "keyPress": "9"
           }
@@ -1267,7 +1451,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{spoil}}",
+            "focusPid": {
+              "$ref": "spoil"
+            },
             "destination": "spoil",
             "keyPress": "0"
           }
@@ -1279,7 +1465,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{bish}}",
+            "focusPid": {
+              "$ref": "bish"
+            },
             "destination": "bish",
             "keyPress": "0"
           }
@@ -1287,7 +1475,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{wc}}",
+            "focusPid": {
+              "$ref": "wc"
+            },
             "destination": "wc",
             "keyPress": "0"
           }
@@ -1295,7 +1485,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{se}}",
+            "focusPid": {
+              "$ref": "se"
+            },
             "destination": "se",
             "keyPress": "0"
           }
@@ -1303,7 +1495,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{ee}}",
+            "focusPid": {
+              "$ref": "ee"
+            },
             "destination": "ee",
             "keyPress": "0"
           }
@@ -1311,7 +1505,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{pp}}",
+            "focusPid": {
+              "$ref": "pp"
+            },
             "destination": "pp",
             "keyPress": "0"
           }
@@ -1319,7 +1515,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{craft}}",
+            "focusPid": {
+              "$ref": "craft"
+            },
             "destination": "craft",
             "keyPress": "0"
           }
@@ -1327,7 +1525,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{bd}}",
+            "focusPid": {
+              "$ref": "bd"
+            },
             "destination": "bd",
             "keyPress": "0"
           }
@@ -1335,7 +1535,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{sws}}",
+            "focusPid": {
+              "$ref": "sws"
+            },
             "destination": "sws",
             "keyPress": "0"
           }
@@ -1343,7 +1545,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{da}}",
+            "focusPid": {
+              "$ref": "da"
+            },
             "destination": "da",
             "keyPress": "0"
           }
@@ -1357,7 +1561,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{bish}}",
+            "focusPid": {
+              "$ref": "bish"
+            },
             "destination": "bish",
             "keyPress": "3"
           }
@@ -1371,7 +1577,9 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusPid": "{{bish}}",
+            "focusPid": {
+              "$ref": "bish"
+            },
             "destination": "bish",
             "keyPress": "4"
           }
@@ -1386,7 +1594,9 @@
           {
             "macro": "keyPress",
             "variables": {
-              "focusPid": "{{craft}}",
+              "focusPid": {
+                "$ref": "craft"
+              },
               "destination": "craft",
               "keyPress": "2"
             }
@@ -1396,7 +1606,9 @@
           {
             "macro": "keyPress",
             "variables": {
-              "focusPid": "{{spoil}}",
+              "focusPid": {
+                "$ref": "spoil"
+              },
               "destination": "spoil",
               "keyPress": "2"
             }
@@ -1428,7 +1640,9 @@
           "macro": "keyPress",
           "variables": {
             "destination": "se",
-            "focusPid": "{{se}}",
+            "focusPid": {
+              "$ref": "se"
+            },
             "keyPress": "3"
           }
         }

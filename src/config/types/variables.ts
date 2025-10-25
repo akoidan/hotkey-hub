@@ -5,7 +5,7 @@ const variablesSchema = z.record(z.any())
     ' Values can be any type (numeric strings auto-convert to integers). Use {{varName}} to reference.');
 
 
-const variableRegex = /(?<variable>[a-zA-Z_$][\w$]*)(?:\[[^\]]+\]|\.[a-zA-Z_$][\w$]*)/u;
+const variableRegex = /(?<variable>[a-zA-Z_$][\w$]*)(?:\[[^\]]+\]|\.[a-zA-Z_$][\w$]*)*/u;
 
 const variableValueSchema = z.object({
   $ref: z.string(),

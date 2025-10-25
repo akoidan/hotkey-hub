@@ -22,7 +22,7 @@ export class VariableResolutionService {
       // thread each array element as the whole object
       // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       return command.map(item => this.replacePlaceholders(item, values, definition)) as any;
-    } else if (typeof command === 'object') {
+    } else if (typeof command === 'object' && !(command as VariableValue).$ref) {
       const result: Partial<T> = {};
       for (const [key, value] of Object.entries(command) as [keyof T, T[keyof T]][]) {
         // thread objects as primitive, do not go down

@@ -462,7 +462,9 @@ describe('Logic service', () => {
       commands: [
         {
           destination: 'this',
-          typeText: '{{login}}'
+          typeText: {
+            $ref: "login"
+          }
         },
       ],
       name: 'variable-test',

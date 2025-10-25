@@ -7,8 +7,8 @@ import {ConfigReaderService} from '@/config/config-reader-service';
 import {VariableResolutionService} from '../src/local/variable-resolution.service';
 import path from 'path';
 import {AsyncStorageModule} from '@/asyncstore/async-storage.module';
-import {RandomModule} from "@/random/random.module";
-import {SemaphorModule} from "../src/semaphor/semaphor.module";
+import {RandomModule} from '@/random/random.module';
+import {SemaphorModule} from '../src/semaphor/semaphor.module';
 
 async function getTestModule(configFilePath: string): Promise<TestingModule> {
   return Test.createTestingModule({
@@ -37,50 +37,72 @@ async function getTestModule(configFilePath: string): Promise<TestingModule> {
 }
 
 describe('Variable Service', () => {
-  it('should keyPress client call', async() => {
-    const testModule = await getTestModule("config-fixture.jsonc");
+  it('should keyPress client call', async () => {
+    const testModule = await getTestModule('config-fixture.jsonc');
     const variableService = testModule.get<VariableResolutionService>(VariableResolutionService);
     const res = variableService.replacePlaceholders({
-      "transaction": "{{destination}}",
-      "commands": [
+      'transaction': {
+        $ref: 'destination'
+      },
+      'commands': [
         {
-          "destination": "{{destination}}",
-          "focusWid": "{{focusWid}}"
+          'destination': {
+            $ref: 'destination'
+          },
+          'focusWid':  {
+            $ref: "focusWid"
+          }
         },
         {
-          "destination": "{{destination}}",
-          "keyPress": "{{keyPress}}",
-          "delayAfter": 50
+          'destination': {
+            $ref: 'destination'
+          },
+          'keyPress': {
+            $ref: 'keyPress'
+          },
+          'delayAfter': 50
         }
       ]
     }, {
-      "focusWid": "{{widwc}}",
-      "destination": "{{pcwc}}",
-      "keyPress": "f4"
+      'focusWid': {
+        $ref: 'widwc'
+      },
+      'destination': {
+        $ref: 'pcwc'
+      },
+      'keyPress': 'f4'
     }, {
-      "destination": {
-        "type": "string"
+      'destination': {
+        'type': 'string'
       },
-      "focusWid": {
-        "type": "number"
+      'focusWid': {
+        'type': 'number'
       },
-      "keyPress": {
-        "type": "string"
+      'keyPress': {
+        'type': 'string'
       }
     });
     expect(res).toEqual({
-      "transaction": "{{pcwc}}",
-        "commands": [
-      {
-        "destination": "{{pcwc}}",
-        "focusWid": "{{widwc}}"
+      'transaction': {
+        $ref: 'pcwc'
       },
-      {
-        "destination": "{{pcwc}}",
-        "keyPress": "f4",
-        "delayAfter": 50
-      }
-    ]
+      'commands': [
+        {
+          'destination': {
+            $ref: 'pcwc'
+          },
+          'focusWid': {
+            $ref: 'widwc'
+          }
+        },
+        {
+          'destination': {
+            $ref: 'pcwc'
+          },
+          'keyPress': 'f4',
+          'delayAfter': 50
+        }
+      ]
     });
   });
 });

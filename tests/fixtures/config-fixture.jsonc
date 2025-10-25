@@ -16,8 +16,12 @@
           "expression": "pctyrs[tyrIndex]"
         },
         {
-          "destination": "{{pctyr}}",
-          "keyPress": "{{keyPress}}"
+          "destination": {
+            "$ref": "pctyr"
+          },
+          "keyPress": {
+            "$ref": "keyPress"
+          }
         }
       ],
       "variables": {
@@ -29,15 +33,25 @@
     "keyPress": {
       "commands": [
         {
-          "transaction": "{{destination}}",
+          "transaction": {
+            "$ref": "destination"
+          },
           "commands": [
             {
-              "destination": "{{destination}}",
-              "focusWid": "{{focusWid}}"
+              "destination": {
+                "$ref": "destination"
+              },
+              "focusWid": {
+                "$ref": "focusWid"
+              }
             },
             {
-              "destination": "{{destination}}",
-              "keyPress": "{{keyPress}}",
+              "destination": {
+                "$ref": "destination"
+              },
+              "keyPress": {
+                "$ref": "keyPress"
+              },
               "delayAfter": 50
             }
           ]
@@ -58,17 +72,27 @@
     "typeLoginPassword": {
       "commands": [
         {
-          "destination": "{{destination}}",
-          "typeText": "{{login}}"
+          "destination": {
+            "$ref": "destination"
+          },
+          "typeText": {
+            "$ref": "login"
+          }
         },
         {
-          "destination": "{{destination}}",
+          "destination": {
+            "$ref": "destination"
+          },
           "keyPress": "tab"
         },
         {
-          "destination": "{{destination}}",
+          "destination": {
+            "$ref": "destination"
+          },
           "keyPress": "enter",
-          "delayAfter": "{{delayAfter}}"
+          "delayAfter": {
+            "$ref": "delayAfter"
+          }
         }
       ],
       "variables": {
@@ -90,8 +114,12 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusWid": "{{widwc}}",
-            "destination": "{{pcwc}}",
+            "focusWid": {
+              "$ref": "widwc"
+            },
+            "destination": {
+              "$ref": "pcwc"
+            },
             "keyPress": "f4"
           }
         }
@@ -130,7 +158,9 @@
       "commands": [
         {
           "destination": "this",
-          "typeText": "{{login}}"
+          "typeText": {
+            "$ref": "login"
+          }
         }
       ]
     },
