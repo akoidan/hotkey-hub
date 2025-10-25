@@ -38,15 +38,16 @@ const baseSchema = z.object({
   }).describe('Remote PC from ips or aliases section to send this command to'),
 }).strict().merge(delayCommandsSchema);
 
+const windowPropertiesSchema = z.object({
+  x: z.number().describe('x position'),
+  y: z.number().describe('y position'),
+  width: z.number().describe('width'),
+  height: z.number().describe('height'),
+}).strict().describe('Definition of window location and size');
 
 const setWindowBoundsRemoteSchema = z.object({
   setWindowIdBound: z.number().describe('Window id'),
-  windowProperties: z.object({
-    x: z.number().describe('x position'),
-    y: z.number().describe('y position'),
-    width: z.number().describe('width'),
-    height: z.number().describe('height'),
-  }).strict(),
+  windowProperties: windowPropertiesSchema,
 }).strict().merge(baseSchema).describe('Sets window width height and x y position' );
 
 const keyPressRemoteCommandSchema = z.object({
@@ -258,6 +259,7 @@ export {
   killExeByPidRemoteCommandSchema,
   remoteCommandSchema,
   findPidsByNameRemoteCommandSchema,
+  windowPropertiesSchema,
   findProcessWindowsRemoteCommandSchema,
   findProcessesWindowsRemoteCommandSchema,
   focusWindowRemoteCommandSchema,

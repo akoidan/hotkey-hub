@@ -3,7 +3,7 @@ import {z, ZodArray, ZodEffects, ZodLazy, ZodObject, ZodTypeAny, ZodUnion} from 
 
 
 import {variablesSchema, variableValueSchema} from '@/config/types/variables';
-import {shortcutSchema, shortcutsSchema} from '@/config/types/shortcut';
+import {behaviourObjectSchema, behaviourSchema, shortcutSchema, shortcutsSchema} from '@/config/types/shortcut';
 import {globalDelaySchema} from '@/config/types/delays';
 import {
   findPidsByNameRemoteCommandSchema,
@@ -18,8 +18,8 @@ import {
   launchExeRemoteCommandSchema,
   leftMouseClickRemoteCommandSchema,
   mouseMoveClickRemoteCommandSchema,
-  remoteCommandSchema,
-  typeTextRemoteCommandSchema,
+  remoteCommandSchema, setWindowBoundsRemoteSchema,
+  typeTextRemoteCommandSchema, windowPropertiesSchema,
 } from '@/config/types/remote-commands';
 import {
   expressionLocalCommandSchema,
@@ -54,7 +54,7 @@ const rgbSchema = z.object({
   .describe('RGB keyboard lighting for shortcut feedback. Changes key colors during execution.' +
     ' Needs OpenRGB server and compatible keyboard. See https://openrgb.org/.');
 
-const aATypeRootSchema = z.object({
+const aARootSchema = z.object({
   ips: ipsSchema,
   clientPort: z.number()
     .optional()
@@ -69,127 +69,8 @@ const aATypeRootSchema = z.object({
   .describe('Root configuration schema that defines the entire setup including remote PCs, shortcuts, RGB settings, and macros. ' +
     'All sections must follow their respective schemas strictly.');
 
-
-function makeAllFieldsVariableCompatible<T extends ZodTypeAny>(
-  schema: T,
-  path: string[] = [],
-  depth: number = 0,
-  seen: WeakSet<ZodTypeAny> = new WeakSet()
-): ZodTypeAny {
-  // Prevent infinite recursion on circular references
-  if (seen.has(schema)) {
-    console.log(`[CIRCULAR] Path: ${path.join('.')}`);
-    return schema;
-  }
-  seen.add(schema);
-  
-  const currentPath = [...path, schema.constructor.name];
-  console.log(`[DEPTH ${depth}] Processing ${currentPath.join(' -> ')}`);
-  
-  try {
-    // Handle ZodLazy - we need to create a new lazy schema that wraps the processed inner schema
-    if (schema instanceof ZodLazy) {
-      console.log(`[LAZY] Creating wrapped lazy schema at path: ${currentPath.join('.')}`);
-      return z.lazy(() => {
-        const innerSchema = schema._def.getter() as ZodTypeAny;
-        return makeAllFieldsVariableCompatible(innerSchema, [...currentPath, 'lazy'], depth + 1, seen);
-      });
-    }
-    
-    // Handle ZodEffect - we need to preserve the effect while making its inner schema variable-compatible
-    if (schema instanceof ZodEffects) {
-      console.log(`[EFFECT] Creating wrapped effect schema at path: ${currentPath.join('.')}`);
-      const innerSchema = (schema as any)._def.schema as ZodTypeAny;
-      if (!innerSchema) {
-        return schema;
-      }
-      
-      // Create a new effect that wraps the processed inner schema
-      const processedInner = makeAllFieldsVariableCompatible(innerSchema, [...currentPath, 'effect'], depth + 1, seen);
-      
-      // Create a new effect that first checks for variable references
-      return new ZodEffects({
-        ...schema._def,
-        schema: processedInner,
-        effect: {
-          ...schema._def.effect,
-          type: 'refinement',
-          refinement: (val: any, ctx: any) => {
-            // Skip refinement if the value is a variable reference
-            if (val && typeof val === 'object' && '$ref' in val) {
-              return true;
-            }
-            // Otherwise, apply the original refinement
-            return schema._def.effect.refinement(val, ctx);
-          }
-        }
-      });
-    }
-
-    if (schema instanceof ZodObject) {
-      console.log(`[OBJECT] Processing object with keys: ${Object.keys(schema.shape).join(', ')}`);
-      const shape = schema.shape;
-      const newShape: Record<string, ZodTypeAny> = {};
-
-      for (const key in shape) {
-        console.log(`[OBJECT] Processing key: ${key}`);
-        newShape[key] = makeAllFieldsVariableCompatible(shape[key], [...currentPath, key], depth + 1, seen);
-      }
-
-    return z.object(newShape);
-  }
-
-    if (schema instanceof ZodArray) {
-      console.log(`[ARRAY] Processing array element at path: ${currentPath.join('.')}`);
-      return z
-        .array(makeAllFieldsVariableCompatible(schema.element, [...currentPath, '[]'], depth + 1, seen))
-        .or(variableValueSchema);
-    }
-
-    if (schema instanceof ZodUnion) {
-      const options = (schema._def as any).options as ZodTypeAny[];
-      console.log(`[UNION] Processing ${options.length} union options at path: ${currentPath.join('.')}`);
-      const newOptions = options.map((opt, i) => 
-        makeAllFieldsVariableCompatible(opt, [...currentPath, `union_${i}`], depth + 1, seen)
-      );
-      // @ts-ignore
-      return z.union([...newOptions, variableValueSchema]);
-    }
-
-    // Base case: wrap any leaf type with union($ref) but only if it's not already variable-compatible
-    console.log(`[LEAF] Wrapping leaf type at path: ${currentPath.join('.')} (${schema.constructor.name})`);
-    
-    // Check if the schema is already variable-compatible
-    if (schema instanceof ZodUnion && 
-        schema._def.options.some((opt: any) => opt === variableValueSchema)) {
-      return schema;
-    }
-    
-    // Create a new schema that first checks for variable references
-    return z.union([
-      schema,
-      variableValueSchema.refine(
-        (val) => {
-          if (val && typeof val === 'object' && '$ref' in val) {
-            return true;
-          }
-          return schema.safeParse(val).success;
-        },
-        { message: 'Value does not match schema' }
-      )
-    ]);
-  } catch (error) {
-    console.error(`Error processing schema at path ${currentPath.join('.')}:`, error);
-    throw error;
-  }
-}
-
-const aARootSchema = aATypeRootSchema.extend({
-  combinations: makeAllFieldsVariableCompatible(shortcutsSchema),
-});
-
 // Generate TypeScript type
-type ConfigData = z.infer<typeof aATypeRootSchema>;
+type ConfigData = z.infer<typeof aARootSchema>;
 type ConfigDataWoMacro = Omit<ConfigData, 'macros'>;
 
 type IpsData = z.infer<typeof ipsSchema>
@@ -208,6 +89,9 @@ export {
   aARootSchema,
   globalDelaySchema,
   ipsSchema,
+  behaviourSchema,
+  behaviourObjectSchema,
+  windowPropertiesSchema,
   shortcutSchema,
   shortcutsSchema,
   loopLocalCommandSchema,
@@ -229,6 +113,7 @@ export {
   threadsLocalCommandSchema,
   macroLocalCommandSchema,
   unknownCommandSchema,
+  setWindowBoundsRemoteSchema,
   expressionLocalCommandSchema,
   threadLocalArraySchema,
   transactionLocalCommandSchema,
