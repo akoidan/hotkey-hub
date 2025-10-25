@@ -1,5 +1,5 @@
 /* eslint-disable max-lines*/
-import {z} from 'zod';
+import {z, ZodArray, ZodObject, ZodTypeAny, ZodUnion} from 'zod';
 
 
 import {variablesSchema, variableValueSchema} from '@/config/types/variables';
@@ -54,7 +54,7 @@ const rgbSchema = z.object({
   .describe('RGB keyboard lighting for shortcut feedback. Changes key colors during execution.' +
     ' Needs OpenRGB server and compatible keyboard. See https://openrgb.org/.');
 
-const aARootSchema = z.object({
+const aATypeRootSchema = z.object({
   ips: ipsSchema,
   clientPort: z.number()
     .optional()
@@ -69,8 +69,42 @@ const aARootSchema = z.object({
   .describe('Root configuration schema that defines the entire setup including remote PCs, shortcuts, RGB settings, and macros. ' +
     'All sections must follow their respective schemas strictly.');
 
+
+function makeAllFieldsVariableCompatible<T extends ZodTypeAny>(schema: T): ZodTypeAny {
+  if (schema instanceof ZodObject) {
+    const shape = schema.shape;
+    const newShape: Record<string, ZodTypeAny> = {};
+
+    for (const key in shape) {
+      newShape[key] = makeAllFieldsVariableCompatible(shape[key]);
+    }
+
+    return z.object(newShape);
+  }
+
+  if (schema instanceof ZodArray) {
+    return z
+      .array(makeAllFieldsVariableCompatible(schema.element))
+      .or(variableValueSchema);
+  }
+
+  if (schema instanceof ZodUnion) {
+    const options = (schema._def as any).options as ZodTypeAny[];
+    const newOptions = options.map(makeAllFieldsVariableCompatible);
+    // @ts-ignore
+    return z.union([...newOptions, variableValueSchema]);
+  }
+
+  // Base case: wrap any leaf type with union($ref)
+  return z.union([schema, variableValueSchema]);
+}
+
+const aARootSchema = aATypeRootSchema.extend({
+  combinations: makeAllFieldsVariableCompatible(shortcutsSchema),
+});
+
 // Generate TypeScript type
-type ConfigData = z.infer<typeof aARootSchema>;
+type ConfigData = z.infer<typeof aATypeRootSchema>;
 type ConfigDataWoMacro = Omit<ConfigData, 'macros'>;
 
 type IpsData = z.infer<typeof ipsSchema>
@@ -90,7 +124,6 @@ export {
   globalDelaySchema,
   ipsSchema,
   shortcutSchema,
-  variableValueSchema,
   shortcutsSchema,
   loopLocalCommandSchema,
   variablesSchema,

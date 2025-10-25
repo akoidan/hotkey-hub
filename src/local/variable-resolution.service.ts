@@ -4,7 +4,7 @@ import {
 } from '@nestjs/common';
 import {ConfigService} from '@/config/config-service';
 import {VariablesDefinition} from '@/config/types/local-commands';
-import {variableRegex} from '@/config/types/variables';
+import {variableRegex, VariableValue} from '@/config/types/variables';
 
 @Injectable()
 export class VariableResolutionService {
@@ -34,11 +34,12 @@ export class VariableResolutionService {
   }
 
   private extractVariableName(variable: unknown): { varName: string|undefined, varExpress: string|undefined} {
-    if (typeof variable === 'string') {
-      const name = variableRegex.exec(variable);
-      if (name) {
-        return {varName: name.groups!.variable, varExpress: variable.substring(2, variable.length -2)} ;
+    if (typeof variable === 'object' && (variable as VariableValue).$ref) {
+      const name = variableRegex.exec((variable as VariableValue).$ref);
+      if (!name) {
+        throw Error(`Illegal varname ${(variable as VariableValue).$ref}`);
       }
+      return {varName: name.groups!.variable, varExpress: (variable as VariableValue).$ref} ;
     }
     return  {varName: undefined, varExpress: undefined} ;
   }

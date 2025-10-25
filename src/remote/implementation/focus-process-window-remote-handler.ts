@@ -7,6 +7,6 @@ export class FocusProcessWindowRemoteHandler extends CommandRemoteHandler {
   }
 
   async execute(destination: string, command: FocusProcessWindowRemoteCommand): Promise<void> {
-    await this.clientService.focusExe(destination, {pid: command.focusPid as number});
+    await this.clientService.focusExe(destination, {pid: command.focusPid});
   }
 }

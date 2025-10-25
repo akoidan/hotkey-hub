@@ -23,7 +23,7 @@ export class KeyPressRemoteHandler extends CommandRemoteHandler {
       // eslint-disable-next-line @typescript-eslint/prefer-destructuring
       holdKeys = command.holdKeys;
     } else if (command.holdKeys) {
-      holdKeys = [command.holdKeys as Key];
+      holdKeys = [command.holdKeys];
     }
 
     let duration: number | undefined = command.duration;
@@ -31,7 +31,7 @@ export class KeyPressRemoteHandler extends CommandRemoteHandler {
       duration = this.randomService.calcDeviation(command.duration, command.durationDeviation);
     }
     await this.clientService.keyPress(destination, {
-      keys: (Array.isArray(command.keyPress) ? command.keyPress : [command.keyPress]) as Key[],
+      keys: Array.isArray(command.keyPress) ? command.keyPress : [command.keyPress],
       holdKeys,
       duration,
     });

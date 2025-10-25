@@ -23,7 +23,7 @@ export class FindProcessesWindowsRemoteHandler extends CommandRemoteHandler {
         ` since  ${JSON.stringify(command.findProcessesWindows)} cannot be assigned to a` +
         `different number of variables: ${JSON.stringify(command.assignIds)}`);
     }
-    const responses = await Promise.all((command.findProcessesWindows as number[])
+    const responses = await Promise.all(command.findProcessesWindows
       .map(async(id) => this.clientService.getProcessWindows(destination, id)));
     if (command.assignIds) {
       for (let i = 0; i < command.findProcessesWindows.length; i++) {

@@ -10,7 +10,7 @@ export class SetWindowBoundsRemoteHandler extends CommandRemoteHandler {
 
   async execute(destination: string, command: SetWindowBoundsRemoteCommand): Promise<void> {
     await this.clientService.setWindowBounds(destination, {
-      wid: command.setWindowIdBound as number,
+      wid: command.setWindowIdBound,
       bounds: command.windowProperties,
     });
   }

@@ -10,6 +10,6 @@ export class KillPidRemoteHandler extends CommandRemoteHandler {
     if (!command.killByPid) {
       throw new Error(`Unable to kill a process in ${destination}, since variable resolved to undefined`);
     }
-    await this.clientService.killExeById(destination, {pid: command.killByPid as number});
+    await this.clientService.killExeById(destination, {pid: command.killByPid});
   }
 }
