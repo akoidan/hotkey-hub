@@ -50,7 +50,7 @@ export class VariableResolutionService {
       return command;
     }
     if (Object.hasOwn(values, varName)) {
-      this.logger.debug(`Replaced variable ${varName} to ${values[varName] as string} for ${JSON.stringify(command)}`);
+      this.logger.debug(`Replaced variable ${varName} to ${JSON.stringify(values[varName])} for ${JSON.stringify(command)}`);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       return this.evaluateVariable(varName, varExpress!, values[varName]);
     }
