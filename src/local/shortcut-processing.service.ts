@@ -105,8 +105,7 @@ export class ShortcutProcessingService {
           // also return is not technicaly correct cause we are mearing multiple generators in one manually in thread-local-handler
           await generator.return(undefined);
           this.iterationsInProgress[groupWith].find(proc => proc.id === id)!.status = ProcessStatus.STOPPED;
-          breakLoop = true;
-          break;
+          breakLoop = true; //while should finish in order to finish current transaction and release transaction group
         }
         this.logger.debug('Calling next item from top.');
         const res = await generator.next();
