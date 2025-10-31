@@ -5,12 +5,14 @@ import {DelayService} from '@/local/delay.service';
 import {BaseLocalHandler} from '@/local/base-local-handler';
 import {MacroLocalCommand, UnknownCommand} from '@/config/types/local-commands';
 import {Delay} from '@/config/types/remote-commands';
+import {SemaphorService} from '@/semaphor/semaphor-service';
 
 @Injectable()
 export class MacroLocalHandler extends BaseLocalHandler {
   constructor(
     private readonly configService: ConfigService,
     private readonly variableService: VariableResolutionService,
+    private readonly semaphoreService: SemaphorService,
     private readonly delayService: DelayService,
   ) {
     super();
@@ -35,15 +37,18 @@ export class MacroLocalHandler extends BaseLocalHandler {
       // but would be await after any commands in this macro has run yet as expected, this is why on top we are not passing it
       await this.delayService.awaitDelay(input.delayBefore as number, undefined, 'before', 'macro');
     }
-    for (const command of executable.commands) {
-      const preparedCommand = this.variableService.replacePlaceholders(
-        command,
-        input.variables,
-        executable.variables
-      );
-      const delayA = ((preparedCommand as Delay).delayAfter as number | undefined) ?? combDelayAfter;
-      const delayB = ((preparedCommand as Delay).delayBefore as number | undefined) ?? combDelayBefore;
-      yield *this.startChain.handle(preparedCommand, delayA, delayB, tId);
+    const that = this;
+    for (let i = 0; i< executable.commands.length; i++) {
+      yield *that.semaphoreService.spawnGeneratorChild(String(i),  async function* loopGenerator(): AsyncGenerator<void> {
+        const preparedCommand = that.variableService.replacePlaceholders(
+          executable.commands[i],
+          input.variables,
+          executable.variables
+        );
+        const delayA = ((preparedCommand as Delay).delayAfter as number | undefined) ?? combDelayAfter;
+        const delayB = ((preparedCommand as Delay).delayBefore as number | undefined) ?? combDelayBefore;
+        yield *that.startChain.handle(preparedCommand, delayA, delayB, tId);
+      });
     }
     // commands in this macro has been already ran in the loop
     // await delay before the next command after this macro runs

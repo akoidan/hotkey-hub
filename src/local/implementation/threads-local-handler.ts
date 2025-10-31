@@ -6,7 +6,7 @@ import {ThreadLocalArray, ThreadsLocalCommand, UnknownCommand} from '@/config/ty
 @Injectable()
 export class ThreadsLocalHandler extends BaseLocalHandler {
   constructor(
-    private readonly semaphorService: SemaphorService,
+    private readonly semaphoreService: SemaphorService,
     private readonly logger: Logger,
   ) {
     super();
@@ -50,9 +50,11 @@ export class ThreadsLocalHandler extends BaseLocalHandler {
     const that = this;
     yield* this.mergeAsyncGenerators(
       (comb.threads.map(async function* threadProcess(receiver: ThreadLocalArray, i: number): AsyncGenerator<void> {
-        yield* that.semaphorService.spawnGeneratorChild(String(i), async function* threadGenerator(): AsyncGenerator<void> {
-          for (const command of receiver) {
-            yield* that.startChain.handle(command, undefined, undefined, transactionId);
+        yield* that.semaphoreService.spawnGeneratorChild(String(i), async function* threadGenerator(): AsyncGenerator<void> {
+          for (let j = 0; j< receiver.length; j++) {
+            yield *that.semaphoreService.spawnGeneratorChild(String(j),  async function* loopGenerator(): AsyncGenerator<void> {
+              yield* that.startChain.handle(receiver[j], undefined, undefined, transactionId);
+            });
           }
         });
       }))

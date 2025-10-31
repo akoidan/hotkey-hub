@@ -1,7 +1,7 @@
 /* eslint-disable max-lines, @typescript-eslint/no-use-before-define */
 import {z, ZodIssueCode, type ZodType} from 'zod';
 import {schemaRootCache} from '@/config/types/cache';
-import {variableRegex, VariableValue, variableValueSchema} from '@/config/types/variables';
+import {VariableValue, variableValueSchema} from '@/config/types/variables';
 import {delayCommandsSchema, type RemoteCommand, remoteCommandSchema} from '@/config/types/remote-commands';
 
 const macroLocalCommandSchema = z.object({
@@ -117,6 +117,31 @@ const expressionLocalCommandSchema = z.object({
 }).strict()
   .describe('Allows to create/assign a variable by expression. In this case you need to set "destination" property to a string "null"');
 
+const ifLocalCommandSchema = z.lazy(() => z.object({
+  if: z.string().nonempty().superRefine((expr, ctx) => {
+    try {
+      // eslint-disable-next-line
+      new Function(`return (${expr});`);
+    } catch (e) {
+      ctx.addIssue({
+        code: ZodIssueCode.custom,
+        path: [],
+        message: `"${expr}" is not a valid expression, because of ${e?.message ?? e}`,
+      });
+    }
+  }).describe('JS like expression that evaluates to some values. E.g. x*2.'),
+  then: z.array(unknownCommandSchema)
+    .describe('Commands to execute if the condition is true'),
+  else: z.array(unknownCommandSchema)
+    .optional()
+    .describe('Optional commands to execute if the condition is false'),
+}).strict()).describe('Conditional execution of commands based on a boolean condition. ' +
+  'If the condition is true, executes the "then" commands, otherwise executes the "else" commands if they exist.') as any as ZodType<{
+  if: string,
+  then: UnknownCommand[],
+  else?: UnknownCommand[]
+}>;
+
 const unknownCommandSchema = z.lazy(() => z.union([
   remoteCommandSchema,
   macroLocalCommandSchema,
@@ -124,6 +149,7 @@ const unknownCommandSchema = z.lazy(() => z.union([
   transactionLocalCommandSchema,
   threadsLocalCommandSchema,
   loopLocalCommandSchema,
+  ifLocalCommandSchema,
   reloadConfigLocalCommandSchema,
 ])).describe('A command that would be executed on this machine') as ZodType<UnknownCommand>; // z.lazy requires manual type definition cause of reqursive type
 
@@ -184,6 +210,7 @@ type MacroLocalCommand = z.infer<typeof macroLocalCommandSchema>
 type TransactionLocalCommand = z.infer<typeof transactionLocalCommandSchema>
 type ThreadsLocalCommand = z.infer<typeof threadsLocalCommandSchema>
 type LoopLocalCommand = z.infer<typeof loopLocalCommandSchema>
+type IfLocalCommand = z.infer<typeof ifLocalCommandSchema>
 type ThreadLocalArray = z.infer<typeof threadLocalArraySchema>
 type MacroList = z.infer<typeof macrosListSchema>
 type VariablesDefinition = z.infer<typeof macroVariablesDescriptionSchema>
@@ -193,9 +220,11 @@ type UnknownCommand = RemoteCommand
   | TransactionLocalCommand
   | ThreadsLocalCommand
   | LoopLocalCommand
+  | IfLocalCommand
   | ReloadConfigLocalCommand;
 
 export {
+  ifLocalCommandSchema,
   loopLocalCommandSchema,
   threadsLocalCommandSchema,
   macroLocalCommandSchema,
@@ -210,6 +239,7 @@ export {
 };
 
 export type {
+  IfLocalCommand,
   LoopLocalCommand,
   ThreadLocalArray,
   ThreadsLocalCommand,

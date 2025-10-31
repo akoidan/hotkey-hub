@@ -3,12 +3,14 @@ import {Injectable, Logger} from '@nestjs/common';
 import clc from 'cli-color';
 import {BaseLocalHandler} from '@/local/base-local-handler';
 import {ExpressionLocalCommand, UnknownCommand} from '@/config/types/local-commands';
+import {EvaluateService} from '@/local/evaluate-serivce';
 
 @Injectable()
 export class ExpressionLocalHandler extends BaseLocalHandler {
   constructor(
     private readonly logger: Logger,
     private readonly configService: ConfigService,
+    private readonly evaluateService: EvaluateService,
   ) {
     super();
   }
@@ -19,29 +21,7 @@ export class ExpressionLocalHandler extends BaseLocalHandler {
 
   /* eslint-disable */
   async *execute(command: ExpressionLocalCommand): AsyncGenerator<void> {
-    const variables = this.configService.getVariables();
-    let expr = command.expression;
-    const reserved = new Set(["this", "arguments", "eval", "function", "return", "var", "let", "const"]);
-
-    const varMap: Record<string, any> = {};
-    const argNames = [];
-    const argValues = [];
-
-    for (const [key, value] of Object.entries(variables)) {
-      const safeKey = reserved.has(key) ? `__${key}` : key;
-      varMap[key] = safeKey;
-      argNames.push(safeKey);
-      argValues.push(value);
-    }
-
-    // Replace variable names in the expression
-    for (const [original, safe] of Object.entries(varMap)) {
-      const regex = new RegExp(`\\b${original}\\b`, "g");
-      expr = expr.replace(regex, safe);
-    }
-
-    const f = new Function(...argNames, `return (${expr});`);
-    const result = f(...argValues);
+    const result = this.evaluateService.evaluateExpression(command.expression);
     this.logger.debug(`Assigning ${result} to ${command.assignVariable} from evaluating ${command.expression}`);
     if (command.assignVariable.includes('.')) {
       const varPath = command.assignVariable.split('.')
@@ -56,9 +36,8 @@ export class ExpressionLocalHandler extends BaseLocalHandler {
     } else {
       await this.configService.setVariable(command.assignVariable, result);
     }
-    this.logger.log(`${clc.bold.green(command.assignVariable)}=${clc.yellow(JSON.stringify(result))}`);
+    this.logger.debug(`${clc.bold.green(command.assignVariable)}=${clc.yellow(JSON.stringify(result))}`);
     yield undefined;
   }
-
   /* eslint-enable */
 }

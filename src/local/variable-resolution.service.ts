@@ -62,7 +62,7 @@ export class VariableResolutionService {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
-  private evaluateVariable<T>(varName: string, variableExpression: string, varValue: unknown): T {
+  public evaluateVariable<T>(varName: string, variableExpression: string, varValue: unknown): T {
     // eslint-disable-next-line no-new-func,@typescript-eslint/no-implied-eval,@typescript-eslint/no-unsafe-return
     return Function(varName, `return ${variableExpression};`)(varValue);
   }

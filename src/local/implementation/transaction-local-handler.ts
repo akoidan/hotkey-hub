@@ -39,10 +39,12 @@ export class TransactionLocalHandler extends BaseLocalHandler {
           // but would be await after any commands in this macro has run yet as expected, this is why on top we are not passing it
           await that.delayService.awaitDelay((preparedInput as Delay).delayBefore as number, undefined, 'before', `transaction ${tId}`);
         }
-        for (const command of preparedInput.commands) {
+        for (let i =0; i < preparedInput.commands.length; i ++) {
           const delayA = ((preparedInput as Delay).delayAfter as number | undefined) ?? combDelayAfter;
           const delayB = ((preparedInput as Delay).delayBefore as number | undefined) ?? combDelayBefore;
-          yield *that.startChain.handle(command, delayA, delayB, tId);
+          yield *that.semaphoreService.spawnGeneratorChild(String(i),  async function* loopGenerator(): AsyncGenerator<void> {
+            yield *that.startChain.handle(preparedInput.commands[i], delayA, delayB, tId);
+          });
         }
         // commands in this macro has been already ran in the loop
         // await delay before the next command after this macro runs
