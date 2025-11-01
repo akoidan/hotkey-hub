@@ -66,6 +66,7 @@ const aARootSchema = z.object({
     .describe('HTTPS port for secure client PC connections. ' +
       'Must be accessible and not blocked by firewalls. Default is 5000 if not specified.'),
   rgb: rgbSchema,
+  name: z.string().optional().describe('Name of this schema to print in logs'),
   combinations: shortcutsSchema,
   delays: globalDelaySchema,
   macros: macrosListSchema,

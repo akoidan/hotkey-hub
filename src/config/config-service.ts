@@ -170,6 +170,9 @@ export class ConfigService implements ConfigProvider {
     this.configData = configData;
     this.variables = variables;
     await this.setVariable('delays', configData.delays);
+    if (this.configData.name) {
+      this.logger.log(`Loaded config ${this.configData.name}`);
+    }
   }
 
   public getIps(): IpsData {

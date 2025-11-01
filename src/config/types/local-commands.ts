@@ -1,7 +1,8 @@
 /* eslint-disable max-lines, @typescript-eslint/no-use-before-define */
 import {z, ZodIssueCode, type ZodType} from 'zod';
 import {schemaRootCache} from '@/config/types/cache';
-import {VariableValue, variableValueSchema} from '@/config/types/variables';
+import type {VariableValue} from '@/config/types/variables';
+import {variableValueSchema} from '@/config/types/variables';
 import {delayCommandsSchema, type RemoteCommand, remoteCommandSchema} from '@/config/types/remote-commands';
 
 const macroLocalCommandSchema = z.object({
@@ -162,9 +163,12 @@ const transactionLocalCommandSchema = z.lazy(() => z.object({
   ' Prevents concurrent transactions with same name.' +
   ' Uses PC name for remote commands. Ensures atomic execution.') as any as ZodType<{ commands: UnknownCommand[], transaction: string }>;
 
-const threadLocalArraySchema = z.array(unknownCommandSchema)
-  .describe('List of commands to execute in a single thread.' +
-    ' Commands run sequentially in their thread, while threads run in parallel.') as any as ZodType<UnknownCommand[]>;  // z.lazy requires manual type definition cause of reqursive type
+
+const threadLocalArraySchema = z.object({
+  name: z.string().max(10).nonempty().describe('name of the thread, required for req-id log, '),
+  commands: z.array(unknownCommandSchema),
+}).describe('List of commands to execute in a single thread.' +
+  ' Commands run sequentially in their thread, while threads run in parallel.') as any as ZodType<Thread>;  // z.lazy requires manual type definition cause of reqursive type
 
 const loopLocalCommandSchema = z.lazy(() => z.object({
   commands: z.array(unknownCommandSchema).describe('Sequence of commands to repeat in the loop. ' +
@@ -183,7 +187,7 @@ const threadsLocalCommandSchema = z.lazy(() => z.object({
   threads: z.array(threadLocalArraySchema).describe('Command sequences to run in parallel.' +
     ' Each thread runs sequentially while threads run simultaneously.'),
   // z.lazy requires manual type definition cause of reqursive type
-}).strict()).describe('Allows to execute commands in parallel. Or in threads.') as ZodType<{ threads: UnknownCommand[][] }>;
+}).strict()).describe('Allows to execute commands in parallel. Or in threads.') as ZodType<{ threads: Thread[] }>;
 
 const macroVariablesDescriptionSchema = z.record(z.object({
   type: z.enum(['string', 'number']).describe('To validate the type, or cast from env variables'),
@@ -211,9 +215,12 @@ type TransactionLocalCommand = z.infer<typeof transactionLocalCommandSchema>
 type ThreadsLocalCommand = z.infer<typeof threadsLocalCommandSchema>
 type LoopLocalCommand = z.infer<typeof loopLocalCommandSchema>
 type IfLocalCommand = z.infer<typeof ifLocalCommandSchema>
-type ThreadLocalArray = z.infer<typeof threadLocalArraySchema>
 type MacroList = z.infer<typeof macrosListSchema>
 type VariablesDefinition = z.infer<typeof macroVariablesDescriptionSchema>
+interface Thread {
+  name: string,
+  commands: UnknownCommand[]
+}
 type UnknownCommand = RemoteCommand
   | MacroLocalCommand
   | ExpressionLocalCommand
@@ -241,7 +248,7 @@ export {
 export type {
   IfLocalCommand,
   LoopLocalCommand,
-  ThreadLocalArray,
+  Thread,
   ThreadsLocalCommand,
   MacroLocalCommand,
   TransactionLocalCommand,

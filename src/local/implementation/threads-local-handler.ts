@@ -1,7 +1,7 @@
 import {Injectable, Logger} from '@nestjs/common';
 import {SemaphorService} from '@/semaphor/semaphor-service';
 import {BaseLocalHandler} from '@/local/base-local-handler';
-import {ThreadLocalArray, ThreadsLocalCommand, UnknownCommand} from '@/config/types/local-commands';
+import {Thread, ThreadsLocalCommand, UnknownCommand} from '@/config/types/local-commands';
 
 @Injectable()
 export class ThreadsLocalHandler extends BaseLocalHandler {
@@ -28,7 +28,7 @@ export class ThreadsLocalHandler extends BaseLocalHandler {
     while (results.size > 0) {
       const [index, result] = await Promise.race(
         Array.from(results.entries()).map(
-          async([i, p]) => p.then(r => [i, r] as [number, IteratorResult<void, void>])
+          async ([i, p]) => p.then(r => [i, r] as [number, IteratorResult<void, void>])
         )
       );
 
@@ -49,14 +49,17 @@ export class ThreadsLocalHandler extends BaseLocalHandler {
   ): AsyncGenerator<void> {
     const that = this;
     yield* this.mergeAsyncGenerators(
-      (comb.threads.map(async function* threadProcess(receiver: ThreadLocalArray, i: number): AsyncGenerator<void> {
-        yield* that.semaphoreService.spawnGeneratorChild(String(i), async function* threadGenerator(): AsyncGenerator<void> {
-          for (let j = 0; j< receiver.length; j++) {
-            yield *that.semaphoreService.spawnGeneratorChild(String(j),  async function* loopGenerator(): AsyncGenerator<void> {
-              yield* that.startChain.handle(receiver[j], undefined, undefined, transactionId);
-            });
+      (comb.threads.map(async function* threadProcess(receiver: Thread, i: number): AsyncGenerator<void> {
+        yield* that.semaphoreService.spawnGeneratorChild(
+          receiver.name ?? String(i),
+          async function* threadGenerator(): AsyncGenerator<void> {
+            for (let j = 0; j < receiver.commands.length; j++) {
+              yield* that.semaphoreService.spawnGeneratorChild(String(j), async function* loopGenerator(): AsyncGenerator<void> {
+                yield* that.startChain.handle(receiver.commands[j], undefined, undefined, transactionId);
+              });
+            }
           }
-        });
+        );
       }))
     );
   }
