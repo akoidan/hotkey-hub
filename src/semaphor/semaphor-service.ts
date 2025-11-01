@@ -45,10 +45,10 @@ export class SemaphorService {
     this.logger.debug(`All actions for ${parentId} are completed`);
   }
 
-  public async* spawnGeneratorChild(i: string, cb: () => AsyncGenerator<void>): AsyncGenerator<void> {
-    this.logger.debug('Spawning new req-id')
+  public async* spawnGeneratorChild(i: string, cb: () => AsyncGenerator<void>, separator: string = '-'): AsyncGenerator<void> {
+    this.logger.debug('Spawning new req-id');
     const parentId = this.getCurrentOperationId();
-    const newId = `${parentId}-${i}`;
+    const newId = `${parentId}${separator}${i}`;
     const newStorageMap = new Map<string, any>(this.asyncLocalStorage.getStore());
     newStorageMap.set(SemaphorService.COMB_KEY, newId);
 
