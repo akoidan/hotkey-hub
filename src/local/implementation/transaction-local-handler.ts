@@ -49,7 +49,7 @@ export class TransactionLocalHandler extends BaseLocalHandler {
             }
           );
           for await (const _ of transactionGenerator) {
-            that.logger.debug('Calling next item on generator');
+            that.logger.debug('Calling next item from transaction');
           }
         }
         // commands in this macro has been already ran in the loop
