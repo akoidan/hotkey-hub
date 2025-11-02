@@ -20,7 +20,9 @@ export class ExpressionLocalHandler extends BaseLocalHandler {
   }
 
   /* eslint-disable */
-  async *execute(command: ExpressionLocalCommand): AsyncGenerator<void> {
+  async* execute(
+    command: ExpressionLocalCommand
+  ): AsyncGenerator<void> {
     const result = this.evaluateService.evaluateExpression(command.expression);
     this.logger.debug(`Assigning ${result} to ${command.assignVariable} from evaluating ${command.expression}`);
     if (command.assignVariable.includes('.')) {
@@ -39,5 +41,6 @@ export class ExpressionLocalHandler extends BaseLocalHandler {
     this.logger.debug(`${clc.bold.green(command.assignVariable)}=${clc.yellow(JSON.stringify(result))}`);
     yield undefined;
   }
+
   /* eslint-enable */
 }

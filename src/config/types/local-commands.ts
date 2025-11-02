@@ -151,6 +151,8 @@ const unknownCommandSchema = z.lazy(() => z.union([
   threadsLocalCommandSchema,
   loopLocalCommandSchema,
   ifLocalCommandSchema,
+  shuffleLocalCommandSchema,
+  printLocalCommandSchema,
   reloadConfigLocalCommandSchema,
 ])).describe('A command that would be executed on this machine') as ZodType<UnknownCommand>; // z.lazy requires manual type definition cause of reqursive type
 
@@ -183,6 +185,47 @@ const loopLocalCommandSchema = z.lazy(() => z.object({
   'Allow to run same commands multiple time or in iteration or loop'
 ) as any as ZodType<{ commands: UnknownCommand[], loop: number }>;
 
+enum ShufflePolicy {
+  random = 'random',
+  reverse = 'reverse',
+  straight = 'straight',
+}
+
+const shufflePolicySchema = z.nativeEnum(ShufflePolicy)
+  .describe('Random = shuffle array so it takes next element randomly.' +
+    ' Reverse = each time it changes the order from first to last, then from last to first.' +
+    ' Straight = Default order from first to last');
+
+const shuffleLocalCommandSchema = z.lazy(() => z.object({
+  commands: z.array(unknownCommandSchema).describe('Sequence of commands to repeat in the loop. ' +
+    'Each iteration will execute all commands in order.'),
+  shuffle: shufflePolicySchema,
+  // z.lazy requires manual type definition cause of reqursive type
+}).strict()).describe(
+  'Allow to run same commands in specific order'
+) as any as ZodType<{ commands: UnknownCommand[], shuffle: ShufflePolicy }>;
+
+
+const printLocalCommandSchema = z.object({
+  print: z.string().superRefine((expr, ctx) => {
+    try {
+      // eslint-disable-next-line
+      new Function(`return (${expr});`);
+    } catch (e) {
+      ctx.addIssue({
+        code: ZodIssueCode.custom,
+        path: [],
+        message: `"${expr}" is not a valid expression, because of ${e?.message ?? e}`,
+      });
+    }
+  }).describe('JS like expression that evaluates to some values. E.g. x*2.'),
+  // z.lazy requires manual type definition cause of reqursive type
+})
+  .strict()
+  .describe(
+    'Print the expressions to log'
+  );
+
 const threadsLocalCommandSchema = z.lazy(() => z.object({
   threads: z.array(threadLocalArraySchema).describe('Command sequences to run in parallel.' +
     ' Each thread runs sequentially while threads run simultaneously.'),
@@ -211,21 +254,27 @@ const macrosListSchema = z.record(macroDefinitionSchema)
 type ExpressionLocalCommand = z.infer<typeof expressionLocalCommandSchema>;
 type ReloadConfigLocalCommand = z.infer<typeof reloadConfigLocalCommandSchema>;
 type MacroLocalCommand = z.infer<typeof macroLocalCommandSchema>
+type ShuffleLocalCommand = z.infer<typeof shuffleLocalCommandSchema>
+type PrintLocalCommand = z.infer<typeof printLocalCommandSchema>
 type TransactionLocalCommand = z.infer<typeof transactionLocalCommandSchema>
 type ThreadsLocalCommand = z.infer<typeof threadsLocalCommandSchema>
 type LoopLocalCommand = z.infer<typeof loopLocalCommandSchema>
 type IfLocalCommand = z.infer<typeof ifLocalCommandSchema>
 type MacroList = z.infer<typeof macrosListSchema>
 type VariablesDefinition = z.infer<typeof macroVariablesDescriptionSchema>
+
 interface Thread {
   name: string,
   commands: UnknownCommand[]
 }
+
 type UnknownCommand = RemoteCommand
   | MacroLocalCommand
   | ExpressionLocalCommand
   | TransactionLocalCommand
   | ThreadsLocalCommand
+  | ShuffleLocalCommand
+  | PrintLocalCommand
   | LoopLocalCommand
   | IfLocalCommand
   | ReloadConfigLocalCommand;
@@ -242,6 +291,9 @@ export {
   macroDefinitionSchema,
   threadLocalArraySchema,
   macrosListSchema,
+  printLocalCommandSchema,
+  shuffleLocalCommandSchema,
+  ShufflePolicy,
   reloadConfigLocalCommandSchema,
 };
 
@@ -249,6 +301,8 @@ export type {
   IfLocalCommand,
   LoopLocalCommand,
   Thread,
+  PrintLocalCommand,
+  ShuffleLocalCommand,
   ThreadsLocalCommand,
   MacroLocalCommand,
   TransactionLocalCommand,

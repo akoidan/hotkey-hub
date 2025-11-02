@@ -21,7 +21,7 @@ export class LoopLocalHandler extends BaseLocalHandler {
     for (let i = 0; comb.loop < 0 || i < comb.loop; i++) {
       this.logger.debug(`Running ${clc.yellow(i+1)} iteration`);
       const that = this;
-      yield *this.sempahoreService.spawnGeneratorChild(String(i),  async function* loopGenerator(): AsyncGenerator<void> {
+      yield *this.sempahoreService.spawnGeneratorChild(`l=${String(i)}`,  async function* loopGenerator(): AsyncGenerator<void> {
         for (const command of comb.commands!) {
           yield *that.startChain.handle(command, undefined, undefined, undefined);
         }

@@ -32,7 +32,7 @@ import {
   threadLocalArraySchema,
   threadsLocalCommandSchema,
   transactionLocalCommandSchema,
-  unknownCommandSchema,
+  unknownCommandSchema, shuffleLocalCommandSchema,
 } from '@/config/types/local-commands';
 
 const ipsSchema = z.record(z.string().ip())
@@ -127,4 +127,5 @@ export {
   macroDefinitionSchema,
   macrosListSchema,
   reloadConfigLocalCommandSchema,
+  shuffleLocalCommandSchema,
 };
