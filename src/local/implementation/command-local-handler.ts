@@ -38,7 +38,7 @@ export class CommandLocalHandler extends BaseLocalHandler {
       await this.delayService.awaitDelay(combDelayAfter, input.delayAfter as number | undefined, 'after', 'command');
     } else {
       const newTransactionId = this.semaphoreService.getNewTransactionId();
-      await this.semaphoreService.spawnPromiseChild(`${currRec.destination as string}-${newTransactionId}`, async() => {
+      await this.semaphoreService.spawnPromiseChild(`${currRec.destination as string}=${newTransactionId}`, async() => {
         try {
           await this.semaphoreService.startTransaction(currRec.destination as string, newTransactionId);
           await this.delayService.awaitDelay(combDelayBefore, input.delayBefore as number | undefined, 'before', 'command');
