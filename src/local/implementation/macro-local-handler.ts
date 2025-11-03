@@ -34,7 +34,7 @@ export class MacroLocalHandler extends BaseLocalHandler {
     }
     const that = this;
     yield* that.semaphoreService.spawnGeneratorChild(
-      input.macro,
+      `m=${input.macro}`,
       async function* macroGenerator(): AsyncGenerator<void> {
         if (typeof input.delayBefore === 'number') { // ignore if it's a variable or undefined
           // if it's a macro, delay in this macro won't be passed down
@@ -51,7 +51,7 @@ export class MacroLocalHandler extends BaseLocalHandler {
             const delayA = ((preparedCommand as Delay).delayAfter as number | undefined) ?? combDelayAfter;
             const delayB = ((preparedCommand as Delay).delayBefore as number | undefined) ?? combDelayBefore;
             yield* that.startChain.handle(preparedCommand, delayA, delayB, tId);
-          });
+          }, '=');
         }
         // commands in this macro has been already ran in the loop
         // await delay before the next command after this macro runs

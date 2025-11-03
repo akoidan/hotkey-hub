@@ -94,7 +94,7 @@ export class ShortcutProcessingService {
     const that = this;
     let breakLoop = false;
     for (let i =0 ; i< comb.commands.length; i++) {
-      const generator = this.semaphoreService.spawnGeneratorChild(String(i),  async function* loopGenerator(): AsyncGenerator<void> {
+      const generator = this.semaphoreService.spawnGeneratorChild(`c=${String(i)}`,  async function* loopGenerator(): AsyncGenerator<void> {
         yield *that.unknownCommandProcessor.handle(comb.commands[i], comb.delayAfter, comb.delayBefore, undefined);
       });
       let done = false;

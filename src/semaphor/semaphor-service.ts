@@ -23,9 +23,9 @@ export class SemaphorService {
 
   public async runOperation(shortCut: string, cb: () => Promise<void>): Promise<void> {
     const parts = shortCut.split('+');
-    const randomValue = `${parts[parts.length - 1]}-${this.getNewTransactionId()}`;
+    const randomValue = `${parts[parts.length - 1]}=${this.getNewTransactionId()}`;
     this.transactionGroups[randomValue] = [];
-    await this.asyncLocalStorage.run(new Map(), async () => {
+    await this.asyncLocalStorage.run(new Map(), async() => {
       this.asyncLocalStorage.getStore()!.set(SemaphorService.COMB_KEY, randomValue);
       this.asyncLocalStorage.getStore()!.set(SemaphorService.COMB_KEYSTROKE, shortCut);
       await cb();

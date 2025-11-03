@@ -31,7 +31,7 @@ export class TransactionLocalHandler extends BaseLocalHandler {
     const preparedInput = this.variableService.replaceEnvVars(input);
     const tId = transactionId ?? this.semaphoreService.getNewTransactionId();
     const that = this;
-    yield* this.semaphoreService.spawnGeneratorChild(`${preparedInput.transaction}-${tId}`, async function* generatorProcess() {
+    yield* this.semaphoreService.spawnGeneratorChild(`${preparedInput.transaction}=${tId}`, async function* generatorProcess() {
       try {
         await that.semaphoreService.startTransaction(preparedInput.transaction, tId);
         if (typeof (preparedInput as Delay).delayBefore === 'number') { // ignore if it's a variable or undefined
@@ -43,7 +43,7 @@ export class TransactionLocalHandler extends BaseLocalHandler {
           const delayA = ((preparedInput as Delay).delayAfter as number | undefined) ?? combDelayAfter;
           const delayB = ((preparedInput as Delay).delayBefore as number | undefined) ?? combDelayBefore;
           const transactionGenerator = that.semaphoreService.spawnGeneratorChild(
-            String(i),
+            `c=${String(i)}`,
             async function* loopGenerator(): AsyncGenerator<void> { // we shouldn't unpack generator here, so transaction can be finished not paused in the middle to avoid deadlock
               yield* that.startChain.handle(preparedInput.commands[i], delayA, delayB, tId);
             }
