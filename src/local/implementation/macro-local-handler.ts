@@ -42,7 +42,7 @@ export class MacroLocalHandler extends BaseLocalHandler {
           await that.delayService.awaitDelay(input.delayBefore as number, undefined, 'before', 'macro');
         }
         for (let i = 0; i < executable.commands.length; i++) {
-          yield* that.semaphoreService.spawnGeneratorChild(String(i), async function* loopGenerator(): AsyncGenerator<void> {
+          yield* that.semaphoreService.spawnGeneratorChild(`c=${String(i)}`, async function* loopGenerator(): AsyncGenerator<void> {
             const preparedCommand = that.variableService.replacePlaceholders(
               executable.commands[i],
               input.variables,
@@ -60,6 +60,7 @@ export class MacroLocalHandler extends BaseLocalHandler {
           // but would be await after all commands in this macro as expected, this is why on top we are not passing it
         }
       },
+      '='
     );
   }
 }

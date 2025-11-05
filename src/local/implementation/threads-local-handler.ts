@@ -51,7 +51,7 @@ export class ThreadsLocalHandler extends BaseLocalHandler {
     yield* this.mergeAsyncGenerators(
       (comb.threads.map(async function* threadProcess(receiver: Thread, i: number): AsyncGenerator<void> {
         yield* that.semaphoreService.spawnGeneratorChild(
-          `t=${receiver.name ??String(i)}`,
+          `th=${receiver.name ??String(i)}`,
           async function* threadGenerator(): AsyncGenerator<void> {
             for (let j = 0; j < receiver.commands.length; j++) {
               yield* that.semaphoreService.spawnGeneratorChild(`c=${String(j)}`, async function* loopGenerator(): AsyncGenerator<void> {
