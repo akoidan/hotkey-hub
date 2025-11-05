@@ -51,7 +51,7 @@ export class MacroLocalHandler extends BaseLocalHandler {
             const delayA = ((preparedCommand as Delay).delayAfter as number | undefined) ?? combDelayAfter;
             const delayB = ((preparedCommand as Delay).delayBefore as number | undefined) ?? combDelayBefore;
             yield* that.startChain.handle(preparedCommand, delayA, delayB, tId);
-          }, '=');
+          });
         }
         // commands in this macro has been already ran in the loop
         // await delay before the next command after this macro runs
@@ -60,7 +60,6 @@ export class MacroLocalHandler extends BaseLocalHandler {
           // but would be await after all commands in this macro as expected, this is why on top we are not passing it
         }
       },
-      '='
     );
   }
 }

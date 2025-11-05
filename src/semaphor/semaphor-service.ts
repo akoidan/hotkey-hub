@@ -37,9 +37,9 @@ export class SemaphorService {
     return this.asyncLocalStorage.getStore()!.get(SemaphorService.COMB_KEY) as string;
   }
 
-  public async spawnPromiseChild(i: string, cb: () => Promise<void>): Promise<void> {
+  public async spawnPromiseChild(i: string, cb: () => Promise<void>, separator: string = '-'): Promise<void> {
     const parentId = this.getCurrentOperationId();
-    const newId = `${parentId}-${i}`;
+    const newId = `${parentId}${separator}${i}`;
     const newStorageMap: Map<string, any> = new Map<string, any>().set(SemaphorService.COMB_KEY, newId);
     await this.asyncLocalStorage.run(newStorageMap, cb);
     this.logger.debug(`All actions for ${parentId} are completed`);

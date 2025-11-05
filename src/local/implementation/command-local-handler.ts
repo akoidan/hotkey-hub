@@ -47,7 +47,7 @@ export class CommandLocalHandler extends BaseLocalHandler {
         } finally {
           this.semaphoreService.finishTransaction(currRec.destination as string, newTransactionId);
         }
-      });
+      }, '=');
       yield undefined;
     }
   }
