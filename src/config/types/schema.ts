@@ -25,6 +25,7 @@ import {
 } from '@/config/types/remote-commands';
 import {
   expressionLocalCommandSchema,
+  expressionSchema,
   loopLocalCommandSchema,
   macroDefinitionSchema,
   macroLocalCommandSchema,
@@ -129,6 +130,7 @@ export {
   macroVariablesDescriptionSchema,
   macroDefinitionSchema,
   macrosListSchema,
+  expressionSchema,
   reloadConfigLocalCommandSchema,
   shuffleLocalCommandSchema,
 };

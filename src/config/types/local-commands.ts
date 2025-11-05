@@ -5,8 +5,6 @@ import {type VariableValue, variableValueSchema} from '@/config/types/variables'
 import {delayCommandsSchema, type RemoteCommand, remoteCommandSchema} from '@/config/types/remote-commands';
 
 
-const expressionDescription = 'JS like expression that evaluates to some values. E.g. x*2.';
-
 const macroLocalCommandSchema = z.object({
   macro: z.string().describe('Name of the macro to execute, which must match a key defined in the macros section. ' +
     'Macros help reduce configuration repetition by reusing command sequences.'),
@@ -35,7 +33,7 @@ const macroLocalCommandSchema = z.object({
         ctx.addIssue({
           code: ZodIssueCode.custom,
           path: ['variables'],
-          message: `Passed variable ${key}=${String(value)} doesn't have a description on macro`,
+          message: `Passed variable ${JSON.stringify(key)}=${JSON.stringify(value)} doesn't have a description on macro`,
         });
       }
     }
@@ -103,38 +101,29 @@ const reloadConfigLocalCommandSchema = z.union([
   requireField('reloadVariables'),
 ]).describe('Reloads config or loads config from a new place');
 
+const expressionSchema = z.string().superRefine((expr, ctx) => {
+  try {
+    // eslint-disable-next-line
+    new Function(`return (${expr});`);
+  } catch (e) {
+    ctx.addIssue({
+      code: ZodIssueCode.custom,
+      path: [],
+      message: `"${expr}" is not a valid expression, because of ${e?.message ?? e}`,
+    });
+  }
+}).describe('JS like expression that evaluates to some values. E.g. x*2.');
+
 const expressionLocalCommandSchema = z.object({
   assignVariable: z.string().describe('Name of the variable to store the expression result. ' +
     'This variable can be referenced in subsequent commands using {{variableName}} syntax.'),
-  expression: z.string().superRefine((expr, ctx) => {
-    try {
-      // eslint-disable-next-line
-      new Function(`return (${expr});`);
-    } catch (e) {
-      ctx.addIssue({
-        code: ZodIssueCode.custom,
-        path: [],
-        message: `"${expr}" is not a valid expression, because of ${e?.message ?? e}`,
-      });
-    }
-  }).describe(expressionDescription),
+  expression: expressionSchema,
 }).strict()
-  .describe('Allows to create/assign a variable by expression. In this case you need to set "destination" property to a string "null"');
+  .describe('Allows to create/assign a variable by expression.');
 
 
 const ifLocalCommandSchema = z.lazy(() => z.object({
-  if: z.string().nonempty().superRefine((expr, ctx) => {
-    try {
-      // eslint-disable-next-line
-      new Function(`return (${expr});`);
-    } catch (e) {
-      ctx.addIssue({
-        code: ZodIssueCode.custom,
-        path: [],
-        message: `"${expr}" is not a valid expression, because of ${e?.message ?? e}`,
-      });
-    }
-  }).describe(expressionDescription),
+  if: expressionSchema,
   then: z.array(unknownCommandSchema)
     .describe('Commands to execute if the condition is true'),
   else: z.array(unknownCommandSchema)
@@ -172,22 +161,23 @@ const transactionLocalCommandSchema = z.lazy(() => z.object({
 
 const threadLocalArraySchema = z.object({
   name: z.string().max(10).nonempty().describe('name of the thread, required for req-id log, '),
-  commands: z.array(unknownCommandSchema),
+  commands: z.array(unknownCommandSchema).describe('list of commands in this thread'),
 }).describe('List of commands to execute in a single thread.' +
   ' Commands run sequentially in their thread, while threads run in parallel.') as any as ZodType<Thread>;  // z.lazy requires manual type definition cause of reqursive type
 
 const loopLocalCommandSchema = z.lazy(() => z.object({
   commands: z.array(unknownCommandSchema).describe('Sequence of commands to repeat in the loop. ' +
     'Each iteration will execute all commands in order.'),
-  loop: z.number()
+  loop: z.union([z.number(), expressionSchema])
     .describe('Number of times to repeat the commands sequence. ' +
       'Positive number: Executes that many iterations. ' +
       'Negative number: Runs indefinitely until manually stopped. ' +
-      'If the parent command is pausable, pressing the shortcut again will exit the loop.'),
+      'If the parent command is pausable, pressing the shortcut again will exit the loop.' +
+      'If string is passed evaluated that string as expresssion and repeat the loop while it\'s true'),
   // z.lazy requires manual type definition cause of reqursive type
 }).strict()).describe(
   'Allow to run same commands multiple time or in iteration or loop'
-) as any as ZodType<{ commands: UnknownCommand[], loop: number }>;
+) as any as ZodType<{ commands: UnknownCommand[], loop: number|string }>;
 
 enum ShufflePolicy {
   random = 'random',
@@ -211,18 +201,7 @@ const shuffleLocalCommandSchema = z.lazy(() => z.object({
 
 
 const printLocalCommandSchema = z.object({
-  print: z.string().superRefine((expr, ctx) => {
-    try {
-      // eslint-disable-next-line
-      new Function(`return (${expr});`);
-    } catch (e) {
-      ctx.addIssue({
-        code: ZodIssueCode.custom,
-        path: [],
-        message: `"${expr}" is not a valid expression, because of ${e?.message ?? e}`,
-      });
-    }
-  }).describe(expressionDescription),
+  print: expressionSchema,
   // z.lazy requires manual type definition cause of reqursive type
 })
   .strict()
@@ -289,6 +268,7 @@ export {
   threadsLocalCommandSchema,
   macroLocalCommandSchema,
   unknownCommandSchema,
+  expressionSchema,
   expressionLocalCommandSchema,
   transactionLocalCommandSchema,
   macroVariablesDescriptionSchema,

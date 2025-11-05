@@ -55,7 +55,7 @@ export class ConfigService implements ConfigProvider {
 
     const zodIssue = issue as ZodIssue;
     const zodInvalidTypeIssue = issue as ZodInvalidTypeIssue;
-    if (zodIssue) {
+    if (zodIssue.path) {
       currentPath = [...zodIssue.path];
     }
 

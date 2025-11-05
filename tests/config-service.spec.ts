@@ -5,6 +5,7 @@ import {ConfigService} from '../src/config/config-service';
 import {ConfigReaderService} from '../src/config/config-reader-service';
 import path from 'path';
 import {ConfigPathClass, ENV} from '../src/config/types/config-path';
+import {EvaluateService} from '../src/local/evaluate-serivce';
 
 const globalEnv = {};
 
@@ -43,12 +44,8 @@ describe('Config service', () => {
   it('Should throw error on invalid conf', async () => {
     const testModule = await getTestModule('invalid-config-fixture-3.jsonc');
     const tyrs = testModule.get<ConfigService>(ConfigService);
-    await expect(tyrs.parseConfig()).rejects.toHaveProperty('errors',
-      expect.arrayContaining([
-        expect.objectContaining({
-          message: 'Passed variable focusWid1={{widwc}} doesn\'t have a description on macro',
-        }),
-      ])
+    await expect(tyrs.parseConfig()).rejects.toThrow(
+      /Passed variable "focusWid1"[\s\S]*doesn't have a description/
     );
   })
 });
