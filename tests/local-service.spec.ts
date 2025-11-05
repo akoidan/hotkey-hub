@@ -10,17 +10,19 @@ import {VariableResolutionService} from '../src/local/variable-resolution.servic
 import {CommandLocalHandler} from '../src/local/implementation/command-local-handler';
 import path from 'path';
 import {AsyncStorageModule} from '../src/asyncstore/async-storage.module';
-import {RandomModule} from "../src/random/random.module";
-import {SemaphorModule} from "../src/semaphor/semaphor.module";
-import {DelayService} from "../src/local/delay.service";
-import {processingProviders} from "../src/local/local.module";
-import {RgbService} from "../src/rgb/rgb-service";
-import {RgbServiceI} from "../src/rgb/rgb-model";
+import {RandomModule} from '../src/random/random.module';
+import {SemaphorModule} from '../src/semaphor/semaphor.module';
+import {DelayService} from '../src/local/delay.service';
+import {processingProviders} from '../src/local/local.module';
+import {RgbService} from '../src/rgb/rgb-service';
+import {RgbServiceI} from '../src/rgb/rgb-model';
 import {ConfigPathClass, ENV} from '../src/config/types/config-path';
 import process from 'node:process';
 import {ReloadLocalHandler} from '../src/local/implementation/reload-local-handler';
+import {EvaluateService} from '../src/local/evaluate-serivce';
 
 const globalEnv = {};
+
 async function getTestModule(configFilePath: string): Promise<TestingModule> {
   const rgbStub: RgbServiceI = new class {
     public async updateColors(comb: string, hl: boolean): Promise<void> {
@@ -35,6 +37,7 @@ async function getTestModule(configFilePath: string): Promise<TestingModule> {
       ...remoteHandlerProviders,
       ...processingProviders,
       ShortcutProcessingService,
+      EvaluateService,
       DelayService,
       {
         provide: RgbService,
@@ -184,7 +187,7 @@ describe('Logic service', () => {
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const tyrs = testModule.get<ConfigService>(ConfigService);
     const clientService = testModule.get<ClientService>(ClientService);
-    clientService.getProcessWindows = jest.fn().mockImplementation(() => ({ wids: ['123', '456'] }));
+    clientService.getProcessWindows = jest.fn().mockImplementation(() => ({wids: ['123', '456']}));
     const spyGetWindows = jest.spyOn(clientService, 'getProcessWindows');
     await tyrs.parseConfig();
 
@@ -208,7 +211,7 @@ describe('Logic service', () => {
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const tyrs = testModule.get<ConfigService>(ConfigService);
     const clientService = testModule.get<ClientService>(ClientService);
-    clientService.getProcessWindows = jest.fn().mockImplementation(() => ({ wids: ['123', '456'] }));
+    clientService.getProcessWindows = jest.fn().mockImplementation(() => ({wids: ['123', '456']}));
     const spyGetWindows = jest.spyOn(clientService, 'getProcessWindows');
     await tyrs.parseConfig();
 
@@ -249,7 +252,7 @@ describe('Logic service', () => {
       shortCut: 'Alt+F',
     });
 
-    expect(spyFocusExe).toHaveBeenCalledWith('this', { pid: 789 });
+    expect(spyFocusExe).toHaveBeenCalledWith('this', {pid: 789});
   });
 
   it('should execute focus window remote command', async () => {
@@ -272,7 +275,7 @@ describe('Logic service', () => {
       shortCut: 'Alt+F',
     });
 
-    expect(spyFocusWindow).toHaveBeenCalledWith('this', { wid: 789 });
+    expect(spyFocusWindow).toHaveBeenCalledWith('this', {wid: 789});
   });
 
   it('should execute type text remote command', async () => {
@@ -314,16 +317,16 @@ describe('Logic service', () => {
           loop: 3,
           commands: [
             {
-              keyPress: "a",
-              destination: "that"
+              keyPress: 'a',
+              destination: 'that'
             }
           ]
         },
       ],
       delayAfter: 0,
       delayBefore: 200,
-      name: "Tyrs attack each other",
-      shortCut: "Alt+2"
+      name: 'Tyrs attack each other',
+      shortCut: 'Alt+2'
     })
     expect(spykeyPress).toHaveBeenCalledWith('that', {holdKeys: [], keys: ['a']});
     expect(spykeyPress).toHaveBeenCalledTimes(3);
@@ -344,26 +347,32 @@ describe('Logic service', () => {
       commands: [
         {
           threads: [
-            [
-              {
-                mouseMoveX: 537,
-                mouseMoveY: 123,
-                destination: "that"
-              }
-            ],
-            [
-              {
-                leftMouseClick: true,
-                destination: "that"
-              }
-            ]
+            {
+              name: 't1',
+              commands: [
+                {
+                  mouseMoveX: 537,
+                  mouseMoveY: 123,
+                  destination: 'that'
+                }
+              ]
+            },
+            {
+              name: 't2',
+              commands: [
+                {
+                  leftMouseClick: true,
+                  destination: 'that'
+                }
+              ]
+            }
           ]
         }
       ],
       delayAfter: 0,
       delayBefore: 200,
-      name: "Tyrs attack each other",
-      shortCut: "Alt+2"
+      name: 'Tyrs attack each other',
+      shortCut: 'Alt+2'
     })
     expect(skyMouseMoveClick).toHaveBeenCalledWith('that', {x: 537, y: 123, pixelsPerIteration: 20});
     expect(skyMouseClick).toHaveBeenCalledWith('that');
@@ -462,7 +471,9 @@ describe('Logic service', () => {
       commands: [
         {
           destination: 'this',
-          typeText: '{{login}}'
+          typeText: {
+            $ref: 'login'
+          }
         },
       ],
       name: 'variable-test',

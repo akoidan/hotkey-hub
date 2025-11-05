@@ -3,7 +3,7 @@ import {z} from 'zod';
 
 
 import {variablesSchema, variableValueSchema} from '@/config/types/variables';
-import {shortcutSchema, shortcutsSchema} from '@/config/types/shortcut';
+import {behaviourObjectSchema, behaviourSchema, shortcutSchema, shortcutsSchema} from '@/config/types/shortcut';
 import {globalDelaySchema} from '@/config/types/delays';
 import {
   findPidsByNameRemoteCommandSchema,
@@ -19,16 +19,20 @@ import {
   leftMouseClickRemoteCommandSchema,
   mouseMoveClickRemoteCommandSchema,
   remoteCommandSchema,
+  setWindowBoundsRemoteSchema,
   typeTextRemoteCommandSchema,
+  windowPropertiesSchema,
 } from '@/config/types/remote-commands';
 import {
   expressionLocalCommandSchema,
+  expressionSchema,
   loopLocalCommandSchema,
   macroDefinitionSchema,
   macroLocalCommandSchema,
-  reloadConfigLocalCommandSchema,
   macrosListSchema,
   macroVariablesDescriptionSchema,
+  reloadConfigLocalCommandSchema,
+  shuffleLocalCommandSchema,
   threadLocalArraySchema,
   threadsLocalCommandSchema,
   transactionLocalCommandSchema,
@@ -41,7 +45,8 @@ const ipsSchema = z.record(z.string().ip())
 
 const rgbSchema = z.object({
   deviceName: z.string().describe('Device name of the keyboard. ' +
-    'You can extract it with "openrgb --list-devices" command. Select the name after number'),
+    'You can extract it with "openrgb --list-devices" command. Select the name after number.' +
+    ' Also you can check in openrgb UI in Devices Tab.'),
   clientName: z.string().default('RPC').describe('Name of this client when connecting to openrg').optional(),
   serverPort: z.number().default(6742).describe('Port of the openrgb server').optional(),
   serverAddr: z.string().default('localhost').describe('Address of the openrgb server').optional(),
@@ -52,7 +57,10 @@ const rgbSchema = z.object({
     .optional(),
 }).strict().optional()
   .describe('RGB keyboard lighting for shortcut feedback. Changes key colors during execution.' +
-    ' Needs OpenRGB server and compatible keyboard. See https://openrgb.org/.');
+    ' You need to run openrgb server for it, which you can download from https://openrgb.org.' +
+    ' Run the application, go to the SDK server tab and click on Start server.' +
+    ' Needs OpenRGB server and compatible keyboard, the supported keyboards are here: https://openrgb.org/devices.html.' +
+    ' For Linux just install openrgb via your package manager and run the openrgb from root with you default service manager like systemd');
 
 const aARootSchema = z.object({
   ips: ipsSchema,
@@ -62,6 +70,7 @@ const aARootSchema = z.object({
     .describe('HTTPS port for secure client PC connections. ' +
       'Must be accessible and not blocked by firewalls. Default is 5000 if not specified.'),
   rgb: rgbSchema,
+  name: z.string().optional().describe('Name of this schema to print in logs'),
   combinations: shortcutsSchema,
   delays: globalDelaySchema,
   macros: macrosListSchema,
@@ -89,8 +98,11 @@ export {
   aARootSchema,
   globalDelaySchema,
   ipsSchema,
-  shortcutSchema,
+  behaviourSchema,
   variableValueSchema,
+  behaviourObjectSchema,
+  windowPropertiesSchema,
+  shortcutSchema,
   shortcutsSchema,
   loopLocalCommandSchema,
   variablesSchema,
@@ -111,11 +123,14 @@ export {
   threadsLocalCommandSchema,
   macroLocalCommandSchema,
   unknownCommandSchema,
+  setWindowBoundsRemoteSchema,
   expressionLocalCommandSchema,
   threadLocalArraySchema,
   transactionLocalCommandSchema,
   macroVariablesDescriptionSchema,
   macroDefinitionSchema,
   macrosListSchema,
+  expressionSchema,
   reloadConfigLocalCommandSchema,
+  shuffleLocalCommandSchema,
 };

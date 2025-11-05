@@ -8,15 +8,25 @@
     "keyPress": {
       "commands": [
         {
-          "transaction": "{{destination}}",
+          "transaction": {
+            "$ref": "destination"
+          },
           "commands": [
             {
-              "destination": "{{destination}}",
-              "focusWid": "{{focusWid}}"
+              "destination": {
+                "$ref": "destination"
+              },
+              "focusWid": {
+                "$ref": "focusWid"
+              }
             },
             {
-              "destination": "{{destination}}",
-              "keyPress": "{{keyPress}}",
+              "destination": {
+                "$ref": "destination"
+              },
+              "keyPress": {
+                "$ref": "keyPress"
+              },
               "delayAfter": 50
             }
           ]
@@ -41,8 +51,12 @@
         {
           "macro": "keyPress",
           "variables": {
-            "focusWid1": "{{widwc}}",
-            "destination": "{{pcwc}}",
+            "focusWid1": {
+              "$ref": "widwc"
+            },
+            "destination": {
+              "$ref": "pcwc"
+            },
             "keyPress": "f4"
           }
         }

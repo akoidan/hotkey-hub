@@ -26,12 +26,12 @@ export class KeyPressRemoteHandler extends CommandRemoteHandler {
       holdKeys = [command.holdKeys as Key];
     }
 
-    let duration: number | undefined = command.duration;
+    let duration: number | undefined = command.duration as number| undefined;
     if (command.duration && command.durationDeviation) {
-      duration = this.randomService.calcDeviation(command.duration, command.durationDeviation);
+      duration = this.randomService.calcDeviation(command.duration as number, command.durationDeviation as number);
     }
     await this.clientService.keyPress(destination, {
-      keys: (Array.isArray(command.keyPress) ? command.keyPress : [command.keyPress]) as Key[],
+      keys: Array.isArray(command.keyPress) ? command.keyPress as Key[] : [command.keyPress as Key],
       holdKeys,
       duration,
     });

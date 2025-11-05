@@ -1,12 +1,12 @@
 import {Injectable, Logger} from '@nestjs/common';
 import {SemaphorService} from '@/semaphor/semaphor-service';
 import {BaseLocalHandler} from '@/local/base-local-handler';
-import {ThreadLocalArray, ThreadsLocalCommand, UnknownCommand} from '@/config/types/local-commands';
+import {Thread, ThreadsLocalCommand, UnknownCommand} from '@/config/types/local-commands';
 
 @Injectable()
 export class ThreadsLocalHandler extends BaseLocalHandler {
   constructor(
-    private readonly semaphorService: SemaphorService,
+    private readonly semaphoreService: SemaphorService,
     private readonly logger: Logger,
   ) {
     super();
@@ -49,12 +49,17 @@ export class ThreadsLocalHandler extends BaseLocalHandler {
   ): AsyncGenerator<void> {
     const that = this;
     yield* this.mergeAsyncGenerators(
-      (comb.threads.map(async function* threadProcess(receiver: ThreadLocalArray, i: number): AsyncGenerator<void> {
-        yield* that.semaphorService.spawnGeneratorChild(String(i), async function* threadGenerator(): AsyncGenerator<void> {
-          for (const command of receiver) {
-            yield* that.startChain.handle(command, undefined, undefined, transactionId);
+      (comb.threads.map(async function* threadProcess(receiver: Thread, i: number): AsyncGenerator<void> {
+        yield* that.semaphoreService.spawnGeneratorChild(
+          `th=${receiver.name ??String(i)}`,
+          async function* threadGenerator(): AsyncGenerator<void> {
+            for (let j = 0; j < receiver.commands.length; j++) {
+              yield* that.semaphoreService.spawnGeneratorChild(`c=${String(j)}`, async function* loopGenerator(): AsyncGenerator<void> {
+                yield* that.startChain.handle(receiver.commands[j], undefined, undefined, transactionId);
+              });
+            }
           }
-        });
+        );
       }))
     );
   }

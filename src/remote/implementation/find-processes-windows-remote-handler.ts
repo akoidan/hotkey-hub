@@ -18,7 +18,7 @@ export class FindProcessesWindowsRemoteHandler extends CommandRemoteHandler {
   }
 
   async execute(destination: string, command: FindProcessesWindowsRemoteCommand): Promise<void> {
-    if (command.assignIds && command.findProcessesWindows.length !== command.assignIds.length) {
+    if (command.assignIds && (command.findProcessesWindows as number[]).length !== (command.assignIds as string[]).length) {
       throw new Error(`Unable to execute findProcessesWindows, on ${destination}` +
         ` since  ${JSON.stringify(command.findProcessesWindows)} cannot be assigned to a` +
         `different number of variables: ${JSON.stringify(command.assignIds)}`);
@@ -26,8 +26,8 @@ export class FindProcessesWindowsRemoteHandler extends CommandRemoteHandler {
     const responses = await Promise.all((command.findProcessesWindows as number[])
       .map(async(id) => this.clientService.getProcessWindows(destination, id)));
     if (command.assignIds) {
-      for (let i = 0; i < command.findProcessesWindows.length; i++) {
-        await this.configService.setVariable(command.assignIds[i], responses[i].wids);
+      for (let i = 0; i < (command.findProcessesWindows as number[]).length; i++) {
+        await this.configService.setVariable((command.assignIds as string[])[i], responses[i].wids);
       }
     }
   }

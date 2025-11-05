@@ -19,6 +19,10 @@ import {RgbModule} from '@/rgb/rgb.module';
 import {KeybindingService} from '@/local/keybinding-service';
 import {ReloadLocalHandler} from '@/local/implementation/reload-local-handler';
 import {NativeModule} from '@/native/native-module';
+import {EvaluateService} from '@/local/evaluate-serivce';
+import {IfLocalHandler} from '@/local/implementation/if-local-handler';
+import {ShuffleLocalHandler} from '@/local/implementation/shuffle-local-handler';
+import {PrintLocalHandler} from '@/local/implementation/print-local-handler';
 
 
 const processingProviders: Provider[] = [
@@ -29,6 +33,9 @@ const processingProviders: Provider[] = [
   ThreadsLocalHandler,
   LoopLocalHandler,
   ReloadLocalHandler,
+  IfLocalHandler,
+  PrintLocalHandler,
+  ShuffleLocalHandler,
   {
     provide: BaseLocalHandler,
     inject: [
@@ -38,6 +45,9 @@ const processingProviders: Provider[] = [
       ThreadsLocalHandler,
       LoopLocalHandler,
       ReloadLocalHandler,
+      IfLocalHandler,
+      ShuffleLocalHandler,
+      PrintLocalHandler,
       CommandLocalHandler,
     ],
     useFactory: (
@@ -47,6 +57,9 @@ const processingProviders: Provider[] = [
       thread: BaseLocalHandler,
       loopLocalHandler: BaseLocalHandler,
       reloadLocalHandler: ReloadLocalHandler,
+      ifLocalHandler: IfLocalHandler,
+      shuffleLocalHandler: ShuffleLocalHandler,
+      printLocalHandler: PrintLocalHandler,
       command: BaseLocalHandler,
     ): BaseLocalHandler => {
       macro.setNext(transaction, macro)
@@ -54,6 +67,9 @@ const processingProviders: Provider[] = [
         .setNext(thread, macro)
         .setNext(loopLocalHandler, macro)
         .setNext(reloadLocalHandler, macro)
+        .setNext(ifLocalHandler, macro)
+        .setNext(shuffleLocalHandler, macro)
+        .setNext(printLocalHandler, macro)
         .setNext(command, macro)
         .setNext(null!, macro);
       return macro;
@@ -69,6 +85,7 @@ const processingProviders: Provider[] = [
     KeybindingService,
     ShortcutProcessingService,
     VariableResolutionService,
+    EvaluateService,
     CommandLocalHandler,
     ...processingProviders,
   ],

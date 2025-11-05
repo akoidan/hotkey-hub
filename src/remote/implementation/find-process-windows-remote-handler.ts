@@ -21,7 +21,7 @@ export class FindProcessWindowsRemoteHandler extends CommandRemoteHandler {
     const response = await this.clientService.getProcessWindows(destination, command.findProcessWindows as number);
 
     if (command.assignIds) {
-      await this.configService.setVariable(command.assignIds, response.wids);
+      await this.configService.setVariable(command.assignIds as string, response.wids);
     }
   }
 }

@@ -1,16 +1,10 @@
-import {
-  aARootSchema,
-  ConfigData,
-  ConfigDataWoMacro,
-  IpsData,
-  macrosListSchema,
-  RgbData,
-  variablesSchema,
-} from '@/config/types/schema';
+import {aARootSchema, ConfigData, ConfigDataWoMacro, IpsData, macrosListSchema, RgbData} from '@/config/types/schema';
 import {parse} from 'jsonc-parser';
 import {Inject, Injectable, Logger} from '@nestjs/common';
+/* eslint-disable max-lines*/
+import {ZodError, ZodSchema} from 'zod';
 import {schemaRootCache} from '@/config/types/cache';
-import {Variables} from '@/config/types/variables';
+import {Variables, variablesSchema} from '@/config/types/variables';
 import {Shortcut} from '@/config/types/shortcut';
 import {ConfigProvider} from '@/config/interfaces';
 import {ConfigReaderService} from '@/config/config-reader-service';
@@ -18,7 +12,8 @@ import clc from 'cli-color';
 import {DelayData} from '@/config/types/delays';
 import {ConfigCombination} from '@/config/config-model';
 import {MacroList} from '@/config/types/local-commands';
-import {ENV} from '@/config/types/config-path';
+import {ENV, ZodErrorCollected} from '@/config/types/config-path';
+import {ZodInvalidTypeIssue, ZodInvalidUnionIssue, ZodIssue} from 'zod/lib/ZodError';
 
 @Injectable()
 export class ConfigService implements ConfigProvider {
@@ -40,12 +35,86 @@ export class ConfigService implements ConfigProvider {
     this.logger.debug(`Created new instance of config service ${configReader.getId()}`);
   }
 
+
+  private collectAllErrors(
+    issue: ZodError | ZodInvalidUnionIssue | ZodIssue,
+    errors: ZodErrorCollected[],
+    currentPath: (string | number)[] = []
+  ): void {
+    const zodissues = (issue as ZodError).issues;
+    const zodUnionErrors = (issue as ZodInvalidUnionIssue).unionErrors;
+    if (Array.isArray(zodissues)) {
+      for (const subIssue of zodissues) {
+        this.collectAllErrors(subIssue, errors, currentPath);
+      }
+    } else if (zodUnionErrors) {
+      for (const unionError of zodUnionErrors) {
+        this.collectAllErrors(unionError, errors, currentPath);
+      }
+    }
+
+    const zodIssue = issue as ZodIssue;
+    const zodInvalidTypeIssue = issue as ZodInvalidTypeIssue;
+    if (zodIssue.path) {
+      currentPath = [...zodIssue.path];
+    }
+
+    if (zodIssue.message && zodIssue.path?.length > 0 && zodIssue.message !== 'Invalid input') {
+      errors.push({
+        path: zodIssue.path.join('.'),
+        message: zodIssue.message,
+        ...(zodInvalidTypeIssue.expected && {expected: zodInvalidTypeIssue.expected}),
+        ...(zodInvalidTypeIssue.received && {received: zodInvalidTypeIssue.received}),
+      });
+    }
+  }
+
+  private formatZodError(error: ZodError): string {
+    const errors: ZodErrorCollected[] = [];
+    this.collectAllErrors(error, errors);
+
+    if (errors.length > 0) {
+      // Format the first error in detail
+      const [firstError] = errors;
+      let errorMessage = `${firstError.message} at ${firstError.path}`;
+
+      if (firstError.expected && firstError.received) {
+        errorMessage += ` (expected ${firstError.expected}, received ${firstError.received})`;
+      }
+
+      // If there are more errors, mention them briefly
+      if (errors.length > 1) {
+        const otherErrors = errors.slice(1, 4); // Show up to 3 more errors
+        const more = errors.length - 1 > otherErrors.length ? ` and ${errors.length - 1 - otherErrors.length} more` : '';
+        const moreString = more ? `\n... ${more} errors not shown` : '';
+        const otherErrorMessages = otherErrors.map(e => `- ${e.path}: ${e.message}`).join('\n');
+        errorMessage += `\nOther issues:\n${otherErrorMessages}${moreString}`;
+      }
+
+      return errorMessage;
+    }
+
+    // If we couldn't find specific errors, show a more helpful message
+    return 'Validation failed. Please check your configuration. ' +
+      'This might be due to a required field missing or an invalid value type.';
+  }
+
+  private async validateWithErrorHandling<T>(schema: ZodSchema, data: any, context: string): Promise<T> {
+    try {
+      return await schema.parseAsync(data) as T;
+    } catch (error) {
+      if (error instanceof ZodError) {
+        throw new Error(`[${context}] ${this.formatZodError(error)}`);
+      }
+      throw error;
+    }
+  }
+
   public async validateVariableConf(): Promise<Record<string, any>> {
     this.logger.debug('Validating variables config');
     const variablesConfigString = await this.configReader.loadVariablesConfigString();
     const variables = variablesConfigString ? parse(variablesConfigString) as Variables : {};
-    await variablesSchema.parseAsync(variables);
-    return variables;
+    return this.validateWithErrorHandling(variablesSchema, variables, 'Variables Config');
   }
 
   public async validateMacroConf(): Promise<NonNullable<MacroList>> {
@@ -53,7 +122,7 @@ export class ConfigService implements ConfigProvider {
     const macroConfigString = await this.configReader.loadMacroConfigString();
     const separateMacros: NonNullable<MacroList> = macroConfigString ? parse(macroConfigString) as NonNullable<MacroList> : {};
     schemaRootCache.macros = separateMacros;
-    await macrosListSchema.parseAsync(separateMacros);
+    await this.validateWithErrorHandling(macrosListSchema, separateMacros, 'Macro Config');
     schemaRootCache.macros = null!;
     return separateMacros;
   }
@@ -73,8 +142,7 @@ export class ConfigService implements ConfigProvider {
       schemaRootCache.macros = separateMacros;
     }
     schemaRootCache.data = configValueWoMacro;
-
-    await aARootSchema.parseAsync(confValueWithMacro);
+    await this.validateWithErrorHandling(aARootSchema, confValueWithMacro, 'main confg');
     const configData = schemaRootCache.data;
     const macros = schemaRootCache.macros ?? {};
     schemaRootCache.data = null!;
@@ -112,6 +180,9 @@ export class ConfigService implements ConfigProvider {
     this.configData = configData;
     this.variables = variables;
     await this.setVariable('delays', configData.delays);
+    if (this.configData.name) {
+      this.logger.log(`Loaded config ${this.configData.name}`);
+    }
   }
 
   public getIps(): IpsData {

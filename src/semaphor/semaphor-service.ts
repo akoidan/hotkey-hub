@@ -23,7 +23,7 @@ export class SemaphorService {
 
   public async runOperation(shortCut: string, cb: () => Promise<void>): Promise<void> {
     const parts = shortCut.split('+');
-    const randomValue = `${parts[parts.length - 1]}-${this.getNewTransactionId()}`;
+    const randomValue = `${parts[parts.length - 1]}=${this.getNewTransactionId()}`;
     this.transactionGroups[randomValue] = [];
     await this.asyncLocalStorage.run(new Map(), async() => {
       this.asyncLocalStorage.getStore()!.set(SemaphorService.COMB_KEY, randomValue);
@@ -37,17 +37,18 @@ export class SemaphorService {
     return this.asyncLocalStorage.getStore()!.get(SemaphorService.COMB_KEY) as string;
   }
 
-  public async spawnPromiseChild(i: string, cb: () => Promise<void>): Promise<void> {
+  public async spawnPromiseChild(i: string, cb: () => Promise<void>, separator: string = '-'): Promise<void> {
     const parentId = this.getCurrentOperationId();
-    const newId = `${parentId}-${i}`;
+    const newId = `${parentId}${separator}${i}`;
     const newStorageMap: Map<string, any> = new Map<string, any>().set(SemaphorService.COMB_KEY, newId);
     await this.asyncLocalStorage.run(newStorageMap, cb);
     this.logger.debug(`All actions for ${parentId} are completed`);
   }
 
-  public async *spawnGeneratorChild(i: string, cb: () => AsyncGenerator<void>): AsyncGenerator<void> {
+  public async* spawnGeneratorChild(i: string, cb: () => AsyncGenerator<void>, separator: string = '-'): AsyncGenerator<void> {
+    this.logger.debug('Spawning new req-id');
     const parentId = this.getCurrentOperationId();
-    const newId = `${parentId}-${i}`;
+    const newId = `${parentId}${separator}${i}`;
     const newStorageMap = new Map<string, any>(this.asyncLocalStorage.getStore());
     newStorageMap.set(SemaphorService.COMB_KEY, newId);
 
@@ -58,7 +59,7 @@ export class SemaphorService {
       // otherwise e.g. with this yield *this.asyncLocalStorage.run(newStorageMap, cb)
       // we will lose context
       result = await this.asyncLocalStorage.run(newStorageMap, async() => {
-        this.logger.debug('Calling gen.next()');
+        this.logger.debug('Calling gen.next() from semaphore');
         return gen.next();
       });
       yield result.value;

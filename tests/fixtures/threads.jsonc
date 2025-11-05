@@ -1,0 +1,106 @@
+{
+  "ips": {
+    "touchpad": "192.168.100.39",
+    "msi": "192.168.100.14",
+    "lenovo": "192.168.100.33",
+    "desktop": "192.168.100.9",
+    "asus": "192.168.100.65",
+    "medion": "192.168.100.62",
+    "this": "127.0.0.1"
+  },
+  "rgb": {
+    "deviceName": "HyperX Alloy Origins Core (HP)"
+  },
+  "delays": {
+    "afterCommand": 460,
+    "standardDeviation": 0.4,
+    "commandDeviation": 0.4,
+    "randomHugeDelay": 700,
+    "randomHugeDelayDeviation": 0.5,
+    "randomHugeDelayChance": 0.2
+  },
+  "name": "Tyr after ban",
+  "combinations": [
+    {
+      "shortCut": "alt+1",
+      "name": "blah",
+      "behaviour": "pausable",
+      "commands": [
+        {
+          "threads": [
+            {
+              "name": "t1",
+              "commands": [
+                {
+                  "print": "'t1b1'"
+                },
+                {
+                  "print": "'t1b2'"
+                },
+                {
+                  "print": "'t1b3'"
+                }
+              ]
+            },
+            {
+              "name": "t2",
+              "commands": [
+                {
+                  "print": "'t2b1'"
+                },
+                {
+                  "print": "'t2b2'"
+                },
+                {
+                  "print": "'t2b3'"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "shortCut": "alt+2",
+      "name": "blah2",
+      "commands": [
+        {
+          "threads": [
+            {
+              "name": "t3",
+              "commands": [
+                {
+                  "transaction": "t1-trans1",
+                  "commands": [
+                    {
+                      "print": "'t1c1'"
+                    },
+                    {
+                      "print": "'t1c2'"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "t4",
+              "commands": [
+                {
+                  "transaction": "t2-trans1",
+                  "commands": [
+                    {
+                      "print": "'t1c3'"
+                    },
+                    {
+                      "print": "'t1c4'"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

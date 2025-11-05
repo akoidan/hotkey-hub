@@ -19,13 +19,13 @@ export class ExecuteRemoteHandler extends CommandRemoteHandler {
 
   async execute(destination: string, command: ExecuteRemoteCommand): Promise<void> {
     const response = await this.clientService.launchExe(destination, {
-      path: command.launch,
-      arguments: command.arguments ?? [],
-      waitTillFinish: command.waitTillFinish ?? false,
+      path: command.launch as string,
+      arguments: command.arguments as string[] ?? [],
+      waitTillFinish: command.waitTillFinish as boolean ?? false,
     });
 
     if (command.assignId) {
-      await this.configService.setVariable(command.assignId, response.pid);
+      await this.configService.setVariable(command.assignId as string, response.pid);
     }
   }
 }

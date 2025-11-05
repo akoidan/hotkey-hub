@@ -22,7 +22,7 @@ export class TransactionLocalHandler extends BaseLocalHandler {
   }
 
 
-  async *execute(
+  async* execute(
     input: TransactionLocalCommand,
     combDelayAfter: number | undefined,
     combDelayBefore: number | undefined,
@@ -31,28 +31,41 @@ export class TransactionLocalHandler extends BaseLocalHandler {
     const preparedInput = this.variableService.replaceEnvVars(input);
     const tId = transactionId ?? this.semaphoreService.getNewTransactionId();
     const that = this;
-    yield *this.semaphoreService.spawnGeneratorChild(`${preparedInput.transaction}-${tId}`, async function* generatorProcess()  {
-      try {
-        await that.semaphoreService.startTransaction(preparedInput.transaction, tId);
-        if (typeof (preparedInput as Delay).delayBefore === 'number') { // ignore if it's a variable or undefined
-          // if it's a macro, delay in this macro won't be passed down
-          // but would be await after any commands in this macro has run yet as expected, this is why on top we are not passing it
-          await that.delayService.awaitDelay((preparedInput as Delay).delayBefore as number, undefined, 'before', `transaction ${tId}`);
+    yield* this.semaphoreService.spawnGeneratorChild(
+      `t=${preparedInput.transaction}=${tId}`,
+      // eslint-disable-next-line require-yield
+      async function* generatorProcess() {
+        try {
+          await that.semaphoreService.startTransaction(preparedInput.transaction, tId);
+          if (typeof (preparedInput as Delay).delayBefore === 'number') { // ignore if it's a variable or undefined
+            // if it's a macro, delay in this macro won't be passed down
+            // but would be await after any commands in this macro has run yet as expected, this is why on top we are not passing it
+            await that.delayService.awaitDelay((preparedInput as Delay).delayBefore as number, undefined, 'before', `transaction ${tId}`);
+          }
+          for (let i = 0; i < preparedInput.commands.length; i++) {
+            const delayA = ((preparedInput as Delay).delayAfter as number | undefined) ?? combDelayAfter;
+            const delayB = ((preparedInput as Delay).delayBefore as number | undefined) ?? combDelayBefore;
+            const transactionGenerator = that.semaphoreService.spawnGeneratorChild(
+              `c=${String(i)}`,
+              async function* loopGenerator(): AsyncGenerator<void> { // we shouldn't unpack generator here, so transaction can be finished not paused in the middle to avoid deadlock
+                yield* that.startChain.handle(preparedInput.commands[i], delayA, delayB, tId);
+              }
+            );
+            for await (const _ of transactionGenerator) {
+              that.logger.debug('Calling next item from transaction');
+            }
+          }
+          // commands in this macro has been already ran in the loop
+          // await delay before the next command after this macro runs
+          if (typeof (preparedInput as Delay).delayAfter === 'number') { // ignore if it's a variable or undefined
+            await that.delayService.awaitDelay((preparedInput as Delay).delayAfter as number, undefined, 'after', `transaction ${tId}`); // if it's a macro, delay in this macro won't be passed down
+            // but would be await after all commands in this macro as expected, this is why on top we are not passing it
+          }
+        } finally {
+          that.semaphoreService.finishTransaction(preparedInput.transaction, tId);
         }
-        for (const command of preparedInput.commands) {
-          const delayA = ((preparedInput as Delay).delayAfter as number | undefined) ?? combDelayAfter;
-          const delayB = ((preparedInput as Delay).delayBefore as number | undefined) ?? combDelayBefore;
-          yield *that.startChain.handle(command, delayA, delayB, tId);
-        }
-        // commands in this macro has been already ran in the loop
-        // await delay before the next command after this macro runs
-        if (typeof (preparedInput as Delay).delayAfter === 'number') { // ignore if it's a variable or undefined
-          await that.delayService.awaitDelay((preparedInput as Delay).delayAfter as number, undefined, 'after', `transaction ${tId}`); // if it's a macro, delay in this macro won't be passed down
-          // but would be await after all commands in this macro as expected, this is why on top we are not passing it
-        }
-      } finally {
-        that.semaphoreService.finishTransaction(preparedInput.transaction, tId);
-      }
-    });
+      },
+      '='
+    );
   }
 }

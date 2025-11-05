@@ -4,7 +4,7 @@ import {
 } from '@nestjs/common';
 import {ConfigService} from '@/config/config-service';
 import {VariablesDefinition} from '@/config/types/local-commands';
-import {variableRegex} from '@/config/types/variables';
+import {variableRegex, VariableValue} from '@/config/types/variables';
 
 @Injectable()
 export class VariableResolutionService {
@@ -22,7 +22,7 @@ export class VariableResolutionService {
       // thread each array element as the whole object
       // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       return command.map(item => this.replacePlaceholders(item, values, definition)) as any;
-    } else if (typeof command === 'object') {
+    } else if (typeof command === 'object' && !(command as VariableValue).$ref) {
       const result: Partial<T> = {};
       for (const [key, value] of Object.entries(command) as [keyof T, T[keyof T]][]) {
         // thread objects as primitive, do not go down
@@ -34,11 +34,12 @@ export class VariableResolutionService {
   }
 
   private extractVariableName(variable: unknown): { varName: string|undefined, varExpress: string|undefined} {
-    if (typeof variable === 'string') {
-      const name = variableRegex.exec(variable);
-      if (name) {
-        return {varName: name.groups!.variable, varExpress: variable.substring(2, variable.length -2)} ;
+    if (typeof variable === 'object' && (variable as VariableValue).$ref) {
+      const name = variableRegex.exec((variable as VariableValue).$ref);
+      if (!name) {
+        throw Error(`Illegal varname ${(variable as VariableValue).$ref}`);
       }
+      return {varName: name.groups!.variable, varExpress: (variable as VariableValue).$ref} ;
     }
     return  {varName: undefined, varExpress: undefined} ;
   }
@@ -49,7 +50,7 @@ export class VariableResolutionService {
       return command;
     }
     if (Object.hasOwn(values, varName)) {
-      this.logger.debug(`Replaced variable ${varName} to ${values[varName] as string} for ${JSON.stringify(command)}`);
+      this.logger.debug(`Replaced variable ${varName} to ${JSON.stringify(values[varName])} for ${JSON.stringify(command)}`);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       return this.evaluateVariable(varName, varExpress!, values[varName]);
     }
@@ -61,7 +62,7 @@ export class VariableResolutionService {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
-  private evaluateVariable<T>(varName: string, variableExpression: string, varValue: unknown): T {
+  public evaluateVariable<T>(varName: string, variableExpression: string, varValue: unknown): T {
     // eslint-disable-next-line no-new-func,@typescript-eslint/no-implied-eval,@typescript-eslint/no-unsafe-return
     return Function(varName, `return ${variableExpression};`)(varValue);
   }

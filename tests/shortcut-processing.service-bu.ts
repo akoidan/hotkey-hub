@@ -92,9 +92,8 @@ export class ShortcutProcessingService {
     });
     this.logger.log(`${clc.bold.green(comb.shortCut)} pressed. Running ${clc.bold.green(comb.name)}`);
     const that = this;
-    let breakLoop = false;
     for (let i =0 ; i< comb.commands.length; i++) {
-      const generator = this.semaphoreService.spawnGeneratorChild(`c=${String(i)}`,  async function* loopGenerator(): AsyncGenerator<void> {
+      const generator = this.semaphoreService.spawnGeneratorChild(String(i),  async function* loopGenerator(): AsyncGenerator<void> {
         yield *that.unknownCommandProcessor.handle(comb.commands[i], comb.delayAfter, comb.delayBefore, undefined);
       });
       let done = false;
@@ -105,14 +104,11 @@ export class ShortcutProcessingService {
           // also return is not technicaly correct cause we are mearing multiple generators in one manually in thread-local-handler
           await generator.return(undefined);
           this.iterationsInProgress[groupWith].find(proc => proc.id === id)!.status = ProcessStatus.STOPPED;
-          breakLoop = true; //while should finish in order to finish current transaction and release transaction group
+          return;
         }
         this.logger.debug('Calling next item from top.');
         const res = await generator.next();
         done = res.done ?? false;
-      }
-      if (breakLoop) {
-        break;
       }
     }
     this.logger.debug(`All iterations for ${clc.bold.green(comb.name)} are finished`);
