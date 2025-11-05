@@ -28,7 +28,7 @@ export class ThreadsLocalHandler extends BaseLocalHandler {
     while (results.size > 0) {
       const [index, result] = await Promise.race(
         Array.from(results.entries()).map(
-          async ([i, p]) => p.then(r => [i, r] as [number, IteratorResult<void, void>])
+          async([i, p]) => p.then(r => [i, r] as [number, IteratorResult<void, void>])
         )
       );
 

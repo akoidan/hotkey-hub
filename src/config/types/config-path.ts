@@ -7,9 +7,17 @@ interface ConfigPath {
   variablesFilePath: string;
 }
 
+
+interface ZodErrorCollected {
+  path: string;
+  message: string;
+  expected?: string;
+  received?: string;
+}
+
 const ConfigPathClass = 'ConfigPath';
 const ENV = 'ProcessEnv';
 
 export {ENV, ConfigPathClass};
 
-export type {ConfigPath};
+export type {ZodErrorCollected, ConfigPath};

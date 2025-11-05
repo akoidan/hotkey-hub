@@ -1,9 +1,11 @@
 /* eslint-disable max-lines, @typescript-eslint/no-use-before-define */
 import {z, ZodIssueCode, type ZodType} from 'zod';
 import {schemaRootCache} from '@/config/types/cache';
-import type {VariableValue} from '@/config/types/variables';
-import {variableValueSchema} from '@/config/types/variables';
+import {type VariableValue, variableValueSchema} from '@/config/types/variables';
 import {delayCommandsSchema, type RemoteCommand, remoteCommandSchema} from '@/config/types/remote-commands';
+
+
+const expressionDescription = 'JS like expression that evaluates to some values. E.g. x*2.';
 
 const macroLocalCommandSchema = z.object({
   macro: z.string().describe('Name of the macro to execute, which must match a key defined in the macros section. ' +
@@ -33,7 +35,7 @@ const macroLocalCommandSchema = z.object({
         ctx.addIssue({
           code: ZodIssueCode.custom,
           path: ['variables'],
-          message: `Passed variable ${key}=${value} doesn't have a description on macro`,
+          message: `Passed variable ${key}=${String(value)} doesn't have a description on macro`,
         });
       }
     }
@@ -55,7 +57,8 @@ const macroLocalCommandSchema = z.object({
         ctx.addIssue({
           code: ZodIssueCode.custom,
           path: ['variables'],
-          message: `Passed variable ${key}=${command.variables?.[key]} type of ${typeof command.variables?.[key]}, expected ${value!.type}`,
+          message: `Passed variable ${key}=${JSON.stringify(command.variables?.[key])} type of ${typeof command.variables?.[key]},`+
+           `expected ${value!.type}`,
         });
       }
       if (!value!.optional && !command.variables?.[key]) {
@@ -114,9 +117,10 @@ const expressionLocalCommandSchema = z.object({
         message: `"${expr}" is not a valid expression, because of ${e?.message ?? e}`,
       });
     }
-  }).describe('JS like expression that evaluates to some values. E.g. x*2.'),
+  }).describe(expressionDescription),
 }).strict()
   .describe('Allows to create/assign a variable by expression. In this case you need to set "destination" property to a string "null"');
+
 
 const ifLocalCommandSchema = z.lazy(() => z.object({
   if: z.string().nonempty().superRefine((expr, ctx) => {
@@ -130,7 +134,7 @@ const ifLocalCommandSchema = z.lazy(() => z.object({
         message: `"${expr}" is not a valid expression, because of ${e?.message ?? e}`,
       });
     }
-  }).describe('JS like expression that evaluates to some values. E.g. x*2.'),
+  }).describe(expressionDescription),
   then: z.array(unknownCommandSchema)
     .describe('Commands to execute if the condition is true'),
   else: z.array(unknownCommandSchema)
@@ -218,7 +222,7 @@ const printLocalCommandSchema = z.object({
         message: `"${expr}" is not a valid expression, because of ${e?.message ?? e}`,
       });
     }
-  }).describe('JS like expression that evaluates to some values. E.g. x*2.'),
+  }).describe(expressionDescription),
   // z.lazy requires manual type definition cause of reqursive type
 })
   .strict()

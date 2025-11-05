@@ -2,7 +2,7 @@ import {aARootSchema, ConfigData, ConfigDataWoMacro, IpsData, macrosListSchema, 
 import {parse} from 'jsonc-parser';
 import {Inject, Injectable, Logger} from '@nestjs/common';
 /* eslint-disable max-lines*/
-import {ZodError} from 'zod';
+import {ZodError, ZodSchema} from 'zod';
 import {schemaRootCache} from '@/config/types/cache';
 import {Variables, variablesSchema} from '@/config/types/variables';
 import {Shortcut} from '@/config/types/shortcut';
@@ -12,7 +12,8 @@ import clc from 'cli-color';
 import {DelayData} from '@/config/types/delays';
 import {ConfigCombination} from '@/config/config-model';
 import {MacroList} from '@/config/types/local-commands';
-import {ENV} from '@/config/types/config-path';
+import {ENV, ZodErrorCollected} from '@/config/types/config-path';
+import {ZodInvalidTypeIssue, ZodInvalidUnionIssue, ZodIssue} from 'zod/lib/ZodError';
 
 @Injectable()
 export class ConfigService implements ConfigProvider {
@@ -35,40 +36,48 @@ export class ConfigService implements ConfigProvider {
   }
 
 
-  private collectAllErrors(issue: any, errors: {path: string, message: string}[], currentPath: string[] = []): void {
-    if (Array.isArray(issue.issues)) {
-      for (const subIssue of issue.issues) {
+  private collectAllErrors(
+    issue: ZodError | ZodInvalidUnionIssue | ZodIssue,
+    errors: ZodErrorCollected[],
+    currentPath: (string | number)[] = []
+  ): void {
+    const zodissues = (issue as ZodError).issues;
+    const zodUnionErrors = (issue as ZodInvalidUnionIssue).unionErrors;
+    if (Array.isArray(zodissues)) {
+      for (const subIssue of zodissues) {
         this.collectAllErrors(subIssue, errors, currentPath);
       }
-    } else if (issue.unionErrors) {
-      for (const unionError of issue.unionErrors) {
+    } else if (zodUnionErrors) {
+      for (const unionError of zodUnionErrors) {
         this.collectAllErrors(unionError, errors, currentPath);
       }
     }
 
-    if (issue.path) {
-      currentPath = [...issue.path];
+    const zodIssue = issue as ZodIssue;
+    const zodInvalidTypeIssue = issue as ZodInvalidTypeIssue;
+    if (zodIssue) {
+      currentPath = [...zodIssue.path];
     }
 
-    if (issue.message && issue.path?.length > 0 && issue.message !== 'Invalid input') {
+    if (zodIssue.message && zodIssue.path?.length > 0 && zodIssue.message !== 'Invalid input') {
       errors.push({
-        path: issue.path.join('.'),
-        message: issue.message,
-        ...(issue.expected && {expected: issue.expected}),
-        ...(issue.received && {received: issue.received}),
+        path: zodIssue.path.join('.'),
+        message: zodIssue.message,
+        ...(zodInvalidTypeIssue.expected && {expected: zodInvalidTypeIssue.expected}),
+        ...(zodInvalidTypeIssue.received && {received: zodInvalidTypeIssue.received}),
       });
     }
   }
 
   private formatZodError(error: ZodError): string {
-    const errors: {path: string, message: string, expected?: any, received?: any}[] = [];
+    const errors: ZodErrorCollected[] = [];
     this.collectAllErrors(error, errors);
 
     if (errors.length > 0) {
       // Format the first error in detail
-      const firstError = errors[0];
+      const [firstError] = errors;
       let errorMessage = `${firstError.message} at ${firstError.path}`;
-      
+
       if (firstError.expected && firstError.received) {
         errorMessage += ` (expected ${firstError.expected}, received ${firstError.received})`;
       }
@@ -77,21 +86,22 @@ export class ConfigService implements ConfigProvider {
       if (errors.length > 1) {
         const otherErrors = errors.slice(1, 4); // Show up to 3 more errors
         const more = errors.length - 1 > otherErrors.length ? ` and ${errors.length - 1 - otherErrors.length} more` : '';
+        const moreString = more ? `\n... ${more} errors not shown` : '';
         const otherErrorMessages = otherErrors.map(e => `- ${e.path}: ${e.message}`).join('\n');
-        errorMessage += `\nOther issues:\n${otherErrorMessages}${more ? `\n... ${more} errors not shown` : ''}`;
+        errorMessage += `\nOther issues:\n${otherErrorMessages}${moreString}`;
       }
-      
+
       return errorMessage;
     }
 
     // If we couldn't find specific errors, show a more helpful message
     return 'Validation failed. Please check your configuration. ' +
-           'This might be due to a required field missing or an invalid value type.';
+      'This might be due to a required field missing or an invalid value type.';
   }
 
-  private async validateWithErrorHandling<T>(schema: any, data: any, context: string): Promise<T> {
+  private async validateWithErrorHandling<T>(schema: ZodSchema, data: any, context: string): Promise<T> {
     try {
-      return await schema.parseAsync(data);
+      return await schema.parseAsync(data) as T;
     } catch (error) {
       if (error instanceof ZodError) {
         throw new Error(`[${context}] ${this.formatZodError(error)}`);

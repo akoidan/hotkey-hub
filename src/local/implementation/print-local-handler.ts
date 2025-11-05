@@ -21,7 +21,6 @@ export class PrintLocalHandler extends BaseLocalHandler {
   async* execute(comb: PrintLocalCommand): AsyncGenerator<void> {
     const result: unknown = this.evaluateService.evaluateExpression(comb.print);
     this.logger.log(`${clc.yellow(comb.print)}=${clc.bold.green(result)}`);
-    await new Promise<void>((resolve) => setTimeout(resolve, 10000));
     yield undefined;
   }
 }

@@ -1,5 +1,5 @@
 /* eslint-disable max-lines*/
-import {z, ZodArray, ZodEffects, ZodLazy, ZodObject, ZodTypeAny, ZodUnion} from 'zod';
+import {z} from 'zod';
 
 
 import {variablesSchema, variableValueSchema} from '@/config/types/variables';
@@ -18,21 +18,24 @@ import {
   launchExeRemoteCommandSchema,
   leftMouseClickRemoteCommandSchema,
   mouseMoveClickRemoteCommandSchema,
-  remoteCommandSchema, setWindowBoundsRemoteSchema,
-  typeTextRemoteCommandSchema, windowPropertiesSchema,
+  remoteCommandSchema,
+  setWindowBoundsRemoteSchema,
+  typeTextRemoteCommandSchema,
+  windowPropertiesSchema,
 } from '@/config/types/remote-commands';
 import {
   expressionLocalCommandSchema,
   loopLocalCommandSchema,
   macroDefinitionSchema,
   macroLocalCommandSchema,
-  reloadConfigLocalCommandSchema,
   macrosListSchema,
   macroVariablesDescriptionSchema,
+  reloadConfigLocalCommandSchema,
+  shuffleLocalCommandSchema,
   threadLocalArraySchema,
   threadsLocalCommandSchema,
   transactionLocalCommandSchema,
-  unknownCommandSchema, shuffleLocalCommandSchema,
+  unknownCommandSchema,
 } from '@/config/types/local-commands';
 
 const ipsSchema = z.record(z.string().ip())

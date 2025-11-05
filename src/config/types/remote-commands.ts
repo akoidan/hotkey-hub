@@ -2,8 +2,7 @@
 import {z, ZodIssueCode} from 'zod';
 import {schemaRootCache} from '@/config/types/cache';
 import type {ConfigDataWoMacro} from '@/config/types/schema';
-import type {VariableValue} from '@/config/types/variables';
-import {variableValueSchema} from '@/config/types/variables';
+import {type VariableValue, variableValueSchema} from '@/config/types/variables';
 
 // import KeyboardAction from '@nut-tree-fork/libnut/dist/lib/libnut-keyboard.class.js';
 // const possibleKeys: string[] = [...KeyboardAction.KeyLookupMap.values()] as string[];
@@ -27,7 +26,7 @@ const baseSchema = z.object({
       ctx.addIssue({
         code: ZodIssueCode.custom,
         path: ['destination'],
-        message: `"${destination}" is not a valid destination, possible options are ${allOptions}`,
+        message: `"${JSON.stringify(destination)}" is not a valid destination, possible options are ${allOptions}`,
       });
     }
   }).describe('Remote PC from ips or aliases section to send this command to'),
@@ -55,7 +54,7 @@ const keyPressRemoteCommandSchema = z.object({
     .describe('How long to hold the key down in milliseconds. Minimum 50ms to ensure reliable key registration.'),
   durationDeviation: z.union([
     variableValueSchema,
-    z.number().min(0).default(0)
+    z.number().min(0).default(0),
   ]).optional()
     .describe('Adds randomness to key press duration. Value is the maximum +/- deviation in milliseconds. ' +
       'Useful for simulating human-like input patterns.'),
@@ -76,12 +75,12 @@ const launchExeRemoteCommandSchema = z.object({
       'If false (default), continues with next command immediately after launch.'),
   assignId: z.union([variableValueSchema, z.string()]).optional()
     .describe('Variable name to store the Process ID (PID) of the launched program. ' +
-      'The stored PID can be used in subsequent commands for window management or process control.')
+      'The stored PID can be used in subsequent commands for window management or process control.'),
 }).strict().merge(baseSchema).describe('Starts a program on a remote PC.');
 
 const focusProcessWindowRemoteCommandSchema = z.object({
   focusPid: z.union([variableValueSchema, z.number()])
-    .describe('Process ID (PID) of the window to focus. Can be obtained from findPidsByName command or launch command with assignId.')
+    .describe('Process ID (PID) of the window to focus. Can be obtained from findPidsByName command or launch command with assignId.'),
 })
   .strict()
   .merge(baseSchema)
@@ -89,7 +88,7 @@ const focusProcessWindowRemoteCommandSchema = z.object({
 
 const focusWindowRemoteCommandSchema = z.object({
   focusWid: z.union([variableValueSchema, z.number()])
-    .describe('Window ID to focus. Can be obtained from findProcessWindows or findProcessesWindows commands.')
+    .describe('Window ID to focus. Can be obtained from findProcessWindows or findProcessesWindows commands.'),
 })
   .strict()
   .merge(baseSchema)
@@ -109,7 +108,7 @@ const typeTextRemoteCommandSchema = z.object({
   ])
     .default(0)
     .optional()
-    .describe('Deviation for randomness of delay. E.g if keyDelay = 100 and deviation = 0.2. Then value would be 80-120ms')
+    .describe('Deviation for randomness of delay. E.g if keyDelay = 100 and deviation = 0.2. Then value would be 80-120ms'),
 })
   .strict()
   .merge(baseSchema)
@@ -121,7 +120,7 @@ const findPidsByNameRemoteCommandSchema = z.object({
   assignIds: z.union([variableValueSchema, z.string()])
     .optional()
     .describe('Assign list of pids to a variable.' +
-      ' Note variable type would be an array in this case. Use expression to pick any of the results')
+      ' Note variable type would be an array in this case. Use expression to pick any of the results'),
 })
   .strict()
   .merge(baseSchema)
@@ -132,7 +131,7 @@ const findProcessWindowsRemoteCommandSchema = z.object({
     .describe('Process ID to find window IDs for. Process must be running with visible windows.'),
   assignIds: z.union([variableValueSchema, z.string()])
     .optional()
-    .describe('Variable name to store list of windows ids')
+    .describe('Variable name to store list of windows ids'),
 })
   .strict()
   .merge(baseSchema)
@@ -147,7 +146,7 @@ const findProcessesWindowsRemoteCommandSchema = z.object({
   assignIds: z.union([variableValueSchema, z.array(z.string())])
     .optional()
     .describe('List of variable names to store the found windows IDs.' +
-      ' Each process\'s window IDs array will be assigned to the corresponding variable.')
+      ' Each process\'s window IDs array will be assigned to the corresponding variable.'),
 })
   .strict()
   .merge(baseSchema)
@@ -158,7 +157,7 @@ const mouseMoveClickRemoteCommandSchema = z.object({
   mouseMoveX: z.union([variableValueSchema, z.number()])
     .describe('X coordinate for mouse cursor.'),
   mouseMoveY: z.union([variableValueSchema, z.number()])
-    .describe('Y coordinate for mouse cursor.')
+    .describe('Y coordinate for mouse cursor.'),
 })
   .strict()
   .merge(baseSchema)
@@ -168,7 +167,7 @@ const mouseMoveClickRemoteCommandSchema = z.object({
 const leftMouseClickRemoteCommandSchema = z.object({
   leftMouseClick: z.union([variableValueSchema, z.boolean()])
     .describe('Set to true to perform a left mouse click. ' +
-    'The click will occur at the current cursor position without moving the mouse.')
+    'The click will occur at the current cursor position without moving the mouse.'),
 })
   .strict()
   .merge(baseSchema)
@@ -176,7 +175,7 @@ const leftMouseClickRemoteCommandSchema = z.object({
 
 const killExeByNameRemoteCommandSchema = z.object({
   killByName: z.union([variableValueSchema, z.string()])
-    .describe('Name of the executable file to terminate. Example: "Chrome.exe". Case-sensitive on some operating systems.')
+    .describe('Name of the executable file to terminate. Example: "Chrome.exe". Case-sensitive on some operating systems.'),
 })
   .strict()
   .merge(baseSchema)
@@ -184,7 +183,7 @@ const killExeByNameRemoteCommandSchema = z.object({
 
 const killExeByPidRemoteCommandSchema = z.object({
   killByPid: z.union([variableValueSchema, z.number()])
-    .describe('Process ID (PID) of the process to terminate. Example: 1234. Must be a valid running process ID.')
+    .describe('Process ID (PID) of the process to terminate. Example: 1234. Must be a valid running process ID.'),
 })
   .strict()
   .merge(baseSchema)
