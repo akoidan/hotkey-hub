@@ -181,7 +181,7 @@ export class ConfigService implements ConfigProvider {
     this.variables = variables;
     await this.setVariable('delays', configData.delays);
     if (this.configData.name) {
-      this.logger.log(`Loaded config ${this.configData.name}`);
+      this.logger.log(`Loaded config ${clc.bold.green(this.configData.name)}`);
     }
   }
 
