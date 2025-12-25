@@ -79,7 +79,7 @@ export class VariableResolutionService {
         } else if (globalVars[varName]) {
           result[key] = this.evaluateVariable<T[keyof T]>(varName, varExpress!, globalVars[varName]);
         } else {
-          throw Error(`Unknown environment variable ${value as string}`);
+          throw Error(`Unknown environment variable ${(value as VariableValue)?.$ref ?? JSON.stringify(value)}`);
         }
       } else {
         result[key] = value;
