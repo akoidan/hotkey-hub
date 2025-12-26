@@ -6,7 +6,7 @@ import {asyncLocalStorage} from '@/asyncstore/async-storage-value';
 import {SemaphorService} from '@/semaphor/semaphor-service';
 import path from 'path';
 import yargs from 'yargs';
-import {AppConfig} from "@/app/app-model";
+import type {AppConfig} from '@/app/app-model';
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 async function parseArgs(): Promise<AppConfig> {
