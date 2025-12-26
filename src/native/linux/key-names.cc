@@ -1,7 +1,6 @@
-#include <X11/Xutil.h>
-#include <X11/XF86keysym.h>
 #include "./headers/key-names.h"
 #include <map>
+#include <X11/XF86keysym.h>
 
 KeyNames key_names[] = {
     {"backspace",         XK_BackSpace},

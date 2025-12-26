@@ -56,7 +56,8 @@ CLion does not automatically pick up Node.js and N-API headers. You must add the
 **Steps:**
 1. Go to **Settings → Build, Execution, Deployment → CMake**.
 2. Add a new configuration.
-3. Add the following to **CMake options** (adjust paths for your system).
+3. Select ninja generator and select build directory `build`
+4. Add the following to **CMake options** (adjust paths for your system).
 
 ### Arch Linux example
 ```cmake
@@ -64,6 +65,7 @@ CLion does not automatically pick up Node.js and N-API headers. You must add the
 ```
 
 ### Windows example
+But debug won't work
 ```cmake
 -DCMAKE_CXX_FLAGS="-IC:\Users\death\.cmake-js\node-x64\v18.20.5\include\node -IC:\Users\death\WebstormProjects\http-remote-pc-control\node_modules\node-addon-api"
 ```

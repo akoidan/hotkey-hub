@@ -1,5 +1,6 @@
 #include <map>
 #include <string>
+#include "./headers/modifier-names.h"
 #include <X11/Xlib.h>
 
 std::map<std::string, int> modifier_names = {
