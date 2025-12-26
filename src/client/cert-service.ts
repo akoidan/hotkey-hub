@@ -1,36 +1,23 @@
-import {
-  Injectable,
-  Logger,
-} from '@nestjs/common';
-import {
-  access,
-  readFile,
-} from 'fs/promises';
+import {Inject, Injectable, Logger} from '@nestjs/common';
+import {access, readFile} from 'fs/promises';
 import * as path from 'path';
 import {Agent} from 'https';
+import {CERT_DIR} from '@/client/client-model';
 
 @Injectable()
 export class CertService {
+  private readonly privateKeyPath: string;
+  private readonly certificatePath: string;
+  private readonly caCertificatePath: string;
+
   constructor(
     private readonly logger: Logger,
+    @Inject(CERT_DIR)
+    private readonly certDir: string,
   ) {
-  }
-
-  private get certDir(): string {
-    return path.join(process.execPath.endsWith('node') || process.execPath.endsWith('node.exe')
-        ? process.cwd() : path.dirname(process.execPath), 'certs');
-  }
-
-  private get privateKeyPath(): string {
-    return path.join(this.certDir, 'key.pem');
-  }
-
-  private get certificatePath(): string {
-    return path.join(this.certDir, 'cert.pem');
-  }
-
-  private get caCertificatePath(): string {
-    return path.join(this.certDir, 'ca-cert.pem');
+    this.privateKeyPath = path.join(this.certDir, 'key.pem');
+    this.certificatePath = path.join(this.certDir, 'cert.pem');
+    this.caCertificatePath = path.join(this.certDir, 'ca-cert.pem');
   }
 
   public async checkFilesExist(): Promise<void> {

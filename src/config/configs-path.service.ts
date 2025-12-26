@@ -1,41 +1,30 @@
-import {Injectable} from '@nestjs/common';
+import {Inject, Injectable} from '@nestjs/common';
 import path from 'path';
 import {ConfigPath} from '@/config/types/config-path';
+import {CONFIG_DIR} from '@/config/config-model';
 
 
 @Injectable()
 export class ConfigsPathService implements ConfigPath {
-  private configPath?: string;
-  private macroPath?: string;
-  private variablePath?: string;
+  configFilePath: string;
+  macroFilePath: string;
+  variablesFilePath: string;
 
-  private get configDir():string {
-    const isNodeJs = process.execPath.endsWith('node') || process.execPath.endsWith('node.exe');
-    const configDirs =  isNodeJs ? process.cwd() : path.dirname(process.execPath);
-    return path.join(configDirs, 'configs');
+  constructor(@Inject(CONFIG_DIR) private readonly configDir: string) {
+    this.configFilePath = path.join(this.configDir, 'config.jsonc');
+    this.macroFilePath = path.join(this.configDir, 'macros.jsonc');
+    this.variablesFilePath = path.join(this.configDir, 'variables.jsonc');
   }
 
   public setConfigPaths(config?: string, macro?: string, variable?: string): void {
-    this.configPath = config;
-    this.macroPath = macro;
-    this.variablePath = variable;
-  }
-
-  public get configFilePath(): string {
-    // should default to calculated path if an empty string, so ?? no applicable
-    // eslint-disable-next-line
-    return this.configPath || path.join(this.configDir, 'config.jsonc');
-  }
-
-  public get macroFilePath(): string {
-    // should default to calculated path if an empty string, so ?? no applicable
-    // eslint-disable-next-line
-    return this.macroPath || path.join(this.configDir, 'macros.jsonc');
-  }
-
-  public get variablesFilePath(): string {
-    // should default to calculated path if an empty string, so ?? no applicable
-    // eslint-disable-next-line
-    return this.variablePath || path.join(this.configDir, 'variables.jsonc');
+    if (config) {
+      this.configFilePath = config;
+    }
+    if (macro) {
+      this.macroFilePath = macro;
+    }
+    if (variable) {
+      this.variablesFilePath = variable;
+    }
   }
 }

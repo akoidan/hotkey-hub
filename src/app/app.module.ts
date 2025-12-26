@@ -1,10 +1,12 @@
-import {Logger, Module, OnModuleInit} from '@nestjs/common';
+import {DynamicModule, Global, Logger, Module, OnModuleInit} from '@nestjs/common';
 import {ConfigModule} from '@/config/config-module';
 import {ClientModule} from '@/client/client-module';
 import {LocalModule} from '@/local/local.module';
 import {KeybindingService} from '@/local/keybinding-service';
 import clc from 'cli-color';
 import {ConfigService} from '@/config/config-service';
+import {CERT_DIR} from '@/client/client-model';
+import {CONFIG_DIR} from '@/config/config-model';
 
 @Module({
   imports: [ConfigModule, ClientModule, LocalModule],
@@ -24,5 +26,29 @@ export class AppModule implements OnModuleInit {
     await this.keybindingService.registerShortcuts();
     const shortcuts = this.configService.getCombinations().map(a => a.shortCut);
     this.logger.log(`App has successfully started with following shortcuts: ${clc.bold.green(shortcuts.join(' '))}`);
+  }
+  
+  static forRoot(certDir: string, configDir:string): DynamicModule {
+    @Global()
+    @Module({
+      providers: [
+        {
+          provide: CERT_DIR,
+          useValue: certDir,
+        },
+        {
+          provide: CONFIG_DIR,
+          useValue: configDir,
+        },
+      ],
+      exports: [CERT_DIR, CONFIG_DIR],
+    })
+    class GlobalProvider {
+    }
+    
+    return {
+      module: AppModule,
+      imports: [GlobalProvider],
+    };
   }
 }
