@@ -30,7 +30,9 @@ The project requires several files for configuration and security:
 - For the remote PC download the client app from [client releases](https://github.com/akoidan/http-remote-pc-control/releases)
 
 ### Certificates (Requied)
-Check [Certificates](https://github.com/akoidan/http-remote-pc-control?tab=readme-ov-file#certificates) section, you need to copy from the client:
+The client server app both use [mutual TLS authentication](https://www.cloudflare.com/learning/access-management/what-is-mutual-tls/).
+Generates them based on [Certificates](https://github.com/akoidan/http-remote-pc-control?tab=readme-ov-file#certificates) section.
+You need to copy from the client:
  - `./gencert/client/key.pem`
  - `./gencert/client/cert.pem`
  - `./gencert/client/ca-cert.pem`
