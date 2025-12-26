@@ -6,9 +6,10 @@ import {asyncLocalStorage} from '@/asyncstore/async-storage-value';
 import {SemaphorService} from '@/semaphor/semaphor-service';
 import path from 'path';
 import yargs from 'yargs';
+import {AppConfig} from "@/app/app-model";
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
-async function parseArgs(): Promise<{ configDir: string, certDir: string }> {
+async function parseArgs(): Promise<AppConfig> {
   const isNodeJs = process.execPath.endsWith('node') || process.execPath.endsWith('node.exe');
   const commonDir = isNodeJs ? process.cwd() : path.dirname(process.execPath);
 
@@ -17,10 +18,20 @@ async function parseArgs(): Promise<{ configDir: string, certDir: string }> {
       .scriptName('hotkey-hub')
       .epilog('Reffer https://github.com/akoidan/hotkey-hub for more documentation')
       .usage('Allows to control remote pc using OS hotkeys')
-      .option('config-dir', {
+      .option('config-file', {
         type: 'string',
-        default: path.join(commonDir, 'configs'),
-        description: 'Directory that contains configs: config.jsonc, macros.jsonc, variables.jsonc',
+        default: path.join(commonDir, 'configs', 'config.jsonc'),
+        description: 'Configs that describes hotkey bindins',
+      })
+      .option('macros-file', {
+        type: 'string',
+        default: path.join(commonDir, 'configs', 'macros.jsonc'),
+        description: 'Macros files with reusable functions',
+      })
+      .option('variables-file', {
+        type: 'string',
+        default: path.join(commonDir, 'configs', 'variables.jsonc'),
+        description: 'File that used to store permanent variables across restarts',
       })
       .option('cert-dir', {
         type: 'string',
@@ -34,8 +45,13 @@ asyncLocalStorage.run(new Map<string, string>().set(SemaphorService.COMB_KEY, 'i
   const customLogger = new CustomLogger(asyncLocalStorage);
 
   (async function startApp(): Promise<void> {
-    const {configDir, certDir} = await parseArgs();
-    await NestFactory.createApplicationContext(AppModule.forRoot(certDir, configDir), {logger: customLogger});
+    const args = await parseArgs();
+    await NestFactory.createApplicationContext(
+      AppModule.forRoot(args),
+      {
+        logger: customLogger,
+      }
+    );
   })().catch((err: unknown) => {
     customLogger.error(err as (string | Error), (err as Error)?.stack);
     process.exit(1);

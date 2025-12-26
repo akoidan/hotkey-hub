@@ -1,6 +1,15 @@
 import type {Shortcut} from '@/config/types/shortcut';
 
-export interface ShortcutDescription {
+ interface ShortcutDescription {
   id: number;
   shortcut: Shortcut;
 }
+
+ interface AppConfig {
+  configFile: string;
+  macrosFile: string;
+  variablesFile: string;
+  certDir: string
+}
+
+export type {ShortcutDescription, AppConfig};

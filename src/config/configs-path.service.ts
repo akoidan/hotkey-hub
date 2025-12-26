@@ -1,19 +1,15 @@
 import {Inject, Injectable} from '@nestjs/common';
-import path from 'path';
 import {ConfigPath} from '@/config/types/config-path';
-import {CONFIG_DIR} from '@/config/config-model';
+import {CONFIG_FILE, MACROS_FILE, VARIABLES_FILE} from '@/config/config-model';
 
 
 @Injectable()
 export class ConfigsPathService implements ConfigPath {
-  configFilePath: string;
-  macroFilePath: string;
-  variablesFilePath: string;
-
-  constructor(@Inject(CONFIG_DIR) private readonly configDir: string) {
-    this.configFilePath = path.join(this.configDir, 'config.jsonc');
-    this.macroFilePath = path.join(this.configDir, 'macros.jsonc');
-    this.variablesFilePath = path.join(this.configDir, 'variables.jsonc');
+  constructor(
+    @Inject(CONFIG_FILE) public configFilePath: string,
+    @Inject(MACROS_FILE) public macroFilePath: string,
+    @Inject(VARIABLES_FILE) public variablesFilePath: string,
+  ) {
   }
 
   public setConfigPaths(config?: string, macro?: string, variable?: string): void {
