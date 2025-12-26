@@ -30,21 +30,11 @@ The project requires several files for configuration and security:
 - For the remote PC download the client app from [client releases](https://github.com/akoidan/http-remote-pc-control/releases)
 
 ### Certificates (Requied)
-The client server app both use [mutual TLS authentication](https://www.cloudflare.com/learning/access-management/what-is-mutual-tls/).
-You can use my helper script to generate certificates with [gen-cert.sh](./gen-cert.sh).
-
-```bash
-bash ./gen-cert.sh
-```
-
-It will generate:
-- CA PK in  ./gencert/ca/ca-cert.pem
-- CA-cert, client certificate and client PK in ./gencert/client
-- CA-cert, server certificate and server PK in ./gencert/server
-
-You have to:
-- Copy ./gencert/client into ./certs directory where app executable is
-- Copy ./gencert/server into ./certs on the remote PC where you have the [server](https://github.com/akoidan/http-remote-pc-control)
+Check [Certificates](https://github.com/akoidan/http-remote-pc-control?tab=readme-ov-file#certificates) section, you need to copy from the client:
+ - `./gencert/client/key.pem`
+ - `./gencert/client/cert.pem`
+ - `./gencert/client/ca-cert.pem`
+To `./certs` directory where app.exe is.
 
 **If client and server certificates are different you'll get an exception on startup that server is unable to connnect to the client**
 
@@ -74,8 +64,23 @@ You can validate your configuration using any JSON schema validator (e.g., [json
 2. Paste the schema into the validator's schema panel
 3. Write/validate your configuration in the data panel
 
+### Archlinux
+- Install the app `yay -S hotkey-hub`
+- Put certificates in `~/.local/share/hotkey-hub/certs` 
+- Put configs in `~/.local/share/hotkey-hub/configs/config.jsonc` 
+- Put macros in `~/.local/share/hotkey-hub/configs/macros.jsonc` 
+- Put variables in `~/.local/share/hotkey-hub/configs/variables.jsonc` 
+- Start the service as a normal user: `systemctl --user start hotkey-hub` should be the same user as logged in X
+
 ## Run the app
 After configuration files are created, run the app from regular user. You can also run it from command line to view stdout and sterror if the app crashes. It check connection to remote PC/PCs, verifies the certificates and would be ready to listen shorcut press.
+
+### Help
+App allows minimal configuration, check the following command for options
+```bash
+app --help
+```
+
 
 ## Develop locally
 Check [DEVELOPMENT.md](DEVELOPMENT.md)
