@@ -1,4 +1,5 @@
-import {DynamicModule, Global, Logger, Module, OnModuleInit} from '@nestjs/common';
+// eslint-disable-next-line max-classes-per-file
+import {DynamicModule, Logger, Module, OnModuleInit} from '@nestjs/common';
 import {ConfigModule} from '@/config/config-module';
 import {ClientModule} from '@/client/client-module';
 import {LocalModule} from '@/local/local.module';
@@ -27,10 +28,12 @@ export class AppModule implements OnModuleInit {
     const shortcuts = this.configService.getCombinations().map(a => a.shortCut);
     this.logger.log(`App has successfully started with following shortcuts: ${clc.bold.green(shortcuts.join(' '))}`);
   }
-  
-  static forRoot(certDir: string, configDir:string): DynamicModule {
-    @Global()
-    @Module({
+
+  static forRoot(certDir: string, configDir: string): DynamicModule {
+    return {
+      module: AppModule,
+      global: true,
+      exports: [CERT_DIR, CONFIG_DIR],
       providers: [
         {
           provide: CERT_DIR,
@@ -41,14 +44,6 @@ export class AppModule implements OnModuleInit {
           useValue: configDir,
         },
       ],
-      exports: [CERT_DIR, CONFIG_DIR],
-    })
-    class GlobalProvider {
-    }
-    
-    return {
-      module: AppModule,
-      imports: [GlobalProvider],
     };
   }
 }
