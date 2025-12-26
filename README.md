@@ -89,7 +89,7 @@ Let's review log line:
 ```txt
 [20:40:28.045] 2=mr7-c=0-th=tyrs-c=1=m=tyr-c=2=d=2hn: POST:201 lenovo /keyboard/key-press {"keys":["3"],"holdKeys":[]} ==>
 ```
-Every loop of commands is separated by `-`, `=` means that this is the meaning of this command.
+Every loop of commands is separated by `-`. `=` means that this is the meaning of this command.
 - `[20:40:28.045]` - time and .milliseconds
 - `2=mr7` - alt+2 or similar keypres where 2 is a modyfying key, and `mr7` - id of this keypress
 - `c=0` - command (`c`) number 0, of this shortcut keypress alt+2
