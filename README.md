@@ -76,3 +76,6 @@ You can validate your configuration using any JSON schema validator (e.g., [json
 
 ## Run the app
 After configuration files are created, run the app from regular user. You can also run it from command line to view stdout and sterror if the app crashes. It check connection to remote PC/PCs, verifies the certificates and would be ready to listen shorcut press.
+
+## Develop locally
+Check [DEVELOPMENT.md](DEVELOPMENT.md)
