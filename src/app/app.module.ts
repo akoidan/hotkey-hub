@@ -1,4 +1,3 @@
-// eslint-disable-next-line max-classes-per-file
 import {DynamicModule, Logger, Module, OnModuleInit} from '@nestjs/common';
 import {ConfigModule} from '@/config/config-module';
 import {ClientModule} from '@/client/client-module';
