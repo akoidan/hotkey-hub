@@ -29,22 +29,14 @@ The project requires several files for configuration and security:
 - Download the server (the PC you controll others PCs) application file from [releases](https://github.com/akoidan/hotkey-hub/releases)
 - For the remote PC download the client app from [client releases](https://github.com/akoidan/http-remote-pc-control/releases)
 
-### Certificates (Required)
-The client and server apps both use [mutual TLS authentication](https://www.cloudflare.com/learning/access-management/what-is-mutual-tls/).
-You need to define CA root cert, private key and certificate in cert directory as described in required files section.
-You can use helper script to generate certificates with [gen-cert.sh](./gen-cert.sh).
-
-```bash
-bash ./gen-cert.sh
-```
-
-It will generate:
-- self-sign CA certificate with its private key and put CA cert into both ./certs/ca-cert.pem and ./client/ca-cert.pem
-- server and client private key in the ./certs/key.pem and ./client/key.pem
-- server and client certificate that are signed with CA private key and put it into ./certs/cert.pem and ./client/cert.pem
-
-Leave certs directory in the project or within the same directory you are running app executable file.
-Copy client directory to the remote PC where you have the [client](https://github.com/akoidan/http-remote-pc-control)
+### Certificates (Requied)
+The client server app both use [mutual TLS authentication](https://www.cloudflare.com/learning/access-management/what-is-mutual-tls/).
+Generates them based on [Certificates](https://github.com/akoidan/http-remote-pc-control?tab=readme-ov-file#certificates) section.
+You need to copy from the client:
+ - `./gencert/client/key.pem`
+ - `./gencert/client/cert.pem`
+ - `./gencert/client/ca-cert.pem`
+To `./certs` directory where app.exe is.
 
 **If client and server certificates are different you'll get an exception on startup that server is unable to connnect to the client**
 
@@ -74,101 +66,30 @@ You can validate your configuration using any JSON schema validator (e.g., [json
 2. Paste the schema into the validator's schema panel
 3. Write/validate your configuration in the data panel
 
+### Archlinux
+- Install the app `yay -S hotkey-hub`
+- Put certificates in `~/.local/share/hotkey-hub/certs` 
+- Put configs in `~/.local/share/hotkey-hub/configs/config.jsonc` 
+- Put macros in `~/.local/share/hotkey-hub/configs/macros.jsonc` 
+- Put variables in `~/.local/share/hotkey-hub/configs/variables.jsonc` 
+- Start the service as a normal user: `systemctl --user start hotkey-hub` should be the same user as logged in X
+
 ## Run the app
-After configuration files are created, run the app from regular user. You can also run it from command line to view stdout and sterror if the app crashes. It check connection to remote PC/PCs, verifies the certificates and would be ready to listen shorcut press. 
+After configuration files are created, run the app from regular user. You can also run it from command line to view stdout and sterror if the app crashes. It check connection to remote PC/PCs, verifies the certificates and would be ready to listen shorcut press.
 
-## Develop locally
-
-### Requirements:
-You need cmake, yarn, node version 18 or nvm, and a proper C/C++ compiler toolchain of the given platform
-
-#### Windows
-  - [Visual C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/). If you installed nodejs with the installer, you can install these when prompted.
-  - An alternate way is to install the [Chocolatey package manager](https://chocolatey.org/install), and run `choco install visualstudio2017-workload-vctools` in an Administrator Powershell
-  - If you have multiple versions installed, you can select a specific version with `npm config set msvs_version 2017` (Note: this will also affect `node-gyp`)
-  - [cmake](https://cmake.org/download/),
-  - Node version 18 or [nvm](https://github.com/nvm-sh/nvm) 
-  - [yarn](https://yarnpkg.com/). 
-#### Unix/Posix
-  - Clang or GCC
-  - Ninja or Make (Ninja will be picked if both present)
-  - Node version 18 or [nvm](https://github.com/nvm-sh/nvm)
-  - [yarn](https://yarnpkg.com/).
-#### MacOS  
-  - brew install cmake nvm yarn
-#### ArchLinux:
-  - sudo pacman -S xcb-util-wm nvm yarn cmake g++
-
-### Run in dev mode
-
-To build the client you need
-
-```sh
-nvm use 18 # If you already have node 18, skip it
-yarn # install depenencies
-yarn build:local # builds native c++ modules 
-yarn start # starts a nestjs server 
-```
-
-### Debugging Native Code with CLion
-
-If you want to debug native Node.js modules in **CLion**, you need to build the module in **Debug mode**.
-
-#### 1. Build the Native Module
-Run:
+### Help
+App allows minimal configuration, check the following command for options
 ```bash
-yarn build:local
-```  
-This command already builds the native module in Debug mode.
-
-#### 2. Start and Attach the Debugger
-- Start your app with:
-  ```bash
-  yarn start
-  ```  
-- Once the native module loads, attach CLion’s debugger (`gdb`) to the running Node.js process.
-- CLion will automatically pull sourcemaps, allowing you to place breakpoints in native C++ code.
-
-#### 3. Enable Syntax Highlighting for Node.js Headers
-CLion does not automatically pick up Node.js and N-API headers. You must add them manually:
-
-**Steps:**
-1. Go to **Settings → Build, Execution, Deployment → CMake**.
-2. Add a new configuration.
-3. Add the following to **CMake options** (adjust paths for your system).
-
-##### Arch Linux example
-```cmake
--DCMAKE_CXX_FLAGS="-I/home/andrew/.nvm/versions/node/v18.18.2/include/node -I/home/andrew/it/my-projects/http-remote-pc-control/node_modules/node-addon-api"
+app --help
 ```
 
-##### Windows example
-```cmake
--DCMAKE_CXX_FLAGS="-IC:\Users\death\.cmake-js\node-x64\v18.20.5\include\node -IC:\Users\death\WebstormProjects\http-remote-pc-control\node_modules\node-addon-api"
-```
-
-#### 4. Required Directories
-You need to provide **two include directories**:
-
-- **Node.js headers**
-    - Example: `.../include/node`
-    - Contains `node.h`, `node_api.h`, etc.
-    - If missing, run:
-      ```bash
-      npx cmake-js print-cmakejs-src
-      ```  
-
-- **N-API headers**
-    - Example: `.../node_modules/node-addon-api`
-    - Contains `napi.h` and related files.  
-
-### Log example
+## Log example
 Every log line has its own request id, which allow to track complex structures.
 Let's review log line:
 ```txt
 [20:40:28.045] 2=mr7-c=0-th=tyrs-c=1=m=tyr-c=2=d=2hn: POST:201 lenovo /keyboard/key-press {"keys":["3"],"holdKeys":[]} ==>
 ```
-Every loop of commands is separated by `-`, `=` means that this is the meaning of this command.
+Every loop of commands is separated by `-`. `=` means that this is the meaning of this command.
 - `[20:40:28.045]` - time and .milliseconds
 - `2=mr7` - alt+2 or similar keypres where 2 is a modyfying key, and `mr7` - id of this keypress
 - `c=0` - command (`c`) number 0, of this shortcut keypress alt+2
@@ -179,3 +100,6 @@ Every loop of commands is separated by `-`, `=` means that this is the meaning o
 - `/keyboard/key-press` url which is post request was made to
 - `{"keys":["3"],"holdKeys":[]}` json payload of POST request
 - `=>>>` response body which is empty. Nothing after `=>>>` is printed
+
+## Develop locally
+Check [DEVELOPMENT.md](DEVELOPMENT.md)
