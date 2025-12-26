@@ -2,12 +2,8 @@
 #include "./headers/key-names.h"
 #include "./headers/modifier-names.h"
 #include <napi.h>
-#include <X11/Xlib.h>
-#include <iostream>
 #include <thread>
 #include <atomic>
-#include <unordered_map>
-#include <cctype>
 
 struct HotkeyContext {
     std::atomic<bool> running{true};
