@@ -55,6 +55,10 @@ export class VariableResolutionService {
       return this.evaluateVariable(varName, varExpress!, values[varName]);
     }
     if (definition[varName]!.optional) {
+      if (definition[varName]!.default) {
+        this.logger.debug(`Putting default ${varName}=${definition[varName]!.default} from ${JSON.stringify(command)}`);
+        return definition[varName]!.default as T;
+      }
       this.logger.debug(`Omitting variable ${varName} from ${JSON.stringify(command)} since it's optional`);
       return command;
     }

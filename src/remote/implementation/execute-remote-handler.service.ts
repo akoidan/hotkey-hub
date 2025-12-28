@@ -25,7 +25,7 @@ export class ExecuteRemoteHandler extends CommandRemoteHandler {
     });
 
     if (command.assignId) {
-      await this.configService.setVariable(command.assignId as string, response.pid);
+      this.configService.setVariable(command.assignId as string, response.pid);
     }
   }
 }

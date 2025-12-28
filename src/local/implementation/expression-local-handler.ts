@@ -34,9 +34,9 @@ export class ExpressionLocalHandler extends BaseLocalHandler {
         nextVal = nextVal[varPath[i]]
       }
       nextVal[varPath[varPath.length - 1]] = result;
-      await this.configService.setVariable(mainVariable, mainValue);
+      this.configService.setVariable(mainVariable, mainValue);
     } else {
-      await this.configService.setVariable(command.assignVariable, result);
+      this.configService.setVariable(command.assignVariable, result);
     }
     this.logger.debug(`${clc.bold.green(command.assignVariable)}=${clc.yellow(JSON.stringify(result))}`);
     yield undefined;

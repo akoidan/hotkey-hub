@@ -218,6 +218,7 @@ const threadsLocalCommandSchema = z.lazy(() => z.object({
 const macroVariablesDescriptionSchema = z.record(z.object({
   type: z.enum(['string', 'number']).describe('To validate the type, or cast from env variables'),
   optional: z.boolean().optional().describe('If set to true, the key is be removed is var is not passed'),
+  default: z.any().optional().describe('Default value if value is not passed. Optional should be set to true'),
 }).strict()
   .optional())
   .describe('Set of variables descriptors for macro');

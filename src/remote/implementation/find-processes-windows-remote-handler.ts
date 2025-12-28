@@ -27,7 +27,7 @@ export class FindProcessesWindowsRemoteHandler extends CommandRemoteHandler {
       .map(async(id) => this.clientService.getProcessWindows(destination, id)));
     if (command.assignIds) {
       for (let i = 0; i < (command.findProcessesWindows as number[]).length; i++) {
-        await this.configService.setVariable((command.assignIds as string[])[i], responses[i].wids);
+        this.configService.setVariable((command.assignIds as string[])[i], responses[i].wids);
       }
     }
   }
