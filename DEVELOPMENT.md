@@ -61,13 +61,13 @@ CLion does not automatically pick up Node.js and N-API headers. You must add the
 
 ### Arch Linux example
 ```cmake
--DCMAKE_CXX_FLAGS="-I/home/andrew/.nvm/versions/node/v18.18.2/include/node -I/home/andrew/it/my-projects/http-remote-pc-control/node_modules/node-addon-api"
+-DCMAKE_CXX_FLAGS="-I/home/andrew/.nvm/versions/node/v18.18.2/include/node -I/home/andrew/it/my-projects/hotkey-hub/node_modules/node-addon-api"
 ```
 
 ### Windows example
 But debug won't work
 ```cmake
--DCMAKE_CXX_FLAGS="-IC:\Users\death\.cmake-js\node-x64\v18.20.5\include\node -IC:\Users\death\WebstormProjects\http-remote-pc-control\node_modules\node-addon-api"
+-DCMAKE_CXX_FLAGS="-IC:\Users\death\.cmake-js\node-x64\v18.20.5\include\node -IC:\Users\death\WebstormProjects\hotkey-hub\node_modules\node-addon-api"
 ```
 
 ## 4. Required Directories
