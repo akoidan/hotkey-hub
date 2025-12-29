@@ -55,8 +55,8 @@ const macroLocalCommandSchema = z.object({
         ctx.addIssue({
           code: ZodIssueCode.custom,
           path: ['variables'],
-          message: `Passed variable ${key}=${JSON.stringify(command.variables?.[key])} type of ${typeof command.variables?.[key]},`+
-           `expected ${value!.type}`,
+          message: `Passed variable ${key}=${JSON.stringify(command.variables?.[key])} type of ${typeof command.variables?.[key]},` +
+            `expected ${value!.type}`,
         });
       }
       if (!value!.optional && !command.variables?.[key]) {
@@ -177,7 +177,7 @@ const loopLocalCommandSchema = z.lazy(() => z.object({
   // z.lazy requires manual type definition cause of reqursive type
 }).strict()).describe(
   'Allow to run same commands multiple time or in iteration or loop'
-) as any as ZodType<{ commands: UnknownCommand[], loop: number|string }>;
+) as any as ZodType<{ commands: UnknownCommand[], loop: number | string }>;
 
 enum ShufflePolicy {
   random = 'random',
@@ -215,12 +215,23 @@ const threadsLocalCommandSchema = z.lazy(() => z.object({
   // z.lazy requires manual type definition cause of reqursive type
 }).strict()).describe('Allows to execute commands in parallel. Or in threads.') as ZodType<{ threads: Thread[] }>;
 
-const macroVariablesDescriptionSchema = z.record(z.object({
+
+const macroVariableValueSchema = z.object({
   type: z.enum(['string', 'number']).describe('To validate the type, or cast from env variables'),
   optional: z.boolean().optional().describe('If set to true, the key is be removed is var is not passed'),
   default: z.any().optional().describe('Default value if value is not passed. Optional should be set to true'),
-}).strict()
-  .optional())
+})
+  .strict()
+  .refine(
+    (v) => v.default === undefined || v.optional,
+    {
+      message: '`optional` must be true when `default` is provided',
+      path: ['optional'],
+    }
+  ).describe('Variable description for macro');
+
+const macroVariablesDescriptionSchema = z.record(macroVariableValueSchema)
+  .optional()
   .describe('Set of variables descriptors for macro');
 
 
@@ -269,6 +280,7 @@ export {
   threadsLocalCommandSchema,
   macroLocalCommandSchema,
   unknownCommandSchema,
+  macroVariableValueSchema,
   expressionSchema,
   expressionLocalCommandSchema,
   transactionLocalCommandSchema,
