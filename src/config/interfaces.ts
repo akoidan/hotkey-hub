@@ -17,7 +17,7 @@ export interface ConfigProvider {
 
   getVariables(): NonNullable<Variables>;
 
-  setVariable(name: string, value: string | number): Promise<void>;
+  setVariable(name: string, value: string | number): void;
 
   getGlobalVars(): Record<string, string | undefined>;
 }

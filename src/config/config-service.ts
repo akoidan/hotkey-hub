@@ -22,8 +22,7 @@ export class ConfigService implements ConfigProvider {
 
   private variables: Variables = {};
 
-  private variablesSaveLock: Promise<any> | null = null;
-  private variablesSaveLockIteration: number = 1;
+  private variablesSaveTimeoutId: NodeJS.Timeout | null = null;
 
   // eslint-disable-next-line @typescript-eslint/max-params
   constructor(
@@ -179,7 +178,7 @@ export class ConfigService implements ConfigProvider {
     this.macros = macros;
     this.configData = configData;
     this.variables = variables;
-    await this.setVariable('delays', configData.delays);
+    this.setVariable('delays', configData.delays);
     if (this.configData.name) {
       this.logger.log(`Loaded config ${clc.bold.green(this.configData.name)}`);
     }
@@ -214,29 +213,26 @@ export class ConfigService implements ConfigProvider {
     return this.configData!.clientPort || 5000;
   }
 
-  public async setVariable(name: string, value: unknown): Promise<void> {
+  public setVariable(name: string, value: unknown): void {
     this.variables[name] = value;
-    this.variablesSaveLockIteration++;
-    const iteration = this.variablesSaveLockIteration;
-    if (this.variablesSaveLock) {
-      this.logger.debug(`Save variables #${iteration}. Awaiting lock release`);
-      await this.variablesSaveLock;
-      this.logger.debug(`Save variables #${iteration}. Locked release`);
-    } else {
-      this.logger.debug(`Save variables #${iteration}. Lock doesn't exist. Commiting to main thread`);
+    if (this.variablesSaveTimeoutId) {
+      clearTimeout(this.variablesSaveTimeoutId);
     }
-    if (iteration !== this.variablesSaveLockIteration) {
-      this.logger.debug(`Save variables #${iteration}. Dropping current iteration to save variable for more prior one`);
-      return;
-    }
-    let resolve: (a?: unknown) => void = null!;
-    this.variablesSaveLock = new Promise(r => {
-      resolve = r;
-    });
-    await this.configReader.saveVariablesConfigString(this.variables);
-    this.logger.debug(`Save variables #${iteration}. Iteration finished, releasing lock`);
-    this.variablesSaveLock = null;
-    resolve();
+    // prevent multiple saves during sync actions
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    const timeoutId = setTimeout(async(): Promise<void> => {
+      this.variablesSaveTimeoutId = null;
+      try {
+        await this.configReader.saveVariablesConfigString(this.variables);
+        this.logger.debug(`Saved variables files #${JSON.stringify(timeoutId)}, on ${name}=${JSON.stringify(value)}`);
+      } catch(e) {
+        this.logger.error(`Unable to save variables because ${e?.message || e}`, e.stack);
+      }
+    }, 1000); // I hope save to disk a file takes less than 1s,
+    // so we dont save while other process is saving
+    // also prevents multiple async spam for variables backup
+    // we can sacrifice 1s of old variable
+    this.variablesSaveTimeoutId = timeoutId;
   }
 
   public getGlobalVars(): Record<string, string | undefined> {

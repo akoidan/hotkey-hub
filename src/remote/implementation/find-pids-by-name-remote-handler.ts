@@ -23,7 +23,7 @@ export class FindPidsByNameRemoteHandler extends CommandRemoteHandler {
     });
 
     if (command.assignIds) {
-      await this.configService.setVariable(command.assignIds as string, response.pids);
+      this.configService.setVariable(command.assignIds as string, response.pids);
     }
   }
 }
