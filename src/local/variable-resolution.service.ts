@@ -26,7 +26,7 @@ export class VariableResolutionService {
       const result: Partial<T> = {};
       for (const [key, value] of Object.entries(command) as [keyof T, T[keyof T]][]) {
         // thread objects as primitive, do not go down
-        result[key] = this.replacePlaceholders(value as VariablesDefinition, values, definition) as T[keyof T];
+        result[key] = this.replacePlaceholders(value as VariableValue, values, definition) as T[keyof T];
       }
       return result as T;
     }
@@ -44,9 +44,9 @@ export class VariableResolutionService {
     return  {varName: undefined, varExpress: undefined} ;
   }
 
-  private replacePrimitive<T>(command: T, values: Record<string, unknown>, definition: VariablesDefinition,): T {
+  private replacePrimitive<T>(command: T, values: Record<string, unknown>, definition: VariablesDefinition): T {
     const {varName, varExpress} = this.extractVariableName(command)!;
-    if (!varName || !definition[varName]) {
+    if (!varName || !definition?.[varName]) {
       return command;
     }
     if (Object.hasOwn(values, varName)) {
