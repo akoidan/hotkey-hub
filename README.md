@@ -15,12 +15,12 @@ The project requires several files for configuration and security:
 
 ### Required Files
 - `configs/config.jsonc`: Main configuration file that defines your hotkey bindings and actions. Schema is defined in `json-schema.json`. See `CONFIG.md` in releases for detailed documentation.
-- `certs/cert.pem`: Server certificate for mutual TLS authentication
-- `certs/key.pem`: Server private key
+- `certs/cert.pem`: Client certificate for mutual TLS authentication
+- `certs/key.pem`: Client private key
 - `certs/ca-cert.pem`: CA certificate
 
 ### Optional Files
-- `configs/macros.jsonc`: Define reusable code snippets that can be referenced in `config.jsonc`. Schema is defined in `macros-schema.json`. See `CONFIG_MACROS.md` in releases for detailed documentation.
+- `configs/macros.jsonc`: Define reusable code snippets that can be referenced in `config.jsonc`. Schema is defined in `macros-schema.json`.
 - `configs/variables.json`: Custom variables file (any valid JSON with a root object) that can be referenced in your configurations
 
 ## Get started
@@ -32,11 +32,11 @@ The project requires several files for configuration and security:
 ### Certificates (Requied)
 The client server app both use [mutual TLS authentication](https://www.cloudflare.com/learning/access-management/what-is-mutual-tls/).
 Generates them based on [Certificates](https://github.com/akoidan/http-remote-pc-control?tab=readme-ov-file#certificates) section.
-You need to copy from the client:
+You need to copy generated files from it:
  - `./gencert/client/key.pem`
  - `./gencert/client/cert.pem`
  - `./gencert/client/ca-cert.pem`
-To `./certs` directory where app.exe is.
+To `./certs` directory where hotkey-hub.exe is.
 
 **If client and server certificates are different you'll get an exception on startup that server is unable to connnect to the client**
 
@@ -57,7 +57,7 @@ You can create macros in `configs/config.jsonc` and additionally in `configs/mac
 ### Variables (Optional)
 Create `configs/variables.json` to define custom variables:
 - Can have any valid JSON structure with a root object
-- To reference a variable use double curly braces. E.g. `"destination": "{{myVar}}"`
+- To reference a variable use double curly braces. E.g. `"destination": "{"$ref": "varName"}`
 - Variables can be referenced in both `config.jsonc` and `macros.jsonc`
 
 ### JSON Schema Support
@@ -84,7 +84,7 @@ app --help
 ```
 
 ## Log example
-Every log line has its own request id, which allow to track complex structures.
+Every log line has its own request id (same for hotkey-hub and http-remote-pc-control), which allow to track complex structures.
 Let's review log line:
 ```txt
 [20:40:28.045] 2=mr7-c=0-th=tyrs-c=1=m=tyr-c=2=d=2hn: POST:201 lenovo /keyboard/key-press {"keys":["3"],"holdKeys":[]} ==>
