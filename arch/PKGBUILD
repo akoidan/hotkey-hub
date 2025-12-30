@@ -1,0 +1,44 @@
+# Maintainer: Andrew Koidan <deathangel908@gmail.com>
+pkgname=hotkey-hub
+pkgver=UNSET
+tag=UNSET
+pkgrel=1
+pkgdesc="Allows to control remote PC (mouse/windows/keyboard/processses) using hotkeys on this pc"
+arch=('x86_64')
+url="https://github.com/akoidan/hotkey-hub"
+license=('MIT')
+depends=(
+  gcc-libs
+  libsm
+  libxext
+)
+optdepends=(
+  'http-remote-pc-control: allows to control remote pc'
+)
+
+install=hotkey-hub.install
+source=(
+  "hotkey-hub::${url}/releases/download/${tag}/app.elf"
+  "CONFIG.md::${url}/releases/download/${tag}/CONFIG.md"
+  "json-schema.json::${url}/releases/download/${tag}/json-schema.json"
+  "macros-schema.json::${url}/releases/download/${tag}/macros-schema.json"
+  "hotkey-hub.service"
+  "hotkey-hub.install"
+)
+options=(!strip)
+sha256sums=(
+  'SKIP'
+  'SKIP'
+  'SKIP'
+  'SKIP'
+  'SKIP'
+  'SKIP'
+)
+
+package() {
+  install -D -m755 "${srcdir}/hotkey-hub" "${pkgdir}/usr/bin/hotkey-hub"
+  install -D -m644 "${srcdir}/hotkey-hub.service" "${pkgdir}/usr/lib/systemd/user/hotkey-hub.service"
+  install -D -m644 "${srcdir}/CONFIG.md" "${pkgdir}/usr/share/hotkey-hub/CONFIG.md"
+  install -D -m644 "${srcdir}/json-schema.json" "${pkgdir}/usr/share/hotkey-hub/json-schema.json"
+  install -D -m644 "${srcdir}/macros-schema.json" "${pkgdir}/usr/share/hotkey-hub/macros-schema.json"
+}
