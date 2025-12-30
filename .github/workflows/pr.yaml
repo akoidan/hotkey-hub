@@ -13,7 +13,6 @@ concurrency:
 
 jobs:
   docs:
-    runs-on: ubuntu-latest
     steps:
     runs-on: ubuntu-22.04
     permissions: write-all
@@ -38,7 +37,7 @@ jobs:
         run: yarn schema:json
 
   lint:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -58,7 +57,7 @@ jobs:
       - name: Check Eslint
         run: yarn lint
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
