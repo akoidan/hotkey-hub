@@ -41,6 +41,7 @@ You gonna have to use following certificates in the future. (Described later)
 
 ### Define Main Configuration (Required)
 Create `config.jsonc`. This file defines your hotkey bindings and actions:
+- You can find an example in [config-fixture.jsonc](./tests/fixtures/config-fixture.jsonc)
 - Uses JSON with comments (JSONC) format
 - Schema is defined in `json-schema.json`, available in [releases](https://github.com/akoidan/hotkey-hub/releases)
 - Documentation is defined at `CONFIG.md`, available in [releases](https://github.com/akoidan/hotkey-hub/releases)
@@ -107,13 +108,14 @@ You can validate your configuration using any JSON schema validator (e.g., [json
 - Run the `hotkey-hub.exe` from regular user. You can also run it from command line to view stdout and sterror if the app crashes.
 
 ### Help
-It check connection to remote PC/PCs, verifies the certificates and would be ready to listen shorcut press.
-App allows minimal configuration, check the following command for options
-```bash
-hotkey-hub --help
-```
+ - The app will ping client from the start in order to check connection. If one/more clients in config.jsonc `ips` section is not reachable, the app will `exit 1`
+ - If the certificats are incorrect you will get connection errors in the output and app will exit.
+ - If if there are no active shorcuts in `combinations` of `config.jsonc`, the app will `exit 0`
+ - You can check cli arguments with `hotkey-hub --help`
+
 
 ## Log example
+App provides a lot of log to understand what happens in the complex commands combinations. 
 Every log line has its own request id (same for hotkey-hub and http-remote-pc-control), which allow to track complex structures.
 Let's review log line:
 ```txt
