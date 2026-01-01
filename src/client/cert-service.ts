@@ -27,7 +27,7 @@ export class CertService {
       this.caCertificatePath,
     ];
     try {
-      this.logger.debug('Checking if certificates files exists');
+      this.logger.debug(`Checking if certificates files exists ${JSON.stringify(fileList)}`);
       await Promise.all(fileList.map(async(file) => access(file)));
     } catch (error) {
       this.logger.error(`Cannot find/load certificate files ${JSON.stringify(fileList)}`);

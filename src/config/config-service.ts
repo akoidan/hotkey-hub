@@ -31,7 +31,7 @@ export class ConfigService implements ConfigProvider {
     private readonly envVars: Record<string, string | undefined>,
     private readonly configReader: ConfigReaderService,
   ) {
-    this.logger.debug(`Created new instance of config service ${configReader.getId()}`);
+    this.logger.debug(`Created new instance of config service from ${configReader.getId()}`);
   }
 
 
@@ -224,7 +224,7 @@ export class ConfigService implements ConfigProvider {
       this.variablesSaveTimeoutId = null;
       try {
         await this.configReader.saveVariablesConfigString(this.variables);
-        this.logger.debug(`Saved variables files #${JSON.stringify(timeoutId)}, on ${name}=${JSON.stringify(value)}`);
+        this.logger.debug(`Saved variables files ${JSON.stringify(timeoutId.valueOf())}, on ${name}=${JSON.stringify(value)}`);
       } catch(e) {
         this.logger.error(`Unable to save variables because ${e?.message || e}`, e.stack);
       }
