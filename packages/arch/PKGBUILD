@@ -18,7 +18,7 @@ optdepends=(
 
 install=hotkey-hub.install
 source=(
-  "hotkey-hub::${url}/releases/download/${tag}/app.elf"
+  "hotkey-hub::${url}/releases/download/${tag}/hotkey-hub.elf"
   "CONFIG.md::${url}/releases/download/${tag}/CONFIG.md"
   "json-schema.json::${url}/releases/download/${tag}/json-schema.json"
   "macros-schema.json::${url}/releases/download/${tag}/macros-schema.json"
