@@ -25,40 +25,42 @@ The project requires several files for configuration and security:
 
 ## Get started
 
-### Download the apps (Required)
-- Download the server (the PC you controll others PCs) application file from [releases](https://github.com/akoidan/hotkey-hub/releases)
-- For the remote PC download the client app from [client releases](https://github.com/akoidan/http-remote-pc-control/releases)
+### Remote
+Install [http-remote-pc-control](https://github.com/akoidan/http-remote-pc-control) on a remote PC which you want to control.
+
 
 ### Certificates (Requied)
 The client server app both use [mutual TLS authentication](https://www.cloudflare.com/learning/access-management/what-is-mutual-tls/).
 Generates them based on [Certificates](https://github.com/akoidan/http-remote-pc-control?tab=readme-ov-file#certificates) section.
-You need to copy generated files from it:
- - `./gencert/client/key.pem`
- - `./gencert/client/cert.pem`
- - `./gencert/client/ca-cert.pem`
-To `./certs` directory where hotkey-hub.exe is.
+You gonna have to use following certificates in the future. (Described later)
+- `./gencert/client/key.pem`
+- `./gencert/client/cert.pem`
+- `./gencert/client/ca-cert.pem`
 
 **If client and server certificates are different you'll get an exception on startup that server is unable to connnect to the client**
 
-### Main Configuration (Required)
-Create `configs/config.jsonc` in the same directory as your `app.exe`. This file defines your hotkey bindings and actions:
+### Define Main Configuration (Required)
+Create `config.jsonc`. This file defines your hotkey bindings and actions:
 - Uses JSON with comments (JSONC) format
 - Schema is defined in `json-schema.json`, available in [releases](https://github.com/akoidan/hotkey-hub/releases)
 - Documentation is defined at `CONFIG.md`, available in [releases](https://github.com/akoidan/hotkey-hub/releases)
 - Can reference macros and variables from optional configuration files
+- Bellow you will find instruction where to put this file.
 
 ### Macros (Optional)
-You can create macros in `configs/config.jsonc` and additionally in `configs/macros.jsonc`:
+You can create macros in `config.jsonc` and additionally in `macros.jsonc`:
 - Macroses helps avoid repetition in your main configuration
 - Schema is defined in `macros-schema.json`, available in [releases](https://github.com/akoidan/hotkey-hub/releases)
 - Documentation is defined at `CONFIG.md` same schema as "macros" in the root object. 
 - Can be referenced from `config.jsonc`
+- Bellow you will find instruction where to put this file.
 
 ### Variables (Optional)
 Create `configs/variables.json` to define custom variables:
 - Can have any valid JSON structure with a root object
 - To reference a variable use double curly braces. E.g. `"destination": "{"$ref": "varName"}`
 - Variables can be referenced in both `config.jsonc` and `macros.jsonc`
+- Bellow you will find instruction where to put this file.
 
 ### JSON Schema Support
 You can validate your configuration using any JSON schema validator (e.g., [jsonschemavalidator.net](https://www.jsonschemavalidator.net/)):
@@ -66,21 +68,49 @@ You can validate your configuration using any JSON schema validator (e.g., [json
 2. Paste the schema into the validator's schema panel
 3. Write/validate your configuration in the data panel
 
-### Archlinux
-- Install the app `yay -S hotkey-hub`
-- Put certificates in `~/.local/share/hotkey-hub/certs` 
-- Put configs in `~/.local/share/hotkey-hub/configs/config.jsonc` 
-- Put macros in `~/.local/share/hotkey-hub/configs/macros.jsonc` 
-- Put variables in `~/.local/share/hotkey-hub/configs/variables.jsonc` 
+### Install the app
+
+#### Ubuntu
+- Install dependencies `sudo apt-get install libgcc-s1 libsm6 libxext6` if you dont have them yet.
+- Download `hotkey-hub.deb` from [releases](https://github.com/akoidan/hotkey-hub/releases).
+- Install the package `sudo dpkg -i hotkey-hub.deb`
+- Put certificates in `~/.local/share/hotkey-hub/certs`
+- Put configs in `~/.local/share/hotkey-hub/configs/config.jsonc`
+- Put macros in `~/.local/share/hotkey-hub/configs/macros.jsonc`
+- Put variables in `~/.local/share/hotkey-hub/configs/variables.jsonc`
 - Start the service as a normal user: `systemctl --user start hotkey-hub` should be the same user as logged in X
 
-## Run the app
-After configuration files are created, run the app from regular user. You can also run it from command line to view stdout and sterror if the app crashes. It check connection to remote PC/PCs, verifies the certificates and would be ready to listen shorcut press.
+#### Archlinux
+- Install the package with `yay` or `paru` from AUR `yay -S hotkey-hub`
+- Put certificates in `~/.local/share/hotkey-hub/certs`
+- Put configs in `~/.local/share/hotkey-hub/configs/config.jsonc`
+- Put macros in `~/.local/share/hotkey-hub/configs/macros.jsonc`
+- Put variables in `~/.local/share/hotkey-hub/configs/variables.jsonc`
+- Start the service as a normal user: `systemctl --user start hotkey-hub` should be the same user as logged in X
+
+#### Other Linux distro
+- You need X11 server with some of the dependencies (libgcc libsm libXext)
+- Download `hotkey-hub.elf` from [releases](https://github.com/akoidan/hotkey-hub/releases).
+- Ensure directory with the executalbe, or project direcotry contains `certs` directory with certificates
+- run `chmod +x hotkey-hub.elf`
+- Put certificates in `./certs`
+- Put configs in `./configs/config.jsonc`
+- Put macros in `./configs/macros.jsonc`
+- Put variables in `./configs/variables.jsonc`
+- Start the service from the non-root X user `./hotkey-hub.elf`
+- If you need systemd unit, check [hotkey-hub.service](./packages/hotkey-hub.service)
+
+#### Windows
+- Download `hotkey-hub.exe` from [releases](https://github.com/akoidan/hotkey-hub/releases).
+- Put ceritifates into `./certs` directory where `hotkey-hub.exe` is.
+- Put configs into `./configs` directory where `hotkey-hub.exe` is
+- Run the `hotkey-hub.exe` from regular user. You can also run it from command line to view stdout and sterror if the app crashes.
 
 ### Help
+It check connection to remote PC/PCs, verifies the certificates and would be ready to listen shorcut press.
 App allows minimal configuration, check the following command for options
 ```bash
-app --help
+hotkey-hub --help
 ```
 
 ## Log example
