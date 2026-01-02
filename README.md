@@ -41,12 +41,40 @@ You gonna have to use following certificates in the future. (Described later)
 
 ### Define Main Configuration (Required)
 Create `config.jsonc`. This file defines your hotkey bindings and actions:
-- You can find an example in [config-fixture.jsonc](./tests/fixtures/config-fixture.jsonc)
+Example of the minimal config:
+```json
+{
+  "ips": {
+    "this": "127.0.0.1", // replace with the IP of the remote PC
+  },
+  "combinations": [
+    {
+      "commands": [
+        {
+          "typeText": "Hello wolrd", // will literally type this text (press key by key)
+          "destination": "this",
+        },
+        {
+          "mouseMoveX": 200, // move mouse cursor to the position (200, 200)
+          "mouseMoveY": 200,
+          "destination": "this"
+        }
+      ],
+      "name": "Mouse move + type text",
+      // Note you need to have signal keys like alt, ctrl, shift, super (windows key) pressed. 
+      // Since OS API usually requires them for a shortcut
+      "shortCut": "Alt+1" // any OS shortcuts allowd (Alt+1, Ctrl+Shift+2, etc)
+    }
+  ]
+}
+```
+
+- You can more examples in fixtures, e.g. [config-fixture.jsonc](./tests/fixtures/config-fixture.jsonc)
 - Uses JSON with comments (JSONC) format
 - Schema is defined in `json-schema.json`, available in [releases](https://github.com/akoidan/hotkey-hub/releases)
 - Documentation is defined at `CONFIG.md`, available in [releases](https://github.com/akoidan/hotkey-hub/releases)
 - Can reference macros and variables from optional configuration files
-- Bellow you will find instruction where to put this file.
+- Bellow you will find instruction where to put this file and how to use schema from `json-schema.json`
 
 ### Macros (Optional)
 You can create macros in `config.jsonc` and additionally in `macros.jsonc`:
