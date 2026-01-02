@@ -63,7 +63,8 @@ Example of the minimal config:
       "name": "Mouse move + type text",
       // Note you need to have signal keys like alt, ctrl, shift, super (windows key) pressed. 
       // Since OS API usually requires them for a shortcut
-      "shortCut": "Alt+1" // any OS shortcuts allowd (Alt+1, Ctrl+Shift+2, etc)
+      // any OS shortcuts allowd (Alt+1, Ctrl+Shift+2, etc)
+      "shortCut": "Alt+1" // press this combination of keys to trigger keyPress + mouseMove
     }
   ]
 }
