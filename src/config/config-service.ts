@@ -224,7 +224,7 @@ export class ConfigService implements ConfigProvider {
       this.variablesSaveTimeoutId = null;
       try {
         await this.configReader.saveVariablesConfigString(this.variables);
-        this.logger.debug(`Saved variables files ${JSON.stringify(timeoutId.valueOf())}, on ${name}=${JSON.stringify(value)}`);
+        this.logger.debug(`Saved variables files from ${clc.green(name)}=${JSON.stringify(value)}`);
       } catch(e) {
         this.logger.error(`Unable to save variables because ${e?.message || e}`, e.stack);
       }
