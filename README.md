@@ -109,6 +109,7 @@ You can validate your configuration using any JSON schema validator (e.g., [json
 - Put macros in `~/.local/share/hotkey-hub/configs/macros.jsonc`
 - Put variables in `~/.local/share/hotkey-hub/configs/variables.jsonc`
 - Start the service as a normal user: `systemctl --user start hotkey-hub` should be the same user as logged in X
+- To view logs check `journalctl --user -o cat -u hotkey-hub -f`
 
 #### Archlinux
 - Install the package with `yay` or `paru` from AUR `yay -S hotkey-hub`
@@ -117,6 +118,7 @@ You can validate your configuration using any JSON schema validator (e.g., [json
 - Put macros in `~/.local/share/hotkey-hub/configs/macros.jsonc`
 - Put variables in `~/.local/share/hotkey-hub/configs/variables.jsonc`
 - Start the service as a normal user: `systemctl --user start hotkey-hub` should be the same user as logged in X
+- To view logs check `journalctl --user -o cat -u hotkey-hub -f`
 
 #### Other Linux distro
 - You need X11 server with some of the dependencies (libgcc libsm libXext)
@@ -141,7 +143,6 @@ You can validate your configuration using any JSON schema validator (e.g., [json
  - If the certificats are incorrect you will get connection errors in the output and app will exit.
  - If if there are no active shorcuts in `combinations` of `config.jsonc`, the app will `exit 0`
  - You can check cli arguments with `hotkey-hub --help`
-
 
 ## Log example
 App provides a lot of log to understand what happens in the complex commands combinations. 
