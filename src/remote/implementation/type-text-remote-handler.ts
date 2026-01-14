@@ -1,7 +1,7 @@
-import {TypeTextRemoteCommand} from '@/config/types/remote/keyboard-commands';
-import {RemoteCommand} from '@/config/types/remote/remote-commands';
+import type {TypeTextRemoteCommand} from '@/config/types/remote/keyboard-commands';
+import type {RemoteCommand} from '@/config/types/remote/remote-commands';
 import {CommandRemoteHandler} from '@/remote/command-remote-handler';
-import {TypeTextRequest} from '@/client/dtos';
+import type {TypeTextRequest} from '@/client/dtos';
 
 export class TypeTextRemoteHandler extends CommandRemoteHandler {
   canHandle(command: RemoteCommand): command is TypeTextRemoteCommand {

@@ -2,7 +2,7 @@ import {ConfigService} from '@/config/config-service';
 import {Injectable, Logger} from '@nestjs/common';
 import clc from 'cli-color';
 import {BaseLocalHandler} from '@/local/base-local-handler';
-import {ExpressionLocalCommand, UnknownCommand} from '@/config/types/local-commands';
+import {ExpressionLocalCommand, UnknownCommand} from '@/config/types/local/local-commands';
 import {EvaluateService} from '@/local/evaluate-serivce';
 
 @Injectable()

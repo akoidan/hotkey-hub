@@ -1,7 +1,4 @@
-import {
-  Logger,
-  Module,
-} from '@nestjs/common';
+import {Logger, Module} from '@nestjs/common';
 import {FetchClient} from '@/client/http-client';
 import {ClientService} from '@/client/client-service';
 import {CertService} from '@/client/cert-service';

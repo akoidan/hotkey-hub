@@ -1,7 +1,7 @@
-import {KillExeByNameRemoteCommand} from '@/config/types/remote/process-commands';
-import {RemoteCommand} from '@/config/types/remote/remote-commands';
+import type {KillExeByNameRemoteCommand} from '@/config/types/remote/process-commands';
+import type {RemoteCommand} from '@/config/types/remote/remote-commands';
 import {CommandRemoteHandler} from '@/remote/command-remote-handler';
-import {KillExeByNameRequest} from '@/client/dtos';
+import type {KillExeByNameRequest} from '@/client/dtos';
 
 export class KillNameRemoteHandler extends CommandRemoteHandler {
   canHandle(command: RemoteCommand): command is KillExeByNameRemoteCommand {

@@ -13,6 +13,6 @@ const remoteCommandSchema = z.union([
 
 type RemoteCommand = z.infer<typeof remoteCommandSchema>
 
-export {remoteCommandSchema}
+export {remoteCommandSchema};
 
-export type {RemoteCommand}
+export type {RemoteCommand};

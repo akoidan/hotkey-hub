@@ -2,20 +2,13 @@ import {z} from 'zod';
 import {baseRemoteCommandSchema} from '@/config/types/remote/base-remote-command';
 import {makeVariableUnion} from '@/config/types/utils';
 import {variableValueSchema} from '@/config/types/variables';
+import {allowedKeys, modifierKeys} from '@/config/types/keyboard';
 
-const keySchema = z.enum([
-  'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
-  't', 'u', 'v', 'w', 'x', 'y', 'z', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8', 'f9', 'f10',
-  'f11', 'f12', 'f13', 'f14', 'f15', 'f16', 'f17', 'f18', 'f19', 'f20', 'f21', 'f22', 'f23', 'f24',
-  '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'numpad_0', 'numpad_1', 'numpad_2', 'numpad_3',
-  'numpad_4', 'numpad_5', 'numpad_6', 'numpad_7', 'numpad_8', 'numpad_9', 'numpad_decimal', 'space',
-  'escape', 'tab', 'alt', 'control', 'right_alt', 'right_control', 'win', 'right_win', 'cmd', 'right_cmd',
-  'menu', 'fn', 'shift', 'command', 'right_shift', 'command', '`', '-', '=', 'backspace', '[', ']', '\\', ';',
-  '\'', 'enter', ',', '.', '/', 'left', 'up', 'right', 'down', 'printscreen', 'insert', 'delete', 'home', 'end',
-  'pageup', 'pagedown', 'add', 'subtract', 'multiply', 'divide', 'enter', 'caps_lock', 'scroll_lock', 'num_lock',
-  'audio_mute', 'audio_vol_down', 'audio_vol_up', 'audio_play', 'audio_stop', 'audio_pause', 'audio_prev',
-  'audio_next', 'audio_rewind', 'audio_forward', 'audio_repeat', 'audio_random'
-  ]).describe('One of the keyboard keys.');
+
+const keySchema =  z.enum([
+  ...allowedKeys,
+  ...modifierKeys,
+]).describe('One of the keyboard keys.');
 
 const keyPressRemoteVariableSchema = z.object({
   key: z.union([keySchema, z.array(keySchema)])
@@ -36,8 +29,6 @@ const keyPressRemoteCommandSchema = baseRemoteCommandSchema.extend({
 }).strict().describe('Simulates keyboard input on the remote PC by sending key press events. ' +
   'Supports single keys, key combinations, and modifier keys with customizable timing and randomness. ' +
   'Use this for automating keyboard input or triggering keyboard shortcuts.');
-
-
 
 const typeTextRemoteCommandSchema = baseRemoteCommandSchema.extend({
   performOnRemote: z.literal('typeText'),

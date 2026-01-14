@@ -1,7 +1,4 @@
-import {
-  Injectable,
-  Logger,
-} from '@nestjs/common';
+import {Injectable, Logger} from '@nestjs/common';
 import {Client} from 'openrgb-sdk';
 import ClientType from 'openrgb-sdk/types/client';
 import {ConfigService} from '@/config/config-service';

@@ -11,7 +11,7 @@ import {ConfigReaderService} from '@/config/config-reader-service';
 import clc from 'cli-color';
 import {DelayData} from '@/config/types/delays';
 import {ConfigCombination} from '@/config/config-model';
-import {MacroList} from '@/config/types/local-commands';
+import {MacroList} from '@/config/types/local/local-commands';
 import {ENV, ZodErrorCollected} from '@/config/types/config-path';
 import {ZodInvalidTypeIssue, ZodInvalidUnionIssue, ZodIssue} from 'zod/lib/ZodError';
 

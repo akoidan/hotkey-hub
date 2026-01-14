@@ -1,6 +1,6 @@
 import {Injectable, Logger} from '@nestjs/common';
 import {BaseLocalHandler} from '@/local/base-local-handler';
-import {ShuffleLocalCommand, ShufflePolicy, UnknownCommand} from '@/config/types/local-commands';
+import {ShuffleLocalCommand, ShufflePolicy, UnknownCommand} from '@/config/types/local/local-commands';
 import {SemaphorService} from '@/semaphor/semaphor-service';
 
 @Injectable()

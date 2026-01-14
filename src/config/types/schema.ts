@@ -3,16 +3,24 @@ import {z} from 'zod';
 
 
 import {variablesSchema, variableValueSchema} from '@/config/types/variables';
-import {behaviourObjectSchema, behaviourSchema, shortcutSchema, shortcutsSchema} from '@/config/types/shortcut';
+import {behaviourObjectSchema, shortcutSchema, shortcutsSchema} from '@/config/types/shortcut';
 import {globalDelaySchema} from '@/config/types/delays';
-import {keyPressRemoteCommandSchema, typeTextRemoteCommandSchema, keySchema} from '@/config/types/remote/keyboard-commands';
-import {mouseMoveClickRemoteCommandSchema, leftMouseClickRemoteCommandSchema} from '@/config/types/remote/mouse-commands';
-import {killExeByNameRemoteCommandSchema, killExeByPidRemoteCommandSchema, launchExeRemoteCommandSchema} from '@/config/types/remote/process-commands';
-import {setWindowBoundsRemoteSchema, focusProcessWindowRemoteCommandSchema, focusWindowRemoteCommandSchema, windowPropertiesSchema} from '@/config/types/remote/window-commands';
+import {keyPressRemoteCommandSchema, keySchema, typeTextRemoteCommandSchema} from '@/config/types/remote/keyboard-commands';
+import {leftMouseClickRemoteCommandSchema, mouseMoveClickRemoteCommandSchema} from '@/config/types/remote/mouse-commands';
+import {
+  killExeByNameRemoteCommandSchema,
+  killExeByPidRemoteCommandSchema,
+  launchExeRemoteCommandSchema,
+} from '@/config/types/remote/process-commands';
+import {
+  focusProcessWindowRemoteCommandSchema,
+  focusWindowRemoteCommandSchema,
+  setWindowBoundsRemoteSchema,
+  windowPropertiesSchema,
+} from '@/config/types/remote/window-commands';
 import {remoteCommandSchema} from '@/config/types/remote/remote-commands';
 import {
   expressionLocalCommandSchema,
-  expressionSchema,
   ifLocalCommandSchema,
   loopLocalCommandSchema,
   macroDefinitionSchema,
@@ -27,9 +35,23 @@ import {
   threadsLocalCommandSchema,
   transactionLocalCommandSchema,
   unknownCommandSchema,
-} from '@/config/types/local-commands';
-import {getActiveWindowIdSchema, getWindowBoundsSchema, getWindowOpacitySchema, getWindowOwnerSchema, getWindowsIdByPidSchema, getWindowTitleSchema, isWindowSchema, isWindowVisibleSchema} from '@/config/types/get-commands/get-window-commands';
-import {getMonitorFromWindowSchema, getMonitorInfoSchema, getMonitorScaleFactorSchema, getMonitorsSchema} from '@/config/types/get-commands/get-monitor-commands';
+} from '@/config/types/local/local-commands';
+import {
+  getActiveWindowIdSchema,
+  getWindowBoundsSchema,
+  getWindowOpacitySchema,
+  getWindowOwnerSchema,
+  getWindowsIdByPidSchema,
+  getWindowTitleSchema,
+  isWindowSchema,
+  isWindowVisibleSchema,
+} from '@/config/types/get-commands/get-window-commands';
+import {
+  getMonitorFromWindowSchema,
+  getMonitorInfoSchema,
+  getMonitorScaleFactorSchema,
+  getMonitorsSchema,
+} from '@/config/types/get-commands/get-monitor-commands';
 import {getPidsByNameSchema, getProcessMainWindowSchema} from '@/config/types/get-commands/get-process-commands';
 import {getInfoRemoteCommandSchema, pingSchema} from '@/config/types/get-commands/get-commands';
 
@@ -93,8 +115,6 @@ export type {
   IpsData,
   RgbData,
 };
-
-
 
 
 export {

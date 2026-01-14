@@ -1,7 +1,7 @@
-import {MouseMoveClickRemoteCommand} from '@/config/types/remote/mouse-commands';
-import {RemoteCommand} from '@/config/types/remote/remote-commands';
+import type {MouseMoveClickRemoteCommand} from '@/config/types/remote/mouse-commands';
+import type {RemoteCommand} from '@/config/types/remote/remote-commands';
 import {CommandRemoteHandler} from '@/remote/command-remote-handler';
-import {MouseMoveHumanRequest} from '@/client/dtos';
+import type {MouseMoveHumanRequest} from '@/client/dtos';
 
 export class MouseClickRemoteHandler extends CommandRemoteHandler {
   canHandle(command: RemoteCommand): command is MouseMoveClickRemoteCommand {

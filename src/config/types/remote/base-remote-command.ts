@@ -1,7 +1,7 @@
 import {z, ZodIssueCode} from 'zod';
 import {type VariableValue, variableValueSchema} from '@/config/types/variables';
 import {schemaRootCache} from '@/config/types/cache';
-import type { ConfigDataWoMacro } from '@/config/types/schema';
+import type {ConfigDataWoMacro} from '@/config/types/schema';
 
 
 const delayCommandsSchema = z.object({

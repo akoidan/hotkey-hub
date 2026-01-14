@@ -1,6 +1,6 @@
 import {Injectable, Logger} from '@nestjs/common';
 import {BaseLocalHandler} from '@/local/base-local-handler';
-import {LoopLocalCommand, UnknownCommand} from '@/config/types/local-commands';
+import {LoopLocalCommand, UnknownCommand} from '@/config/types/local/local-commands';
 import clc from 'cli-color';
 import {SemaphorService} from '@/semaphor/semaphor-service';
 import {EvaluateService} from '@/local/evaluate-serivce';

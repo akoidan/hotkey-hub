@@ -1,11 +1,5 @@
-import {
-  Injectable,
-  Logger,
-} from '@nestjs/common';
-import {
-  Agent,
-  request,
-} from 'https';
+import {Injectable, Logger} from '@nestjs/common';
+import {Agent, request} from 'https';
 import {ConfigService} from '@/config/config-service';
 import clc from 'cli-color';
 import {SemaphorService} from '@/semaphor/semaphor-service';

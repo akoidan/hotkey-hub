@@ -4,8 +4,7 @@ import {schemaRootCache} from '@/config/types/cache';
 import {type VariableValue, variableValueSchema} from '@/config/types/variables';
 import {delayCommandsSchema} from '@/config/types/remote/base-remote-command';
 import {type RemoteCommand, remoteCommandSchema} from '@/config/types/remote/remote-commands';
-import {getMonitorInfoSchema} from '@/config/types/get-commands/get-monitor-commands';
-import {GetInfoRemoteCommand, getInfoRemoteCommandSchema} from '@/config/types/get-commands/get-commands';
+import {type GetInfoRemoteCommand, getInfoRemoteCommandSchema} from '@/config/types/get-commands/get-commands';
 
 
 const macroLocalCommandSchema = z.object({

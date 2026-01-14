@@ -1,6 +1,6 @@
 import {Inject, Injectable, Logger} from '@nestjs/common';
 import {BaseLocalHandler} from '@/local/base-local-handler';
-import {ReloadConfigLocalCommand, UnknownCommand} from '@/config/types/local-commands';
+import {ReloadConfigLocalCommand, UnknownCommand} from '@/config/types/local/local-commands';
 import {ConfigPath, ConfigPathClass} from '@/config/types/config-path';
 import {KeybindingService} from '@/local/keybinding-service';
 

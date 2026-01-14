@@ -1,8 +1,4 @@
-import {
-  Logger,
-  Module,
-  OnModuleInit,
-} from '@nestjs/common';
+import {Logger, Module, OnModuleInit} from '@nestjs/common';
 import {ConfigModule} from '@/config/config-module';
 import {RgbService} from '@/rgb/rgb-service';
 

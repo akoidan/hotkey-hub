@@ -1,7 +1,4 @@
-import {
-  Injectable,
-  Logger,
-} from '@nestjs/common';
+import {Injectable, Logger} from '@nestjs/common';
 import {ConfigService} from '@/config/config-service';
 import {RandomService} from '@/random/random-service';
 

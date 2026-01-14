@@ -1,7 +1,7 @@
-import {FocusWindowRemoteCommand} from '@/config/types/remote/window-commands';
-import {RemoteCommand} from '@/config/types/remote/remote-commands';
+import type {FocusWindowRemoteCommand} from '@/config/types/remote/window-commands';
+import type {RemoteCommand} from '@/config/types/remote/remote-commands';
 import {CommandRemoteHandler} from '@/remote/command-remote-handler';
-import {FocusWindowRequest} from '@/client/dtos';
+import type {FocusWindowRequest} from '@/client/dtos';
 
 export class FocusWindowRemoteHandler extends CommandRemoteHandler {
   canHandle(command: RemoteCommand): command is FocusWindowRemoteCommand {

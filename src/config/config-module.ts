@@ -1,8 +1,4 @@
-import {
-  Logger,
-  Module,
-  OnModuleInit,
-} from '@nestjs/common';
+import {Logger, Module, OnModuleInit} from '@nestjs/common';
 import {ConfigService} from '@/config/config-service';
 import * as process from 'node:process';
 import {ConfigsPathService} from '@/config/configs-path.service';

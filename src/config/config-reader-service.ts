@@ -1,13 +1,6 @@
-import {
-  Inject,
-  Injectable,
-  Logger,
-} from '@nestjs/common';
+import {Inject, Injectable, Logger} from '@nestjs/common';
 import {promises as fs} from 'fs';
-import {
-  ConfigPath,
-  ConfigPathClass,
-} from '@/config/types/config-path';
+import {ConfigPath, ConfigPathClass} from '@/config/types/config-path';
 
 
 @Injectable()

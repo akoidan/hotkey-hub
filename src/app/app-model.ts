@@ -1,6 +1,6 @@
 import type {Shortcut} from '@/config/types/shortcut';
 
- interface ShortcutDescription {
+interface ShortcutDescription {
   id: number;
   shortcut: Shortcut;
 }
