@@ -5,8 +5,6 @@ enum GetRequest {
   findPidsByName = 'findPidsByName',
   findProcessWindows = 'findProcessWindows',
   findProcessesWindows = 'findProcessesWindows',
-
-
   mousePosition = 'mousePosition',
   processWindows = 'processWindows',
   activeWindow = 'activeWindow',
@@ -17,10 +15,8 @@ enum GetRequest {
   windowOwner = 'windowBounds',
   isWindow = 'windowBounds',
   isWindowVisible = 'windowBounds',
-
   monitor = 'windowBounds',
   monitorInfo = 'windowBounds',
-
   mainWindow
 }
 
@@ -29,7 +25,7 @@ const getRequestEnumSchema = z.nativeEnum(GetRequest)
     ' Reverse = each time it changes the order from first to last, then from last to first.' +
     ' Straight = Default order from first to last');
 
-const executeGetReqeustRemoteCommandSchema = z.object({
+const executeGetRequestBaseRemoteCommandSchema = z.object({
   get: getRequestEnumSchema,
   assignVariable: z.string().describe('Name of the variable to store the response of result. ' +
     'This variable can be referenced in subsequent commands using {{variableName}} syntax.'),
