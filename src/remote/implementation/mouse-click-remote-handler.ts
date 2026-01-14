@@ -1,4 +1,5 @@
-import type {MouseMoveClickRemoteCommand, RemoteCommand} from '@/config/types/remote-commands';
+import {MouseMoveClickRemoteCommand} from '@/config/types/remote/mouse-commands';
+import {RemoteCommand} from '@/config/types/remote/remote-commands';
 import {CommandRemoteHandler} from '@/remote/command-remote-handler';
 import {MouseMoveHumanRequest} from '@/client/dtos';
 

@@ -1,7 +1,8 @@
 import {RandomService} from '@/random/random-service';
 import {ClientService} from '@/client/client-service';
 import {Injectable} from '@nestjs/common';
-import {Key, KeyPressRemoteCommand, RemoteCommand} from '@/config/types/remote-commands';
+import {Key, KeyPressRemoteCommand} from '@/config/types/remote/keyboard-commands';
+import {RemoteCommand} from '@/config/types/remote/remote-commands';
 import {CommandRemoteHandler} from '@/remote/command-remote-handler';
 
 @Injectable()

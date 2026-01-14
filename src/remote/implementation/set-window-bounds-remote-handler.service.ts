@@ -1,5 +1,6 @@
 import {Injectable} from '@nestjs/common';
-import {RemoteCommand, SetWindowBoundsRemoteCommand} from '@/config/types/remote-commands';
+import {SetWindowBoundsRemoteCommand} from '@/config/types/remote/window-commands';
+import {RemoteCommand} from '@/config/types/remote/remote-commands';
 import {CommandRemoteHandler} from '@/remote/command-remote-handler';
 import {SetWindowBoundsRequest, WindowBounds} from '@/client/dtos';
 

@@ -6,7 +6,7 @@ import {DelayService} from '@/local/delay.service';
 import {SemaphorService} from '@/semaphor/semaphor-service';
 import {BaseLocalHandler} from '@/local/base-local-handler';
 import {UnknownCommand} from '@/config/types/local-commands';
-import {RemoteCommand} from '@/config/types/remote-commands';
+import {RemoteCommand} from '@/config/types/remote/remote-commands';
 
 @Injectable()
 export class CommandLocalHandler extends BaseLocalHandler {

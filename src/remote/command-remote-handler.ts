@@ -1,6 +1,6 @@
 import {ClientService} from '@/client/client-service';
 import {Injectable} from '@nestjs/common';
-import {RemoteCommand} from '@/config/types/remote-commands';
+import {RemoteCommand} from '@/config/types/remote/remote-commands';
 
 @Injectable()
 export abstract class CommandRemoteHandler {

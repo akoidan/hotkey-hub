@@ -1,4 +1,5 @@
-import type {LeftMouseClickRemoteCommand, RemoteCommand} from '@/config/types/remote-commands';
+import {LeftMouseClickRemoteCommand} from '@/config/types/remote/mouse-commands';
+import {RemoteCommand} from '@/config/types/remote/remote-commands';
 import {CommandRemoteHandler} from '@/remote/command-remote-handler';
 
 export class LeftMouseClickRemoteHandler extends CommandRemoteHandler {

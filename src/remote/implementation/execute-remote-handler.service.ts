@@ -1,7 +1,8 @@
 import {ConfigService} from '@/config/config-service';
 import {Injectable} from '@nestjs/common';
 import {ClientService} from '@/client/client-service';
-import {ExecuteRemoteCommand, RemoteCommand} from '@/config/types/remote-commands';
+import {ExecuteRemoteCommand} from '@/config/types/remote/process-commands';
+import {RemoteCommand} from '@/config/types/remote/remote-commands';
 import {CommandRemoteHandler} from '@/remote/command-remote-handler';
 import {LaunchExeRequest} from '@/client/dtos';
 

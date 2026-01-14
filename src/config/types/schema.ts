@@ -5,21 +5,11 @@ import {z} from 'zod';
 import {variablesSchema, variableValueSchema} from '@/config/types/variables';
 import {behaviourObjectSchema, behaviourSchema, shortcutSchema, shortcutsSchema} from '@/config/types/shortcut';
 import {globalDelaySchema} from '@/config/types/delays';
-import {
-  focusProcessWindowRemoteCommandSchema,
-  focusWindowRemoteCommandSchema,
-  keyPressRemoteCommandSchema,
-  keySchema,
-  killExeByNameRemoteCommandSchema,
-  killExeByPidRemoteCommandSchema,
-  launchExeRemoteCommandSchema,
-  leftMouseClickRemoteCommandSchema,
-  mouseMoveClickRemoteCommandSchema,
-  remoteCommandSchema,
-  setWindowBoundsRemoteSchema,
-  typeTextRemoteCommandSchema,
-  windowPropertiesSchema,
-} from '@/config/types/remote-commands';
+import {keyPressRemoteCommandSchema, typeTextRemoteCommandSchema, keySchema} from '@/config/types/remote/keyboard-commands';
+import {mouseMoveClickRemoteCommandSchema, leftMouseClickRemoteCommandSchema} from '@/config/types/remote/mouse-commands';
+import {killExeByNameRemoteCommandSchema, killExeByPidRemoteCommandSchema, launchExeRemoteCommandSchema} from '@/config/types/remote/process-commands';
+import {setWindowBoundsRemoteSchema, focusProcessWindowRemoteCommandSchema, focusWindowRemoteCommandSchema, windowPropertiesSchema} from '@/config/types/remote/window-commands';
+import {remoteCommandSchema} from '@/config/types/remote/remote-commands';
 import {
   expressionLocalCommandSchema,
   expressionSchema,
@@ -38,16 +28,10 @@ import {
   transactionLocalCommandSchema,
   unknownCommandSchema,
 } from '@/config/types/local-commands';
-import {
-  getActiveWindowIdSchema,
-  getActiveWindowSchema,
-  getInfoRemoteCommandSchema,
-  getMonitorFromWindowSchema, getMonitorInfoSchema,
-  getMonitorScaleFactorSchema, getMonitorsSchema, getPidsByNameSchema,
-  getProcessMainWindowSchema, getWindowBoundsSchema, getWindowOpacitySchema, getWindowOwnerSchema,
-  getWindowsIdByPidSchema, getWindowTitleSchema, isWindowSchema, isWindowVisibleSchema,
-  pingSchema
-} from '@/config/types/get-commands/get-commands';
+import {getActiveWindowIdSchema, getWindowBoundsSchema, getWindowOpacitySchema, getWindowOwnerSchema, getWindowsIdByPidSchema, getWindowTitleSchema, isWindowSchema, isWindowVisibleSchema} from '@/config/types/get-commands/get-window-commands';
+import {getMonitorFromWindowSchema, getMonitorInfoSchema, getMonitorScaleFactorSchema, getMonitorsSchema} from '@/config/types/get-commands/get-monitor-commands';
+import {getPidsByNameSchema, getProcessMainWindowSchema} from '@/config/types/get-commands/get-process-commands';
+import {getInfoRemoteCommandSchema, pingSchema} from '@/config/types/get-commands/get-commands';
 
 
 const remoteAddressDefinition = z.union([z.string().ip(), z.string().regex(
@@ -117,7 +101,6 @@ export {
   pingSchema,
   getWindowsIdByPidSchema,
   getActiveWindowIdSchema,
-  getActiveWindowSchema,
   getWindowBoundsSchema,
   getWindowTitleSchema,
   getWindowOpacitySchema,

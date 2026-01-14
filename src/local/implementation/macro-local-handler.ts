@@ -4,7 +4,7 @@ import {VariableResolutionService} from '@/local/variable-resolution.service';
 import {DelayService} from '@/local/delay.service';
 import {BaseLocalHandler} from '@/local/base-local-handler';
 import {MacroLocalCommand, UnknownCommand} from '@/config/types/local-commands';
-import {Delay} from '@/config/types/remote-commands';
+import {Delay} from '@/config/types/remote/base-remote-command';
 import {SemaphorService} from '@/semaphor/semaphor-service';
 
 @Injectable()

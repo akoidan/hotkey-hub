@@ -1,4 +1,5 @@
-import type {RemoteCommand, TypeTextRemoteCommand} from '@/config/types/remote-commands';
+import {TypeTextRemoteCommand} from '@/config/types/remote/keyboard-commands';
+import {RemoteCommand} from '@/config/types/remote/remote-commands';
 import {CommandRemoteHandler} from '@/remote/command-remote-handler';
 import {TypeTextRequest} from '@/client/dtos';
 

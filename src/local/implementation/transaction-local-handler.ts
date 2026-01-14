@@ -4,7 +4,7 @@ import {SemaphorService} from '@/semaphor/semaphor-service';
 import {BaseLocalHandler} from '@/local/base-local-handler';
 import {VariableResolutionService} from '@/local/variable-resolution.service';
 import {TransactionLocalCommand, UnknownCommand} from '@/config/types/local-commands';
-import {Delay} from '@/config/types/remote-commands';
+import {Delay} from '@/config/types/remote/base-remote-command';
 
 @Injectable()
 export class TransactionLocalHandler extends BaseLocalHandler {

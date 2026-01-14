@@ -1,6 +1,7 @@
 import {Injectable} from '@nestjs/common';
 
-import {GetInfoRemoteCommand, GetActiveWindowIdCommand} from '@/config/types/get-commands/get-commands';
+import {GetInfoRemoteCommand} from '@/config/types/get-commands/get-commands';
+import {GetActiveWindowIdCommand} from '@/config/types/get-commands/get-window-commands';
 import {GetActiveWindowInfoResponse} from '@/client/dtos';
 import {GetInfoHandler} from '@/get-info/get-info-handler';
 
