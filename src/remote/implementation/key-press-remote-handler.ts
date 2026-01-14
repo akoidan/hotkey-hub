@@ -14,24 +14,24 @@ export class KeyPressRemoteHandler extends CommandRemoteHandler {
   }
 
   canHandle(command: RemoteCommand): command is KeyPressRemoteCommand {
-    return Boolean((command as KeyPressRemoteCommand).keyPress);
+    return command.performOnRemote === 'keyPress';
   }
 
   async execute(destination: string, command: KeyPressRemoteCommand): Promise<void> {
     let holdKeys: Key[] = [];
-    if (Array.isArray(command.holdKeys)) {
+    if (Array.isArray(command.variables.holdKeys)) {
       // eslint-disable-next-line @typescript-eslint/prefer-destructuring
-      holdKeys = command.holdKeys;
-    } else if (command.holdKeys) {
-      holdKeys = [command.holdKeys as Key];
+      holdKeys = command.variables.holdKeys;
+    } else if (command.variables.holdKeys) {
+      holdKeys = [command.variables.holdKeys as Key];
     }
 
-    let duration: number | undefined = command.duration as number| undefined;
-    if (command.duration && command.durationDeviation) {
-      duration = this.randomService.calcDeviation(command.duration as number, command.durationDeviation as number);
+    let duration: number | undefined = command.variables.duration as number| undefined;
+    if (command.variables.duration && command.variables.durationDeviation) {
+      duration = this.randomService.calcDeviation(command.variables.duration as number, command.variables.durationDeviation as number);
     }
     await this.clientService.keyPress(destination, {
-      keys: Array.isArray(command.keyPress) ? command.keyPress as Key[] : [command.keyPress as Key],
+      keys: Array.isArray(command.variables.key) ? command.variables.key as Key[] : [command.variables.key as Key],
       holdKeys,
       duration,
     });

@@ -51,7 +51,10 @@ Example of the minimal config:
     {
       "commands": [
         {
-          "typeText": "Hello wolrd", // will literally type this text (press key by key)
+          "performOnRemote": "typeText",
+          "variables": {
+            "text": "Hello wolrd", // will literally type this text (press key by key)
+          },
           "destination": "this",
         },
         {

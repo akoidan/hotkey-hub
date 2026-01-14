@@ -1,18 +1,15 @@
 import {Injectable} from '@nestjs/common';
 import {RemoteCommand, SetWindowBoundsRemoteCommand} from '@/config/types/remote-commands';
 import {CommandRemoteHandler} from '@/remote/command-remote-handler';
-import {WindowBounds} from '@/client/dtos';
+import {SetWindowBoundsRequest, WindowBounds} from '@/client/dtos';
 
 @Injectable()
 export class SetWindowBoundsRemoteHandler extends CommandRemoteHandler {
   canHandle(command: RemoteCommand): command is SetWindowBoundsRemoteCommand {
-    return Boolean((command as SetWindowBoundsRemoteCommand).setWindowIdBound);
+    return command.performOnRemote === 'setWindowBounds';
   }
 
   async execute(destination: string, command: SetWindowBoundsRemoteCommand): Promise<void> {
-    await this.clientService.setWindowBounds(destination, {
-      wid: command.setWindowIdBound as number,
-      bounds: command.windowProperties as WindowBounds,
-    });
+    await this.clientService.setWindowBounds(destination, command.variables as SetWindowBoundsRequest);
   }
 }

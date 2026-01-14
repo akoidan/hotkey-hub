@@ -3,7 +3,7 @@ import {CommandRemoteHandler} from '@/remote/command-remote-handler';
 
 export class LeftMouseClickRemoteHandler extends CommandRemoteHandler {
   canHandle(command: RemoteCommand): command is LeftMouseClickRemoteCommand {
-    return Boolean((command as LeftMouseClickRemoteCommand).leftMouseClick);
+    return command.performOnRemote === 'leftMouseClick';
   }
 
   async execute(destination: string): Promise<void> {

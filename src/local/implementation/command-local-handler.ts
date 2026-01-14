@@ -20,8 +20,8 @@ export class CommandLocalHandler extends BaseLocalHandler {
     super();
   }
 
-  canHandle(command: UnknownCommand): command is RemoteCommand {
-    return true;
+  canHandle(command: RemoteCommand): command is RemoteCommand {
+    return Boolean(command.performOnRemote);
   }
 
   public async *execute(

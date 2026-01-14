@@ -3,6 +3,7 @@ import {Injectable} from '@nestjs/common';
 import {ClientService} from '@/client/client-service';
 import {ExecuteRemoteCommand, RemoteCommand} from '@/config/types/remote-commands';
 import {CommandRemoteHandler} from '@/remote/command-remote-handler';
+import {LaunchExeRequest} from '@/client/dtos';
 
 @Injectable()
 export class ExecuteRemoteHandler extends CommandRemoteHandler {
@@ -14,18 +15,14 @@ export class ExecuteRemoteHandler extends CommandRemoteHandler {
   }
 
   canHandle(command: RemoteCommand): command is ExecuteRemoteCommand {
-    return Boolean((command as ExecuteRemoteCommand).launch);
+    return command.performOnRemote === 'launchExe';
   }
 
   async execute(destination: string, command: ExecuteRemoteCommand): Promise<void> {
-    const response = await this.clientService.launchExe(destination, {
-      path: command.launch as string,
-      arguments: command.arguments as string[] ?? [],
-      waitTillFinish: command.waitTillFinish as boolean ?? false,
-    });
+    const response = await this.clientService.launchExe(destination, command.variables as LaunchExeRequest);
 
-    if (command.assignId) {
-      this.configService.setVariable(command.assignId as string, response.pid);
+    if (command.assignVariable) {
+      this.configService.setVariable(command.assignVariable as string, response.pid);
     }
   }
 }

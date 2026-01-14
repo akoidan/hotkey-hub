@@ -37,8 +37,8 @@ const handlers =[
   IfLocalHandler,
   ShuffleLocalHandler,
   PrintLocalHandler,
-  GetLocalHandler, // get should be before it
-  CommandLocalHandler, // command should be last resort
+  GetLocalHandler,
+  CommandLocalHandler,
 ];
 
 const processingProviders: Provider[] = [

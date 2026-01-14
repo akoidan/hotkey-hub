@@ -32,7 +32,10 @@ const baseDestinationSchema = z.object({
   }).describe('Remote PC from ips or aliases section to send this command to'),
 }).strict();
 
-const baseSchema = baseDestinationSchema.merge(delayCommandsSchema);
+const baseRemoteCommandSchema = baseDestinationSchema.merge(delayCommandsSchema).extend({
+  performOnRemote: z.string(),
+  assignVariable: z.string().optional(),
+}).strict();
 
 const windowPropertiesSchema = z.object({
   x: z.union([variableValueSchema, z.number()]).describe('x position'),
@@ -41,118 +44,126 @@ const windowPropertiesSchema = z.object({
   height: z.union([variableValueSchema, z.number()]).describe('height'),
 }).strict().describe('Definition of window location and size');
 
-const setWindowBoundsRemoteSchema = z.object({
-  setWindowIdBound: z.union([variableValueSchema, z.number()]).describe('Window id'),
-  windowProperties: z.union([windowPropertiesSchema, variableValueSchema]),
-}).strict().merge(baseSchema).describe('Sets window width height and x y position' );
+const setWindowBoundsRemoteSchema = baseRemoteCommandSchema.extend({
+  performOnRemote: z.literal('setWindowBounds'),
+  variables: z.object({
+    wid: z.union([variableValueSchema, z.number()]).describe('Window id'),
+    bounds: z.union([windowPropertiesSchema, variableValueSchema]),
+  }).strict(),
+}).strict().describe('Sets window width height and x y position' );
 
-const keyPressRemoteCommandSchema = z.object({
-  keyPress: z.union([keySchema, z.array(keySchema), variableValueSchema])
-    .describe('Key(s) to press. Can be a single key or array of keys for multiple presses.'),
-  duration: z.union([
-    variableValueSchema,
-    z.number().min(50),
-  ]).optional()
-    .describe('How long to hold the key down in milliseconds. Minimum 50ms to ensure reliable key registration.'),
-  durationDeviation: z.union([
-    variableValueSchema,
-    z.number().min(0).default(0),
-  ]).optional()
-    .describe('Adds randomness to key press duration. Value is the maximum +/- deviation in milliseconds. ' +
-      'Useful for simulating human-like input patterns.'),
-  holdKeys: z.union([keySchema, z.array(keySchema), variableValueSchema])
-    .optional()
-    .describe('Modifier keys to hold (e.g., Alt for Alt+1, Ctrl+Shift for Ctrl+Shift+A). Can be a key or key array.'),
-}).strict().merge(baseSchema).describe('Simulates keyboard input on the remote PC by sending key press events. ' +
+const keyPressRemoteCommandSchema = baseRemoteCommandSchema.extend({
+  performOnRemote: z.literal('keyPress'),
+  variables: z.object({
+    key: z.union([keySchema, z.array(keySchema), variableValueSchema])
+      .describe('Key(s) to press. Can be a single key or array of keys for multiple presses.'),
+    duration: z.union([
+      variableValueSchema,
+      z.number().min(50),
+    ]).optional()
+      .describe('How long to hold the key down in milliseconds. Minimum 50ms to ensure reliable key registration.'),
+    durationDeviation: z.union([
+      variableValueSchema,
+      z.number().min(0).default(0),
+    ]).optional()
+      .describe('Adds randomness to key press duration. Value is the maximum +/- deviation in milliseconds. ' +
+        'Useful for simulating human-like input patterns.'),
+    holdKeys: z.union([keySchema, z.array(keySchema), variableValueSchema])
+      .optional()
+      .describe('Modifier keys to hold (e.g., Alt for Alt+1, Ctrl+Shift for Ctrl+Shift+A). Can be a key or key array.'),
+  }).strict(),
+}).strict().describe('Simulates keyboard input on the remote PC by sending key press events. ' +
   'Supports single keys, key combinations, and modifier keys with customizable timing and randomness. ' +
   'Use this for automating keyboard input or triggering keyboard shortcuts.');
 
-const launchExeRemoteCommandSchema = z.object({
-  launch: z.union([variableValueSchema, z.string()])
-    .describe('Full absolute path to the executable file to run on the remote PC.'),
-  arguments: z.union([variableValueSchema, z.array(z.string())]).optional()
-    .describe('Command-line arguments to pass to the executable. Each array element is a separate argument.'),
-  waitTillFinish: z.union([variableValueSchema, z.boolean()]).optional()
-    .describe('If true, waits for the launched program to complete before executing the next command. ' +
-      'If false (default), continues with next command immediately after launch.'),
-  assignId: z.union([variableValueSchema, z.string()]).optional()
-    .describe('Variable name to store the Process ID (PID) of the launched program. ' +
-      'The stored PID can be used in subsequent commands for window management or process control.'),
-}).strict().merge(baseSchema).describe('Starts a program on a remote PC.');
+const launchExeRemoteCommandSchema = baseRemoteCommandSchema.extend({
+  performOnRemote: z.literal('launchExe'),
+  variables: z.object({
+    path: z.union([variableValueSchema, z.string()])
+      .describe('Full absolute path to the executable file to run on the remote PC.'),
+    arguments: z.union([variableValueSchema, z.array(z.string())]).default([]).optional()
+      .describe('Command-line arguments to pass to the executable. Each array element is a separate argument.'),
+    waitTillFinish: z.union([variableValueSchema, z.boolean()]).default(false).optional()
+      .describe('If true, waits for the launched program to complete before executing the next command. ' +
+        'If false (default), continues with next command immediately after launch.'),
+  }).strict(),
+}).strict().describe('Starts a program on a remote PC.');
 
-const focusProcessWindowRemoteCommandSchema = z.object({
-  focusPid: z.union([variableValueSchema, z.number()])
-    .describe('Process ID (PID) of the window to focus. Can be obtained from findPidsByName command or launch command with assignId.'),
-})
-  .strict()
-  .merge(baseSchema)
-  .describe('Brings a window to front and gives it focus by process ID. Useful for window automation and ensuring windows are active.');
+const focusProcessWindowRemoteCommandSchema = baseRemoteCommandSchema.extend({
+  performOnRemote: z.literal('focusProcessWindow'),
+  variables: z.object({
+    pid: z.union([variableValueSchema, z.number()])
+      .describe('Process ID (PID) of the window to focus. Can be obtained from findPidsByName command or launch command with assignId.'),
+  }).strict(),
+}).strict().describe('Brings a window to front and gives it focus by process ID. Useful for window automation and ensuring windows are active.');
 
-const focusWindowRemoteCommandSchema = z.object({
-  focusWid: z.union([variableValueSchema, z.number()])
-    .describe('Window ID to focus. Can be obtained from findProcessWindows or findProcessesWindows commands.'),
-})
-  .strict()
-  .merge(baseSchema)
-  .describe('Brings a window to the foreground and gives it focus based on its window ID.' +
-    ' Window IDs can be retrieved using findProcessWindows or findProcessesWindows commands.');
+const focusWindowRemoteCommandSchema = baseRemoteCommandSchema.extend({
+  performOnRemote: z.literal('focusWindow'),
+  variables: z.object({
+    wid: z.union([variableValueSchema, z.number()])
+      .describe('Window ID to focus. Can be obtained from findProcessWindows or findProcessesWindows commands.'),
+  }).strict(),
+}).strict().describe('Brings a window to the foreground and gives it focus based on its window ID.' +
+  ' Window IDs can be retrieved using findProcessWindows or findProcessesWindows commands.');
 
-const typeTextRemoteCommandSchema = z.object({
-  typeText: z.union([variableValueSchema, z.string()])
-    .describe('Any string to type'),
-  keyDelay: z.union([variableValueSchema, z.number()])
-    .default(0)
-    .optional()
-    .describe('Delay between keystroke in milliseconds. By default types as fast as possible, around 40ms per char'),
-  keyDelayDeviation: z.union([
-    variableValueSchema,
-    z.number().positive(),
-  ])
-    .default(0)
-    .optional()
-    .describe('Deviation for randomness of delay. E.g if keyDelay = 100 and deviation = 0.2. Then value would be 80-120ms'),
-})
-  .strict()
-  .merge(baseSchema)
-  .describe('Types text on the remote PC.');
+const typeTextRemoteCommandSchema = baseRemoteCommandSchema.extend({
+  performOnRemote: z.literal('typeText'),
+  variables: z.object({
+    text: z.union([variableValueSchema, z.string()])
+      .describe('Any string to type'),
+    keyDelay: z.union([variableValueSchema, z.number()])
+      .default(0)
+      .optional()
+      .describe('Delay between keystroke in milliseconds. By default types as fast as possible, around 40ms per char'),
+    keyDelayDeviation: z.union([
+      variableValueSchema,
+      z.number().positive(),
+    ])
+      .default(0)
+      .optional()
+      .describe('Deviation for randomness of delay. E.g if keyDelay = 100 and deviation = 0.2. Then value would be 80-120ms'),
+  }).strict(),
+}).strict().describe('Types text on the remote PC.');
 
 
-const mouseMoveClickRemoteCommandSchema = z.object({
-  mouseMoveX: z.union([variableValueSchema, z.number()])
-    .describe('X coordinate for mouse cursor.'),
-  mouseMoveY: z.union([variableValueSchema, z.number()])
-    .describe('Y coordinate for mouse cursor.'),
-})
-  .strict()
-  .merge(baseSchema)
-  .describe('Moves mouse cursor to specified screen coordinates and performs a left-click.' +
-    ' Combines movement and clicking into one action.');
+const mouseMoveClickRemoteCommandSchema = baseRemoteCommandSchema.extend({
+  performOnRemote: z.literal('mouseMoveClick'),
+  variables: z.object({
+    x: z.union([variableValueSchema, z.number()])
+      .describe('X coordinate for mouse cursor.'),
+    y: z.union([variableValueSchema, z.number()])
+      .describe('Y coordinate for mouse cursor.'),
+    pixelsPerIteration: z.union([variableValueSchema, z.number()]).optional().default(20)
+      .describe('X coordinate for mouse cursor.'),
+  }).strict(),
+}).strict().describe('Moves mouse cursor to specified screen coordinates and performs a left-click.' +
+  ' Combines movement and clicking into one action.');
 
-const leftMouseClickRemoteCommandSchema = z.object({
-  leftMouseClick: z.union([variableValueSchema, z.boolean()])
-    .describe('Set to true to perform a left mouse click. ' +
-    'The click will occur at the current cursor position without moving the mouse.'),
-})
-  .strict()
-  .merge(baseSchema)
-  .describe('Performs a left mouse click at the current cursor position without moving the mouse. Use when cursor is already positioned.');
+const leftMouseClickRemoteCommandSchema = baseRemoteCommandSchema.extend({
+  performOnRemote: z.literal('leftMouseClick'),
+  variables: z.object({
+    leftMouseClick: z.union([variableValueSchema, z.boolean()])
+      .describe('Set to true to perform a left mouse click. ' +
+        'The click will occur at the current cursor position without moving the mouse.'),
+  }).strict(),
+}).strict().describe('Performs a left mouse click at the current cursor position without moving the mouse. Use when cursor is already positioned.');
 
-const killExeByNameRemoteCommandSchema = z.object({
-  killByName: z.union([variableValueSchema, z.string()])
-    .describe('Name of the executable file to terminate. Example: "Chrome.exe". Case-sensitive on some operating systems.'),
-})
-  .strict()
-  .merge(baseSchema)
-  .describe('Terminates all processes with the specified executable name. Use with caution - kills all instances of the program.');
+const killExeByNameRemoteCommandSchema = baseRemoteCommandSchema.extend({
+  performOnRemote: z.literal('killExeByName'),
+  variables: z.object({
+    name: z.union([variableValueSchema, z.string()])
+      .describe('Name of the executable file to terminate. Example: "Chrome.exe". Case-sensitive on some operating systems.'),
+  }).strict(),
+}).strict().describe('Terminates all processes with the specified executable name. Use with caution - kills all instances of the program.');
 
-const killExeByPidRemoteCommandSchema = z.object({
-  killByPid: z.union([variableValueSchema, z.number()])
-    .describe('Process ID (PID) of the process to terminate. Example: 1234. Must be a valid running process ID.'),
-})
-  .strict()
-  .merge(baseSchema)
-  .describe('Terminates a specific process by its PID on the remote PC.' +
-    ' More precise than killByName as it targets a single specific process.');
+const killExeByPidRemoteCommandSchema = baseRemoteCommandSchema.extend({
+  performOnRemote: z.literal('killExeByPid'),
+  variables: z.object({
+    pid: z.union([variableValueSchema, z.number()])
+      .describe('Process ID (PID) of the process to terminate. Example: 1234. Must be a valid running process ID.'),
+  }).strict(),
+}).strict().describe('Terminates a specific process by its PID on the remote PC.' +
+  ' More precise than killByName as it targets a single specific process.');
 
 const remoteCommandSchema = z.union([
   keyPressRemoteCommandSchema,
@@ -173,7 +184,7 @@ type FocusProcessWindowRemoteCommand = z.infer<typeof focusProcessWindowRemoteCo
 type FocusWindowRemoteCommand = z.infer<typeof focusWindowRemoteCommandSchema>
 type KeyPressRemoteCommand = z.infer<typeof keyPressRemoteCommandSchema>
 type SetWindowBoundsRemoteCommand = z.infer<typeof setWindowBoundsRemoteSchema>
-type BaseRemoteCommand = z.infer<typeof baseSchema>
+type BaseRemoteCommand = z.infer<typeof baseRemoteCommandSchema>
 type MouseMoveClickRemoteCommand = z.infer<typeof mouseMoveClickRemoteCommandSchema>
 type LeftMouseClickRemoteCommand = z.infer<typeof leftMouseClickRemoteCommandSchema>
 type ExecuteRemoteCommand = z.infer<typeof launchExeRemoteCommandSchema>
