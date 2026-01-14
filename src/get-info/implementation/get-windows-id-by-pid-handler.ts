@@ -11,6 +11,7 @@ export class GetWindowsIdByPidHandler extends BaseGetHandler {
   }
 
   protected async handleRequest(destination: string, command: GetWindowsIdByPidCommand): Promise<number[]> {
-    return this.clientService.getProcessWindows(destination, command.variables.id);
+    const res = await this.clientService.getProcessWindows(destination, command.variables.id);
+    return res.wids;
   }
 }

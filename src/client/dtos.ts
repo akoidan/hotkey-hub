@@ -32,6 +32,12 @@ interface LaunchExeRequest {
   waitTillFinish: boolean;
 }
 
+interface GetActiveWindowInfoResponse {
+  path: string;
+  wid: number;
+  pid: number
+}
+
 interface WindowBounds {
   x: number;
   y: number;
@@ -53,11 +59,11 @@ interface FindPidsByNameRequest {
 }
 
 interface FindPidsByNameResponse {
-  pids: string;
+  pids: number[];
 }
 
 interface FindProcessWindowsResponse {
-  wids: string;
+  wids: number[];
 }
 
 interface FocusWindowRequest {
@@ -103,6 +109,7 @@ export type {
   FindPidsByNameRequest,
   KillExeByNameRequest,
   KillExeByPidRequest,
+  GetActiveWindowInfoResponse,
   FocusWindowRequest,
   FindPidsByNameResponse,
   SetWindowBoundsRequest,

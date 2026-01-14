@@ -1,7 +1,7 @@
 import {FetchClient} from '@/client/http-client';
 import {
   FindPidsByNameRequest, FindPidsByNameResponse, FindProcessWindowsResponse,
-  FocusExeRequest, FocusWindowRequest,
+  FocusExeRequest, FocusWindowRequest, GetActiveWindowInfoResponse,
   KillExeByNameRequest,
   KillExeByPidRequest,
   LaunchExeRequest,
@@ -33,15 +33,15 @@ export class ClientService {
   }
 
   async mouseMove(client: string, request: MouseClickRequest): Promise<void> {
-    return this.client.post(client, '/mouse/mouse-move', request);
+    return this.client.post(client, '/mouse/move', request);
   }
 
   async mouseMoveHuman(client: string, request: MouseMoveHumanRequest): Promise<void> {
-    return this.client.post(client, '/mouse/mouse-move-human', request);
+    return this.client.post(client, '/mouse/move-human', request);
   }
 
   async leftMouseClick(client: string): Promise<void> {
-    return this.client.post(client, '/mouse/left-mouse-click', {});
+    return this.client.post(client, '/mouse/left-click', {});
   }
 
   async launchExe(client: string, request: LaunchExeRequest): Promise<LaunchPidResponse> {
@@ -61,11 +61,11 @@ export class ClientService {
   }
 
   async getProcessWindows(client: string, pid: number): Promise<FindProcessWindowsResponse> {
-    return this.client.get(client, `/window/get-process-windows/${pid}`, 6000, true);
+    return this.client.get(client, `/window/by-process/${pid}`, 6000, true);
   }
 
   async focusWindow(client: string, request: FocusWindowRequest): Promise<void> {
-    return this.client.post(client, '/window/focus-window', request);
+    return this.client.post(client, '/window/focus', request);
   }
 
   async monitorInfo(client: string, id: string): Promise<MonitorInfo> {
@@ -81,11 +81,11 @@ export class ClientService {
   }
 
   async getActiveWindowId(client: string): Promise<number> {
-    return this.client.get(client, '/window/active-window-id');
+    return this.client.get(client, '/window/active-id');
   }
 
-  async getActiveWindow(client: string): Promise<number> {
-    return this.client.get(client, '/window/get-active-window');
+  async getActiveWindowInfo(client: string): Promise<GetActiveWindowInfoResponse>  {
+    return this.client.get(client, '/window/active-info');
   }
 
   async getWindowBounds(client: string, wid: number): Promise<any> {
@@ -105,7 +105,7 @@ export class ClientService {
   }
 
   async isWindow(client: string, wid: number): Promise<boolean> {
-    return this.client.get(client, `/window/${wid}/is-window`);
+    return this.client.get(client, `/window/${wid}/is-valid`);
   }
 
   async isWindowVisible(client: string, wid: number): Promise<boolean> {

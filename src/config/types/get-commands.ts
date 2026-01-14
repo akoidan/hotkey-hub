@@ -14,56 +14,56 @@ const windowIdVariablesSchema = z.object({
 // Individual command schemas
 const pingSchema = baseCommandSchema.extend({
   get: z.literal('ping'),
-}).strict();
+}).strict().describe('Pings this client to test whether it\'s working');
 
 const getWindowsIdByPidSchema = baseCommandSchema.extend({
   get: z.literal('getWindowsIdByPid'),
   variables: z.object({
     id: z.number().int().positive('Process ID must be a positive integer'),
   }).strict(),
-}).strict();
+}).strict().describe('Get all windows with their IDs for a concrete process id');
 
 const getActiveWindowIdSchema = baseCommandSchema.extend({
   get: z.literal('getActiveWindowId'),
-}).strict();
+}).strict().describe('Get active window id (raw handle)');
 
 const getActiveWindowSchema = baseCommandSchema.extend({
   get: z.literal('getActiveWindow'),
-}).strict();
+}).strict().describe('Get information about current active window');
 
 const getWindowBoundsSchema = baseCommandSchema.extend({
   get: z.literal('getWindowBounds'),
   variables: windowIdVariablesSchema,
-}).strict();
+}).strict().describe('Get window bounds');
 
 const getWindowTitleSchema = baseCommandSchema.extend({
   get: z.literal('getWindowTitle'),
   variables: windowIdVariablesSchema,
-}).strict();
+}).strict().describe('Get window title');
 
 const getWindowOpacitySchema = baseCommandSchema.extend({
   get: z.literal('getWindowOpacity'),
   variables: windowIdVariablesSchema,
-}).strict();
+}).strict().describe('Get window opacity (0..1)');
 
 const getWindowOwnerSchema = baseCommandSchema.extend({
   get: z.literal('getWindowOwner'),
   variables: windowIdVariablesSchema,
-}).strict();
+}).strict().describe('Get window owner handle');
 
 const isWindowSchema = baseCommandSchema.extend({
   get: z.literal('isWindow'),
   variables: windowIdVariablesSchema,
-}).strict();
+}).strict().describe('Check if handle is a window');
 
 const isWindowVisibleSchema = baseCommandSchema.extend({
   get: z.literal('isWindowVisible'),
   variables: windowIdVariablesSchema,
-}).strict();
+}).strict().describe('Check if window is visible');
 
 const getMonitorsSchema = baseCommandSchema.extend({
   get: z.literal('getMonitors'),
-}).strict();
+}).strict().describe('List monitors');
 
 const monitorVariablesSchema = z.object({
   mid: z.number().int().nonnegative('Monitor ID must be a non-negative integer'),
@@ -72,24 +72,24 @@ const monitorVariablesSchema = z.object({
 const getMonitorInfoSchema = baseCommandSchema.extend({
   get: z.literal('getMonitorInfo'),
   variables: monitorVariablesSchema,
-}).strict();
+}).strict().describe('Get monitor info');
 
 const getMonitorFromWindowSchema = baseCommandSchema.extend({
   get: z.literal('getMonitorFromWindow'),
   variables: windowIdVariablesSchema,
-}).strict();
+}).strict().describe('Get monitor for window');
 
 const getMonitorScaleFactorSchema = baseCommandSchema.extend({
   get: z.literal('getMonitorScaleFactor'),
   variables: monitorVariablesSchema,
-}).strict();
+}).strict().describe('Get monitor scale factor');
 
 const getProcessMainWindowSchema = baseCommandSchema.extend({
   get: z.literal('getProcessMainWindow'),
   variables: z.object({
     pid: z.number().int().positive('Process ID must be a positive integer'),
   }).strict(),
-}).strict();
+}).strict().describe('Get process\' main window');
 
 // Union of all command schemas
 const executeRequestRemoteCommandSchema = z.union([
