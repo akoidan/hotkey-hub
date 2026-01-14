@@ -17,9 +17,11 @@ const shortcut = z
     if (new Set(modifiers).size !== modifiers.length) {
       return false;
     }
+    // @ts-ignore
     if (!modifiers.every((mod) => modifierKeys.includes(mod))) {
       return false;
     }
+    // @ts-ignore
     return allowedKeys.includes(mainKey!);
     // eslint-disable-next-line max-len
   }, 'Shortcut requires format Modifier+Key. E.g. \'Alt+1\'.'

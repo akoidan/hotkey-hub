@@ -1,6 +1,6 @@
 import {z} from 'zod';
 import {variableValueSchema} from '@/config/types/variables';
-import {baseGetInfoCommandSchema} from '@/config/types/get-commands/get-commands';
+import {baseGetInfoCommandSchema} from '@/config/types/get-commands/get-commands-shared';
 
 
 const getPidsByNameSchema = baseGetInfoCommandSchema.extend({

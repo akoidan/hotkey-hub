@@ -19,8 +19,6 @@ import {
   shufflePolicySchema,
 } from '@/config/types/local/shuffle-local-command';
 import {type PrintLocalCommand, printLocalCommandSchema,} from '@/config/types/local/print-local-command';
-
-// From macro-local-command.ts
 import {
   macroDefinitionSchema,
   type MacroList,
@@ -29,11 +27,9 @@ import {
   macrosListSchema,
   macroVariablesDescriptionSchema,
   macroVariableValueSchema,
-  type VariablesDefinition,
 } from '@/config/types/local/macro-local-command';
 
-// From relocal-config-local-command.ts
-import {type ReloadConfigLocalCommand, reloadConfigLocalCommandSchema,} from '@/config/types/local/relocal-config-local-command';
+import {type ReloadConfigLocalCommand, reloadConfigLocalCommandSchema} from '@/config/types/local/relocal-config-local-command';
 
 // Define localCommandSchema as union of all local command schemas
 const localCommandSchema = z.union([
@@ -90,7 +86,6 @@ export type {
   ShuffleLocalCommand,
   PrintLocalCommand,
   MacroLocalCommand,
-  VariablesDefinition,
   ReloadConfigLocalCommand,
   MacroList,
 };

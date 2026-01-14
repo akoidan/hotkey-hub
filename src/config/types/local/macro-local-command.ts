@@ -10,7 +10,9 @@ import {printLocalCommandSchema} from '@/config/types/local/print-local-command'
 import {shuffleLocalCommandSchema} from '@/config/types/local/shuffle-local-command';
 import {threadsLocalCommandSchema} from '@/config/types/local/threads-local-command';
 import {transactionLocalCommandSchema} from '@/config/types/local/transaction-local-command';
-import {unknownCommandSchema} from '@/config/types/commands';
+import {remoteCommandSchema} from '@/config/types/remote/remote-commands';
+import {getInfoRemoteCommandSchema} from '@/config/types/get-commands/get-commands';
+import {reloadConfigLocalCommandSchema} from '@/config/types/local/relocal-config-local-command';
 import type {RemoteCommand} from '@/config/types/remote/remote-commands';
 import type {GetInfoRemoteCommand} from '@/config/types/get-commands/get-commands';
 
@@ -102,6 +104,20 @@ const macroVariablesDescriptionSchema = z.record(macroVariableValueSchema)
   .describe('Set of variables descriptors for macro');
 
 
+const unknownCommandSchema = z.lazy(() => z.union([
+  remoteCommandSchema,
+  getInfoRemoteCommandSchema,
+  macroLocalCommandSchema,
+  expressionLocalCommandSchema,
+  transactionLocalCommandSchema,
+  threadsLocalCommandSchema,
+  loopLocalCommandSchema,
+  ifLocalCommandSchema,
+  shuffleLocalCommandSchema,
+  printLocalCommandSchema,
+  reloadConfigLocalCommandSchema,
+]));
+
 const macroDefinitionSchema = z.object({
   commands: z.array(unknownCommandSchema).describe('Set of commands for this macro'),
   variables: macroVariablesDescriptionSchema,
@@ -113,7 +129,21 @@ const macrosListSchema = z.record(macroDefinitionSchema)
   .optional()
   .describe('A map of macros where a key is the macro name and value is its body');
 
-
-
 type MacroLocalCommand = z.infer<typeof macroLocalCommandSchema>
 type MacroList = z.infer<typeof macrosListSchema>
+
+export type VariablesDefinition = z.infer<typeof macroVariablesDescriptionSchema>
+
+export type {
+  MacroLocalCommand,
+  MacroList,
+};
+
+export {
+  macroLocalCommandSchema,
+  macroVariableValueSchema,
+  macroVariablesDescriptionSchema,
+  macroDefinitionSchema,
+  macrosListSchema,
+  unknownCommandSchema,
+};

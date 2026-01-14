@@ -1,6 +1,6 @@
 import {Injectable, Logger} from '@nestjs/common';
 import {ConfigService} from '@/config/config-service';
-import {VariablesDefinition} from '@/config/types/local/local-commands';
+import {type VariablesDefinition} from '@/config/types/local/macro-local-command';
 import {variableRegex, VariableValue} from '@/config/types/variables';
 
 @Injectable()

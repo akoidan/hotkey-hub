@@ -1,5 +1,5 @@
 import {z} from 'zod';
-import {baseGetInfoCommandSchema} from '@/config/types/get-commands/get-commands';
+import {baseGetInfoCommandSchema} from '@/config/types/get-commands/get-commands-shared';
 
 
 // Reusable schemas

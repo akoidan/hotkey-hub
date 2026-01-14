@@ -1,5 +1,5 @@
 import {z} from 'zod';
-import {baseGetInfoCommandSchema} from '@/config/types/get-commands/get-commands';
+import {baseGetInfoCommandSchema} from '@/config/types/get-commands/get-commands-shared';
 import {windowIdVariablesSchema} from '@/config/types/get-commands/get-window-commands';
 
 const getMonitorsSchema = baseGetInfoCommandSchema.extend({
