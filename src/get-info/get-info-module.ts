@@ -1,4 +1,4 @@
-import {Module} from '@nestjs/common';
+import {Logger, Module} from '@nestjs/common';
 import {ClientModule} from '@/client/client-module';
 import {ConfigModule} from '@/config/config-module';
 import {GetInfoHandler} from '@/get-info/get-info-handler';
@@ -38,6 +38,7 @@ const getInfoHandlers = [
 @Module({
   imports: [ClientModule, ConfigModule],
   providers: [
+    Logger,
     ...getInfoHandlers,
     {
       provide: GetInfoHandler,

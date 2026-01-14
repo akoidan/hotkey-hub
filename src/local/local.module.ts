@@ -24,6 +24,7 @@ import {IfLocalHandler} from '@/local/implementation/if-local-handler';
 import {ShuffleLocalHandler} from '@/local/implementation/shuffle-local-handler';
 import {PrintLocalHandler} from '@/local/implementation/print-local-handler';
 import {GetLocalHandler} from '@/local/implementation/get-local-handler';
+import {GetInfoModule} from '@/get-info/get-info-module';
 
 
 const handlers =[
@@ -56,7 +57,7 @@ const processingProviders: Provider[] = [
 ];
 
 @Module({
-  imports: [ConfigModule, ClientModule, RemoteHandlerModule, SemaphorModule, RandomModule, RgbModule, NativeModule],
+  imports: [ConfigModule, ClientModule, RemoteHandlerModule, SemaphorModule, RandomModule, RgbModule, NativeModule, GetInfoModule],
   providers: [
     Logger,
     DelayService,
