@@ -120,7 +120,7 @@ export class ClientService {
     return this.client.get(client, `/monitor/${mid}/scale`);
   }
 
-  async getMonitorFromWindow(client: string, wid: number): Promise<any> {
+  async getMonitorFromWindow(client: string, wid: number): Promise<number> {
     return this.client.get(client, `/monitor/from-window/${wid}`);
   }
 

@@ -10,7 +10,13 @@ export class PingHandler extends BaseGetHandler {
     return command.get === 'ping';
   }
 
-  protected async handleRequest(destination: string): Promise<void> {
-    return this.clientService.ping(destination);
+  protected async handleRequest(destination: string): Promise<boolean> {
+    try {
+      await this.clientService.ping(destination);
+      return true;
+    } catch (e) {
+      this.logger.error(`Unable ping ${destination}, because of ${e?.message || e}`, e.stack);
+      return false;
+    }
   }
 }
