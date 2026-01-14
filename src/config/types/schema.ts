@@ -18,21 +18,22 @@ import {
   setWindowBoundsRemoteSchema,
   windowPropertiesSchema,
 } from '@/config/types/remote/window-commands';
-import {remoteCommandSchema} from '@/config/types/remote/remote-commands';
+import {type RemoteCommand, remoteCommandSchema} from '@/config/types/remote/remote-commands';
 import {
-  expressionLocalCommandSchema,
-  ifLocalCommandSchema,
+  type ExpressionLocalCommand,
+  expressionLocalCommandSchema, type IfLocalCommand,
+  ifLocalCommandSchema, localCommandSchema, type LoopLocalCommand,
   loopLocalCommandSchema,
   macroDefinitionSchema,
   macroLocalCommandSchema,
   macrosListSchema,
   macroVariablesDescriptionSchema,
-  macroVariableValueSchema,
+  macroVariableValueSchema, type PrintLocalCommand,
   printLocalCommandSchema,
-  reloadConfigLocalCommandSchema,
+  reloadConfigLocalCommandSchema, type ShuffleLocalCommand,
   shuffleLocalCommandSchema,
-  threadLocalArraySchema,
-  threadsLocalCommandSchema,
+  threadLocalArraySchema, type ThreadsLocalCommand,
+  threadsLocalCommandSchema, type TransactionLocalCommand,
   transactionLocalCommandSchema,
   unknownCommandSchema,
 } from '@/config/types/local/local-commands';
@@ -54,6 +55,8 @@ import {
 } from '@/config/types/get-commands/get-monitor-commands';
 import {getPidsByNameSchema, getProcessMainWindowSchema} from '@/config/types/get-commands/get-process-commands';
 import {getInfoRemoteCommandSchema, pingSchema} from '@/config/types/get-commands/get-commands';
+
+ // z.lazy requires manual type definition cause of reqursive type
 
 
 const remoteAddressDefinition = z.union([z.string().ip(), z.string().regex(

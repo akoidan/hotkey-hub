@@ -1,6 +1,6 @@
 import {z, ZodIssueCode} from 'zod';
-import {unknownCommandSchema} from '@/config/types/local/local-commands';
 import {allowedKeys, modifierKeys } from '@/config/types/keyboard';
+import {unknownCommandSchema} from '@/config/types/commands';
 
 
 // Zod schema for shortcuts
@@ -12,7 +12,7 @@ const shortcut = z
     if (modifiers.length < 2 || modifiers.length > 4) {
       return false;
     }
-    const mainKey = modifiers.pop();
+    const mainKey = modifiers.pop() as KeyType;
     // Ensure modifiers are unique and valid
     if (new Set(modifiers).size !== modifiers.length) {
       return false;

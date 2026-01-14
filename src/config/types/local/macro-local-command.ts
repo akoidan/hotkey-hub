@@ -1,14 +1,16 @@
 /* eslint-disable max-lines, @typescript-eslint/no-use-before-define */
-import {z, ZodIssueCode} from 'zod';
+import {z, ZodIssueCode, type ZodType} from 'zod';
 import {schemaRootCache} from '@/config/types/cache';
 import {type VariableValue, variableValueSchema} from '@/config/types/variables';
 import {delayCommandsSchema} from '@/config/types/remote/base-remote-command';
-import {
-  expressionLocalCommandSchema, ifLocalCommandSchema, loopLocalCommandSchema,
-  macrosListSchema,
-  printLocalCommandSchema,
-  shuffleLocalCommandSchema, threadsLocalCommandSchema, transactionLocalCommandSchema
-} from '@/config/types/local/local-commands';
+import {expressionLocalCommandSchema} from '@/config/types/local/expression-local-command';
+import {ifLocalCommandSchema} from '@/config/types/local/if-local-command';
+import {loopLocalCommandSchema} from '@/config/types/local/loop-local-command';
+import {printLocalCommandSchema} from '@/config/types/local/print-local-command';
+import {shuffleLocalCommandSchema} from '@/config/types/local/shuffle-local-command';
+import {threadsLocalCommandSchema} from '@/config/types/local/threads-local-command';
+import {transactionLocalCommandSchema} from '@/config/types/local/transaction-local-command';
+import {macrosListSchema} from '@/config/types/local/local-commands';
 import type {RemoteCommand} from '@/config/types/remote/remote-commands';
 import type {GetInfoRemoteCommand} from '@/config/types/get-commands/get-commands';
 
