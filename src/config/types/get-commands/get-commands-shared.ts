@@ -10,4 +10,4 @@ const baseGetInfoCommandSchema = baseDestinationSchema.extend({
 
 export {
   baseGetInfoCommandSchema,
-}
+};

@@ -1,5 +1,5 @@
 /* eslint-disable max-lines, @typescript-eslint/no-use-before-define */
-import {z, ZodIssueCode, type ZodType} from 'zod';
+import {z, ZodIssueCode} from 'zod';
 import {schemaRootCache} from '@/config/types/cache';
 import {type VariableValue, variableValueSchema} from '@/config/types/variables';
 import {delayCommandsSchema} from '@/config/types/remote/base-remote-command';
@@ -13,8 +13,6 @@ import {transactionLocalCommandSchema} from '@/config/types/local/transaction-lo
 import {remoteCommandSchema} from '@/config/types/remote/remote-commands';
 import {getInfoRemoteCommandSchema} from '@/config/types/get-commands/get-commands';
 import {reloadConfigLocalCommandSchema} from '@/config/types/local/relocal-config-local-command';
-import type {RemoteCommand} from '@/config/types/remote/remote-commands';
-import type {GetInfoRemoteCommand} from '@/config/types/get-commands/get-commands';
 
 
 const macroLocalCommandSchema = z.object({

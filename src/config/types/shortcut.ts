@@ -1,5 +1,5 @@
 import {z, ZodIssueCode} from 'zod';
-import {allowedKeys, modifierKeys } from '@/config/types/keyboard';
+import {allowedKeys, modifierKeys} from '@/config/types/keyboard';
 import {unknownCommandSchema} from '@/config/types/commands';
 
 

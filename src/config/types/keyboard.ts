@@ -33,5 +33,5 @@ const modifierKeys = [
 /* eslint-enable array-element-newline */
 export {
   allowedKeys,
-  modifierKeys
-}
+  modifierKeys,
+};

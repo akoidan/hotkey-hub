@@ -1,4 +1,4 @@
-import  {type ZodObject, z} from 'zod';
+import {z, type ZodObject} from 'zod';
 import {variableValueSchema} from '@/config/types/variables';
 
 function makeVariableUnion(schema: ZodObject<any>): ZodObject<any> {

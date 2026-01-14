@@ -2,23 +2,23 @@
 import {z} from 'zod';
 
 // Imports from subfiles
-import {type ExpressionLocalCommand, expressionLocalCommandSchema, expressionSchema,} from '@/config/types/local/expression-local-command';
-import {type IfLocalCommand, ifLocalCommandSchema,} from '@/config/types/local/if-local-command';
-import {type TransactionLocalCommand, transactionLocalCommandSchema,} from '@/config/types/local/transaction-local-command';
+import {type ExpressionLocalCommand, expressionLocalCommandSchema, expressionSchema} from '@/config/types/local/expression-local-command';
+import {type IfLocalCommand, ifLocalCommandSchema} from '@/config/types/local/if-local-command';
+import {type TransactionLocalCommand, transactionLocalCommandSchema} from '@/config/types/local/transaction-local-command';
 import {
   type Thread,
   threadLocalArraySchema,
   type ThreadsLocalCommand,
   threadsLocalCommandSchema,
 } from '@/config/types/local/threads-local-command';
-import {type LoopLocalCommand, loopLocalCommandSchema,} from '@/config/types/local/loop-local-command';
+import {type LoopLocalCommand, loopLocalCommandSchema} from '@/config/types/local/loop-local-command';
 import {
   type ShuffleLocalCommand,
   shuffleLocalCommandSchema,
   ShufflePolicy,
   shufflePolicySchema,
 } from '@/config/types/local/shuffle-local-command';
-import {type PrintLocalCommand, printLocalCommandSchema,} from '@/config/types/local/print-local-command';
+import {type PrintLocalCommand, printLocalCommandSchema} from '@/config/types/local/print-local-command';
 import {
   macroDefinitionSchema,
   type MacroList,

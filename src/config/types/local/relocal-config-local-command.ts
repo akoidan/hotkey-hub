@@ -1,6 +1,5 @@
-
 // Define reusable field schemas
-import {z, ZodIssueCode, type ZodType} from 'zod';
+import {z} from 'zod';
 
 const fieldDescriptions = {
   reloadConfig: 'Path to a new config. Leave it empty to use current path',
