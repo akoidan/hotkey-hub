@@ -37,12 +37,17 @@ const focusWindowRemoteCommandSchema = baseRemoteCommandSchema.extend({
   ' Window IDs can be retrieved using findProcessWindows or findProcessesWindows commands.');
 
 
+const windowAllSchemas = z.union([
+  setWindowBoundsRemoteSchema,
+  focusProcessWindowRemoteCommandSchema,
+  focusWindowRemoteCommandSchema,
+]).describe('Window-related remote commands');
+
 type FocusProcessWindowRemoteCommand = z.infer<typeof focusProcessWindowRemoteCommandSchema>
 type FocusWindowRemoteCommand = z.infer<typeof focusWindowRemoteCommandSchema>
 type SetWindowBoundsRemoteCommand = z.infer<typeof setWindowBoundsRemoteSchema>
 
 export type {
-
   SetWindowBoundsRemoteCommand,
   FocusProcessWindowRemoteCommand,
   FocusWindowRemoteCommand,
@@ -53,4 +58,5 @@ export {
   focusProcessWindowRemoteCommandSchema,
   windowPropertiesSchema,
   focusWindowRemoteCommandSchema,
+  windowAllSchemas,
 };

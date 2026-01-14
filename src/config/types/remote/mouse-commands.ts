@@ -24,20 +24,21 @@ const leftMouseClickRemoteCommandSchema = baseRemoteCommandSchema.extend({
   }).strict(),
 }).strict().describe('Performs a left mouse click at the current cursor position without moving the mouse. Use when cursor is already positioned.');
 
-
+const mouseAllSchemas = z.union([
+  mouseMoveClickRemoteCommandSchema,
+  leftMouseClickRemoteCommandSchema,
+]).describe('Mouse-related remote commands');
 
 type MouseMoveClickRemoteCommand = z.infer<typeof mouseMoveClickRemoteCommandSchema>
 type LeftMouseClickRemoteCommand = z.infer<typeof leftMouseClickRemoteCommandSchema>
 
-
 export type {
-
   MouseMoveClickRemoteCommand,
   LeftMouseClickRemoteCommand,
-
 };
 
 export {
   mouseMoveClickRemoteCommandSchema,
   leftMouseClickRemoteCommandSchema,
+  mouseAllSchemas,
 };

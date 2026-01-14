@@ -34,13 +34,15 @@ const launchExeRemoteCommandSchema = baseRemoteCommandSchema.extend({
   }).strict(),
 }).strict().describe('Starts a program on a remote PC.');
 
-
-
+const processAllSchemas = z.union([
+  killExeByNameRemoteCommandSchema,
+  killExeByPidRemoteCommandSchema,
+  launchExeRemoteCommandSchema,
+]).describe('Process-related remote commands');
 
 type ExecuteRemoteCommand = z.infer<typeof launchExeRemoteCommandSchema>
 type KillExeByPidRemoteCommand = z.infer<typeof killExeByPidRemoteCommandSchema>
 type KillExeByNameRemoteCommand = z.infer<typeof killExeByNameRemoteCommandSchema>
-
 
 export type {
   ExecuteRemoteCommand,
@@ -52,6 +54,5 @@ export {
   launchExeRemoteCommandSchema,
   killExeByNameRemoteCommandSchema,
   killExeByPidRemoteCommandSchema,
-
+  processAllSchemas,
 };
-
