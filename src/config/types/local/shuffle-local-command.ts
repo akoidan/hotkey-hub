@@ -1,5 +1,6 @@
 import {z, type ZodType} from 'zod';
-import {unknownCommandSchema} from '@/config/types/local/local-commands';
+import {unknownCommandSchema} from '@/config/types/commands';
+import type {UnknownCommand} from '@/config/types/commands';
 
 enum ShufflePolicy {
   random = 'random',

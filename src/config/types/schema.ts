@@ -35,8 +35,8 @@ import {
   threadLocalArraySchema, type ThreadsLocalCommand,
   threadsLocalCommandSchema, type TransactionLocalCommand,
   transactionLocalCommandSchema,
-  unknownCommandSchema,
 } from '@/config/types/local/local-commands';
+import {unknownCommandSchema} from '@/config/types/commands';
 import {
   getActiveWindowIdSchema,
   getWindowBoundsSchema,

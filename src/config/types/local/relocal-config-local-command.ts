@@ -31,4 +31,6 @@ const reloadConfigLocalCommandSchema = z.union([
 ]).describe('Reloads config or loads config from a new place');
 
 
+export {reloadConfigLocalCommandSchema};
+
 export type ReloadConfigLocalCommand = z.infer<typeof reloadConfigLocalCommandSchema>;

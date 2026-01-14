@@ -50,17 +50,8 @@ const localCommandSchema = z.union([
 
 // Define unknownCommandSchema as union of remote, get-info, and local
 
-
 // Type definitions
-type LocalCommand = MacroLocalCommand
-  | ExpressionLocalCommand
-  | TransactionLocalCommand
-  | ThreadsLocalCommand
-  | ShuffleLocalCommand
-  | PrintLocalCommand
-  | LoopLocalCommand
-  | IfLocalCommand
-  | ReloadConfigLocalCommand;
+type LocalCommand = z.infer<typeof localCommandSchema>;
 
 export {
   // Shared schemas

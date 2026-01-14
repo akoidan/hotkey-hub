@@ -10,7 +10,7 @@ import {printLocalCommandSchema} from '@/config/types/local/print-local-command'
 import {shuffleLocalCommandSchema} from '@/config/types/local/shuffle-local-command';
 import {threadsLocalCommandSchema} from '@/config/types/local/threads-local-command';
 import {transactionLocalCommandSchema} from '@/config/types/local/transaction-local-command';
-import {macrosListSchema} from '@/config/types/local/local-commands';
+import {unknownCommandSchema} from '@/config/types/commands';
 import type {RemoteCommand} from '@/config/types/remote/remote-commands';
 import type {GetInfoRemoteCommand} from '@/config/types/get-commands/get-commands';
 

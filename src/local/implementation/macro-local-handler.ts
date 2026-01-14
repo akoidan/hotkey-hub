@@ -3,7 +3,8 @@ import {ConfigService} from '@/config/config-service';
 import {VariableResolutionService} from '@/local/variable-resolution.service';
 import {DelayService} from '@/local/delay.service';
 import {BaseLocalHandler} from '@/local/base-local-handler';
-import {MacroLocalCommand, UnknownCommand} from '@/config/types/local/local-commands';
+import {MacroLocalCommand} from '@/config/types/local/local-commands';
+import {UnknownCommand} from '@/config/types/commands';
 import {Delay} from '@/config/types/remote/base-remote-command';
 import {SemaphorService} from '@/semaphor/semaphor-service';
 
