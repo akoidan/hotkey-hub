@@ -1,7 +1,7 @@
 import {ClientService} from '@/client/client-service';
 import {Injectable, Logger} from '@nestjs/common';
 import {ConfigService} from '@/config/config-service';
-import {GetInfoRemoteCommand} from '@/config/types/get-commands';
+import {GetInfoRemoteCommand} from '@/config/types/get-commands/get-commands';
 
 @Injectable()
 export abstract class GetInfoHandler {

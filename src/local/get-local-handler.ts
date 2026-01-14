@@ -2,7 +2,7 @@ import {Injectable, Logger} from '@nestjs/common';
 
 import {VariableResolutionService} from '@/local/variable-resolution.service';
 import {BaseLocalHandler} from '@/local/base-local-handler';
-import {GetInfoRemoteCommand} from '@/config/types/get-commands';
+import {GetInfoRemoteCommand} from '@/config/types/get-commands/get-commands';
 import {GetInfoHandler} from '@/get-info/get-info-handler';
 import {ConfigService} from '@/config/config-service';
 

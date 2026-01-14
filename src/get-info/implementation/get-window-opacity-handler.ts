@@ -1,6 +1,6 @@
 import {Injectable} from '@nestjs/common';
 
-import {GetInfoRemoteCommand, GetWindowOpacityCommand} from '@/config/types/get-commands';
+import {GetInfoRemoteCommand, GetWindowOpacityCommand} from '@/config/types/get-commands/get-commands';
 import {GetInfoHandler} from '@/get-info/get-info-handler';
 
 @Injectable()

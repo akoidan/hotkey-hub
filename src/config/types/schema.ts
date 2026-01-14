@@ -47,7 +47,7 @@ import {
   getProcessMainWindowSchema, getWindowBoundsSchema, getWindowOpacitySchema, getWindowOwnerSchema,
   getWindowsIdByPidSchema, getWindowTitleSchema, isWindowSchema, isWindowVisibleSchema,
   pingSchema
-} from '@/config/types/get-commands';
+} from '@/config/types/get-commands/get-commands';
 
 
 const remoteAddressDefinition = z.union([z.string().ip(), z.string().regex(

@@ -3,7 +3,7 @@ import {z, ZodIssueCode, type ZodType} from 'zod';
 import {schemaRootCache} from '@/config/types/cache';
 import {type VariableValue, variableValueSchema} from '@/config/types/variables';
 import {delayCommandsSchema, type RemoteCommand, remoteCommandSchema} from '@/config/types/remote-commands';
-import {GetInfoRemoteCommand, getInfoRemoteCommandSchema, getMonitorInfoSchema} from '@/config/types/get-commands';
+import {GetInfoRemoteCommand, getInfoRemoteCommandSchema, getMonitorInfoSchema} from '@/config/types/get-commands/get-commands';
 
 
 const macroLocalCommandSchema = z.object({
