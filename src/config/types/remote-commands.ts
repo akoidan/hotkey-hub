@@ -114,44 +114,6 @@ const typeTextRemoteCommandSchema = z.object({
   .merge(baseSchema)
   .describe('Types text on the remote PC.');
 
-const findPidsByNameRemoteCommandSchema = z.object({
-  findPidsByName: z.union([variableValueSchema, z.string()])
-    .describe('Name of the executable file to search for. Example: "Chrome.exe". Case-sensitive on some operating systems.'),
-  assignIds: z.union([variableValueSchema, z.string()])
-    .optional()
-    .describe('Assign list of pids to a variable.' +
-      ' Note variable type would be an array in this case. Use expression to pick any of the results'),
-})
-  .strict()
-  .merge(baseSchema)
-  .describe('Gets PIDs for all processes with given executable name. Use assignIds to store PIDs as variables for later use.');
-
-const findProcessWindowsRemoteCommandSchema = z.object({
-  findProcessWindows: z.union([variableValueSchema, z.number()])
-    .describe('Process ID to find window IDs for. Process must be running with visible windows.'),
-  assignIds: z.union([variableValueSchema, z.string()])
-    .optional()
-    .describe('Variable name to store list of windows ids'),
-})
-  .strict()
-  .merge(baseSchema)
-  .describe('Finds all visible windows belonging to a specific process.' +
-    ' Useful for window management automation when a process has multiple windows.');
-
-
-const findProcessesWindowsRemoteCommandSchema = z.object({
-  findProcessesWindows: z.union([variableValueSchema, z.array(z.number())])
-      .describe('Array of Process IDs (PIDs) to find window IDs for.' +
-        ' The length of this array should match the length of assignIds if specified.'),
-  assignIds: z.union([variableValueSchema, z.array(z.string())])
-    .optional()
-    .describe('List of variable names to store the found windows IDs.' +
-      ' Each process\'s window IDs array will be assigned to the corresponding variable.'),
-})
-  .strict()
-  .merge(baseSchema)
-  .describe('Finds all visible windows belonging to multiple processes.' +
-    ' Similar to findProcessWindows but works with multiple processes at once for efficiency.');
 
 const mouseMoveClickRemoteCommandSchema = z.object({
   mouseMoveX: z.union([variableValueSchema, z.number()])
@@ -201,9 +163,6 @@ const remoteCommandSchema = z.union([
   typeTextRemoteCommandSchema,
   killExeByPidRemoteCommandSchema,
   killExeByNameRemoteCommandSchema,
-  findPidsByNameRemoteCommandSchema,
-  findProcessWindowsRemoteCommandSchema,
-  findProcessesWindowsRemoteCommandSchema,
 ]).describe('One of the commands that would be sent to a remote machine specified in destination property');
 
 
@@ -223,9 +182,6 @@ type Key = z.infer<typeof keySchema>;
 type KillExeByPidRemoteCommand = z.infer<typeof killExeByPidRemoteCommandSchema>
 type KillExeByNameRemoteCommand = z.infer<typeof killExeByNameRemoteCommandSchema>
 
-type FindPidsByNameRemoteCommand = z.infer<typeof findPidsByNameRemoteCommandSchema>
-type FindProcessWindowsRemoteCommand = z.infer<typeof findProcessWindowsRemoteCommandSchema>
-type FindProcessesWindowsRemoteCommand = z.infer<typeof findProcessesWindowsRemoteCommandSchema>
 type Delay = z.infer<typeof delayCommandsSchema>;
 
 export type {

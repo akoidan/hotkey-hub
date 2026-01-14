@@ -64,6 +64,19 @@ interface FocusWindowRequest {
   wid: number;
 }
 
+interface MonitorBounds {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+interface MonitorInfo {
+  bounds: MonitorBounds;
+  workArea: MonitorBounds;
+  isPrimary: boolean
+}
+
 interface KillExeByPidRequest {
   pid: number;
 }
@@ -79,6 +92,8 @@ interface LaunchPidResponse {
 }
 
 export type {
+  MonitorBounds,
+  MonitorInfo,
   MouseClickRequest,
   SendKeyRequest,
   FocusExeRequest,

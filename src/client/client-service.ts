@@ -5,7 +5,7 @@ import {
   KillExeByNameRequest,
   KillExeByPidRequest,
   LaunchExeRequest,
-  LaunchPidResponse,
+  LaunchPidResponse, MonitorInfo,
   MouseClickRequest, MouseMoveHumanRequest,
   SendKeyRequest, SetWindowBoundsRequest,
   TypeTextRequest,
@@ -66,6 +66,10 @@ export class ClientService {
 
   async focusWindow(client: string, request: FocusWindowRequest): Promise<void> {
     return this.client.post(client, '/window/focus-window', request);
+  }
+
+  async monitorInfo(client: string, id: string): Promise<MonitorInfo> {
+    return this.client.get(client, `/monitor/${id}/info`);
   }
 
   async killExeById(client: string, request: KillExeByPidRequest): Promise<void> {
