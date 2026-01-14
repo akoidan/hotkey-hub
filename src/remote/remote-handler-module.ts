@@ -1,7 +1,6 @@
 import {Logger, Module} from '@nestjs/common';
 import {ClientModule} from '@/client/client-module';
 import {KeyPressRemoteHandler} from '@/remote/implementation/key-press-remote-handler';
-import {FocusProcessWindowRemoteHandler} from '@/remote/implementation/focus-process-window-remote-handler';
 import {MouseClickRemoteHandler} from '@/remote/implementation/mouse-click-remote-handler';
 import {ExecuteRemoteHandler} from '@/remote/implementation/execute-remote-handler.service';
 import {TypeTextRemoteHandler} from '@/remote/implementation/type-text-remote-handler';
@@ -12,17 +11,13 @@ import {LeftMouseClickRemoteHandler} from '@/remote/implementation/left-mouse-cl
 import {Provider} from '@nestjs/common/interfaces/modules/provider.interface';
 import {SemaphorModule} from '@/semaphor/semaphor.module';
 import {RandomModule} from '@/random/random.module';
-import {FindPidsByNameRemoteHandler} from '@/remote/implementation/find-pids-by-name-remote-handler';
-import {FindProcessesWindowsRemoteHandler} from '@/remote/implementation/find-processes-windows-remote-handler';
 import {FocusWindowRemoteHandler} from '@/remote/implementation/focus-window-remote-handler';
-import {FindProcessWindowsRemoteHandler} from '@/remote/implementation/find-process-windows-remote-handler';
 import {CommandRemoteHandler} from '@/remote/command-remote-handler';
-import {
-  SetWindowBoundsRemoteHandler,
-} from '@/remote/implementation/set-window-bounds-remote-handler.service';
+import {SetWindowBoundsRemoteHandler} from '@/remote/implementation/set-window-bounds-remote-handler.service';
+import {FocusProcessWindowRemoteHandler} from '@/remote/implementation/focus-process-window-remote-handler';
 
-const remoteHandlerProviders: Provider[] = [
-  Logger,
+
+const handlers =[
   KeyPressRemoteHandler,
   FocusProcessWindowRemoteHandler,
   MouseClickRemoteHandler,
@@ -31,57 +26,21 @@ const remoteHandlerProviders: Provider[] = [
   KillNameRemoteHandler,
   KillPidRemoteHandler,
   LeftMouseClickRemoteHandler,
-  FindPidsByNameRemoteHandler,
-  FindProcessWindowsRemoteHandler,
-  FindProcessesWindowsRemoteHandler,
   FocusWindowRemoteHandler,
   SetWindowBoundsRemoteHandler,
+];
+
+const remoteHandlerProviders: Provider[] = [
+  Logger,
+  ...handlers,
   {
     provide: CommandRemoteHandler,
-    inject: [
-      KeyPressRemoteHandler,
-      FocusProcessWindowRemoteHandler,
-      MouseClickRemoteHandler,
-      ExecuteRemoteHandler,
-      TypeTextRemoteHandler,
-      KillNameRemoteHandler,
-      KillPidRemoteHandler,
-      LeftMouseClickRemoteHandler,
-      FindPidsByNameRemoteHandler,
-      FindProcessWindowsRemoteHandler,
-      FindProcessesWindowsRemoteHandler,
-      FocusWindowRemoteHandler,
-      SetWindowBoundsRemoteHandler,
-    ],
-    useFactory: (
-        keyPressHandler: CommandRemoteHandler,
-        focusProcessWindowHandler: CommandRemoteHandler,
-        mouseClickHandler: CommandRemoteHandler,
-        executeHandler: CommandRemoteHandler,
-        typeTextHandler: CommandRemoteHandler,
-        killByNameHandler: CommandRemoteHandler,
-        killByPidHandler: CommandRemoteHandler,
-        leftMouseClickHandler: CommandRemoteHandler,
-        findPidsByNameHandler: CommandRemoteHandler,
-        findProcessWindowsHandler: CommandRemoteHandler,
-        findProcessesWindowsHandler: CommandRemoteHandler,
-        focusWindowHandler: CommandRemoteHandler,
-        setWindowBoundsHandler: SetWindowBoundsRemoteHandler,
-    ): CommandRemoteHandler => {
-      keyPressHandler
-          .setNext(focusProcessWindowHandler)
-          .setNext(mouseClickHandler)
-          .setNext(executeHandler)
-          .setNext(typeTextHandler)
-          .setNext(killByNameHandler)
-          .setNext(killByPidHandler)
-          .setNext(leftMouseClickHandler)
-          .setNext(findPidsByNameHandler)
-          .setNext(findProcessWindowsHandler)
-          .setNext(findProcessesWindowsHandler)
-          .setNext(focusWindowHandler)
-          .setNext(setWindowBoundsHandler);
-      return keyPressHandler;
+    inject: handlers,
+    useFactory: (...lhandl: CommandRemoteHandler[]): CommandRemoteHandler => {
+      for (let i = 0; i < lhandl.length - 1; i++) {
+        lhandl[i].setNext(lhandl[i + 1]);
+      }
+      return lhandl[0];
     },
   },
 ];

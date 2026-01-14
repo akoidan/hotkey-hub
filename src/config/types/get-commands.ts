@@ -1,5 +1,5 @@
 import {z} from 'zod';
-import {baseDestinationSchema} from '@/config/types/remote-commands';
+import {baseDestinationSchema, variableValueSchema} from '@/config/types/remote-commands';
 
 // Base schema for all commands without variables
 const baseGetInfoCommandSchema = baseDestinationSchema.extend({
@@ -23,6 +23,14 @@ const getWindowsIdByPidSchema = baseGetInfoCommandSchema.extend({
     id: z.number().int().positive('Process ID must be a positive integer'),
   }).strict(),
 }).strict().describe('Get all windows with their IDs for a concrete process id');
+
+const getPidsByNameSchema = baseGetInfoCommandSchema.extend({
+  get: z.literal('getPidsByName'),
+  variables: z.object({
+    name: z.union([variableValueSchema, z.string()])
+      .describe('Name of the executable file to search for. Example: "Chrome.exe". Case-sensitive on some operating systems.'),
+  }).strict(),
+}).strict().describe('Gets list of process ids that match criteria');
 
 const getActiveWindowIdSchema = baseGetInfoCommandSchema.extend({
   get: z.literal('getActiveWindowId'),
@@ -109,12 +117,14 @@ const getInfoRemoteCommandSchema = z.union([
   getMonitorFromWindowSchema,
   getMonitorScaleFactorSchema,
   getProcessMainWindowSchema,
+  getPidsByNameSchema,
 ]).describe('Allows to execute getRequest on remote schema and assign it to a variable');
 
 // Type definitions
 type WindowIdVariables = z.infer<typeof windowIdVariablesSchema>;
 type MonitorVariables = z.infer<typeof monitorVariablesSchema>;
 type PingCommand = z.infer<typeof pingSchema>;
+type GetPidsByNameCommand = z.infer<typeof getPidsByNameSchema>;
 type GetWindowsIdByPidCommand = z.infer<typeof getWindowsIdByPidSchema>;
 type GetActiveWindowIdCommand = z.infer<typeof getActiveWindowIdSchema>;
 type GetActiveWindowCommand = z.infer<typeof getActiveWindowSchema>;
@@ -134,6 +144,7 @@ type GetInfoRemoteCommand = z.infer<typeof getInfoRemoteCommandSchema>;
 
 // Export all schemas
 export {
+  getPidsByNameSchema,
   baseGetInfoCommandSchema,
   windowIdVariablesSchema,
   monitorVariablesSchema,
@@ -158,7 +169,7 @@ export {
 
 // Export all types
 export type {
-  BaseCommand,
+  GetPidsByNameCommand,
   WindowIdVariables,
   MonitorVariables,
   PingCommand,

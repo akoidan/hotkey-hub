@@ -6,9 +6,6 @@ import {variablesSchema, variableValueSchema} from '@/config/types/variables';
 import {behaviourObjectSchema, behaviourSchema, shortcutSchema, shortcutsSchema} from '@/config/types/shortcut';
 import {globalDelaySchema} from '@/config/types/delays';
 import {
-  findPidsByNameRemoteCommandSchema,
-  findProcessesWindowsRemoteCommandSchema,
-  findProcessWindowsRemoteCommandSchema,
   focusProcessWindowRemoteCommandSchema,
   focusWindowRemoteCommandSchema,
   keyPressRemoteCommandSchema,
@@ -125,9 +122,6 @@ export {
   typeTextRemoteCommandSchema,
   killExeByPidRemoteCommandSchema,
   killExeByNameRemoteCommandSchema,
-  findPidsByNameRemoteCommandSchema,
-  findProcessWindowsRemoteCommandSchema,
-  findProcessesWindowsRemoteCommandSchema,
   remoteCommandSchema,
   keySchema,
   threadsLocalCommandSchema,
