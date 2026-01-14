@@ -1,11 +1,5 @@
 import {z} from 'zod';
 import {baseGetInfoCommandSchema} from '@/config/types/get-commands/get-commands';
-import {
-  getMonitorFromWindowSchema,
-  getMonitorInfoSchema,
-  getMonitorScaleFactorSchema,
-  getMonitorsSchema
-} from '@/config/types/get-commands/get-monitor-commands';
 
 
 // Reusable schemas

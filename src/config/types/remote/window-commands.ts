@@ -25,7 +25,9 @@ const focusProcessWindowRemoteCommandSchema = baseRemoteCommandSchema.extend({
     pid: z.union([variableValueSchema, z.number()])
       .describe('Process ID (PID) of the window to focus. Can be obtained from findPidsByName command or launch command with assignId.'),
   }).strict(),
-}).strict().describe('Brings a window to front and gives it focus by process ID. Useful for window automation and ensuring windows are active.');
+})
+  .strict()
+  .describe('Brings a window to front and gives it focus by process ID. Useful for window automation and ensuring windows are active.');
 
 const focusWindowRemoteCommandSchema = baseRemoteCommandSchema.extend({
   performOnRemote: z.literal('focusWindow'),
