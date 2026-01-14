@@ -4,7 +4,7 @@ import {ClientModule} from '@/client/client-module';
 import {ShortcutProcessingService} from '@/local/shortcut-processing.service';
 import {VariableResolutionService} from '@/local/variable-resolution.service';
 import {RemoteHandlerModule} from '@/remote/remote-handler-module';
-import {CommandLocalHandler} from '@/local/implementation/command-local-handler';
+import {CommandLocalHandler} from '@/local/command-local-handler';
 import {DelayService} from '@/local/delay.service';
 import {SemaphorModule} from '@/semaphor/semaphor.module';
 import {RandomModule} from '@/random/random.module';
@@ -23,7 +23,7 @@ import {EvaluateService} from '@/local/evaluate-serivce';
 import {IfLocalHandler} from '@/local/implementation/if-local-handler';
 import {ShuffleLocalHandler} from '@/local/implementation/shuffle-local-handler';
 import {PrintLocalHandler} from '@/local/implementation/print-local-handler';
-import {GetLocalHandler} from '@/local/implementation/get-local-handler';
+import {GetLocalHandler} from '@/local/get-local-handler';
 import {GetInfoModule} from '@/get-info/get-info-module';
 
 

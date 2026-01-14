@@ -3,8 +3,8 @@ import {baseDestinationSchema, variableValueSchema} from '@/config/types/remote-
 
 // Base schema for all commands without variables
 const baseGetInfoCommandSchema = baseDestinationSchema.extend({
-  get: z.string(),
-  assignVariable: z.string(),
+  get: z.string().describe('Name of this command'),
+  assignVariable: z.string().describe('Assign result to a variable'),
 }).strict();
 
 // Reusable schemas

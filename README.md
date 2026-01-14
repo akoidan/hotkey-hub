@@ -40,7 +40,21 @@ You gonna have to use following certificates in the future. (Described later)
 **If client and server certificates are different you'll get an exception on startup that server is unable to connnect to the client**
 
 ### Define Main Configuration (Required)
-Create `config.jsonc`. This file defines your hotkey bindings and actions:
+Create `config.jsonc`. This file defines your hotkey bindings and actions.
+
+There are:
+ - [flow control](https://github.com/akoidan/hotkey-hub/tree/main/src/local/implementation) commands:
+   - Conditions with `if`
+   - While and for loop with `loops`
+   - Macros for reusable piece of code with `macro`
+   - Expresssions to evaluate JS code and build conditions and arguments on it with `expression`
+   - and a lot more!
+ - [Remote](https://github.com/akoidan/hotkey-hub/tree/main/src/remote/implementation) commands: 
+   - keyboards events with e.g.  `performOnRemote: "typeText"`
+   - mouse events with e.g. `performOnRemote: "mouseMove"`
+   - window control with e.g. `performOnRemote: "focusProcessWindow"`
+   - and a lot more!
+ - 
 Example of the minimal config:
 ```json
 {
@@ -58,10 +72,13 @@ Example of the minimal config:
           "destination": "this",
         },
         {
-          "mouseMoveX": 200, // move mouse cursor to the position (200, 200)
-          "mouseMoveY": 200,
-          "destination": "this"
-        }
+          "performOnRemote": "mouseMoveClick",
+          "variables": {
+            "x": 200, // move mouse cursor to the position (200, 200)
+            "y": 200,
+          },
+          "destination": "this",
+        },
       ],
       "name": "Mouse move + type text",
       // Note you need to have signal keys like alt, ctrl, shift, super (windows key) pressed. 

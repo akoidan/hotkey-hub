@@ -23,12 +23,14 @@ import {
 import {
   expressionLocalCommandSchema,
   expressionSchema,
+  ifLocalCommandSchema,
   loopLocalCommandSchema,
   macroDefinitionSchema,
   macroLocalCommandSchema,
   macrosListSchema,
   macroVariablesDescriptionSchema,
   macroVariableValueSchema,
+  printLocalCommandSchema,
   reloadConfigLocalCommandSchema,
   shuffleLocalCommandSchema,
   threadLocalArraySchema,
@@ -36,6 +38,16 @@ import {
   transactionLocalCommandSchema,
   unknownCommandSchema,
 } from '@/config/types/local-commands';
+import {
+  getActiveWindowIdSchema,
+  getActiveWindowSchema,
+  getInfoRemoteCommandSchema,
+  getMonitorFromWindowSchema, getMonitorInfoSchema,
+  getMonitorScaleFactorSchema, getMonitorsSchema, getPidsByNameSchema,
+  getProcessMainWindowSchema, getWindowBoundsSchema, getWindowOpacitySchema, getWindowOwnerSchema,
+  getWindowsIdByPidSchema, getWindowTitleSchema, isWindowSchema, isWindowVisibleSchema,
+  pingSchema
+} from '@/config/types/get-commands';
 
 
 const remoteAddressDefinition = z.union([z.string().ip(), z.string().regex(
@@ -98,15 +110,36 @@ export type {
   RgbData,
 };
 
+
+
+
 export {
+  pingSchema,
+  getWindowsIdByPidSchema,
+  getActiveWindowIdSchema,
+  getActiveWindowSchema,
+  getWindowBoundsSchema,
+  getWindowTitleSchema,
+  getWindowOpacitySchema,
+  getWindowOwnerSchema,
+  isWindowSchema,
+  isWindowVisibleSchema,
+  getMonitorsSchema,
+  getMonitorInfoSchema,
+  getMonitorFromWindowSchema,
+  getMonitorScaleFactorSchema,
+  getProcessMainWindowSchema,
+  getPidsByNameSchema,
   remoteAddressDefinition,
   rgbSchema,
   aARootSchema,
   globalDelaySchema,
   ipsSchema,
-  behaviourSchema,
   variableValueSchema,
   behaviourObjectSchema,
+  ifLocalCommandSchema,
+  printLocalCommandSchema,
+  getInfoRemoteCommandSchema,
   windowPropertiesSchema,
   shortcutSchema,
   shortcutsSchema,
@@ -134,7 +167,6 @@ export {
   macroVariablesDescriptionSchema,
   macroDefinitionSchema,
   macrosListSchema,
-  expressionSchema,
   reloadConfigLocalCommandSchema,
   shuffleLocalCommandSchema,
 };

@@ -34,7 +34,6 @@ const baseDestinationSchema = z.object({
 
 const baseRemoteCommandSchema = baseDestinationSchema.merge(delayCommandsSchema).extend({
   performOnRemote: z.string(),
-  assignVariable: z.string().optional(),
 }).strict();
 
 const windowPropertiesSchema = z.object({
@@ -78,6 +77,7 @@ const keyPressRemoteCommandSchema = baseRemoteCommandSchema.extend({
 
 const launchExeRemoteCommandSchema = baseRemoteCommandSchema.extend({
   performOnRemote: z.literal('launchExe'),
+  assignVariable: z.string().optional().describe('If provided, would assign launched process id to this variable'),
   variables: z.object({
     path: z.union([variableValueSchema, z.string()])
       .describe('Full absolute path to the executable file to run on the remote PC.'),

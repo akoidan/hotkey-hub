@@ -7,7 +7,7 @@ import {ConfigService} from '../src/config/config-service';
 import {ConfigReaderService} from '../src/config/config-reader-service';
 import {remoteHandlerProviders} from '../src/remote/remote-handler-module';
 import {VariableResolutionService} from '../src/local/variable-resolution.service';
-import {CommandLocalHandler} from '../src/local/implementation/command-local-handler';
+import {CommandLocalHandler} from '../src/local/command-local-handler';
 import path from 'path';
 import {AsyncStorageModule} from '../src/asyncstore/async-storage.module';
 import {RandomModule} from '../src/random/random.module';
