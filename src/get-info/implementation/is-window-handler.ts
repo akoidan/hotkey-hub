@@ -1,11 +1,11 @@
 import {Injectable} from '@nestjs/common';
 
-import {BaseCommand, IsWindowCommand} from '@/config/types/get-commands';
+import {GetInfoRemoteCommand, IsWindowCommand} from '@/config/types/get-commands';
 import {GetInfoHandler} from '@/get-info/get-info-handler';
 
 @Injectable()
 export class IsWindowHandler extends GetInfoHandler {
-  canHandle(command: BaseCommand): command is IsWindowCommand {
+  canHandle(command: GetInfoRemoteCommand): command is IsWindowCommand {
     return command.get === 'isWindow';
   }
 

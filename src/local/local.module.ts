@@ -23,60 +23,34 @@ import {EvaluateService} from '@/local/evaluate-serivce';
 import {IfLocalHandler} from '@/local/implementation/if-local-handler';
 import {ShuffleLocalHandler} from '@/local/implementation/shuffle-local-handler';
 import {PrintLocalHandler} from '@/local/implementation/print-local-handler';
+import {GetLocalHandler} from '@/local/implementation/get-local-handler';
 
-const handlers: BaseLocalHandler[] = [
-  MacroLocalHandler,
 
-];
-
-const processingProviders: Provider[] = [
+const handlers =[
   MacroLocalHandler,
   TransactionLocalHandler,
   ExpressionLocalHandler,
-  CommandLocalHandler,
   ThreadsLocalHandler,
   LoopLocalHandler,
   ReloadLocalHandler,
   IfLocalHandler,
-  PrintLocalHandler,
   ShuffleLocalHandler,
+  PrintLocalHandler,
+  GetLocalHandler, // get should be before it
+  CommandLocalHandler, // command should be last resort
+];
+
+const processingProviders: Provider[] = [
+  ...handlers,
   {
     provide: BaseLocalHandler,
-    inject: [
-      MacroLocalHandler,
-      TransactionLocalHandler,
-      ExpressionLocalHandler,
-      ThreadsLocalHandler,
-      LoopLocalHandler,
-      ReloadLocalHandler,
-      IfLocalHandler,
-      ShuffleLocalHandler,
-      PrintLocalHandler,
-      CommandLocalHandler,
-    ],
-    useFactory: (
-      macro: BaseLocalHandler,
-      transaction: BaseLocalHandler,
-      variable: BaseLocalHandler,
-      thread: BaseLocalHandler,
-      loopLocalHandler: BaseLocalHandler,
-      reloadLocalHandler: ReloadLocalHandler,
-      ifLocalHandler: IfLocalHandler,
-      shuffleLocalHandler: ShuffleLocalHandler,
-      printLocalHandler: PrintLocalHandler,
-      command: CommandLocalHandler,
-    ): BaseLocalHandler => {
-      macro.setNext(transaction, macro)
-        .setNext(variable, macro)
-        .setNext(thread, macro)
-        .setNext(loopLocalHandler, macro)
-        .setNext(reloadLocalHandler, macro)
-        .setNext(ifLocalHandler, macro)
-        .setNext(shuffleLocalHandler, macro)
-        .setNext(printLocalHandler, macro)
-        .setNext(command, macro)
-        .setNext(null!, macro);
-      return macro;
+    inject: handlers,
+    useFactory: (...lhandl: BaseLocalHandler[]): BaseLocalHandler => {
+      for (let i = 0; i < lhandl.length - 1; i++) {
+        lhandl[i].setNext(lhandl[i + 1], lhandl[0]);
+      }
+      lhandl[lhandl.length -1].setNext(null!, lhandl[0]);
+      return lhandl[0];
     },
   },
 ];

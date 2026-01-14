@@ -1,7 +1,8 @@
 import {z} from 'zod';
+import {baseDestinationSchema} from '@/config/types/remote-commands';
 
 // Base schema for all commands without variables
-const baseCommandSchema = z.object({
+const baseGetInfoCommandSchema = baseDestinationSchema.extend({
   get: z.string(),
   assignVariable: z.string(),
 }).strict();
@@ -12,56 +13,56 @@ const windowIdVariablesSchema = z.object({
 }).strict();
 
 // Individual command schemas
-const pingSchema = baseCommandSchema.extend({
+const pingSchema = baseGetInfoCommandSchema.extend({
   get: z.literal('ping'),
 }).strict().describe('Pings this client to test whether it\'s working');
 
-const getWindowsIdByPidSchema = baseCommandSchema.extend({
+const getWindowsIdByPidSchema = baseGetInfoCommandSchema.extend({
   get: z.literal('getWindowsIdByPid'),
   variables: z.object({
     id: z.number().int().positive('Process ID must be a positive integer'),
   }).strict(),
 }).strict().describe('Get all windows with their IDs for a concrete process id');
 
-const getActiveWindowIdSchema = baseCommandSchema.extend({
+const getActiveWindowIdSchema = baseGetInfoCommandSchema.extend({
   get: z.literal('getActiveWindowId'),
 }).strict().describe('Get active window id (raw handle)');
 
-const getActiveWindowSchema = baseCommandSchema.extend({
+const getActiveWindowSchema = baseGetInfoCommandSchema.extend({
   get: z.literal('getActiveWindow'),
 }).strict().describe('Get information about current active window');
 
-const getWindowBoundsSchema = baseCommandSchema.extend({
+const getWindowBoundsSchema = baseGetInfoCommandSchema.extend({
   get: z.literal('getWindowBounds'),
   variables: windowIdVariablesSchema,
 }).strict().describe('Get window bounds');
 
-const getWindowTitleSchema = baseCommandSchema.extend({
+const getWindowTitleSchema = baseGetInfoCommandSchema.extend({
   get: z.literal('getWindowTitle'),
   variables: windowIdVariablesSchema,
 }).strict().describe('Get window title');
 
-const getWindowOpacitySchema = baseCommandSchema.extend({
+const getWindowOpacitySchema = baseGetInfoCommandSchema.extend({
   get: z.literal('getWindowOpacity'),
   variables: windowIdVariablesSchema,
 }).strict().describe('Get window opacity (0..1)');
 
-const getWindowOwnerSchema = baseCommandSchema.extend({
+const getWindowOwnerSchema = baseGetInfoCommandSchema.extend({
   get: z.literal('getWindowOwner'),
   variables: windowIdVariablesSchema,
 }).strict().describe('Get window owner handle');
 
-const isWindowSchema = baseCommandSchema.extend({
+const isWindowSchema = baseGetInfoCommandSchema.extend({
   get: z.literal('isWindow'),
   variables: windowIdVariablesSchema,
 }).strict().describe('Check if handle is a window');
 
-const isWindowVisibleSchema = baseCommandSchema.extend({
+const isWindowVisibleSchema = baseGetInfoCommandSchema.extend({
   get: z.literal('isWindowVisible'),
   variables: windowIdVariablesSchema,
 }).strict().describe('Check if window is visible');
 
-const getMonitorsSchema = baseCommandSchema.extend({
+const getMonitorsSchema = baseGetInfoCommandSchema.extend({
   get: z.literal('getMonitors'),
 }).strict().describe('List monitors');
 
@@ -69,22 +70,22 @@ const monitorVariablesSchema = z.object({
   mid: z.number().int().nonnegative('Monitor ID must be a non-negative integer'),
 }).strict();
 
-const getMonitorInfoSchema = baseCommandSchema.extend({
+const getMonitorInfoSchema = baseGetInfoCommandSchema.extend({
   get: z.literal('getMonitorInfo'),
   variables: monitorVariablesSchema,
 }).strict().describe('Get monitor info');
 
-const getMonitorFromWindowSchema = baseCommandSchema.extend({
+const getMonitorFromWindowSchema = baseGetInfoCommandSchema.extend({
   get: z.literal('getMonitorFromWindow'),
   variables: windowIdVariablesSchema,
 }).strict().describe('Get monitor for window');
 
-const getMonitorScaleFactorSchema = baseCommandSchema.extend({
+const getMonitorScaleFactorSchema = baseGetInfoCommandSchema.extend({
   get: z.literal('getMonitorScaleFactor'),
   variables: monitorVariablesSchema,
 }).strict().describe('Get monitor scale factor');
 
-const getProcessMainWindowSchema = baseCommandSchema.extend({
+const getProcessMainWindowSchema = baseGetInfoCommandSchema.extend({
   get: z.literal('getProcessMainWindow'),
   variables: z.object({
     pid: z.number().int().positive('Process ID must be a positive integer'),
@@ -111,7 +112,6 @@ const getInfoRemoteCommandSchema = z.union([
 ]).describe('Allows to execute getRequest on remote schema and assign it to a variable');
 
 // Type definitions
-type BaseCommand = z.infer<typeof baseCommandSchema>;
 type WindowIdVariables = z.infer<typeof windowIdVariablesSchema>;
 type MonitorVariables = z.infer<typeof monitorVariablesSchema>;
 type PingCommand = z.infer<typeof pingSchema>;
@@ -134,7 +134,7 @@ type GetInfoRemoteCommand = z.infer<typeof getInfoRemoteCommandSchema>;
 
 // Export all schemas
 export {
-  baseCommandSchema,
+  baseGetInfoCommandSchema,
   windowIdVariablesSchema,
   monitorVariablesSchema,
   pingSchema,

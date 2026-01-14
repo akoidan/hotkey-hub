@@ -1,11 +1,11 @@
 import {Injectable} from '@nestjs/common';
 
-import {BaseCommand, PingCommand} from '@/config/types/get-commands';
+import {GetInfoRemoteCommand, PingCommand} from '@/config/types/get-commands';
 import {GetInfoHandler} from '@/get-info/get-info-handler';
 
 @Injectable()
 export class PingHandler extends GetInfoHandler {
-  canHandle(command: BaseCommand): command is PingCommand {
+  canHandle(command: GetInfoRemoteCommand): command is PingCommand {
     return command.get === 'ping';
   }
 

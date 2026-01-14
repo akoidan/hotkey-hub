@@ -16,7 +16,7 @@ const delayCommandsSchema = z.object({
     .describe('Delay (ms) before executing command. Helps create precisely timed sequences.'),
 }).strict();
 
-const baseSchema = z.object({
+const baseDestinationSchema = z.object({
   destination: z.union([variableValueSchema, z.string()]).superRefine((destination, ctx) => {
     const data: ConfigDataWoMacro = schemaRootCache.data ?? {ips: {}};
     const ipsKeys = new Set(Object.keys(data.ips ?? {}));
@@ -30,7 +30,9 @@ const baseSchema = z.object({
       });
     }
   }).describe('Remote PC from ips or aliases section to send this command to'),
-}).strict().merge(delayCommandsSchema);
+}).strict();
+
+const baseSchema = baseDestinationSchema.merge(delayCommandsSchema);
 
 const windowPropertiesSchema = z.object({
   x: z.union([variableValueSchema, z.number()]).describe('x position'),
@@ -210,6 +212,7 @@ export {
   launchExeRemoteCommandSchema,
   focusProcessWindowRemoteCommandSchema,
   typeTextRemoteCommandSchema,
+  baseDestinationSchema,
   mouseMoveClickRemoteCommandSchema,
   leftMouseClickRemoteCommandSchema,
   killExeByNameRemoteCommandSchema,

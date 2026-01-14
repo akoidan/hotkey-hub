@@ -1,11 +1,11 @@
 import {Injectable} from '@nestjs/common';
 
-import {BaseCommand, GetMonitorScaleFactorCommand} from '@/config/types/get-commands';
+import {GetInfoRemoteCommand, GetMonitorScaleFactorCommand} from '@/config/types/get-commands';
 import {GetInfoHandler} from '@/get-info/get-info-handler';
 
 @Injectable()
 export class GetMonitorScaleFactorHandler extends GetInfoHandler {
-  canHandle(command: BaseCommand): command is GetMonitorScaleFactorCommand {
+  canHandle(command: GetInfoRemoteCommand): command is GetMonitorScaleFactorCommand {
     return command.get === 'getMonitorScaleFactor';
   }
 
