@@ -3,8 +3,6 @@ import {ClientModule} from '@/client/client-module';
 import {ConfigModule} from '@/config/config-module';
 import {GetInfoHandler} from '@/get-info/get-info-handler';
 import {PingHandler} from '@/get-info/implementation/ping-handler';
-import {GetActiveWindowIdHandler} from '@/get-info/implementation/get-active-window-id-handler';
-import {GetActiveWindowHandler} from '@/get-info/implementation/get-active-window-handler';
 import {GetWindowBoundsHandler} from '@/get-info/implementation/get-window-bounds-handler';
 import {GetWindowTitleHandler} from '@/get-info/implementation/get-window-title-handler';
 import {GetWindowOpacityHandler} from '@/get-info/implementation/get-window-opacity-handler';
@@ -17,11 +15,12 @@ import {GetMonitorFromWindowHandler} from '@/get-info/implementation/get-monitor
 import {GetMonitorScaleFactorHandler} from '@/get-info/implementation/get-monitor-scale-factor-handler';
 import {GetProcessMainWindowHandler} from '@/get-info/implementation/get-process-main-window-handler';
 import {GetWindowsIdByPidHandler} from '@/get-info/implementation/get-windows-id-by-pid-handler';
+import {GetActiveWindowInfoHandler} from '@/get-info/implementation/get-active-window-info-handler';
 
 const getInfoHandlers = [
   PingHandler,
-  GetActiveWindowIdHandler,
-  GetActiveWindowHandler,
+  GetActiveWindowInfoHandler,
+  GetActiveWindowInfoHandler,
   GetWindowBoundsHandler,
   GetWindowTitleHandler,
   GetWindowOpacityHandler,

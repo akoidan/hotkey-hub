@@ -1,7 +1,7 @@
 import {ClientService} from '@/client/client-service';
-import {Injectable} from '@nestjs/common';
+import {Injectable, Logger} from '@nestjs/common';
 import {ConfigService} from '@/config/config-service';
-import {ExecuteRequestRemoteCommand} from '@/config/types/get-commands';
+import {GetInfoRemoteCommand} from '@/config/types/get-commands';
 
 @Injectable()
 export abstract class GetInfoHandler {
@@ -10,6 +10,7 @@ export abstract class GetInfoHandler {
   constructor(
     protected readonly clientService: ClientService,
     protected readonly configService: ConfigService,
+    protected readonly logger: Logger,
   ) {
   }
 
@@ -18,17 +19,17 @@ export abstract class GetInfoHandler {
     return handler;
   }
 
-  abstract canHandle(command: ExecuteRequestRemoteCommand): boolean;
+  protected abstract canHandle(command: GetInfoRemoteCommand): boolean;
 
-  abstract execute(destination: string, command: ExecuteRequestRemoteCommand): Promise<void>;
+  protected abstract execute(destination: string, command: GetInfoRemoteCommand): Promise<unknown>;
 
-  async handle(destination: string, command: ExecuteRequestRemoteCommand): Promise<void> {
+  async handle(destination: string, command: GetInfoRemoteCommand): Promise<unknown> {
     if (this.canHandle(command)) {
-      await this.execute(destination, command);
-    } else if (this.next) {
-      await this.next.handle(destination, command);
-    } else {
-      throw new Error(`No handler found for command type: ${JSON.stringify(command)}`);
+      return this.execute(destination, command);
     }
+    if (this.next) {
+      return this.next.handle(destination, command);
+    }
+    throw new Error(`No handler found for command type: ${JSON.stringify(command)}`);
   }
 }

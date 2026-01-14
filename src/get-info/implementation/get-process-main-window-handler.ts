@@ -1,16 +1,15 @@
-import { Injectable } from '@nestjs/common';
-import { ClientService } from '@/client/client-service';
-import { ConfigService } from '@/config/config-service';
-import { BaseGetHandler } from './base-get-handler';
-import { BaseCommand, GetProcessMainWindowCommand } from '@/config/types/get-commands';
+import {Injectable} from '@nestjs/common';
+
+import {BaseCommand, GetProcessMainWindowCommand} from '@/config/types/get-commands';
+import {GetInfoHandler} from '@/get-info/get-info-handler';
 
 @Injectable()
-export class GetProcessMainWindowHandler extends BaseGetHandler {
+export class GetProcessMainWindowHandler extends GetInfoHandler {
   canHandle(command: BaseCommand): command is GetProcessMainWindowCommand {
     return command.get === 'getProcessMainWindow';
   }
 
-  protected async handleRequest(destination: string, command: GetProcessMainWindowCommand): Promise<number> {
+  protected async execute(destination: string, command: GetProcessMainWindowCommand): Promise<number> {
     return this.clientService.getProcessMainWindow(destination, command.variables.pid);
   }
 }

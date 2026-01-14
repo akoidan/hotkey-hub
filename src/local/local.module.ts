@@ -24,6 +24,10 @@ import {IfLocalHandler} from '@/local/implementation/if-local-handler';
 import {ShuffleLocalHandler} from '@/local/implementation/shuffle-local-handler';
 import {PrintLocalHandler} from '@/local/implementation/print-local-handler';
 
+const handlers: BaseLocalHandler[] = [
+  MacroLocalHandler,
+
+];
 
 const processingProviders: Provider[] = [
   MacroLocalHandler,

@@ -92,7 +92,7 @@ const getProcessMainWindowSchema = baseCommandSchema.extend({
 }).strict().describe('Get process\' main window');
 
 // Union of all command schemas
-const executeRequestRemoteCommandSchema = z.union([
+const getInfoRemoteCommandSchema = z.union([
   pingSchema,
   getWindowsIdByPidSchema,
   getActiveWindowIdSchema,
@@ -129,7 +129,7 @@ type GetMonitorInfoCommand = z.infer<typeof getMonitorInfoSchema>;
 type GetMonitorFromWindowCommand = z.infer<typeof getMonitorFromWindowSchema>;
 type GetMonitorScaleFactorCommand = z.infer<typeof getMonitorScaleFactorSchema>;
 type GetProcessMainWindowCommand = z.infer<typeof getProcessMainWindowSchema>;
-type ExecuteRequestRemoteCommand = z.infer<typeof executeRequestRemoteCommandSchema>;
+type GetInfoRemoteCommand = z.infer<typeof getInfoRemoteCommandSchema>;
 
 
 // Export all schemas
@@ -152,7 +152,7 @@ export {
   getMonitorFromWindowSchema,
   getMonitorScaleFactorSchema,
   getProcessMainWindowSchema,
-  executeRequestRemoteCommandSchema,
+  getInfoRemoteCommandSchema,
 };
 
 
@@ -176,5 +176,5 @@ export type {
   GetMonitorFromWindowCommand,
   GetMonitorScaleFactorCommand,
   GetProcessMainWindowCommand,
-  ExecuteRequestRemoteCommand,
+  GetInfoRemoteCommand,
 };

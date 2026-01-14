@@ -1,16 +1,14 @@
-import { Injectable } from '@nestjs/common';
-import { ClientService } from '@/client/client-service';
-import { ConfigService } from '@/config/config-service';
-import { BaseGetHandler } from './base-get-handler';
-import { BaseCommand, GetMonitorsCommand } from '@/config/types/get-commands';
+import {Injectable} from '@nestjs/common';
+import {GetInfoHandler} from '@/get-info/get-info-handler';
+import {BaseCommand, GetMonitorsCommand} from '@/config/types/get-commands';
 
 @Injectable()
-export class GetMonitorsHandler extends BaseGetHandler {
+export class GetMonitorsHandler extends GetInfoHandler {
   canHandle(command: BaseCommand): command is GetMonitorsCommand {
     return command.get === 'getMonitors';
   }
 
-  protected async handleRequest(destination: string): Promise<any[]> {
+  protected async execute(destination: string): Promise<unknown[]> {
     return this.clientService.getMonitors(destination);
   }
 }

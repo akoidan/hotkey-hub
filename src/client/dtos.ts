@@ -58,13 +58,6 @@ interface FindPidsByNameRequest {
   name: string;
 }
 
-interface FindPidsByNameResponse {
-  pids: number[];
-}
-
-interface FindProcessWindowsResponse {
-  wids: number[];
-}
 
 interface FocusWindowRequest {
   wid: number;
@@ -111,9 +104,7 @@ export type {
   KillExeByPidRequest,
   GetActiveWindowInfoResponse,
   FocusWindowRequest,
-  FindPidsByNameResponse,
   SetWindowBoundsRequest,
   WindowBounds,
-  FindProcessWindowsResponse,
   MouseMoveHumanRequest,
 };

@@ -1,13 +1,18 @@
 import {FetchClient} from '@/client/http-client';
 import {
-  FindPidsByNameRequest, FindPidsByNameResponse, FindProcessWindowsResponse,
-  FocusExeRequest, FocusWindowRequest, GetActiveWindowInfoResponse,
+  FindPidsByNameRequest,
+  FocusExeRequest,
+  FocusWindowRequest,
+  GetActiveWindowInfoResponse,
   KillExeByNameRequest,
   KillExeByPidRequest,
   LaunchExeRequest,
-  LaunchPidResponse, MonitorInfo,
-  MouseClickRequest, MouseMoveHumanRequest,
-  SendKeyRequest, SetWindowBoundsRequest,
+  LaunchPidResponse,
+  MonitorInfo,
+  MouseClickRequest,
+  MouseMoveHumanRequest,
+  SendKeyRequest,
+  SetWindowBoundsRequest,
   TypeTextRequest,
 } from '@/client/dtos';
 import {Injectable} from '@nestjs/common';
@@ -56,11 +61,11 @@ export class ClientService {
     return this.client.post(client, '/process/kill-exe-by-name', request);
   }
 
-  async findPidsByName(client: string, request: FindPidsByNameRequest): Promise<FindPidsByNameResponse> {
+  async findPidsByName(client: string, request: FindPidsByNameRequest): Promise<number[]> {
     return this.client.post(client, '/process/find-pids-by-name', request, 6000, true);
   }
 
-  async getProcessWindows(client: string, pid: number): Promise<FindProcessWindowsResponse> {
+  async getProcessWindows(client: string, pid: number): Promise<[]> {
     return this.client.get(client, `/window/by-process/${pid}`, 6000, true);
   }
 
@@ -68,7 +73,7 @@ export class ClientService {
     return this.client.post(client, '/window/focus', request);
   }
 
-  async monitorInfo(client: string, id: string): Promise<MonitorInfo> {
+  async monitorInfo(client: string, id: number): Promise<MonitorInfo> {
     return this.client.get(client, `/monitor/${id}/info`);
   }
 

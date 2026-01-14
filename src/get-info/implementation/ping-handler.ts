@@ -1,16 +1,15 @@
-import { Injectable } from '@nestjs/common';
-import { ClientService } from '@/client/client-service';
-import { ConfigService } from '@/config/config-service';
-import { BaseGetHandler } from './base-get-handler';
-import { BaseCommand, PingCommand } from '@/config/types/get-commands';
+import {Injectable} from '@nestjs/common';
+
+import {BaseCommand, PingCommand} from '@/config/types/get-commands';
+import {GetInfoHandler} from '@/get-info/get-info-handler';
 
 @Injectable()
-export class PingHandler extends BaseGetHandler {
+export class PingHandler extends GetInfoHandler {
   canHandle(command: BaseCommand): command is PingCommand {
     return command.get === 'ping';
   }
 
-  protected async handleRequest(destination: string): Promise<boolean> {
+  protected async execute(destination: string): Promise<boolean> {
     try {
       await this.clientService.ping(destination);
       return true;
