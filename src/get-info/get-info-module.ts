@@ -1,101 +1,56 @@
-import {Logger, Module} from '@nestjs/common';
-import {ClientModule} from '@/client/client-module';
-import {KeyPressRemoteHandler} from '@/remote/implementation/key-press-remote-handler';
-import {FocusProcessWindowRemoteHandler} from '@/remote/implementation/focus-process-window-remote-handler';
-import {MouseClickRemoteHandler} from '@/remote/implementation/mouse-click-remote-handler';
-import {ExecuteRemoteHandler} from '@/remote/implementation/execute-remote-handler.service';
-import {TypeTextRemoteHandler} from '@/remote/implementation/type-text-remote-handler';
-import {KillNameRemoteHandler} from '@/remote/implementation/kill-name-remote-handler';
-import {KillPidRemoteHandler} from '@/remote/implementation/kill-pid-remote-handler';
-import {ConfigModule} from '@/config/config-module';
-import {LeftMouseClickRemoteHandler} from '@/remote/implementation/left-mouse-click-remote-handler';
-import {Provider} from '@nestjs/common/interfaces/modules/provider.interface';
-import {SemaphorModule} from '@/semaphor/semaphor.module';
-import {RandomModule} from '@/random/random.module';
-import {FindPidsByNameRemoteHandler} from '@/remote/implementation/find-pids-by-name-remote-handler';
-import {FindProcessesWindowsRemoteHandler} from '@/remote/implementation/find-processes-windows-remote-handler';
-import {FocusWindowRemoteHandler} from '@/remote/implementation/focus-window-remote-handler';
-import {FindProcessWindowsRemoteHandler} from '@/remote/implementation/find-process-windows-remote-handler';
-import {CommandRemoteHandler} from '@/remote/command-remote-handler';
-import {
-  SetWindowBoundsRemoteHandler,
-} from '@/remote/implementation/set-window-bounds-remote-handler.service';
+import { Module } from '@nestjs/common';
+import { ClientModule } from '@/client/client-module';
+import { ConfigModule } from '@/config/config-module';
+import { GetInfoHandler } from './get-info-handler';
+import { PingHandler } from './implementation/ping-handler';
+import { GetActiveWindowIdHandler } from './implementation/get-active-window-id-handler';
+import { GetActiveWindowHandler } from './implementation/get-active-window-handler';
+import { GetWindowBoundsHandler } from './implementation/get-window-bounds-handler';
+import { GetWindowTitleHandler } from './implementation/get-window-title-handler';
+import { GetWindowOpacityHandler } from './implementation/get-window-opacity-handler';
+import { GetWindowOwnerHandler } from './implementation/get-window-owner-handler';
+import { IsWindowHandler } from './implementation/is-window-handler';
+import { IsWindowVisibleHandler } from './implementation/is-window-visible-handler';
+import { GetMonitorsHandler } from './implementation/get-monitors-handler';
+import { GetMonitorInfoHandler } from './implementation/get-monitor-info-handler';
+import { GetMonitorFromWindowHandler } from './implementation/get-monitor-from-window-handler';
+import { GetMonitorScaleFactorHandler } from './implementation/get-monitor-scale-factor-handler';
+import { GetProcessMainWindowHandler } from './implementation/get-process-main-window-handler';
+import { GetWindowsIdByPidHandler } from './implementation/get-windows-id-by-pid-handler';
 
-const remoteHandlerProviders: Provider[] = [
-  Logger,
-  KeyPressRemoteHandler,
-  FocusProcessWindowRemoteHandler,
-  MouseClickRemoteHandler,
-  ExecuteRemoteHandler,
-  TypeTextRemoteHandler,
-  KillNameRemoteHandler,
-  KillPidRemoteHandler,
-  LeftMouseClickRemoteHandler,
-  FindPidsByNameRemoteHandler,
-  FindProcessWindowsRemoteHandler,
-  FindProcessesWindowsRemoteHandler,
-  FocusWindowRemoteHandler,
-  SetWindowBoundsRemoteHandler,
-  {
-    provide: CommandRemoteHandler,
-    inject: [
-      KeyPressRemoteHandler,
-      FocusProcessWindowRemoteHandler,
-      MouseClickRemoteHandler,
-      ExecuteRemoteHandler,
-      TypeTextRemoteHandler,
-      KillNameRemoteHandler,
-      KillPidRemoteHandler,
-      LeftMouseClickRemoteHandler,
-      FindPidsByNameRemoteHandler,
-      FindProcessWindowsRemoteHandler,
-      FindProcessesWindowsRemoteHandler,
-      FocusWindowRemoteHandler,
-      SetWindowBoundsRemoteHandler,
-    ],
-    useFactory: (
-        keyPressHandler: CommandRemoteHandler,
-        focusProcessWindowHandler: CommandRemoteHandler,
-        mouseClickHandler: CommandRemoteHandler,
-        executeHandler: CommandRemoteHandler,
-        typeTextHandler: CommandRemoteHandler,
-        killByNameHandler: CommandRemoteHandler,
-        killByPidHandler: CommandRemoteHandler,
-        leftMouseClickHandler: CommandRemoteHandler,
-        findPidsByNameHandler: CommandRemoteHandler,
-        findProcessWindowsHandler: CommandRemoteHandler,
-        findProcessesWindowsHandler: CommandRemoteHandler,
-        focusWindowHandler: CommandRemoteHandler,
-        setWindowBoundsHandler: SetWindowBoundsRemoteHandler,
-    ): CommandRemoteHandler => {
-      keyPressHandler
-          .setNext(focusProcessWindowHandler)
-          .setNext(mouseClickHandler)
-          .setNext(executeHandler)
-          .setNext(typeTextHandler)
-          .setNext(killByNameHandler)
-          .setNext(killByPidHandler)
-          .setNext(leftMouseClickHandler)
-          .setNext(findPidsByNameHandler)
-          .setNext(findProcessWindowsHandler)
-          .setNext(findProcessesWindowsHandler)
-          .setNext(focusWindowHandler)
-          .setNext(setWindowBoundsHandler);
-      return keyPressHandler;
-    },
-  },
+const getInfoHandlers = [
+  PingHandler,
+  GetActiveWindowIdHandler,
+  GetActiveWindowHandler,
+  GetWindowBoundsHandler,
+  GetWindowTitleHandler,
+  GetWindowOpacityHandler,
+  GetWindowOwnerHandler,
+  IsWindowHandler,
+  IsWindowVisibleHandler,
+  GetMonitorsHandler,
+  GetMonitorInfoHandler,
+  GetMonitorFromWindowHandler,
+  GetMonitorScaleFactorHandler,
+  GetProcessMainWindowHandler,
+  GetWindowsIdByPidHandler,
 ];
 
 @Module({
-  imports: [ClientModule, ConfigModule, SemaphorModule, RandomModule],
-  providers: remoteHandlerProviders,
-  exports: [CommandRemoteHandler],
+  imports: [ClientModule, ConfigModule],
+  providers: [
+    ...getInfoHandlers,
+    {
+      provide: GetInfoHandler,
+      useFactory: (...handlers: GetInfoHandler[]) => {
+        for (let i = 0; i < handlers.length - 1; i++) {
+          handlers[i].setNext(handlers[i + 1]);
+        }
+        return handlers[0];
+      },
+      inject: [...getInfoHandlers],
+    },
+  ],
+  exports: [GetInfoHandler],
 })
-class GetInfoModule {
-
-}
-
-export {
-  remoteHandlerProviders,
-  GetInfoModule,
-};
+export class GetInfoModule {}
