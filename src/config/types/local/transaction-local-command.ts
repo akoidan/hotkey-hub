@@ -1,7 +1,6 @@
 import {z, type ZodType} from 'zod';
 import {variableValueSchema} from '@/config/types/variables';
-import type {UnknownCommand} from '@/config/types/commands';
-import {unknownCommandSchema} from '@/config/types/commands';
+import {type UnknownCommand, unknownCommandSchema} from '@/config/types/commands';
 
 const transactionLocalCommandSchema = z.lazy(() => z.object({
   commands: z.array(unknownCommandSchema)

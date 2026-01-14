@@ -1,6 +1,5 @@
 import {z, type ZodType} from 'zod';
-import type {UnknownCommand} from '@/config/types/commands';
-import {unknownCommandSchema} from '@/config/types/commands';
+import {type UnknownCommand, unknownCommandSchema} from '@/config/types/commands';
 
 const threadLocalArraySchema = z.object({
   name: z.string().max(10).nonempty().describe('name of the thread, required for req-id log, '),

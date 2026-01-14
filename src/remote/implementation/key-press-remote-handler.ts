@@ -21,8 +21,7 @@ export class KeyPressRemoteHandler extends CommandRemoteHandler {
   async execute(destination: string, command: KeyPressRemoteCommand): Promise<void> {
     let holdKeys: Key[] = [];
     if (Array.isArray(command.variables.holdKeys)) {
-      // eslint-disable-next-line @typescript-eslint/prefer-destructuring
-      holdKeys = command.variables.holdKeys;
+      holdKeys = command.variables.holdKeys as Key[];
     } else if (command.variables.holdKeys) {
       holdKeys = [command.variables.holdKeys as Key];
     }

@@ -1,7 +1,6 @@
 import {z, type ZodType} from 'zod';
 import {expressionSchema} from '@/config/types/local/expression-local-command';
-import type {UnknownCommand} from '@/config/types/commands';
-import {unknownCommandSchema} from '@/config/types/commands';
+import {type UnknownCommand, unknownCommandSchema} from '@/config/types/commands';
 
 const ifLocalCommandSchema = z.lazy(() => z.object({
   if: expressionSchema,
