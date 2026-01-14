@@ -2,11 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { ClientService } from '@/client/client-service';
 import { ConfigService } from '@/config/config-service';
 import { BaseGetHandler } from './base-get-handler';
-import { GetActiveWindowIdCommand } from '@/config/types/get-commands';
+import { BaseCommand, GetActiveWindowIdCommand } from '@/config/types/get-commands';
 
 @Injectable()
 export class GetActiveWindowIdHandler extends BaseGetHandler {
-  canHandle(command: any): command is GetActiveWindowIdCommand {
+  canHandle(command: BaseCommand): command is GetActiveWindowIdCommand {
     return command.get === 'getActiveWindowId';
   }
 
