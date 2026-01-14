@@ -1,5 +1,6 @@
 import {z} from 'zod';
-import {baseGetInfoCommandSchema, pingSchema, windowIdVariablesSchema} from '@/config/types/get-commands/get-commands';
+import {baseGetInfoCommandSchema} from '@/config/types/get-commands/get-commands';
+import {windowIdVariablesSchema} from '@/config/types/get-commands/get-window-commands';
 
 const getMonitorsSchema = baseGetInfoCommandSchema.extend({
   get: z.literal('getMonitors'),
