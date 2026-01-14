@@ -60,7 +60,7 @@ const processingProviders: Provider[] = [
       ifLocalHandler: IfLocalHandler,
       shuffleLocalHandler: ShuffleLocalHandler,
       printLocalHandler: PrintLocalHandler,
-      command: BaseLocalHandler,
+      command: CommandLocalHandler,
     ): BaseLocalHandler => {
       macro.setNext(transaction, macro)
         .setNext(variable, macro)

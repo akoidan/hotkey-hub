@@ -3,6 +3,7 @@ import {z, ZodIssueCode, type ZodType} from 'zod';
 import {schemaRootCache} from '@/config/types/cache';
 import {type VariableValue, variableValueSchema} from '@/config/types/variables';
 import {delayCommandsSchema, type RemoteCommand, remoteCommandSchema} from '@/config/types/remote-commands';
+import {executeRequestRemoteCommandSchema, getMonitorInfoSchema} from '@/config/types/get-commands';
 
 
 const macroLocalCommandSchema = z.object({
@@ -138,6 +139,7 @@ const ifLocalCommandSchema = z.lazy(() => z.object({
 
 const unknownCommandSchema = z.lazy(() => z.union([
   remoteCommandSchema,
+  executeRequestRemoteCommandSchema,
   macroLocalCommandSchema,
   expressionLocalCommandSchema,
   transactionLocalCommandSchema,

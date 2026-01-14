@@ -5,7 +5,7 @@ import {ExecuteRemoteCommand, RemoteCommand} from '@/config/types/remote-command
 import {CommandRemoteHandler} from '@/remote/command-remote-handler';
 
 @Injectable()
-export class ExecuteGetRequestRemoteHandler extends CommandRemoteHandler {
+export class ExecuteRemoteHandler extends CommandRemoteHandler {
   constructor(
     clientService: ClientService,
     private readonly configService: ConfigService,

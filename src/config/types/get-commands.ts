@@ -92,7 +92,7 @@ const getProcessMainWindowSchema = baseCommandSchema.extend({
 }).strict();
 
 // Union of all command schemas
-export const executeRequestRemoteCommandSchema = z.union([
+const executeRequestRemoteCommandSchema = z.union([
   pingSchema,
   getWindowsIdByPidSchema,
   getActiveWindowIdSchema,
@@ -108,5 +108,73 @@ export const executeRequestRemoteCommandSchema = z.union([
   getMonitorFromWindowSchema,
   getMonitorScaleFactorSchema,
   getProcessMainWindowSchema,
-]).describe('Allows to execute getRequest on remote schema, check http-remote-control swagger.json file for get request and their reponses');
-;
+]).describe('Allows to execute getRequest on remote schema and assign it to a variable');
+
+// Type definitions
+type BaseCommand = z.infer<typeof baseCommandSchema>;
+type WindowIdVariables = z.infer<typeof windowIdVariablesSchema>;
+type MonitorVariables = z.infer<typeof monitorVariablesSchema>;
+type PingCommand = z.infer<typeof pingSchema>;
+type GetWindowsIdByPidCommand = z.infer<typeof getWindowsIdByPidSchema>;
+type GetActiveWindowIdCommand = z.infer<typeof getActiveWindowIdSchema>;
+type GetActiveWindowCommand = z.infer<typeof getActiveWindowSchema>;
+type GetWindowBoundsCommand = z.infer<typeof getWindowBoundsSchema>;
+type GetWindowTitleCommand = z.infer<typeof getWindowTitleSchema>;
+type GetWindowOpacityCommand = z.infer<typeof getWindowOpacitySchema>;
+type GetWindowOwnerCommand = z.infer<typeof getWindowOwnerSchema>;
+type IsWindowCommand = z.infer<typeof isWindowSchema>;
+type IsWindowVisibleCommand = z.infer<typeof isWindowVisibleSchema>;
+type GetMonitorsCommand = z.infer<typeof getMonitorsSchema>;
+type GetMonitorInfoCommand = z.infer<typeof getMonitorInfoSchema>;
+type GetMonitorFromWindowCommand = z.infer<typeof getMonitorFromWindowSchema>;
+type GetMonitorScaleFactorCommand = z.infer<typeof getMonitorScaleFactorSchema>;
+type GetProcessMainWindowCommand = z.infer<typeof getProcessMainWindowSchema>;
+type ExecuteRequestRemoteCommand = z.infer<typeof executeRequestRemoteCommandSchema>;
+
+
+// Export all schemas
+export {
+  baseCommandSchema,
+  windowIdVariablesSchema,
+  monitorVariablesSchema,
+  pingSchema,
+  getWindowsIdByPidSchema,
+  getActiveWindowIdSchema,
+  getActiveWindowSchema,
+  getWindowBoundsSchema,
+  getWindowTitleSchema,
+  getWindowOpacitySchema,
+  getWindowOwnerSchema,
+  isWindowSchema,
+  isWindowVisibleSchema,
+  getMonitorsSchema,
+  getMonitorInfoSchema,
+  getMonitorFromWindowSchema,
+  getMonitorScaleFactorSchema,
+  getProcessMainWindowSchema,
+  executeRequestRemoteCommandSchema,
+};
+
+
+// Export all types
+export type {
+  BaseCommand,
+  WindowIdVariables,
+  MonitorVariables,
+  PingCommand,
+  GetWindowsIdByPidCommand,
+  GetActiveWindowIdCommand,
+  GetActiveWindowCommand,
+  GetWindowBoundsCommand,
+  GetWindowTitleCommand,
+  GetWindowOpacityCommand,
+  GetWindowOwnerCommand,
+  IsWindowCommand,
+  IsWindowVisibleCommand,
+  GetMonitorsCommand,
+  GetMonitorInfoCommand,
+  GetMonitorFromWindowCommand,
+  GetMonitorScaleFactorCommand,
+  GetProcessMainWindowCommand,
+  ExecuteRequestRemoteCommand,
+};

@@ -199,9 +199,6 @@ export type {
   Delay,
   KillExeByPidRemoteCommand,
   KillExeByNameRemoteCommand,
-  FindPidsByNameRemoteCommand,
-  FindProcessWindowsRemoteCommand,
-  FindProcessesWindowsRemoteCommand,
 };
 
 export {
@@ -218,10 +215,7 @@ export {
   killExeByNameRemoteCommandSchema,
   killExeByPidRemoteCommandSchema,
   remoteCommandSchema,
-  findPidsByNameRemoteCommandSchema,
   windowPropertiesSchema,
-  findProcessWindowsRemoteCommandSchema,
-  findProcessesWindowsRemoteCommandSchema,
   focusWindowRemoteCommandSchema,
 };
 
