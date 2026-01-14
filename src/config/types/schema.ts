@@ -30,7 +30,8 @@ import {
   macroDefinitionSchema,
   macroLocalCommandSchema,
   macrosListSchema,
-  macroVariablesDescriptionSchema, macroVariableValueSchema,
+  macroVariablesDescriptionSchema,
+  macroVariableValueSchema,
   reloadConfigLocalCommandSchema,
   shuffleLocalCommandSchema,
   threadLocalArraySchema,
@@ -39,7 +40,14 @@ import {
   unknownCommandSchema,
 } from '@/config/types/local-commands';
 
-const ipsSchema = z.record(z.string().ip())
+
+const remoteAddressDefinition = z.union([z.string().ip(), z.string().regex(
+  /^(?:[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*)$/u,
+  'Invalid domain name'
+),
+]).describe('Remote host. Must be resolvable from the current PC');
+
+const ipsSchema = z.record(remoteAddressDefinition)
   .describe('Maps PC names to IP addresses. Each key identifies a remote PC, value is its IP. IP must be accessible from remote PC. ' +
     'For internet access, use VPN or tunneling (e.g. ngrok.com).');
 
@@ -94,6 +102,7 @@ export type {
 };
 
 export {
+  remoteAddressDefinition,
   rgbSchema,
   aARootSchema,
   globalDelaySchema,

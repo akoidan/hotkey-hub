@@ -35,7 +35,14 @@ export class FetchClient {
     payloadstr: string,
     controller: AbortController
   ): Promise<[string, number]> {
-    const host = this.config.getIps()[client];
+    const ips = this.config.getIps();
+    const host = ips[client];
+    if (!host) {
+      const error = Error();
+      (error as CustomError).statusCode = 1;
+      (error as CustomError).response = `Desination "${client}" doesn't exist. Available are ${JSON.stringify(ips)}`;
+      throw error;
+    }
     return new Promise<[string, number]>((resolve, reject) => {
       const headers = this.getHeaders(payloadstr);
       const req = request({
@@ -122,9 +129,9 @@ export class FetchClient {
       return null as T;
     } catch (error: unknown) {
       const status: number | 'FAIL' = (error as CustomError).statusCode ?? 'FAIL';
-      const fullUrl: string = `${this.protocol}//${client}:${this.config.getClientPort()}${url}`;
+      const fullUrl: string = `${this.protocol}//${this.config.getIps()[client]}:${this.config.getClientPort()}${url}`;
       throw new Error(
-        `${method}:${status} ${fullUrl} ${(error as Error).message}`
+        `${method}:${client}:${status} ${fullUrl} ${(error as Error).message}`
         +` ${payloadstr ?? ''} ${clc.xterm(2)('==>>')} ${(error as CustomError).response ?? ''}`
       );
     }

@@ -78,9 +78,9 @@ export class VariableResolutionService {
       if (varName) {
         const globalVars = this.configService.getGlobalVars();
         const scriptVars = this.configService.getVariables();
-        if (scriptVars[varName]) {
+        if (varName in scriptVars) { // if object has the key, even if it's null or undefined
           result[key] = this.evaluateVariable<T[keyof T]>(varName, varExpress!, scriptVars[varName]);
-        } else if (globalVars[varName]) {
+        } else if (varName in globalVars) { // if object has the key, even if it's null or undefined
           result[key] = this.evaluateVariable<T[keyof T]>(varName, varExpress!, globalVars[varName]);
         } else {
           throw Error(`Unknown environment variable ${(value as VariableValue)?.$ref ?? JSON.stringify(value)}`);
