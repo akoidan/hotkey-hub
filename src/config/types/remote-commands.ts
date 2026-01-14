@@ -1,5 +1,5 @@
 /* eslint-disable max-lines*/
-import {z, ZodIssueCode} from 'zod';
+import {z, ZodIssueCode, ZodObject} from 'zod';
 import {schemaRootCache} from '@/config/types/cache';
 import type {ConfigDataWoMacro} from '@/config/types/schema';
 import {type VariableValue, variableValueSchema} from '@/config/types/variables';
@@ -51,26 +51,32 @@ const setWindowBoundsRemoteSchema = baseRemoteCommandSchema.extend({
   }).strict(),
 }).strict().describe('Sets window width height and x y position' );
 
+
+function makeVariableUnion(shape: ZodObject<any>): ZodObject<any> {
+  const newShape = {} as any;
+  for (const key in shape) {
+    // @ts-ignore
+    newShape[key] = z.union([shape[key], variableValueSchema]);
+  }
+  return z.object(newShape);
+}
+
+const keyPressRemoteVariableSchema = z.object({
+  key: z.union([keySchema, z.array(keySchema)])
+    .describe('Key(s) to press. Can be a single key or array of keys for multiple presses.'),
+  duration: z.number().min(50).optional()
+    .describe('How long to hold the key down in milliseconds. Minimum 50ms to ensure reliable key registration.'),
+  durationDeviation: z.number().min(0).default(0).optional()
+    .describe('Adds randomness to key press duration. Value is the maximum +/- deviation in milliseconds. ' +
+      'Useful for simulating human-like input patterns.'),
+  holdKeys: z.union([keySchema, z.array(keySchema)])
+    .optional()
+    .describe('Modifier keys to hold (e.g., Alt for Alt+1, Ctrl+Shift for Ctrl+Shift+A). Can be a key or key array.'),
+}).strict();
+
 const keyPressRemoteCommandSchema = baseRemoteCommandSchema.extend({
   performOnRemote: z.literal('keyPress'),
-  variables: z.object({
-    key: z.union([keySchema, z.array(keySchema), variableValueSchema])
-      .describe('Key(s) to press. Can be a single key or array of keys for multiple presses.'),
-    duration: z.union([
-      variableValueSchema,
-      z.number().min(50),
-    ]).optional()
-      .describe('How long to hold the key down in milliseconds. Minimum 50ms to ensure reliable key registration.'),
-    durationDeviation: z.union([
-      variableValueSchema,
-      z.number().min(0).default(0),
-    ]).optional()
-      .describe('Adds randomness to key press duration. Value is the maximum +/- deviation in milliseconds. ' +
-        'Useful for simulating human-like input patterns.'),
-    holdKeys: z.union([keySchema, z.array(keySchema), variableValueSchema])
-      .optional()
-      .describe('Modifier keys to hold (e.g., Alt for Alt+1, Ctrl+Shift for Ctrl+Shift+A). Can be a key or key array.'),
-  }).strict(),
+  variables: makeVariableUnion(keyPressRemoteVariableSchema),
 }).strict().describe('Simulates keyboard input on the remote PC by sending key press events. ' +
   'Supports single keys, key combinations, and modifier keys with customizable timing and randomness. ' +
   'Use this for automating keyboard input or triggering keyboard shortcuts.');
