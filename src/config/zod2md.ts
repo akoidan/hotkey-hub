@@ -8,13 +8,20 @@ import { promises as fs } from 'fs';
     tsconfig: 'tsconfig.json',
   });
   const models = convertSchemas(schemas);
-  const order = ['config', 'shortcut', 'behaviourObject', 'unknownCommand', 'remoteCommand', 'getInfoRemoteCommand', 'localCommand'];
+  const order = ['config', 'ips', 'remoteAddress', 'shortcut', 'behaviourObject', 'unknownCommand', 'remoteCommand', 'getInfoRemoteCommand', 'localCommand'];
   models.sort((a, b) => {
     const getOrder = (name: string) => {
       if (name.endsWith('Schema')) {
         const base = name.slice(0, -6);
         const idx = order.indexOf(base);
-        return idx === -1 ? 100 : idx;
+        if (idx !== -1) return idx;
+        if (base === 'globalDelay') {
+          return 101;
+        }
+        if (base === 'rgb'){
+          return 102;
+        }
+        return 100;
       }
       return 100;
     };

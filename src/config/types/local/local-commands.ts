@@ -7,7 +7,7 @@ import {type IfLocalCommand, ifLocalCommandSchema} from '@/config/types/local/if
 import {type TransactionLocalCommand, transactionLocalCommandSchema} from '@/config/types/local/transaction-local-command';
 import {
   type Thread,
-  threadLocalArraySchema,
+  threadLocalSchema,
   type ThreadsLocalCommand,
   threadsLocalCommandSchema,
 } from '@/config/types/local/threads-local-command';
@@ -69,7 +69,7 @@ export {
   macroVariablesDescriptionSchema,
   macroDefinitionSchema,
   macrosListSchema,
-  threadLocalArraySchema,
+  threadLocalSchema,
   shufflePolicySchema,
   ShufflePolicy,
   localCommandSchema,

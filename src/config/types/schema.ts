@@ -37,7 +37,7 @@ import {
   printLocalCommandSchema,
   reloadConfigLocalCommandSchema,
   shuffleLocalCommandSchema,
-  threadLocalArraySchema,
+  threadLocalSchema,
   threadsLocalCommandSchema,
   transactionLocalCommandSchema,
 } from '@/config/types/local/local-commands';
@@ -65,9 +65,9 @@ import {getPidsByNameSchema, getProcessCommands, getProcessMainWindowSchema} fro
 import {getInfoRemoteCommandSchema, pingSchema} from '@/config/types/get-commands/get-commands';
 
 
-const remoteAddressDefinition = z.string().describe('Remote host. Must be resolvable from the current PC');
+const remoteAddressSchema = z.string().describe('Remote host. Must be resolvable from the current PC');
 
-const ipsSchema = z.record(z.string(), remoteAddressDefinition)
+const ipsSchema = z.record(z.string(), remoteAddressSchema)
   .describe('Maps PC names to IP addresses. Each key identifies a remote PC, value is its IP. IP must be accessible from remote PC. ' +
     'For internet access, use VPN or tunneling (e.g. ngrok.com).');
 
@@ -160,7 +160,7 @@ export {
   getMonitorScaleFactorSchema,
   getProcessMainWindowSchema,
   getPidsByNameSchema,
-  remoteAddressDefinition,
+  remoteAddressSchema,
   rgbSchema,
   configSchema,
   globalDelaySchema,
@@ -191,7 +191,7 @@ export {
   unknownCommandSchema,
   setWindowBoundsRemoteSchema,
   expressionLocalCommandSchema,
-  threadLocalArraySchema,
+  threadLocalSchema,
   transactionLocalCommandSchema,
   macroVariablesDescriptionSchema,
   macroDefinitionSchema,
