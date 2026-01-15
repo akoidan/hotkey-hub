@@ -1,0 +1,4555 @@
+[
+  {
+    "name": "behaviourObjectSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "object",
+    "fields": [
+      {
+        "key": "groupWith",
+        "required": false,
+        "kind": "model",
+        "model": {
+          "type": "string",
+          "description": "If type is \"restart\" or \"pausable\" then groupWith will restart/pause all shortcuts with the same name"
+        }
+      },
+      {
+        "key": "type",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "enum",
+          "values": [
+            "stacking",
+            "pausable",
+            "restart"
+          ],
+          "description": "Stacking = Current process will keep running and new one will spawn as well. Since all executable items run in transaction by default.The next iteration will wait until current is finished. The default behaviour\nPausable = Current process will stop running and new one won't start.\nRestart = Current process will stop running and new one will start\n"
+        }
+      }
+    ]
+  },
+  {
+    "name": "configSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "object",
+    "fields": [
+      {
+        "key": "ips",
+        "required": true,
+        "kind": "ref",
+        "ref": {
+          "name": "ipsSchema",
+          "path": "src/config/types/schema.ts",
+          "description": "Maps PC names to IP addresses. Each key identifies a remote PC, value is its IP. IP must be accessible from remote PC. For internet access, use VPN or tunneling (e.g. ngrok.com)."
+        }
+      },
+      {
+        "key": "clientPort",
+        "required": false,
+        "kind": "model",
+        "model": {
+          "type": "number",
+          "default": 5000,
+          "description": "HTTPS port for secure client PC connections. Must be accessible and not blocked by firewalls. Default is 5000 if not specified."
+        }
+      },
+      {
+        "key": "rgb",
+        "required": false,
+        "kind": "ref",
+        "ref": {
+          "name": "rgbSchema",
+          "path": "src/config/types/schema.ts",
+          "description": "RGB keyboard lighting for shortcut feedback. Changes key colors during execution. You need to run openrgb server for it, which you can download from https://openrgb.org. Run the application, go to the SDK server tab and click on Start server. Needs OpenRGB server and compatible keyboard, the supported keyboards are here: https://openrgb.org/devices.html. For Linux just install openrgb via your package manager and run the openrgb from root with you default service manager like systemd"
+        }
+      },
+      {
+        "key": "name",
+        "required": false,
+        "kind": "model",
+        "model": {
+          "type": "string",
+          "description": "Name of this schema to print in logs"
+        }
+      },
+      {
+        "key": "combinations",
+        "required": true,
+        "kind": "ref",
+        "ref": {
+          "name": "shortcutsSchema",
+          "path": "src/config/types/schema.ts",
+          "description": "Array of shortcut definitions that map keyboard combinations to command sequences. Each shortcut must have a unique key combination. This is the main configuration that defines what happens when specific keys are pressed."
+        }
+      },
+      {
+        "key": "delays",
+        "required": false,
+        "kind": "ref",
+        "ref": {
+          "name": "globalDelaySchema",
+          "path": "src/config/types/schema.ts",
+          "description": "Global delays config between commands. If ommited commands will run instantly after each other"
+        }
+      },
+      {
+        "key": "macros",
+        "required": false,
+        "kind": "ref",
+        "ref": {
+          "name": "macrosListSchema",
+          "path": "src/config/types/schema.ts",
+          "description": "A map of macros where a key is the macro name and value is its body"
+        }
+      }
+    ],
+    "description": "Root configuration schema that defines the entire setup including remote PCs, shortcuts, RGB settings, and macros. All sections must follow their respective schemas strictly."
+  },
+  {
+    "name": "expressionLocalCommandSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "object",
+    "fields": [
+      {
+        "key": "assignVariable",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "string",
+          "description": "Name of the variable to store the expression result. This variable can be referenced in subsequent commands using {{variableName}} syntax."
+        }
+      },
+      {
+        "key": "expression",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "string",
+          "description": "JS like expression that evaluates to some values. E.g. x*2."
+        }
+      }
+    ],
+    "description": "Allows to create/assign a variable by expression."
+  },
+  {
+    "name": "focusProcessWindowRemoteCommandSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "object",
+    "fields": [
+      {
+        "key": "destination",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "string"
+              }
+            }
+          ],
+          "description": "Remote PC from ips or aliases section to send this command to"
+        }
+      },
+      {
+        "key": "delayAfter",
+        "required": false,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "number"
+              }
+            }
+          ],
+          "description": "Delay (ms) after command completes, before next command. Ensures command has time to take effect."
+        }
+      },
+      {
+        "key": "delayBefore",
+        "required": false,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "number"
+              }
+            }
+          ],
+          "description": "Delay (ms) before executing command. Helps create precisely timed sequences."
+        }
+      },
+      {
+        "key": "performOnRemote",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "literal",
+          "value": "focusProcessWindow"
+        }
+      },
+      {
+        "key": "variables",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "object",
+          "fields": [
+            {
+              "key": "pid",
+              "required": true,
+              "kind": "model",
+              "model": {
+                "type": "union",
+                "options": [
+                  {
+                    "kind": "ref",
+                    "ref": {
+                      "name": "variableValueSchema",
+                      "path": "src/config/types/schema.ts",
+                      "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+                    }
+                  },
+                  {
+                    "kind": "model",
+                    "model": {
+                      "type": "number"
+                    }
+                  }
+                ],
+                "description": "Process ID (PID) of the window to focus. Can be obtained from findPidsByName command or launch command with assignId."
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "description": "Brings a window to front and gives it focus by process ID. Useful for window automation and ensuring windows are active."
+  },
+  {
+    "name": "focusWindowRemoteCommandSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "object",
+    "fields": [
+      {
+        "key": "destination",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "string"
+              }
+            }
+          ],
+          "description": "Remote PC from ips or aliases section to send this command to"
+        }
+      },
+      {
+        "key": "delayAfter",
+        "required": false,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "number"
+              }
+            }
+          ],
+          "description": "Delay (ms) after command completes, before next command. Ensures command has time to take effect."
+        }
+      },
+      {
+        "key": "delayBefore",
+        "required": false,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "number"
+              }
+            }
+          ],
+          "description": "Delay (ms) before executing command. Helps create precisely timed sequences."
+        }
+      },
+      {
+        "key": "performOnRemote",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "literal",
+          "value": "focusWindow"
+        }
+      },
+      {
+        "key": "variables",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "object",
+          "fields": [
+            {
+              "key": "wid",
+              "required": true,
+              "kind": "model",
+              "model": {
+                "type": "union",
+                "options": [
+                  {
+                    "kind": "ref",
+                    "ref": {
+                      "name": "variableValueSchema",
+                      "path": "src/config/types/schema.ts",
+                      "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+                    }
+                  },
+                  {
+                    "kind": "model",
+                    "model": {
+                      "type": "number"
+                    }
+                  }
+                ],
+                "description": "Window ID to focus. Can be obtained from findProcessWindows or findProcessesWindows commands."
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "description": "Brings a window to the foreground and gives it focus based on its window ID. Window IDs can be retrieved using findProcessWindows or findProcessesWindows commands."
+  },
+  {
+    "name": "getActiveWindowIdSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "object",
+    "fields": [
+      {
+        "key": "destination",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "string"
+              }
+            }
+          ],
+          "description": "Remote PC from ips or aliases section to send this command to"
+        }
+      },
+      {
+        "key": "get",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "literal",
+          "value": "getActiveWindowId"
+        }
+      },
+      {
+        "key": "assignVariable",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "string",
+          "description": "Assign result to a variable"
+        }
+      }
+    ],
+    "description": "Get active window id (raw handle)"
+  },
+  {
+    "name": "getActiveWindowSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "object",
+    "fields": [
+      {
+        "key": "destination",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "string"
+              }
+            }
+          ],
+          "description": "Remote PC from ips or aliases section to send this command to"
+        }
+      },
+      {
+        "key": "get",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "literal",
+          "value": "getActiveWindow"
+        }
+      },
+      {
+        "key": "assignVariable",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "string",
+          "description": "Assign result to a variable"
+        }
+      }
+    ],
+    "description": "Get information about current active window"
+  },
+  {
+    "name": "getInfoRemoteCommandSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "union",
+    "options": [
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "pingSchema",
+          "path": "src/config/types/schema.ts",
+          "description": "Pings this client to test whether it's working"
+        }
+      },
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "getMonitorCommands",
+          "path": "src/config/types/schema.ts",
+          "description": "Allows to get information about display and its windows"
+        }
+      },
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "getProcessCommands",
+          "path": "src/config/types/schema.ts",
+          "description": "Handles processes"
+        }
+      },
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "getWindowCommands",
+          "path": "src/config/types/schema.ts",
+          "description": "Allows to get information about windows, transform and move them"
+        }
+      }
+    ],
+    "description": "Allows to execute getRequest on remote schema and assign it to a variable"
+  },
+  {
+    "name": "getMonitorCommands",
+    "path": "src/config/types/schema.ts",
+    "type": "union",
+    "options": [
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "getMonitorsSchema",
+          "path": "src/config/types/schema.ts",
+          "description": "List monitors"
+        }
+      },
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "getMonitorInfoSchema",
+          "path": "src/config/types/schema.ts",
+          "description": "Get monitor info"
+        }
+      },
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "getMonitorFromWindowSchema",
+          "path": "src/config/types/schema.ts",
+          "description": "Get monitor for window"
+        }
+      },
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "getMonitorScaleFactorSchema",
+          "path": "src/config/types/schema.ts",
+          "description": "Get monitor scale factor"
+        }
+      }
+    ],
+    "description": "Allows to get information about display and its windows"
+  },
+  {
+    "name": "getMonitorFromWindowSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "object",
+    "fields": [
+      {
+        "key": "destination",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "string"
+              }
+            }
+          ],
+          "description": "Remote PC from ips or aliases section to send this command to"
+        }
+      },
+      {
+        "key": "get",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "literal",
+          "value": "getMonitorFromWindow"
+        }
+      },
+      {
+        "key": "assignVariable",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "string",
+          "description": "Assign result to a variable"
+        }
+      },
+      {
+        "key": "variables",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "object",
+          "fields": [
+            {
+              "key": "wid",
+              "required": true,
+              "kind": "model",
+              "model": {
+                "type": "number",
+                "validations": [
+                  "safeint",
+                  [
+                    "gt",
+                    0
+                  ]
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "description": "Get monitor for window"
+  },
+  {
+    "name": "getMonitorInfoSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "object",
+    "fields": [
+      {
+        "key": "destination",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "string"
+              }
+            }
+          ],
+          "description": "Remote PC from ips or aliases section to send this command to"
+        }
+      },
+      {
+        "key": "get",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "literal",
+          "value": "getMonitorInfo"
+        }
+      },
+      {
+        "key": "assignVariable",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "string",
+          "description": "Assign result to a variable"
+        }
+      },
+      {
+        "key": "variables",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "object",
+          "fields": [
+            {
+              "key": "mid",
+              "required": true,
+              "kind": "model",
+              "model": {
+                "type": "number",
+                "validations": [
+                  "safeint",
+                  [
+                    "gte",
+                    0
+                  ]
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "description": "Get monitor info"
+  },
+  {
+    "name": "getMonitorScaleFactorSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "object",
+    "fields": [
+      {
+        "key": "destination",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "string"
+              }
+            }
+          ],
+          "description": "Remote PC from ips or aliases section to send this command to"
+        }
+      },
+      {
+        "key": "get",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "literal",
+          "value": "getMonitorScaleFactor"
+        }
+      },
+      {
+        "key": "assignVariable",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "string",
+          "description": "Assign result to a variable"
+        }
+      },
+      {
+        "key": "variables",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "object",
+          "fields": [
+            {
+              "key": "mid",
+              "required": true,
+              "kind": "model",
+              "model": {
+                "type": "number",
+                "validations": [
+                  "safeint",
+                  [
+                    "gte",
+                    0
+                  ]
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "description": "Get monitor scale factor"
+  },
+  {
+    "name": "getMonitorsSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "object",
+    "fields": [
+      {
+        "key": "destination",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "string"
+              }
+            }
+          ],
+          "description": "Remote PC from ips or aliases section to send this command to"
+        }
+      },
+      {
+        "key": "get",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "literal",
+          "value": "getMonitors"
+        }
+      },
+      {
+        "key": "assignVariable",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "string",
+          "description": "Assign result to a variable"
+        }
+      }
+    ],
+    "description": "List monitors"
+  },
+  {
+    "name": "getPidsByNameSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "object",
+    "fields": [
+      {
+        "key": "destination",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "string"
+              }
+            }
+          ],
+          "description": "Remote PC from ips or aliases section to send this command to"
+        }
+      },
+      {
+        "key": "get",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "literal",
+          "value": "getPidsByName"
+        }
+      },
+      {
+        "key": "assignVariable",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "string",
+          "description": "Assign result to a variable"
+        }
+      },
+      {
+        "key": "variables",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "object",
+          "fields": [
+            {
+              "key": "name",
+              "required": true,
+              "kind": "model",
+              "model": {
+                "type": "union",
+                "options": [
+                  {
+                    "kind": "ref",
+                    "ref": {
+                      "name": "variableValueSchema",
+                      "path": "src/config/types/schema.ts",
+                      "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+                    }
+                  },
+                  {
+                    "kind": "model",
+                    "model": {
+                      "type": "string"
+                    }
+                  }
+                ],
+                "description": "Name of the executable file to search for. Example: \"Chrome.exe\". Case-sensitive on some operating systems."
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "description": "Gets list of process ids that match criteria"
+  },
+  {
+    "name": "getProcessCommands",
+    "path": "src/config/types/schema.ts",
+    "type": "union",
+    "options": [
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "getPidsByNameSchema",
+          "path": "src/config/types/schema.ts",
+          "description": "Gets list of process ids that match criteria"
+        }
+      },
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "getProcessMainWindowSchema",
+          "path": "src/config/types/schema.ts",
+          "description": "Get process' main window"
+        }
+      }
+    ],
+    "description": "Handles processes"
+  },
+  {
+    "name": "getProcessMainWindowSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "object",
+    "fields": [
+      {
+        "key": "destination",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "string"
+              }
+            }
+          ],
+          "description": "Remote PC from ips or aliases section to send this command to"
+        }
+      },
+      {
+        "key": "get",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "literal",
+          "value": "getProcessMainWindow"
+        }
+      },
+      {
+        "key": "assignVariable",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "string",
+          "description": "Assign result to a variable"
+        }
+      },
+      {
+        "key": "variables",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "object",
+          "fields": [
+            {
+              "key": "pid",
+              "required": true,
+              "kind": "model",
+              "model": {
+                "type": "number",
+                "validations": [
+                  "safeint",
+                  [
+                    "gt",
+                    0
+                  ]
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "description": "Get process' main window"
+  },
+  {
+    "name": "getWindowBoundsSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "object",
+    "fields": [
+      {
+        "key": "destination",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "string"
+              }
+            }
+          ],
+          "description": "Remote PC from ips or aliases section to send this command to"
+        }
+      },
+      {
+        "key": "get",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "literal",
+          "value": "getWindowBounds"
+        }
+      },
+      {
+        "key": "assignVariable",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "string",
+          "description": "Assign result to a variable"
+        }
+      },
+      {
+        "key": "variables",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "object",
+          "fields": [
+            {
+              "key": "wid",
+              "required": true,
+              "kind": "model",
+              "model": {
+                "type": "number",
+                "validations": [
+                  "safeint",
+                  [
+                    "gt",
+                    0
+                  ]
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "description": "Get window bounds"
+  },
+  {
+    "name": "getWindowCommands",
+    "path": "src/config/types/schema.ts",
+    "type": "union",
+    "options": [
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "getWindowsIdByPidSchema",
+          "path": "src/config/types/schema.ts",
+          "description": "Get all windows with their IDs for a concrete process id"
+        }
+      },
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "getActiveWindowIdSchema",
+          "path": "src/config/types/schema.ts",
+          "description": "Get active window id (raw handle)"
+        }
+      },
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "getActiveWindowSchema",
+          "path": "src/config/types/schema.ts",
+          "description": "Get information about current active window"
+        }
+      },
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "getWindowBoundsSchema",
+          "path": "src/config/types/schema.ts",
+          "description": "Get window bounds"
+        }
+      },
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "getWindowTitleSchema",
+          "path": "src/config/types/schema.ts",
+          "description": "Get window title"
+        }
+      },
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "getWindowOpacitySchema",
+          "path": "src/config/types/schema.ts",
+          "description": "Get window opacity (0..1)"
+        }
+      },
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "getWindowOwnerSchema",
+          "path": "src/config/types/schema.ts",
+          "description": "Get window owner handle"
+        }
+      },
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "isWindowSchema",
+          "path": "src/config/types/schema.ts",
+          "description": "Check if handle is a window"
+        }
+      },
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "isWindowVisibleSchema",
+          "path": "src/config/types/schema.ts",
+          "description": "Check if window is visible"
+        }
+      }
+    ],
+    "description": "Allows to get information about windows, transform and move them"
+  },
+  {
+    "name": "getWindowOpacitySchema",
+    "path": "src/config/types/schema.ts",
+    "type": "object",
+    "fields": [
+      {
+        "key": "destination",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "string"
+              }
+            }
+          ],
+          "description": "Remote PC from ips or aliases section to send this command to"
+        }
+      },
+      {
+        "key": "get",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "literal",
+          "value": "getWindowOpacity"
+        }
+      },
+      {
+        "key": "assignVariable",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "string",
+          "description": "Assign result to a variable"
+        }
+      },
+      {
+        "key": "variables",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "object",
+          "fields": [
+            {
+              "key": "wid",
+              "required": true,
+              "kind": "model",
+              "model": {
+                "type": "number",
+                "validations": [
+                  "safeint",
+                  [
+                    "gt",
+                    0
+                  ]
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "description": "Get window opacity (0..1)"
+  },
+  {
+    "name": "getWindowOwnerSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "object",
+    "fields": [
+      {
+        "key": "destination",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "string"
+              }
+            }
+          ],
+          "description": "Remote PC from ips or aliases section to send this command to"
+        }
+      },
+      {
+        "key": "get",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "literal",
+          "value": "getWindowOwner"
+        }
+      },
+      {
+        "key": "assignVariable",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "string",
+          "description": "Assign result to a variable"
+        }
+      },
+      {
+        "key": "variables",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "object",
+          "fields": [
+            {
+              "key": "wid",
+              "required": true,
+              "kind": "model",
+              "model": {
+                "type": "number",
+                "validations": [
+                  "safeint",
+                  [
+                    "gt",
+                    0
+                  ]
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "description": "Get window owner handle"
+  },
+  {
+    "name": "getWindowTitleSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "object",
+    "fields": [
+      {
+        "key": "destination",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "string"
+              }
+            }
+          ],
+          "description": "Remote PC from ips or aliases section to send this command to"
+        }
+      },
+      {
+        "key": "get",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "literal",
+          "value": "getWindowTitle"
+        }
+      },
+      {
+        "key": "assignVariable",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "string",
+          "description": "Assign result to a variable"
+        }
+      },
+      {
+        "key": "variables",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "object",
+          "fields": [
+            {
+              "key": "wid",
+              "required": true,
+              "kind": "model",
+              "model": {
+                "type": "number",
+                "validations": [
+                  "safeint",
+                  [
+                    "gt",
+                    0
+                  ]
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "description": "Get window title"
+  },
+  {
+    "name": "getWindowsIdByPidSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "object",
+    "fields": [
+      {
+        "key": "destination",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "string"
+              }
+            }
+          ],
+          "description": "Remote PC from ips or aliases section to send this command to"
+        }
+      },
+      {
+        "key": "get",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "literal",
+          "value": "getWindowsIdByPid"
+        }
+      },
+      {
+        "key": "assignVariable",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "string",
+          "description": "Assign result to a variable"
+        }
+      },
+      {
+        "key": "variables",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "object",
+          "fields": [
+            {
+              "key": "id",
+              "required": true,
+              "kind": "model",
+              "model": {
+                "type": "number",
+                "validations": [
+                  "safeint",
+                  [
+                    "gt",
+                    0
+                  ]
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "description": "Get all windows with their IDs for a concrete process id"
+  },
+  {
+    "name": "globalDelaySchema",
+    "path": "src/config/types/schema.ts",
+    "type": "object",
+    "fields": [
+      {
+        "key": "beforeCommand",
+        "required": false,
+        "kind": "model",
+        "model": {
+          "type": "number",
+          "default": 0,
+          "description": "Base delay (in milliseconds) before each command. Can be randomized using standardDeviation."
+        }
+      },
+      {
+        "key": "afterCommand",
+        "required": false,
+        "kind": "model",
+        "model": {
+          "type": "number",
+          "default": 0,
+          "description": "Base delay (in milliseconds) after each command. Can be randomized using standardDeviation."
+        }
+      },
+      {
+        "key": "standardDeviation",
+        "required": false,
+        "kind": "model",
+        "model": {
+          "type": "number",
+          "validations": [
+            [
+              "gt",
+              0
+            ],
+            [
+              "lte",
+              1
+            ]
+          ],
+          "default": 0,
+          "description": "Controls randomness of global before/after delays.Final delay = base ± (base * standardDeviation). E.g. 0.2 with 1000ms delay gives random delay between 800ms and 1200ms."
+        }
+      },
+      {
+        "key": "commandDeviation",
+        "required": false,
+        "kind": "model",
+        "model": {
+          "type": "number",
+          "validations": [
+            [
+              "gt",
+              0
+            ],
+            [
+              "lte",
+              1
+            ]
+          ],
+          "default": 0,
+          "description": "Controls randomness of delays before/after on each command. This doesn't affect global delays, only if a command has its own delayBefore or delayAfter property.Final delay = base ± (base * standardDeviation). E.g. 0.2 with 1000ms delay gives random delay between 800ms and 1200ms."
+        }
+      },
+      {
+        "key": "randomHugeDelayDeviation",
+        "required": false,
+        "kind": "model",
+        "model": {
+          "type": "number",
+          "validations": [
+            [
+              "gt",
+              0
+            ],
+            [
+              "lte",
+              1
+            ]
+          ],
+          "default": 0,
+          "description": "Deviation factor for huge delay. Applied only when randomHugeDelayChance is triggered. Final delay = base ± (base * standardDeviation) + (hugeDelay ± (hugeDelay * randomHugeDelayDiviation))."
+        }
+      },
+      {
+        "key": "randomHugeDelay",
+        "required": false,
+        "kind": "model",
+        "model": {
+          "type": "number",
+          "validations": [
+            [
+              "gt",
+              0
+            ]
+          ],
+          "default": 0,
+          "description": "Extra delay (in milliseconds) added on top of standard delays. Only applies when randomHugeDelayChance is triggered."
+        }
+      },
+      {
+        "key": "randomHugeDelayChance",
+        "required": false,
+        "kind": "model",
+        "model": {
+          "type": "number",
+          "validations": [
+            [
+              "gt",
+              0
+            ],
+            [
+              "lte",
+              1
+            ]
+          ],
+          "default": 0,
+          "description": "Probability (0 to 1) of applying a random huge delay after the standard delay."
+        }
+      }
+    ],
+    "description": "Global delays config between commands. If ommited commands will run instantly after each other",
+    "optional": true
+  },
+  {
+    "name": "ifLocalCommandSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "object",
+    "fields": [
+      {
+        "key": "if",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "string",
+          "description": "JS like expression that evaluates to some values. E.g. x*2."
+        }
+      },
+      {
+        "key": "then",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "array",
+          "items": {
+            "kind": "ref",
+            "ref": {
+              "name": "unknownCommandSchema",
+              "path": "src/config/types/schema.ts",
+              "description": "A command that would be executed on this machine"
+            }
+          },
+          "description": "Commands to execute if the condition is true"
+        }
+      },
+      {
+        "key": "else",
+        "required": false,
+        "kind": "model",
+        "model": {
+          "type": "array",
+          "items": {
+            "kind": "ref",
+            "ref": {
+              "name": "unknownCommandSchema",
+              "path": "src/config/types/schema.ts",
+              "description": "A command that would be executed on this machine"
+            }
+          },
+          "description": "Optional commands to execute if the condition is false"
+        }
+      }
+    ],
+    "description": "Conditional execution of commands based on a boolean condition. If the condition is true, executes the \"then\" commands, otherwise executes the \"else\" commands if they exist."
+  },
+  {
+    "name": "ipsSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "record",
+    "keys": {
+      "kind": "model",
+      "model": {
+        "type": "string"
+      }
+    },
+    "values": {
+      "kind": "ref",
+      "ref": {
+        "name": "remoteAddressDefinition",
+        "path": "src/config/types/schema.ts",
+        "description": "Remote host. Must be resolvable from the current PC"
+      }
+    },
+    "description": "Maps PC names to IP addresses. Each key identifies a remote PC, value is its IP. IP must be accessible from remote PC. For internet access, use VPN or tunneling (e.g. ngrok.com)."
+  },
+  {
+    "name": "isWindowSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "object",
+    "fields": [
+      {
+        "key": "destination",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "string"
+              }
+            }
+          ],
+          "description": "Remote PC from ips or aliases section to send this command to"
+        }
+      },
+      {
+        "key": "get",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "literal",
+          "value": "isWindow"
+        }
+      },
+      {
+        "key": "assignVariable",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "string",
+          "description": "Assign result to a variable"
+        }
+      },
+      {
+        "key": "variables",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "object",
+          "fields": [
+            {
+              "key": "wid",
+              "required": true,
+              "kind": "model",
+              "model": {
+                "type": "number",
+                "validations": [
+                  "safeint",
+                  [
+                    "gt",
+                    0
+                  ]
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "description": "Check if handle is a window"
+  },
+  {
+    "name": "isWindowVisibleSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "object",
+    "fields": [
+      {
+        "key": "destination",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "string"
+              }
+            }
+          ],
+          "description": "Remote PC from ips or aliases section to send this command to"
+        }
+      },
+      {
+        "key": "get",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "literal",
+          "value": "isWindowVisible"
+        }
+      },
+      {
+        "key": "assignVariable",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "string",
+          "description": "Assign result to a variable"
+        }
+      },
+      {
+        "key": "variables",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "object",
+          "fields": [
+            {
+              "key": "wid",
+              "required": true,
+              "kind": "model",
+              "model": {
+                "type": "number",
+                "validations": [
+                  "safeint",
+                  [
+                    "gt",
+                    0
+                  ]
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "description": "Check if window is visible"
+  },
+  {
+    "name": "keyPressRemoteCommandSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "object",
+    "fields": [
+      {
+        "key": "destination",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "string"
+              }
+            }
+          ],
+          "description": "Remote PC from ips or aliases section to send this command to"
+        }
+      },
+      {
+        "key": "delayAfter",
+        "required": false,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "number"
+              }
+            }
+          ],
+          "description": "Delay (ms) after command completes, before next command. Ensures command has time to take effect."
+        }
+      },
+      {
+        "key": "delayBefore",
+        "required": false,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "number"
+              }
+            }
+          ],
+          "description": "Delay (ms) before executing command. Helps create precisely timed sequences."
+        }
+      },
+      {
+        "key": "performOnRemote",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "literal",
+          "value": "keyPress"
+        }
+      },
+      {
+        "key": "variables",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "object",
+          "fields": [
+            {
+              "key": "key",
+              "required": true,
+              "kind": "model",
+              "model": {
+                "type": "union",
+                "options": [
+                  {
+                    "kind": "model",
+                    "model": {
+                      "type": "union",
+                      "options": [
+                        {
+                          "kind": "ref",
+                          "ref": {
+                            "name": "keySchema",
+                            "path": "src/config/types/schema.ts",
+                            "description": "One of the keyboard keys."
+                          }
+                        },
+                        {
+                          "kind": "model",
+                          "model": {
+                            "type": "array",
+                            "items": {
+                              "kind": "ref",
+                              "ref": {
+                                "name": "keySchema",
+                                "path": "src/config/types/schema.ts",
+                                "description": "One of the keyboard keys."
+                              }
+                            }
+                          }
+                        }
+                      ],
+                      "description": "Key(s) to press. Can be a single key or array of keys for multiple presses."
+                    }
+                  },
+                  {
+                    "kind": "ref",
+                    "ref": {
+                      "name": "variableValueSchema",
+                      "path": "src/config/types/schema.ts",
+                      "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "key": "duration",
+              "required": false,
+              "kind": "model",
+              "model": {
+                "type": "union",
+                "options": [
+                  {
+                    "kind": "model",
+                    "model": {
+                      "type": "number",
+                      "validations": [
+                        [
+                          "gte",
+                          50
+                        ]
+                      ],
+                      "description": "How long to hold the key down in milliseconds. Recommended minimum 50ms to ensure reliable key registration.",
+                      "optional": true
+                    }
+                  },
+                  {
+                    "kind": "ref",
+                    "ref": {
+                      "name": "variableValueSchema",
+                      "path": "src/config/types/schema.ts",
+                      "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "key": "durationDeviation",
+              "required": false,
+              "kind": "model",
+              "model": {
+                "type": "union",
+                "options": [
+                  {
+                    "kind": "model",
+                    "model": {
+                      "type": "number",
+                      "validations": [
+                        [
+                          "gte",
+                          0
+                        ]
+                      ],
+                      "default": 0,
+                      "description": "Adds randomness to key press duration. Value is the maximum +/- deviation in milliseconds. Useful for simulating human-like input patterns.",
+                      "optional": true
+                    }
+                  },
+                  {
+                    "kind": "ref",
+                    "ref": {
+                      "name": "variableValueSchema",
+                      "path": "src/config/types/schema.ts",
+                      "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "key": "holdKeys",
+              "required": false,
+              "kind": "model",
+              "model": {
+                "type": "union",
+                "options": [
+                  {
+                    "kind": "model",
+                    "model": {
+                      "type": "union",
+                      "options": [
+                        {
+                          "kind": "ref",
+                          "ref": {
+                            "name": "keySchema",
+                            "path": "src/config/types/schema.ts",
+                            "description": "One of the keyboard keys."
+                          }
+                        },
+                        {
+                          "kind": "model",
+                          "model": {
+                            "type": "array",
+                            "items": {
+                              "kind": "ref",
+                              "ref": {
+                                "name": "keySchema",
+                                "path": "src/config/types/schema.ts",
+                                "description": "One of the keyboard keys."
+                              }
+                            }
+                          }
+                        }
+                      ],
+                      "description": "Modifier keys to hold (e.g., Alt for Alt+1, Ctrl+Shift for Ctrl+Shift+A). Can be a key or key array.",
+                      "optional": true
+                    }
+                  },
+                  {
+                    "kind": "ref",
+                    "ref": {
+                      "name": "variableValueSchema",
+                      "path": "src/config/types/schema.ts",
+                      "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "description": "Simulates keyboard input on the remote PC by sending key press events. Supports single keys, key combinations, and modifier keys with customizable timing and randomness. Use this for automating keyboard input or triggering keyboard shortcuts."
+  },
+  {
+    "name": "keySchema",
+    "path": "src/config/types/schema.ts",
+    "type": "enum",
+    "values": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "a",
+      "b",
+      "c",
+      "d",
+      "e",
+      "f",
+      "g",
+      "h",
+      "i",
+      "j",
+      "k",
+      "l",
+      "m",
+      "n",
+      "o",
+      "p",
+      "q",
+      "r",
+      "s",
+      "t",
+      "u",
+      "v",
+      "w",
+      "x",
+      "y",
+      "z",
+      "f1",
+      "f2",
+      "f3",
+      "f4",
+      "f5",
+      "f6",
+      "f7",
+      "f8",
+      "f9",
+      "f10",
+      "f11",
+      "f12",
+      "f13",
+      "f14",
+      "f15",
+      "f16",
+      "f17",
+      "f18",
+      "f19",
+      "f20",
+      "f21",
+      "f22",
+      "f23",
+      "f24",
+      "backspace",
+      "delete",
+      "return",
+      "enter",
+      "tab",
+      "escape",
+      "space",
+      "insert",
+      "print_screen",
+      "home",
+      "end",
+      "page_up",
+      "page_down",
+      "up",
+      "down",
+      "left",
+      "right",
+      "caps_lock",
+      "num_lock",
+      "scroll_lock",
+      "add",
+      "subtract",
+      "multiply",
+      "divide",
+      "clear",
+      "numpad_0",
+      "numpad_1",
+      "numpad_2",
+      "numpad_3",
+      "numpad_4",
+      "numpad_5",
+      "numpad_6",
+      "numpad_7",
+      "numpad_8",
+      "numpad_9",
+      "numpad_decimal",
+      ",",
+      ".",
+      "/",
+      ";",
+      "'",
+      "[",
+      "]",
+      "\\",
+      "-",
+      "=",
+      "`",
+      "audio_mute",
+      "audio_vol_down",
+      "audio_vol_up",
+      "audio_play",
+      "audio_stop",
+      "audio_pause",
+      "audio_prev",
+      "audio_next",
+      "audio_rewind",
+      "audio_forward",
+      "audio_repeat",
+      "audio_random",
+      "lights_mon_up",
+      "lights_mon_down",
+      "lights_kbd_toggle",
+      "lights_kbd_up",
+      "lights_kbd_down",
+      "menu",
+      "pause",
+      "control",
+      "right_control",
+      "alt",
+      "right_alt",
+      "shift",
+      "right_shift",
+      "meta",
+      "right_meta",
+      "win",
+      "right_win",
+      "cmd",
+      "right_cmd",
+      "fn"
+    ],
+    "description": "One of the keyboard keys."
+  },
+  {
+    "name": "keyboardCommands",
+    "path": "src/config/types/schema.ts",
+    "type": "union",
+    "options": [
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "keyPressRemoteCommandSchema",
+          "path": "src/config/types/schema.ts",
+          "description": "Simulates keyboard input on the remote PC by sending key press events. Supports single keys, key combinations, and modifier keys with customizable timing and randomness. Use this for automating keyboard input or triggering keyboard shortcuts."
+        }
+      },
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "typeTextRemoteCommandSchema",
+          "path": "src/config/types/schema.ts",
+          "description": "Types text on the remote PC."
+        }
+      }
+    ],
+    "description": "Keyboard-related remote commands"
+  },
+  {
+    "name": "killExeByNameRemoteCommandSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "object",
+    "fields": [
+      {
+        "key": "destination",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "string"
+              }
+            }
+          ],
+          "description": "Remote PC from ips or aliases section to send this command to"
+        }
+      },
+      {
+        "key": "delayAfter",
+        "required": false,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "number"
+              }
+            }
+          ],
+          "description": "Delay (ms) after command completes, before next command. Ensures command has time to take effect."
+        }
+      },
+      {
+        "key": "delayBefore",
+        "required": false,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "number"
+              }
+            }
+          ],
+          "description": "Delay (ms) before executing command. Helps create precisely timed sequences."
+        }
+      },
+      {
+        "key": "performOnRemote",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "literal",
+          "value": "killExeByName"
+        }
+      },
+      {
+        "key": "variables",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "object",
+          "fields": [
+            {
+              "key": "name",
+              "required": true,
+              "kind": "model",
+              "model": {
+                "type": "union",
+                "options": [
+                  {
+                    "kind": "ref",
+                    "ref": {
+                      "name": "variableValueSchema",
+                      "path": "src/config/types/schema.ts",
+                      "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+                    }
+                  },
+                  {
+                    "kind": "model",
+                    "model": {
+                      "type": "string"
+                    }
+                  }
+                ],
+                "description": "Name of the executable file to terminate. Example: \"Chrome.exe\". Case-sensitive on some operating systems."
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "description": "Terminates all processes with the specified executable name. Use with caution - kills all instances of the program."
+  },
+  {
+    "name": "killExeByPidRemoteCommandSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "object",
+    "fields": [
+      {
+        "key": "destination",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "string"
+              }
+            }
+          ],
+          "description": "Remote PC from ips or aliases section to send this command to"
+        }
+      },
+      {
+        "key": "delayAfter",
+        "required": false,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "number"
+              }
+            }
+          ],
+          "description": "Delay (ms) after command completes, before next command. Ensures command has time to take effect."
+        }
+      },
+      {
+        "key": "delayBefore",
+        "required": false,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "number"
+              }
+            }
+          ],
+          "description": "Delay (ms) before executing command. Helps create precisely timed sequences."
+        }
+      },
+      {
+        "key": "performOnRemote",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "literal",
+          "value": "killExeByPid"
+        }
+      },
+      {
+        "key": "variables",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "object",
+          "fields": [
+            {
+              "key": "pid",
+              "required": true,
+              "kind": "model",
+              "model": {
+                "type": "union",
+                "options": [
+                  {
+                    "kind": "ref",
+                    "ref": {
+                      "name": "variableValueSchema",
+                      "path": "src/config/types/schema.ts",
+                      "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+                    }
+                  },
+                  {
+                    "kind": "model",
+                    "model": {
+                      "type": "number"
+                    }
+                  }
+                ],
+                "description": "Process ID (PID) of the process to terminate. Example: 1234. Must be a valid running process ID."
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "description": "Terminates a specific process by its PID on the remote PC. More precise than killByName as it targets a single specific process."
+  },
+  {
+    "name": "launchExeRemoteCommandSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "object",
+    "fields": [
+      {
+        "key": "destination",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "string"
+              }
+            }
+          ],
+          "description": "Remote PC from ips or aliases section to send this command to"
+        }
+      },
+      {
+        "key": "delayAfter",
+        "required": false,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "number"
+              }
+            }
+          ],
+          "description": "Delay (ms) after command completes, before next command. Ensures command has time to take effect."
+        }
+      },
+      {
+        "key": "delayBefore",
+        "required": false,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "number"
+              }
+            }
+          ],
+          "description": "Delay (ms) before executing command. Helps create precisely timed sequences."
+        }
+      },
+      {
+        "key": "performOnRemote",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "literal",
+          "value": "launchExe"
+        }
+      },
+      {
+        "key": "assignVariable",
+        "required": false,
+        "kind": "model",
+        "model": {
+          "type": "string",
+          "description": "If provided, would assign launched process id to this variable"
+        }
+      },
+      {
+        "key": "variables",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "object",
+          "fields": [
+            {
+              "key": "path",
+              "required": true,
+              "kind": "model",
+              "model": {
+                "type": "union",
+                "options": [
+                  {
+                    "kind": "ref",
+                    "ref": {
+                      "name": "variableValueSchema",
+                      "path": "src/config/types/schema.ts",
+                      "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+                    }
+                  },
+                  {
+                    "kind": "model",
+                    "model": {
+                      "type": "string"
+                    }
+                  }
+                ],
+                "description": "Full absolute path to the executable file to run on the remote PC."
+              }
+            },
+            {
+              "key": "arguments",
+              "required": false,
+              "kind": "model",
+              "model": {
+                "type": "union",
+                "options": [
+                  {
+                    "kind": "ref",
+                    "ref": {
+                      "name": "variableValueSchema",
+                      "path": "src/config/types/schema.ts",
+                      "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+                    }
+                  },
+                  {
+                    "kind": "model",
+                    "model": {
+                      "type": "array",
+                      "items": {
+                        "kind": "model",
+                        "model": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "default": [],
+                "description": "Command-line arguments to pass to the executable. Each array element is a separate argument."
+              }
+            },
+            {
+              "key": "waitTillFinish",
+              "required": false,
+              "kind": "model",
+              "model": {
+                "type": "union",
+                "options": [
+                  {
+                    "kind": "ref",
+                    "ref": {
+                      "name": "variableValueSchema",
+                      "path": "src/config/types/schema.ts",
+                      "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+                    }
+                  },
+                  {
+                    "kind": "model",
+                    "model": {
+                      "type": "boolean"
+                    }
+                  }
+                ],
+                "default": false,
+                "description": "If true, waits for the launched program to complete before executing the next command. If false (default), continues with next command immediately after launch."
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "description": "Starts a program on a remote PC."
+  },
+  {
+    "name": "leftMouseClickRemoteCommandSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "object",
+    "fields": [
+      {
+        "key": "destination",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "string"
+              }
+            }
+          ],
+          "description": "Remote PC from ips or aliases section to send this command to"
+        }
+      },
+      {
+        "key": "delayAfter",
+        "required": false,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "number"
+              }
+            }
+          ],
+          "description": "Delay (ms) after command completes, before next command. Ensures command has time to take effect."
+        }
+      },
+      {
+        "key": "delayBefore",
+        "required": false,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "number"
+              }
+            }
+          ],
+          "description": "Delay (ms) before executing command. Helps create precisely timed sequences."
+        }
+      },
+      {
+        "key": "performOnRemote",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "literal",
+          "value": "leftMouseClick"
+        }
+      },
+      {
+        "key": "variables",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "object",
+          "fields": [
+            {
+              "key": "leftMouseClick",
+              "required": true,
+              "kind": "model",
+              "model": {
+                "type": "union",
+                "options": [
+                  {
+                    "kind": "ref",
+                    "ref": {
+                      "name": "variableValueSchema",
+                      "path": "src/config/types/schema.ts",
+                      "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+                    }
+                  },
+                  {
+                    "kind": "model",
+                    "model": {
+                      "type": "boolean"
+                    }
+                  }
+                ],
+                "description": "Set to true to perform a left mouse click. The click will occur at the current cursor position without moving the mouse."
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "description": "Performs a left mouse click at the current cursor position without moving the mouse. Use when cursor is already positioned."
+  },
+  {
+    "name": "localCommandSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "union",
+    "options": [
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "macroLocalCommandSchema",
+          "path": "src/config/types/schema.ts",
+          "description": "Executes a predefined macro, which is a reusable sequence of commands. Similar to a function call, macros can accept parameters through variables. This helps avoid duplicating complex command sequences and makes configurations more maintainable."
+        }
+      },
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "expressionLocalCommandSchema",
+          "path": "src/config/types/schema.ts",
+          "description": "Allows to create/assign a variable by expression."
+        }
+      },
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "transactionLocalCommandSchema",
+          "path": "src/config/types/schema.ts",
+          "description": "Run commands in a transaction. Prevents concurrent transactions with same name. Uses PC name for remote commands. Ensures atomic execution."
+        }
+      },
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "threadsLocalCommandSchema",
+          "path": "src/config/types/schema.ts",
+          "description": "Allows to execute commands in parallel. Or in threads."
+        }
+      },
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "loopLocalCommandSchema",
+          "path": "src/config/types/schema.ts",
+          "description": "Allow to run same commands multiple time or in iteration or loop"
+        }
+      },
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "ifLocalCommandSchema",
+          "path": "src/config/types/schema.ts",
+          "description": "Conditional execution of commands based on a boolean condition. If the condition is true, executes the \"then\" commands, otherwise executes the \"else\" commands if they exist."
+        }
+      },
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "shuffleLocalCommandSchema",
+          "path": "src/config/types/schema.ts",
+          "description": "Allow to run same commands in specific order"
+        }
+      },
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "printLocalCommandSchema",
+          "path": "src/config/types/schema.ts",
+          "description": "Print the expressions to log"
+        }
+      },
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "reloadConfigLocalCommandSchema",
+          "path": "src/config/types/schema.ts",
+          "description": "Reloads config or loads config from a new place"
+        }
+      }
+    ],
+    "description": "A local command that would be executed on this machine"
+  },
+  {
+    "name": "loopLocalCommandSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "object",
+    "fields": [
+      {
+        "key": "commands",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "array",
+          "items": {
+            "kind": "ref",
+            "ref": {
+              "name": "unknownCommandSchema",
+              "path": "src/config/types/schema.ts",
+              "description": "A command that would be executed on this machine"
+            }
+          },
+          "description": "Sequence of commands to repeat in the loop. Each iteration will execute all commands in order."
+        }
+      },
+      {
+        "key": "loop",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "model",
+              "model": {
+                "type": "number"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "string",
+                "description": "JS like expression that evaluates to some values. E.g. x*2."
+              }
+            }
+          ],
+          "description": "Number of times to repeat the commands sequence. Positive number: Executes that many iterations. Negative number: Runs indefinitely until manually stopped. If the parent command is pausable, pressing the shortcut again will exit the loop.If string is passed evaluated that string as expresssion and repeat the loop while it's true"
+        }
+      }
+    ],
+    "description": "Allow to run same commands multiple time or in iteration or loop"
+  },
+  {
+    "name": "macroDefinitionSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "object",
+    "fields": [
+      {
+        "key": "commands",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "array",
+          "items": {
+            "kind": "ref",
+            "ref": {
+              "name": "unknownCommandSchema",
+              "path": "src/config/types/schema.ts",
+              "description": "A command that would be executed on this machine"
+            }
+          },
+          "description": "Set of commands for this macro"
+        }
+      },
+      {
+        "key": "variables",
+        "required": false,
+        "kind": "ref",
+        "ref": {
+          "name": "macroVariablesDescriptionSchema",
+          "path": "src/config/types/schema.ts",
+          "description": "Set of variables descriptors for macro"
+        }
+      }
+    ],
+    "description": "A reusable command sequence that can accept variables. Similar to a function that runs a predefined set of commands."
+  },
+  {
+    "name": "macroLocalCommandSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "object",
+    "fields": [
+      {
+        "key": "macro",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "string",
+          "description": "Name of the macro to execute, which must match a key defined in the macros section. Macros help reduce configuration repetition by reusing command sequences."
+        }
+      },
+      {
+        "key": "variables",
+        "required": false,
+        "kind": "model",
+        "model": {
+          "type": "record",
+          "keys": {
+            "kind": "model",
+            "model": {
+              "type": "string"
+            }
+          },
+          "values": {
+            "kind": "model",
+            "model": {
+              "type": "union",
+              "options": [
+                {
+                  "kind": "model",
+                  "model": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "kind": "model",
+                  "model": {
+                    "type": "number"
+                  }
+                },
+                {
+                  "kind": "ref",
+                  "ref": {
+                    "name": "variableValueSchema",
+                    "path": "src/config/types/schema.ts",
+                    "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+                  }
+                }
+              ]
+            }
+          },
+          "description": "Variables to pass to the macro. Object where keys are variable names and values are their values. Values can be strings or numbers and must match the types defined in the macro's variables section."
+        }
+      },
+      {
+        "key": "delayAfter",
+        "required": false,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "number"
+              }
+            }
+          ],
+          "description": "Delay (ms) after command completes, before next command. Ensures command has time to take effect."
+        }
+      },
+      {
+        "key": "delayBefore",
+        "required": false,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "number"
+              }
+            }
+          ],
+          "description": "Delay (ms) before executing command. Helps create precisely timed sequences."
+        }
+      }
+    ],
+    "description": "Executes a predefined macro, which is a reusable sequence of commands. Similar to a function call, macros can accept parameters through variables. This helps avoid duplicating complex command sequences and makes configurations more maintainable."
+  },
+  {
+    "name": "macroVariableValueSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "object",
+    "fields": [
+      {
+        "key": "type",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "enum",
+          "values": [
+            "string",
+            "number"
+          ],
+          "description": "To validate the type, or cast from env variables"
+        }
+      },
+      {
+        "key": "optional",
+        "required": false,
+        "kind": "model",
+        "model": {
+          "type": "boolean",
+          "description": "If set to true, the key is be removed is var is not passed"
+        }
+      },
+      {
+        "key": "default",
+        "required": false,
+        "kind": "model",
+        "model": {
+          "type": "any",
+          "description": "Default value if value is not passed. Optional should be set to true"
+        }
+      }
+    ],
+    "description": "Variable description for macro"
+  },
+  {
+    "name": "macroVariablesDescriptionSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "record",
+    "keys": {
+      "kind": "model",
+      "model": {
+        "type": "string"
+      }
+    },
+    "values": {
+      "kind": "ref",
+      "ref": {
+        "name": "macroVariableValueSchema",
+        "path": "src/config/types/schema.ts",
+        "description": "Variable description for macro"
+      }
+    },
+    "description": "Set of variables descriptors for macro",
+    "optional": true
+  },
+  {
+    "name": "macrosListSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "record",
+    "keys": {
+      "kind": "model",
+      "model": {
+        "type": "string"
+      }
+    },
+    "values": {
+      "kind": "ref",
+      "ref": {
+        "name": "macroDefinitionSchema",
+        "path": "src/config/types/schema.ts",
+        "description": "A reusable command sequence that can accept variables. Similar to a function that runs a predefined set of commands."
+      }
+    },
+    "description": "A map of macros where a key is the macro name and value is its body",
+    "optional": true
+  },
+  {
+    "name": "mouseCommands",
+    "path": "src/config/types/schema.ts",
+    "type": "union",
+    "options": [
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "mouseMoveClickRemoteCommandSchema",
+          "path": "src/config/types/schema.ts",
+          "description": "Moves mouse cursor to specified screen coordinates and performs a left-click. Combines movement and clicking into one action."
+        }
+      },
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "leftMouseClickRemoteCommandSchema",
+          "path": "src/config/types/schema.ts",
+          "description": "Performs a left mouse click at the current cursor position without moving the mouse. Use when cursor is already positioned."
+        }
+      }
+    ],
+    "description": "Mouse-related remote commands"
+  },
+  {
+    "name": "mouseMoveClickRemoteCommandSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "object",
+    "fields": [
+      {
+        "key": "destination",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "string"
+              }
+            }
+          ],
+          "description": "Remote PC from ips or aliases section to send this command to"
+        }
+      },
+      {
+        "key": "delayAfter",
+        "required": false,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "number"
+              }
+            }
+          ],
+          "description": "Delay (ms) after command completes, before next command. Ensures command has time to take effect."
+        }
+      },
+      {
+        "key": "delayBefore",
+        "required": false,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "number"
+              }
+            }
+          ],
+          "description": "Delay (ms) before executing command. Helps create precisely timed sequences."
+        }
+      },
+      {
+        "key": "performOnRemote",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "literal",
+          "value": "mouseMoveClick"
+        }
+      },
+      {
+        "key": "variables",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "object",
+          "fields": [
+            {
+              "key": "x",
+              "required": true,
+              "kind": "model",
+              "model": {
+                "type": "union",
+                "options": [
+                  {
+                    "kind": "ref",
+                    "ref": {
+                      "name": "variableValueSchema",
+                      "path": "src/config/types/schema.ts",
+                      "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+                    }
+                  },
+                  {
+                    "kind": "model",
+                    "model": {
+                      "type": "number"
+                    }
+                  }
+                ],
+                "description": "X coordinate for mouse cursor."
+              }
+            },
+            {
+              "key": "y",
+              "required": true,
+              "kind": "model",
+              "model": {
+                "type": "union",
+                "options": [
+                  {
+                    "kind": "ref",
+                    "ref": {
+                      "name": "variableValueSchema",
+                      "path": "src/config/types/schema.ts",
+                      "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+                    }
+                  },
+                  {
+                    "kind": "model",
+                    "model": {
+                      "type": "number"
+                    }
+                  }
+                ],
+                "description": "Y coordinate for mouse cursor."
+              }
+            },
+            {
+              "key": "pixelsPerIteration",
+              "required": false,
+              "kind": "model",
+              "model": {
+                "type": "union",
+                "options": [
+                  {
+                    "kind": "ref",
+                    "ref": {
+                      "name": "variableValueSchema",
+                      "path": "src/config/types/schema.ts",
+                      "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+                    }
+                  },
+                  {
+                    "kind": "model",
+                    "model": {
+                      "type": "number"
+                    }
+                  }
+                ],
+                "default": 20,
+                "description": "X coordinate for mouse cursor."
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "description": "Moves mouse cursor to specified screen coordinates and performs a left-click. Combines movement and clicking into one action."
+  },
+  {
+    "name": "pingSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "object",
+    "fields": [
+      {
+        "key": "destination",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "string"
+              }
+            }
+          ],
+          "description": "Remote PC from ips or aliases section to send this command to"
+        }
+      },
+      {
+        "key": "get",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "literal",
+          "value": "ping"
+        }
+      },
+      {
+        "key": "assignVariable",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "string",
+          "description": "Assign result to a variable"
+        }
+      }
+    ],
+    "description": "Pings this client to test whether it's working"
+  },
+  {
+    "name": "printLocalCommandSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "object",
+    "fields": [
+      {
+        "key": "print",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "string",
+          "description": "JS like expression that evaluates to some values. E.g. x*2."
+        }
+      }
+    ],
+    "description": "Print the expressions to log"
+  },
+  {
+    "name": "processCommands",
+    "path": "src/config/types/schema.ts",
+    "type": "union",
+    "options": [
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "killExeByNameRemoteCommandSchema",
+          "path": "src/config/types/schema.ts",
+          "description": "Terminates all processes with the specified executable name. Use with caution - kills all instances of the program."
+        }
+      },
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "killExeByPidRemoteCommandSchema",
+          "path": "src/config/types/schema.ts",
+          "description": "Terminates a specific process by its PID on the remote PC. More precise than killByName as it targets a single specific process."
+        }
+      },
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "launchExeRemoteCommandSchema",
+          "path": "src/config/types/schema.ts",
+          "description": "Starts a program on a remote PC."
+        }
+      }
+    ],
+    "description": "Process-related remote commands"
+  },
+  {
+    "name": "reloadConfigLocalCommandSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "union",
+    "options": [
+      {
+        "kind": "model",
+        "model": {
+          "type": "object",
+          "fields": [
+            {
+              "key": "reloadConfig",
+              "required": true,
+              "kind": "model",
+              "model": {
+                "type": "string",
+                "validations": [
+                  [
+                    "min",
+                    1
+                  ]
+                ],
+                "description": "Path to a new config. Leave it empty to use current path"
+              }
+            },
+            {
+              "key": "reloadMacro",
+              "required": false,
+              "kind": "model",
+              "model": {
+                "type": "string",
+                "description": "Path to a new macro config file. Leave it empty to use current path"
+              }
+            },
+            {
+              "key": "reloadVariables",
+              "required": false,
+              "kind": "model",
+              "model": {
+                "type": "string",
+                "description": "Path to a variable config file. Leave it empty to use current path"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "kind": "model",
+        "model": {
+          "type": "object",
+          "fields": [
+            {
+              "key": "reloadConfig",
+              "required": false,
+              "kind": "model",
+              "model": {
+                "type": "string",
+                "description": "Path to a new config. Leave it empty to use current path"
+              }
+            },
+            {
+              "key": "reloadMacro",
+              "required": true,
+              "kind": "model",
+              "model": {
+                "type": "string",
+                "validations": [
+                  [
+                    "min",
+                    1
+                  ]
+                ],
+                "description": "Path to a new macro config file. Leave it empty to use current path"
+              }
+            },
+            {
+              "key": "reloadVariables",
+              "required": false,
+              "kind": "model",
+              "model": {
+                "type": "string",
+                "description": "Path to a variable config file. Leave it empty to use current path"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "kind": "model",
+        "model": {
+          "type": "object",
+          "fields": [
+            {
+              "key": "reloadConfig",
+              "required": false,
+              "kind": "model",
+              "model": {
+                "type": "string",
+                "description": "Path to a new config. Leave it empty to use current path"
+              }
+            },
+            {
+              "key": "reloadMacro",
+              "required": false,
+              "kind": "model",
+              "model": {
+                "type": "string",
+                "description": "Path to a new macro config file. Leave it empty to use current path"
+              }
+            },
+            {
+              "key": "reloadVariables",
+              "required": true,
+              "kind": "model",
+              "model": {
+                "type": "string",
+                "validations": [
+                  [
+                    "min",
+                    1
+                  ]
+                ],
+                "description": "Path to a variable config file. Leave it empty to use current path"
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "description": "Reloads config or loads config from a new place"
+  },
+  {
+    "name": "remoteAddressDefinition",
+    "path": "src/config/types/schema.ts",
+    "type": "string",
+    "description": "Remote host. Must be resolvable from the current PC"
+  },
+  {
+    "name": "remoteCommandSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "union",
+    "options": [
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "keyboardCommands",
+          "path": "src/config/types/schema.ts",
+          "description": "Keyboard-related remote commands"
+        }
+      },
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "mouseCommands",
+          "path": "src/config/types/schema.ts",
+          "description": "Mouse-related remote commands"
+        }
+      },
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "processCommands",
+          "path": "src/config/types/schema.ts",
+          "description": "Process-related remote commands"
+        }
+      },
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "windowCommands",
+          "path": "src/config/types/schema.ts",
+          "description": "Window-related remote commands"
+        }
+      }
+    ],
+    "description": "One of the commands that would be sent to a remote machine specified in destination property"
+  },
+  {
+    "name": "rgbSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "object",
+    "fields": [
+      {
+        "key": "deviceName",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "string",
+          "description": "Device name of the keyboard. You can extract it with \"openrgb --list-devices\" command. Select the name after number. Also you can check in openrgb UI in Devices Tab."
+        }
+      },
+      {
+        "key": "clientName",
+        "required": false,
+        "kind": "model",
+        "model": {
+          "type": "string",
+          "default": "RPC",
+          "description": "Name of this client when connecting to openrg"
+        }
+      },
+      {
+        "key": "serverPort",
+        "required": false,
+        "kind": "model",
+        "model": {
+          "type": "number",
+          "default": 6742,
+          "description": "Port of the openrgb server"
+        }
+      },
+      {
+        "key": "serverAddr",
+        "required": false,
+        "kind": "model",
+        "model": {
+          "type": "string",
+          "default": "localhost",
+          "description": "Address of the openrgb server"
+        }
+      },
+      {
+        "key": "keyMapFn",
+        "required": false,
+        "kind": "model",
+        "model": {
+          "type": "string",
+          "default": "x.toLowerCase().replace(' arrow', '').replace('key: ', '').replace(' (ansi)', '').replace(' ', '_')",
+          "description": "Mapping of keyboard api key name to default map key names. This should be a JS expression that accept variable \"x\" and evaluates to a string"
+        }
+      }
+    ],
+    "description": "RGB keyboard lighting for shortcut feedback. Changes key colors during execution. You need to run openrgb server for it, which you can download from https://openrgb.org. Run the application, go to the SDK server tab and click on Start server. Needs OpenRGB server and compatible keyboard, the supported keyboards are here: https://openrgb.org/devices.html. For Linux just install openrgb via your package manager and run the openrgb from root with you default service manager like systemd",
+    "optional": true
+  },
+  {
+    "name": "setWindowBoundsRemoteSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "object",
+    "fields": [
+      {
+        "key": "destination",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "string"
+              }
+            }
+          ],
+          "description": "Remote PC from ips or aliases section to send this command to"
+        }
+      },
+      {
+        "key": "delayAfter",
+        "required": false,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "number"
+              }
+            }
+          ],
+          "description": "Delay (ms) after command completes, before next command. Ensures command has time to take effect."
+        }
+      },
+      {
+        "key": "delayBefore",
+        "required": false,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "number"
+              }
+            }
+          ],
+          "description": "Delay (ms) before executing command. Helps create precisely timed sequences."
+        }
+      },
+      {
+        "key": "performOnRemote",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "literal",
+          "value": "setWindowBounds"
+        }
+      },
+      {
+        "key": "variables",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "object",
+          "fields": [
+            {
+              "key": "wid",
+              "required": true,
+              "kind": "model",
+              "model": {
+                "type": "union",
+                "options": [
+                  {
+                    "kind": "ref",
+                    "ref": {
+                      "name": "variableValueSchema",
+                      "path": "src/config/types/schema.ts",
+                      "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+                    }
+                  },
+                  {
+                    "kind": "model",
+                    "model": {
+                      "type": "number"
+                    }
+                  }
+                ],
+                "description": "Window id"
+              }
+            },
+            {
+              "key": "bounds",
+              "required": true,
+              "kind": "model",
+              "model": {
+                "type": "union",
+                "options": [
+                  {
+                    "kind": "ref",
+                    "ref": {
+                      "name": "windowPropertiesSchema",
+                      "path": "src/config/types/schema.ts",
+                      "description": "Definition of window location and size"
+                    }
+                  },
+                  {
+                    "kind": "ref",
+                    "ref": {
+                      "name": "variableValueSchema",
+                      "path": "src/config/types/schema.ts",
+                      "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "description": "Sets window width height and x y position"
+  },
+  {
+    "name": "shortcutSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "object",
+    "fields": [
+      {
+        "key": "delayAfter",
+        "required": false,
+        "kind": "model",
+        "model": {
+          "type": "number",
+          "description": "Delay (ms) after each command. Ensures commands have time to complete."
+        }
+      },
+      {
+        "key": "delayBefore",
+        "required": false,
+        "kind": "model",
+        "model": {
+          "type": "number",
+          "description": "Delay (ms) before each command. Helps coordinate timing between different shortcuts."
+        }
+      },
+      {
+        "key": "name",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "string",
+          "description": "Name shown during startup. Helps identify the shortcut's purpose."
+        }
+      },
+      {
+        "key": "shortCut",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "string",
+          "description": "Keyboard shortcut format: Modifier+Key (e.g., Alt+1, Ctrl+Shift+A). Needs at least one modifier. Max 3 modifiers (e.g., Ctrl+Alt+Shift+S)."
+        }
+      },
+      {
+        "key": "commands",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "array",
+          "items": {
+            "kind": "ref",
+            "ref": {
+              "name": "unknownCommandSchema",
+              "path": "src/config/types/schema.ts",
+              "description": "A command that would be executed on this machine"
+            }
+          },
+          "description": "Commands to run when shortcut triggered. Executes in order unless parallel execution specified."
+        }
+      },
+      {
+        "key": "behaviour",
+        "required": false,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "model",
+              "model": {
+                "type": "enum",
+                "values": [
+                  "stacking",
+                  "pausable",
+                  "restart"
+                ],
+                "description": "Stacking = Current process will keep running and new one will spawn as well. Since all executable items run in transaction by default.The next iteration will wait until current is finished. The default behaviour\nPausable = Current process will stop running and new one won't start.\nRestart = Current process will stop running and new one will start\n"
+              }
+            },
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "behaviourObjectSchema",
+                "path": "src/config/types/schema.ts"
+              }
+            }
+          ],
+          "default": "stacking",
+          "description": "Controls the the behaviour of the process when you press again the shortcut and the old process is still running."
+        }
+      }
+    ],
+    "description": "This allows to bind a shortcut to a commands list and define execution behaviour. E.g. press `alt+1` on local PC to send a mouseClick on a remote one"
+  },
+  {
+    "name": "shortcutsSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "array",
+    "items": {
+      "kind": "ref",
+      "ref": {
+        "name": "shortcutSchema",
+        "path": "src/config/types/schema.ts",
+        "description": "This allows to bind a shortcut to a commands list and define execution behaviour. E.g. press `alt+1` on local PC to send a mouseClick on a remote one"
+      }
+    },
+    "description": "Array of shortcut definitions that map keyboard combinations to command sequences. Each shortcut must have a unique key combination. This is the main configuration that defines what happens when specific keys are pressed."
+  },
+  {
+    "name": "shuffleLocalCommandSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "object",
+    "fields": [
+      {
+        "key": "commands",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "array",
+          "items": {
+            "kind": "ref",
+            "ref": {
+              "name": "unknownCommandSchema",
+              "path": "src/config/types/schema.ts",
+              "description": "A command that would be executed on this machine"
+            }
+          },
+          "description": "Sequence of commands to repeat in the loop. Each iteration will execute all commands in order."
+        }
+      },
+      {
+        "key": "shuffle",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "enum",
+          "values": [
+            "random",
+            "reverse",
+            "straight"
+          ],
+          "description": "Random = shuffle array so it takes next element randomly. Reverse = each time it changes the order from first to last, then from last to first. Straight = Default order from first to last"
+        }
+      }
+    ],
+    "description": "Allow to run same commands in specific order"
+  },
+  {
+    "name": "threadLocalArraySchema",
+    "path": "src/config/types/schema.ts",
+    "type": "object",
+    "fields": [
+      {
+        "key": "name",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "string",
+          "validations": [
+            [
+              "max",
+              10
+            ],
+            [
+              "min",
+              1
+            ]
+          ],
+          "description": "name of the thread, required for req-id log, "
+        }
+      },
+      {
+        "key": "commands",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "array",
+          "items": {
+            "kind": "ref",
+            "ref": {
+              "name": "unknownCommandSchema",
+              "path": "src/config/types/schema.ts",
+              "description": "A command that would be executed on this machine"
+            }
+          },
+          "description": "list of commands in this thread"
+        }
+      }
+    ]
+  },
+  {
+    "name": "threadsLocalCommandSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "object",
+    "fields": [
+      {
+        "key": "threads",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "array",
+          "items": {
+            "kind": "ref",
+            "ref": {
+              "name": "threadLocalArraySchema",
+              "path": "src/config/types/schema.ts"
+            }
+          },
+          "description": "Command sequences to run in parallel. Each thread runs sequentially while threads run simultaneously."
+        }
+      }
+    ],
+    "description": "Allows to execute commands in parallel. Or in threads."
+  },
+  {
+    "name": "transactionLocalCommandSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "object",
+    "fields": [
+      {
+        "key": "commands",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "array",
+          "items": {
+            "kind": "ref",
+            "ref": {
+              "name": "unknownCommandSchema",
+              "path": "src/config/types/schema.ts",
+              "description": "A command that would be executed on this machine"
+            }
+          },
+          "description": "Commands to execute atomically in this transaction. All commands either succeed or fail together."
+        }
+      },
+      {
+        "key": "transaction",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "string"
+              }
+            }
+          ],
+          "description": "Unique name for the transaction. Helps with logging and debugging transaction execution."
+        }
+      }
+    ],
+    "description": "Run commands in a transaction. Prevents concurrent transactions with same name. Uses PC name for remote commands. Ensures atomic execution."
+  },
+  {
+    "name": "typeTextRemoteCommandSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "object",
+    "fields": [
+      {
+        "key": "destination",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "string"
+              }
+            }
+          ],
+          "description": "Remote PC from ips or aliases section to send this command to"
+        }
+      },
+      {
+        "key": "delayAfter",
+        "required": false,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "number"
+              }
+            }
+          ],
+          "description": "Delay (ms) after command completes, before next command. Ensures command has time to take effect."
+        }
+      },
+      {
+        "key": "delayBefore",
+        "required": false,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "number"
+              }
+            }
+          ],
+          "description": "Delay (ms) before executing command. Helps create precisely timed sequences."
+        }
+      },
+      {
+        "key": "performOnRemote",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "literal",
+          "value": "typeText"
+        }
+      },
+      {
+        "key": "variables",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "object",
+          "fields": [
+            {
+              "key": "text",
+              "required": true,
+              "kind": "model",
+              "model": {
+                "type": "union",
+                "options": [
+                  {
+                    "kind": "ref",
+                    "ref": {
+                      "name": "variableValueSchema",
+                      "path": "src/config/types/schema.ts",
+                      "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+                    }
+                  },
+                  {
+                    "kind": "model",
+                    "model": {
+                      "type": "string"
+                    }
+                  }
+                ],
+                "description": "Any string to type"
+              }
+            },
+            {
+              "key": "keyDelay",
+              "required": false,
+              "kind": "model",
+              "model": {
+                "type": "union",
+                "options": [
+                  {
+                    "kind": "ref",
+                    "ref": {
+                      "name": "variableValueSchema",
+                      "path": "src/config/types/schema.ts",
+                      "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+                    }
+                  },
+                  {
+                    "kind": "model",
+                    "model": {
+                      "type": "number"
+                    }
+                  }
+                ],
+                "default": 100,
+                "description": "Delay between keystroke in milliseconds. By default types as fast as possible, around 40ms per char"
+              }
+            },
+            {
+              "key": "keyDelayDeviation",
+              "required": false,
+              "kind": "model",
+              "model": {
+                "type": "union",
+                "options": [
+                  {
+                    "kind": "ref",
+                    "ref": {
+                      "name": "variableValueSchema",
+                      "path": "src/config/types/schema.ts",
+                      "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+                    }
+                  },
+                  {
+                    "kind": "model",
+                    "model": {
+                      "type": "number",
+                      "validations": [
+                        [
+                          "gt",
+                          0
+                        ]
+                      ]
+                    }
+                  }
+                ],
+                "default": 0.1,
+                "description": "Deviation for randomness of delay. E.g if keyDelay = 100 and deviation = 0.2. Then value would be 80-120ms"
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "description": "Types text on the remote PC."
+  },
+  {
+    "name": "unknownCommandSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "union",
+    "options": [
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "remoteCommandSchema",
+          "path": "src/config/types/schema.ts",
+          "description": "One of the commands that would be sent to a remote machine specified in destination property"
+        }
+      },
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "getInfoRemoteCommandSchema",
+          "path": "src/config/types/schema.ts",
+          "description": "Allows to execute getRequest on remote schema and assign it to a variable"
+        }
+      },
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "localCommandSchema",
+          "path": "src/config/types/schema.ts",
+          "description": "A local command that would be executed on this machine"
+        }
+      }
+    ],
+    "description": "A command that would be executed on this machine"
+  },
+  {
+    "name": "variableValueSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "object",
+    "fields": [
+      {
+        "key": "$ref",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "string"
+        }
+      }
+    ],
+    "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+  },
+  {
+    "name": "variablesSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "record",
+    "keys": {
+      "kind": "model",
+      "model": {
+        "type": "string"
+      }
+    },
+    "values": {
+      "kind": "model",
+      "model": {
+        "type": "any"
+      }
+    },
+    "description": "Variable definitions for configuration. Values can be any type (numeric strings auto-convert to integers). Use {{varName}} to reference."
+  },
+  {
+    "name": "windowCommands",
+    "path": "src/config/types/schema.ts",
+    "type": "union",
+    "options": [
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "setWindowBoundsRemoteSchema",
+          "path": "src/config/types/schema.ts",
+          "description": "Sets window width height and x y position"
+        }
+      },
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "focusProcessWindowRemoteCommandSchema",
+          "path": "src/config/types/schema.ts",
+          "description": "Brings a window to front and gives it focus by process ID. Useful for window automation and ensuring windows are active."
+        }
+      },
+      {
+        "kind": "ref",
+        "ref": {
+          "name": "focusWindowRemoteCommandSchema",
+          "path": "src/config/types/schema.ts",
+          "description": "Brings a window to the foreground and gives it focus based on its window ID. Window IDs can be retrieved using findProcessWindows or findProcessesWindows commands."
+        }
+      }
+    ],
+    "description": "Window-related remote commands"
+  },
+  {
+    "name": "windowPropertiesSchema",
+    "path": "src/config/types/schema.ts",
+    "type": "object",
+    "fields": [
+      {
+        "key": "x",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "number"
+              }
+            }
+          ],
+          "description": "x position"
+        }
+      },
+      {
+        "key": "y",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "number"
+              }
+            }
+          ],
+          "description": "y position"
+        }
+      },
+      {
+        "key": "width",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "number"
+              }
+            }
+          ],
+          "description": "width"
+        }
+      },
+      {
+        "key": "height",
+        "required": true,
+        "kind": "model",
+        "model": {
+          "type": "union",
+          "options": [
+            {
+              "kind": "ref",
+              "ref": {
+                "name": "variableValueSchema",
+                "path": "src/config/types/schema.ts",
+                "description": "Reference to a variable from a variables definition section. The value will be replaced at runtime with either:\n1. A matching variable from variables.json\n2. A matching environment variable\n3. A variable created during execution (e.g., from assignId or expression commands)"
+              }
+            },
+            {
+              "kind": "model",
+              "model": {
+                "type": "number"
+              }
+            }
+          ],
+          "description": "height"
+        }
+      }
+    ],
+    "description": "Definition of window location and size"
+  }
+]
+

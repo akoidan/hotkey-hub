@@ -31,7 +31,7 @@ jobs:
           path: ~/.pkg-cache
           key: ${{ runner.os }}-pkg-18
       - name: Build
-        run: yarn build:win32
+        run: yarn build
 
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
@@ -142,7 +142,7 @@ jobs:
           path: ~/.pkg-cache
           key: ${{ runner.os }}-pkg-18
       - name: Build
-        run: yarn build:linux
+        run: yarn build
 
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
@@ -150,7 +150,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./hotkey-hub.elf
+          asset_path: ./hotkey-hub
           asset_name: hotkey-hub.elf
           asset_content_type: application/x-executable
 
