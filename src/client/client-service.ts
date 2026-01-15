@@ -14,6 +14,16 @@ import {
   SendKeyRequest,
   SetWindowBoundsRequest,
   TypeTextRequest,
+  PingResponseDto,
+  WindowTitleResponseDto,
+  WindowOpacityResponseDto,
+  WindowOwnerResponseDto,
+  IsWindowResponseDto,
+  IsWindowVisibleResponseDto,
+  ActiveWindowIdResponseDto,
+  MonitorScaleFactorResponseDto,
+  MonitorIdResponseDto,
+  WindowHandleResponseDto,
 } from '@/client/dtos';
 import {Injectable} from '@nestjs/common';
 
@@ -25,7 +35,7 @@ export class ClientService {
   ) {
   }
 
-  async ping(client: string): Promise<void> {
+  async ping(client: string): Promise<PingResponseDto> {
     return this.client.get(client, '/app/ping');
   }
 
@@ -34,7 +44,7 @@ export class ClientService {
   }
 
   async focusExe(client: string, request: FocusExeRequest): Promise<void> {
-    return this.client.post(client, '/window/focus-exe', request);
+    return this.client.post(client, '/window/focus-by-pid', request);
   }
 
   async mouseMove(client: string, request: MouseClickRequest): Promise<void> {
@@ -53,7 +63,7 @@ export class ClientService {
     return this.client.post(client, '/process/launch-exe', request, 3000, true);
   }
 
-  async setWindowBounds(client: string, request: SetWindowBoundsRequest): Promise<LaunchPidResponse> {
+  async setWindowBounds(client: string, request: SetWindowBoundsRequest): Promise<void> {
     return this.client.post(client, '/window/bounds', request, 5000);
   }
 
@@ -61,11 +71,11 @@ export class ClientService {
     return this.client.post(client, '/process/kill-exe-by-name', request);
   }
 
-  async findPidsByName(client: string, request: FindPidsByNameRequest): Promise<number[]> {
+  async findPidsByName(client: string, request: FindPidsByNameRequest): Promise<void> {
     return this.client.post(client, '/process/find-pids-by-name', request, 6000, true);
   }
 
-  async getProcessWindows(client: string, pid: number): Promise<[]> {
+  async getProcessWindows(client: string, pid: number): Promise<number[]> {
     return this.client.get(client, `/window/by-process/${pid}`, 6000, true);
   }
 
@@ -85,7 +95,7 @@ export class ClientService {
     return this.client.post(client, '/keyboard/type-text', request, 9000);
   }
 
-  async getActiveWindowId(client: string): Promise<number> {
+  async getActiveWindowId(client: string): Promise<ActiveWindowIdResponseDto> {
     return this.client.get(client, '/window/active-id');
   }
 
@@ -93,43 +103,43 @@ export class ClientService {
     return this.client.get(client, '/window/active-info');
   }
 
-  async getWindowBounds(client: string, wid: number): Promise<any> {
+  async getWindowBounds(client: string, wid: number): Promise<void> {
     return this.client.get(client, `/window/${wid}/bounds`);
   }
 
-  async getWindowTitle(client: string, wid: number): Promise<string> {
+  async getWindowTitle(client: string, wid: number): Promise<WindowTitleResponseDto> {
     return this.client.get(client, `/window/${wid}/title`);
   }
 
-  async getWindowOpacity(client: string, wid: number): Promise<number> {
+  async getWindowOpacity(client: string, wid: number): Promise<WindowOpacityResponseDto> {
     return this.client.get(client, `/window/${wid}/opacity`);
   }
 
-  async getWindowOwner(client: string, wid: number): Promise<any> {
+  async getWindowOwner(client: string, wid: number): Promise<WindowOwnerResponseDto> {
     return this.client.get(client, `/window/${wid}/owner`);
   }
 
-  async isWindow(client: string, wid: number): Promise<boolean> {
+  async isWindow(client: string, wid: number): Promise<IsWindowResponseDto> {
     return this.client.get(client, `/window/${wid}/is-valid`);
   }
 
-  async isWindowVisible(client: string, wid: number): Promise<boolean> {
+  async isWindowVisible(client: string, wid: number): Promise<IsWindowVisibleResponseDto> {
     return this.client.get(client, `/window/${wid}/is-visible`);
   }
 
-  async getMonitors(client: string): Promise<any[]> {
+  async getMonitors(client: string): Promise<void> {
     return this.client.get(client, '/monitor');
   }
 
-  async getMonitorScaleFactor(client: string, mid: number): Promise<number> {
+  async getMonitorScaleFactor(client: string, mid: number): Promise<MonitorScaleFactorResponseDto> {
     return this.client.get(client, `/monitor/${mid}/scale`);
   }
 
-  async getMonitorFromWindow(client: string, wid: number): Promise<number> {
+  async getMonitorFromWindow(client: string, wid: number): Promise<MonitorIdResponseDto> {
     return this.client.get(client, `/monitor/from-window/${wid}`);
   }
 
-  async getProcessMainWindow(client: string, pid: number): Promise<number> {
+  async getProcessMainWindow(client: string, pid: number): Promise<WindowHandleResponseDto> {
     return this.client.get(client, `/process/${pid}/main-window`);
   }
 }

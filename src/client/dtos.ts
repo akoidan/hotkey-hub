@@ -1,19 +1,16 @@
 import type {Key} from '@/config/types/remote/keyboard-commands-schema';
 
+interface PingResponseDto {
+  status: string;
+  version: string;
+}
+
 interface MouseClickRequest {
   x: number;
   y: number;
 }
 
 interface MouseMoveHumanRequest {
-  x: number;
-  y: number;
-  destinationRandomX?: number;
-  destinationRandomY?: number;
-  delayBetweenIterations?: number;
-  pixelsPerIteration?: number;
-  curveIntensity?: number;
-  curveIntensityDeviation?: number;
 }
 
 interface SendKeyRequest {
@@ -90,6 +87,42 @@ interface LaunchPidResponse {
   pid: number;
 }
 
+interface WindowTitleResponseDto {
+  title: string;
+}
+
+interface WindowOpacityResponseDto {
+  opacity: number;
+}
+
+interface WindowOwnerResponseDto {
+  wid: number;
+}
+
+interface IsWindowResponseDto {
+  isValid: boolean;
+}
+
+interface IsWindowVisibleResponseDto {
+  isVisible: boolean;
+}
+
+interface ActiveWindowIdResponseDto {
+  wid: number;
+}
+
+interface MonitorScaleFactorResponseDto {
+  scaleFactor: number;
+}
+
+interface MonitorIdResponseDto {
+  mid: number;
+}
+
+interface WindowHandleResponseDto {
+  wid: number;
+}
+
 export type {
   MonitorBounds,
   MonitorInfo,
@@ -107,4 +140,14 @@ export type {
   SetWindowBoundsRequest,
   WindowBounds,
   MouseMoveHumanRequest,
+  PingResponseDto,
+  WindowTitleResponseDto,
+  WindowOpacityResponseDto,
+  WindowOwnerResponseDto,
+  IsWindowResponseDto,
+  IsWindowVisibleResponseDto,
+  ActiveWindowIdResponseDto,
+  MonitorScaleFactorResponseDto,
+  MonitorIdResponseDto,
+  WindowHandleResponseDto,
 };
