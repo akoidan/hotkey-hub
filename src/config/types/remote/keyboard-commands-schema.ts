@@ -57,9 +57,13 @@ const keyboardCommandsSchema = z.union([
 
 type TypeTextRemoteCommand = z.infer<typeof typeTextRemoteCommandSchema>
 type KeyPressRemoteCommand = z.infer<typeof keyPressRemoteCommandSchema>
+type KeyPressRemoteVariable = z.infer<typeof keyPressRemoteVariableSchema>
+
+
 type Key = z.infer<typeof keySchema>;
 
 export type {
+  KeyPressRemoteVariable,
   TypeTextRemoteCommand,
   KeyPressRemoteCommand,
   Key,
