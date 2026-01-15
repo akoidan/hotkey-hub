@@ -1,4 +1,5 @@
 import {z} from 'zod';
+import {makeVariableUnion} from '@/config/types/variables';
 import {baseGetInfoCommandSchema} from '@/config/types/get-commands/get-commands-shared';
 import {windowIdVariablesSchema} from '@/config/types/get-commands/get-window-commands-schema';
 
@@ -10,9 +11,11 @@ const monitorVariablesSchema = z.object({
   mid: z.number().int().nonnegative('Monitor ID must be a non-negative integer'),
 }).strict();
 
+const monitorVariablesCommandSchema = makeVariableUnion(monitorVariablesSchema);
+
 const getMonitorInfoCommandSchema = baseGetInfoCommandSchema.extend({
   get: z.literal('getMonitorInfo'),
-  variables: monitorVariablesSchema,
+  variables: monitorVariablesCommandSchema,
 }).strict().describe('Get monitor info');
 
 const getMonitorFromWindowCommandSchema = baseGetInfoCommandSchema.extend({
@@ -22,9 +25,8 @@ const getMonitorFromWindowCommandSchema = baseGetInfoCommandSchema.extend({
 
 const getMonitorScaleFactorCommandSchema = baseGetInfoCommandSchema.extend({
   get: z.literal('getMonitorScaleFactor'),
-  variables: monitorVariablesSchema,
+  variables: monitorVariablesCommandSchema,
 }).strict().describe('Get monitor scale factor');
-
 
 const getMonitorCommandsSchema = z.union([
   getMonitorsCommandSchema,
@@ -44,12 +46,12 @@ export {
   getMonitorCommandsSchema,
   windowIdVariablesSchema,
   monitorVariablesSchema,
+  monitorVariablesCommandSchema,
   getMonitorsCommandSchema,
   getMonitorInfoCommandSchema,
   getMonitorFromWindowCommandSchema,
   getMonitorScaleFactorCommandSchema,
 };
-
 
 // Export all types
 export type {

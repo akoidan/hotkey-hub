@@ -1,25 +1,34 @@
 import {z} from 'zod';
-import {variableValueSchema} from '@/config/types/variables';
+import {makeVariableUnion} from '@/config/types/variables';
 import {baseGetInfoCommandSchema} from '@/config/types/get-commands/get-commands-shared';
+
+const getPidsByNameVariablesSchema = z.object({
+  name: z.string()
+    .describe('Name of the executable file to search for. Example: "Chrome.exe". Case-sensitive on some operating systems.'),
+}).strict();
+
+const getPidsByNameCommandVariablesSchema = makeVariableUnion(getPidsByNameVariablesSchema);
 
 const getPidsByNameCommandSchema = baseGetInfoCommandSchema.extend({
   get: z.literal('getPidsByName'),
-  variables: z.object({
-    name: z.union([variableValueSchema, z.string()])
-      .describe('Name of the executable file to search for. Example: "Chrome.exe". Case-sensitive on some operating systems.'),
-  }).strict(),
+  variables: getPidsByNameCommandVariablesSchema,
 }).strict().describe('Gets list of process ids that match criteria');
+
+const getProcessMainWindowVariablesSchema = z.object({
+  pid: z.number().int().positive('Process ID must be a positive integer'),
+}).strict();
+
+const getProcessMainWindowCommandVariablesSchema = makeVariableUnion(getProcessMainWindowVariablesSchema);
 
 const getProcessMainWindowCommandSchema = baseGetInfoCommandSchema.extend({
   get: z.literal('getProcessMainWindow'),
-  variables: z.object({
-    pid: z.number().int().positive('Process ID must be a positive integer'),
-  }).strict(),
-}).strict().describe('Get process\' main window');
+  variables: getProcessMainWindowCommandVariablesSchema,
+}).strict().describe('Get process\'s main window');
 
+type GetPidsByNameVariables = z.infer<typeof getPidsByNameVariablesSchema>;
+type GetProcessMainWindowVariables = z.infer<typeof getProcessMainWindowVariablesSchema>;
 type GetPidsByNameCommand = z.infer<typeof getPidsByNameCommandSchema>;
 type GetProcessMainWindowCommand = z.infer<typeof getProcessMainWindowCommandSchema>;
-
 
 const getProcessCommandsSchema = z.union([
   getPidsByNameCommandSchema,
@@ -32,11 +41,16 @@ export {
   getPidsByNameCommandSchema,
   baseGetInfoCommandSchema,
   getProcessMainWindowCommandSchema,
+  getPidsByNameCommandVariablesSchema,
+  getProcessMainWindowCommandVariablesSchema,
+  getPidsByNameVariablesSchema,
+  getProcessMainWindowVariablesSchema,
 };
-
 
 // Export all types
 export type {
+  GetPidsByNameVariables,
+  GetProcessMainWindowVariables,
   GetPidsByNameCommand,
   GetProcessMainWindowCommand,
 };

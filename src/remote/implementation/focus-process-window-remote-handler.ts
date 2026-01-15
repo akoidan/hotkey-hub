@@ -1,7 +1,6 @@
-import type {FocusProcessWindowRemoteCommand} from '@/config/types/remote/window-commands-schema';
+import {FocusProcessWindowRemoteCommand, FocusProcessWindowRemoteVariable} from '@/config/types/remote/window-commands-schema';
 import type {RemoteCommand} from '@/config/types/remote/remote-commands';
 import {CommandRemoteHandler} from '@/remote/command-remote-handler';
-import type {FocusExeRequest} from '@/client/dtos';
 
 export class FocusProcessWindowRemoteHandler extends CommandRemoteHandler {
   canHandle(command: RemoteCommand): command is FocusProcessWindowRemoteCommand {
@@ -9,6 +8,6 @@ export class FocusProcessWindowRemoteHandler extends CommandRemoteHandler {
   }
 
   async execute(destination: string, command: FocusProcessWindowRemoteCommand): Promise<void> {
-    await this.clientService.focusExe(destination, command.variables as FocusExeRequest);
+    await this.clientService.focusExe(destination, command.variables as FocusProcessWindowRemoteVariable);
   }
 }

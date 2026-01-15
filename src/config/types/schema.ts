@@ -7,20 +7,36 @@ import {behaviourObjectSchema, shortcutSchema, shortcutsSchema} from '@/config/t
 import {globalDelaySchema} from '@/config/types/delays';
 import {
   keyboardCommandsSchema,
-  keyPressRemoteCommandSchema, keyPressRemoteCommandVariableSchema,
+  keyPressRemoteCommandSchema,
+  keyPressRemoteCommandVariableSchema,
   keySchema,
   typeTextRemoteCommandSchema,
+  typeTextRemoteCommandVariableSchema,
 } from '@/config/types/remote/keyboard-commands-schema';
-import {leftMouseClickRemoteCommandSchema, mouseCommandsSchema, mouseMoveClickRemoteCommandSchema} from '@/config/types/remote/mouse-commands-schema';
+import {
+  leftMouseClickRemoteCommandSchema,
+  leftMouseClickRemoteCommandVariableSchema,
+  mouseCommandsSchema,
+  mouseMoveClickRemoteCommandSchema,
+  mouseMoveClickRemoteCommandVariableSchema
+} from '@/config/types/remote/mouse-commands-schema';
 import {
   killExeByNameRemoteCommandSchema,
+  killExeByNameRemoteCommandVariableSchema,
   killExeByPidRemoteCommandSchema,
-  launchExeRemoteCommandSchema, processCommandsSchema,
+  killExeByPidRemoteCommandVariableSchema,
+  launchExeRemoteCommandSchema,
+  launchExeRemoteCommandVariableSchema,
+  processCommandsSchema,
 } from '@/config/types/remote/process-commands-schema';
 import {
   focusProcessWindowRemoteCommandSchema,
+  focusProcessWindowRemoteCommandVariableSchema,
   focusWindowRemoteCommandSchema,
-  setWindowBoundsRemoteCommandSchema, windowCommandsSchema,
+  focusWindowRemoteCommandVariableSchema,
+  setWindowBoundsRemoteCommandSchema,
+  setWindowBoundsRemoteCommandVariableSchema,
+  windowCommandsSchema,
   windowPropertiesSchema,
 } from '@/config/types/remote/window-commands-schema';
 import {remoteCommandSchema} from '@/config/types/remote/remote-commands';
@@ -36,17 +52,16 @@ import {
   macroVariableValueSchema,
   printLocalCommandSchema,
   reloadConfigLocalCommandSchema,
-  shuffleLocalCommandSchema,
   threadLocalSchema,
   threadsLocalCommandSchema,
   transactionLocalCommandSchema,
 } from '@/config/types/local/local-commands';
 import {unknownCommandSchema} from '@/config/types/commands';
 import {
-  getActiveWindowIdCommandSchema,
   getActiveWindowCommandSchema,
-  getWindowCommandsSchema,
+  getActiveWindowIdCommandSchema,
   getWindowBoundsCommandSchema,
+  getWindowCommandsSchema,
   getWindowOpacityCommandSchema,
   getWindowOwnerCommandSchema,
   getWindowsIdByPidCommandSchema,
@@ -60,10 +75,16 @@ import {
   getMonitorInfoCommandSchema,
   getMonitorScaleFactorCommandSchema,
   getMonitorsCommandSchema,
+  getWindowsIdByPidCommandVariablesSchema,
+  monitorVariablesCommandSchema,
+  windowIdVariablesCommandSchema,
 } from '@/config/types/get-commands/get-monitor-commands-schema';
-import {getPidsByNameCommandSchema, getProcessCommandsSchema, getProcessMainWindowCommandSchema} from '@/config/types/get-commands/get-process-commands-schema';
+import {
+  getPidsByNameCommandSchema,
+  getProcessCommandsSchema,
+  getProcessMainWindowCommandSchema
+} from '@/config/types/get-commands/get-process-commands-schema';
 import {getInfoCommandSchema, pingCommandSchema} from '@/config/types/get-commands/get-commands';
-
 
 
 const ipsSchema = z.record(z.string(), z.string())
@@ -197,5 +218,33 @@ export {
   macroDefinitionSchema,
   macrosListSchema,
   reloadConfigLocalCommandSchema,
-  shuffleLocalCommandSchema,
+  typeTextRemoteCommandVariableSchema,
+  mouseMoveClickRemoteCommandVariableSchema,
+  leftMouseClickRemoteCommandVariableSchema,
+  killExeByNameRemoteCommandVariableSchema,
+  killExeByPidRemoteCommandVariableSchema,
+  launchExeRemoteCommandVariableSchema,
+  setWindowBoundsRemoteCommandVariableSchema,
+  focusProcessWindowRemoteCommandVariableSchema,
+  focusWindowRemoteCommandVariableSchema,
+  monitorVariablesCommandSchema,
+  windowIdVariablesCommandSchema,
+  getWindowsIdByPidCommandVariablesSchema,
+
+  // Export base variable schemas
+  keyPressRemoteVariableSchema,
+  typeTextRemoteVariableSchema,
+  mouseMoveClickRemoteVariableSchema,
+  leftMouseClickRemoteVariableSchema,
+  killExeByNameRemoteVariableSchema,
+  killExeByPidRemoteVariableSchema,
+  launchExeRemoteVariableSchema,
+  setWindowBoundsRemoteVariableSchema,
+  focusProcessWindowRemoteVariableSchema,
+  focusWindowRemoteVariableSchema,
+  getPidsByNameVariablesSchema,
+  getProcessMainWindowVariablesSchema,
+  monitorVariablesSchema,
+  windowIdVariablesSchema,
+  getWindowsIdByPidVariablesSchema,
 };
