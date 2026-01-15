@@ -30,8 +30,11 @@ import { promises as fs } from 'fs';
     if (orderA !== orderB) return orderA - orderB;
     return 0;
   });
+
+
   const res = formatModelsAsMarkdown(models, {
     title: 'Hotkey HUB',
   });
+
   await fs.writeFile('./CONFIG.md', res);
 })();
