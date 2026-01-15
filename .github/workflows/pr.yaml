@@ -34,6 +34,12 @@ jobs:
         run: yarn schema:doc
       - name: Generate json schema
         run: yarn schema:json
+      - run: mkdir docs && mv ./CONFIG.md docs/
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./docs
+      - uses: actions/deploy-pages@v4
 
   lint:
     runs-on: ubuntu-22.04
