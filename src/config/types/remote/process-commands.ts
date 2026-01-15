@@ -2,6 +2,8 @@ import {z} from 'zod';
 import {variableValueSchema} from '@/config/types/variables';
 import {baseRemoteCommandSchema} from '@/config/types/remote/base-remote-command';
 
+console.log('process-commands.ts: variableValueSchema', !!variableValueSchema);
+console.log('process-commands.ts: baseRemoteCommandSchema', !!baseRemoteCommandSchema);
 const killExeByNameRemoteCommandSchema = baseRemoteCommandSchema.extend({
   performOnRemote: z.literal('killExeByName'),
   variables: z.object({

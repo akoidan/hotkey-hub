@@ -4,6 +4,11 @@ import {makeVariableUnion} from '@/config/types/utils';
 import {variableValueSchema} from '@/config/types/variables';
 import {allowedKeys, modifierKeys} from '@/config/types/keyboard';
 
+console.log('keyboard-commands.ts: baseRemoteCommandSchema', !!baseRemoteCommandSchema);
+console.log('keyboard-commands.ts: makeVariableUnion', !!makeVariableUnion);
+console.log('keyboard-commands.ts: variableValueSchema', !!variableValueSchema);
+console.log('keyboard-commands.ts: allowedKeys', !!allowedKeys);
+console.log('keyboard-commands.ts: modifierKeys', !!modifierKeys);
 
 const keySchema =  z.enum([
   ...allowedKeys,

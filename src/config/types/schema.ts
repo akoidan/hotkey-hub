@@ -55,6 +55,49 @@ import {
 import {getPidsByNameSchema, getProcessMainWindowSchema} from '@/config/types/get-commands/get-process-commands';
 import {getInfoRemoteCommandSchema, pingSchema} from '@/config/types/get-commands/get-commands';
 
+console.log('schema.ts: variablesSchema', !!variablesSchema);
+console.log('schema.ts: variableValueSchema', !!variableValueSchema);
+console.log('schema.ts: behaviourObjectSchema', !!behaviourObjectSchema);
+console.log('schema.ts: shortcutSchema', !!shortcutSchema);
+console.log('schema.ts: shortcutsSchema', !!shortcutsSchema);
+console.log('schema.ts: globalDelaySchema', !!globalDelaySchema);
+console.log('schema.ts: keyPressRemoteCommandSchema', !!keyPressRemoteCommandSchema);
+console.log('schema.ts: keySchema', !!keySchema);
+console.log('schema.ts: typeTextRemoteCommandSchema', !!typeTextRemoteCommandSchema);
+console.log('schema.ts: leftMouseClickRemoteCommandSchema', !!leftMouseClickRemoteCommandSchema);
+console.log('schema.ts: mouseMoveClickRemoteCommandSchema', !!mouseMoveClickRemoteCommandSchema);
+console.log('schema.ts: killExeByNameRemoteCommandSchema', !!killExeByNameRemoteCommandSchema);
+console.log('schema.ts: killExeByPidRemoteCommandSchema', !!killExeByPidRemoteCommandSchema);
+console.log('schema.ts: launchExeRemoteCommandSchema', !!launchExeRemoteCommandSchema);
+console.log('schema.ts: focusProcessWindowRemoteCommandSchema', !!focusProcessWindowRemoteCommandSchema);
+console.log('schema.ts: focusWindowRemoteCommandSchema', !!focusWindowRemoteCommandSchema);
+console.log('schema.ts: setWindowBoundsRemoteSchema', !!setWindowBoundsRemoteSchema);
+console.log('schema.ts: windowPropertiesSchema', !!windowPropertiesSchema);
+console.log('schema.ts: remoteCommandSchema', !!remoteCommandSchema);
+console.log('schema.ts: expressionLocalCommandSchema', !!expressionLocalCommandSchema);
+console.log('schema.ts: ifLocalCommandSchema', !!ifLocalCommandSchema);
+console.log('schema.ts: loopLocalCommandSchema', !!loopLocalCommandSchema);
+console.log('schema.ts: macroDefinitionSchema', !!macroDefinitionSchema);
+console.log('schema.ts: macroLocalCommandSchema', !!macroLocalCommandSchema);
+console.log('schema.ts: macrosListSchema', !!macrosListSchema);
+console.log('schema.ts: macroVariablesDescriptionSchema', !!macroVariablesDescriptionSchema);
+console.log('schema.ts: macroVariableValueSchema', !!macroVariableValueSchema);
+console.log('schema.ts: printLocalCommandSchema', !!printLocalCommandSchema);
+console.log('schema.ts: reloadConfigLocalCommandSchema', !!reloadConfigLocalCommandSchema);
+console.log('schema.ts: shuffleLocalCommandSchema', !!shuffleLocalCommandSchema);
+console.log('schema.ts: threadLocalArraySchema', !!threadLocalArraySchema);
+console.log('schema.ts: transactionLocalCommandSchema', !!transactionLocalCommandSchema);
+console.log('schema.ts: threadsLocalCommandSchema', !!threadsLocalCommandSchema);
+console.log('schema.ts: unknownCommandSchema', !!unknownCommandSchema);
+console.log('schema.ts: getMonitorFromWindowSchema', !!getMonitorFromWindowSchema);
+console.log('schema.ts: getMonitorInfoSchema', !!getMonitorInfoSchema);
+console.log('schema.ts: getMonitorScaleFactorSchema', !!getMonitorScaleFactorSchema);
+console.log('schema.ts: getMonitorsSchema', !!getMonitorsSchema);
+console.log('schema.ts: getPidsByNameSchema', !!getPidsByNameSchema);
+console.log('schema.ts: getProcessMainWindowSchema', !!getProcessMainWindowSchema);
+console.log('schema.ts: getInfoRemoteCommandSchema', !!getInfoRemoteCommandSchema);
+console.log('schema.ts: pingSchema', !!pingSchema);
+
 const remoteAddressDefinition = z.union([z.string().ip(), z.string().regex(
   /^(?:[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*)$/u,
   'Invalid domain name'

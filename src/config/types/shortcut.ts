@@ -2,6 +2,9 @@ import {z, ZodIssueCode} from 'zod';
 import {allowedKeys, modifierKeys} from '@/config/types/keyboard';
 import {unknownCommandSchema} from '@/config/types/commands';
 
+console.log('shortcut.ts: allowedKeys', !!allowedKeys);
+console.log('shortcut.ts: modifierKeys', !!modifierKeys);
+console.log('shortcut.ts: unknownCommandSchema', !!unknownCommandSchema);
 
 // Zod schema for shortcuts
 const shortcut = z

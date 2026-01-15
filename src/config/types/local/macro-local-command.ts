@@ -5,6 +5,10 @@ import {type VariableValue, variableValueSchema} from '@/config/types/variables'
 import {delayCommandsSchema} from '@/config/types/remote/base-remote-command';
 import {unknownCommandSchema} from '@/config/types/commands';
 
+console.log('macro-local-command.ts: schemaRootCache', !!schemaRootCache);
+console.log('macro-local-command.ts: variableValueSchema', !!variableValueSchema);
+console.log('macro-local-command.ts: delayCommandsSchema', !!delayCommandsSchema);
+console.log('macro-local-command.ts: unknownCommandSchema', !!unknownCommandSchema);
 
 const macroLocalCommandSchema = z.object({
   macro: z.string().describe('Name of the macro to execute, which must match a key defined in the macros section. ' +

@@ -1,6 +1,8 @@
 import {z, type ZodObject} from 'zod';
 import {variableValueSchema} from '@/config/types/variables';
 
+console.log('utils.ts: variableValueSchema', !!variableValueSchema);
+
 function makeVariableUnion(schema: ZodObject<any>): ZodObject<any> {
   /* eslint-disable */
   const shape = schema._def.shape();

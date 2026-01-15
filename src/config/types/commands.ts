@@ -3,6 +3,9 @@ import {type RemoteCommand, remoteCommandSchema} from '@/config/types/remote/rem
 import {type GetInfoRemoteCommand, getInfoRemoteCommandSchema} from '@/config/types/get-commands/get-commands';
 import {type LocalCommand, localCommandSchema} from '@/config/types/local/local-commands';
 
+console.log('commands.ts: remoteCommandSchema', !!remoteCommandSchema);
+console.log('commands.ts: getInfoRemoteCommandSchema', !!getInfoRemoteCommandSchema);
+console.log('commands.ts: localCommandSchema', !!localCommandSchema);
 const unknownCommandSchema = z.union([
   remoteCommandSchema,
   getInfoRemoteCommandSchema,
