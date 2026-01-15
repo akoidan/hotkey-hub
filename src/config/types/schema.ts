@@ -55,9 +55,6 @@ import {
 import {getPidsByNameSchema, getProcessMainWindowSchema} from '@/config/types/get-commands/get-process-commands';
 import {getInfoRemoteCommandSchema, pingSchema} from '@/config/types/get-commands/get-commands';
 
-// z.lazy requires manual type definition cause of reqursive type
-
-
 const remoteAddressDefinition = z.union([z.string().ip(), z.string().regex(
   /^(?:[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*)$/u,
   'Invalid domain name'
