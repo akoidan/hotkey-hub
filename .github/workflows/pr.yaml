@@ -41,7 +41,7 @@ jobs:
           pandoc CONFIG.md -s \
             -c https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.0/github-markdown.min.css \
             --self-contained \
-            --include-before-body=<(echo '<article class="markdown-body">') \
+            --include-before-body=<(echo '<style>.markdown-body{max-width:1200px;margin:auto;padding:50px;}</style><article class="markdown-body">') \
             --include-after-body=<(echo '</article>') \
             -o docs/index.html
 
