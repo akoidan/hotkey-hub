@@ -2,8 +2,6 @@ import {z, type ZodType} from 'zod';
 import {expressionSchema} from '@/config/types/local/expression-local-command';
 import {type UnknownCommand, unknownCommandSchema} from '@/config/types/commands';
 
-console.log('loop-local-command.ts: expressionSchema', !!expressionSchema);
-console.log('loop-local-command.ts: unknownCommandSchema', !!unknownCommandSchema); // used in commands array
 const loopLocalCommandSchema = z.lazy(() => z.object({
   commands: z.array(unknownCommandSchema).describe('Sequence of commands to repeat in the loop. ' +
     'Each iteration will execute all commands in order.'),
