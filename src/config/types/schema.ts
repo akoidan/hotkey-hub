@@ -7,7 +7,7 @@ import {behaviourObjectSchema, shortcutSchema, shortcutsSchema} from '@/config/t
 import {globalDelaySchema} from '@/config/types/delays';
 import {
   keyboardCommandsSchema,
-  keyPressRemoteCommandSchema,
+  keyPressRemoteCommandSchema, keyPressRemoteCommandVariableSchema,
   keySchema,
   typeTextRemoteCommandSchema,
 } from '@/config/types/remote/keyboard-commands-schema';
@@ -136,6 +136,7 @@ export type {
 
 
 export {
+  keyPressRemoteCommandVariableSchema,
   keyboardCommandsSchema,
   mouseCommandsSchema,
   processCommandsSchema,

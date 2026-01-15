@@ -21,10 +21,11 @@ const keyPressRemoteVariableSchema = z.object({
     .optional()
     .describe('Modifier keys to hold (e.g., Alt for Alt+1, Ctrl+Shift for Ctrl+Shift+A). Can be a key or key array.'),
 }).strict();
+const keyPressRemoteCommandVariableSchema = makeVariableUnion(keyPressRemoteVariableSchema)
 
 const keyPressRemoteCommandSchema = baseRemoteCommandSchema.extend({
   performOnRemote: z.literal('keyPress'),
-  variables: makeVariableUnion(keyPressRemoteVariableSchema),
+  variables: keyPressRemoteCommandVariableSchema,
 }).strict().describe('Simulates keyboard input on the remote PC by sending key press events. ' +
   'Supports single keys, key combinations, and modifier keys with customizable timing and randomness. ' +
   'Use this for automating keyboard input or triggering keyboard shortcuts.');
@@ -65,6 +66,7 @@ export type {
 
 export {
   keySchema,
+  keyPressRemoteCommandVariableSchema,
   keyPressRemoteCommandSchema,
   typeTextRemoteCommandSchema,
   keyboardCommandsSchema,
