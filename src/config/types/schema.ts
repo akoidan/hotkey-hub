@@ -37,7 +37,7 @@ import {
   setWindowBoundsRemoteCommandSchema,
   setWindowBoundsRemoteCommandVariableSchema,
   windowCommandsSchema,
-  windowPropertiesSchema,
+  windowPropertiesSchema, windowPropertiesVariableSchema,
 } from '@/config/types/remote/window-commands-schema';
 import {remoteCommandSchema} from '@/config/types/remote/remote-commands';
 import {
@@ -51,7 +51,7 @@ import {
   macroVariablesDescriptionSchema,
   macroVariableValueSchema,
   printLocalCommandSchema,
-  reloadConfigLocalCommandSchema,
+  reloadConfigLocalCommandSchema, shuffleLocalCommandSchema,
   threadLocalSchema,
   threadsLocalCommandSchema,
   transactionLocalCommandSchema,
@@ -64,10 +64,10 @@ import {
   getWindowCommandsSchema,
   getWindowOpacityCommandSchema,
   getWindowOwnerCommandSchema,
-  getWindowsIdByPidCommandSchema,
+  getWindowsIdByPidCommandSchema, getWindowsIdByPidCommandVariablesSchema,
   getWindowTitleCommandSchema,
   getWindowValidityCommandSchema,
-  getWindowVisibilityCommandSchema,
+  getWindowVisibilityCommandSchema, windowIdVariablesCommandSchema,
 } from '@/config/types/get-commands/get-window-commands-schema';
 import {
   getMonitorCommandsSchema,
@@ -78,9 +78,9 @@ import {
   monitorVariablesCommandSchema,
 } from '@/config/types/get-commands/get-monitor-commands-schema';
 import {
-  getPidsByNameCommandSchema,
+  getPidsByNameCommandSchema, getPidsByNameCommandVariablesSchema,
   getProcessCommandsSchema,
-  getProcessMainWindowCommandSchema
+  getProcessMainWindowCommandSchema, getProcessMainWindowCommandVariablesSchema
 } from '@/config/types/get-commands/get-process-commands-schema';
 import {getInfoCommandSchema, pingCommandSchema} from '@/config/types/get-commands/get-commands';
 
@@ -152,12 +152,16 @@ export type {
   RgbData,
 };
 
-
-
 export {
+  getWindowsIdByPidCommandVariablesSchema,
+  getProcessMainWindowCommandVariablesSchema,
+  getPidsByNameCommandVariablesSchema,
+  windowIdVariablesCommandSchema,
   keyPressRemoteCommandVariableSchema,
   keyboardCommandsSchema,
+  windowPropertiesVariableSchema,
   mouseCommandsSchema,
+  shuffleLocalCommandSchema,
   processCommandsSchema,
   windowCommandsSchema,
   pingCommandSchema,
@@ -208,6 +212,7 @@ export {
   threadsLocalCommandSchema,
   macroLocalCommandSchema,
   unknownCommandSchema,
+
   setWindowBoundsRemoteCommandSchema,
   expressionLocalCommandSchema,
   threadLocalSchema,

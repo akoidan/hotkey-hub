@@ -4,7 +4,9 @@ import type {ZodUnion} from 'zod/src/v4/classic/schemas';
 
 const order = ['config', 'ips', 'shortcut', 'unknownCommand'];
 const seen = new Set<string>();
-const resultModels: NamedModel[] = [];
+
+const groupsModel: NamedModel[] = [];
+const lastModels: NamedModel[] = [];
 let allModels: NamedModel[] = [];
 
 
@@ -41,9 +43,10 @@ function processSection(name: string, individualFilter: (name: string) => boolea
     groupsOfCommands.unshift(commandModel!);
   }
   // Filter out already seen
-  groupsOfCommands = groupsOfCommands.filter(m => !seen.has(m.name!));
-  commands = commands.filter(m => !seen.has(m.name!));
-  resultModels.push(...groupsOfCommands, ...commands);
+  // groupsOfCommands = groupsOfCommands.filter(m => !seen.has(m.name!));
+  // commands = commands.filter(m => !seen.has(m.name!));
+  groupsModel.push(...groupsOfCommands);
+  lastModels.push( ...commands);
   markSeen(groupsOfCommands);
   markSeen(commands);
 }
@@ -55,19 +58,25 @@ void (async function main(): Promise<void> {
     tsconfig: 'tsconfig.json',
   });
   allModels = convertSchemas(schemas);
+  const noNmaedModels = allModels.filter(m => (m as any).kind === 'Model');
+  if (noNmaedModels.length >0 ) {
+    throw Error('Schema is missing following imports: ' + noNmaedModels.map(m => m.name).join(', '));
+  }
 
   const orderedModels = allModels
     .filter(m => order.includes(normalizeName(m.name)))
     .sort((a, b) => order.indexOf(normalizeName(a.name)) - order.indexOf(normalizeName(b.name)));
 
-  resultModels.push(...orderedModels);
+  const resultModels: NamedModel[] = []; resultModels.push(...orderedModels);
   markSeen(orderedModels);
 
   processSection('remoteCommandSchema', name => name.includes('RemoteCommand'));
   processSection('localCommandSchema', name => name.includes('LocalCommand'));
   processSection('getInfoCommandSchema', name => name.toLowerCase().startsWith('get'));
-
   const remaining = allModels.filter(m => !seen.has(m.name!));
+
+  resultModels.push(...groupsModel);
+  resultModels.push(...lastModels);
   resultModels.push(...remaining);
 
   const md = formatModelsAsMarkdown(resultModels, {title: 'Hotkey HUB'});

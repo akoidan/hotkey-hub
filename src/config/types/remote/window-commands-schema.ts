@@ -74,6 +74,7 @@ export type {
 };
 
 export {
+  windowPropertiesVariableSchema,
   focusProcessWindowRemoteCommandSchema,
   focusWindowRemoteCommandSchema,
   setWindowBoundsRemoteCommandSchema,

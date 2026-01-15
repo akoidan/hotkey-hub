@@ -87,6 +87,7 @@ const getWindowCommandsSchema = z.union([
 export {
   getWindowCommandsSchema,
   windowIdVariablesSchema,
+  getWindowsIdByPidCommandVariablesSchema,
   windowIdVariablesCommandSchema,
   getWindowsIdByPidCommandSchema,
   getWindowsIdByPidVariablesSchema,
