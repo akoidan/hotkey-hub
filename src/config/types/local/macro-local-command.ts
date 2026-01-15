@@ -3,16 +3,7 @@ import {z, ZodIssueCode} from 'zod';
 import {schemaRootCache} from '@/config/types/cache';
 import {type VariableValue, variableValueSchema} from '@/config/types/variables';
 import {delayCommandsSchema} from '@/config/types/remote/base-remote-command';
-import {expressionLocalCommandSchema} from '@/config/types/local/expression-local-command';
-import {ifLocalCommandSchema} from '@/config/types/local/if-local-command';
-import {loopLocalCommandSchema} from '@/config/types/local/loop-local-command';
-import {printLocalCommandSchema} from '@/config/types/local/print-local-command';
-import {shuffleLocalCommandSchema} from '@/config/types/local/shuffle-local-command';
-import {threadsLocalCommandSchema} from '@/config/types/local/threads-local-command';
-import {transactionLocalCommandSchema} from '@/config/types/local/transaction-local-command';
-import {remoteCommandSchema} from '@/config/types/remote/remote-commands';
-import {getInfoRemoteCommandSchema} from '@/config/types/get-commands/get-commands';
-import {reloadConfigLocalCommandSchema} from '@/config/types/local/relocal-config-local-command';
+import {unknownCommandSchema} from '@/config/types/commands';
 
 
 const macroLocalCommandSchema = z.object({
@@ -81,8 +72,6 @@ const macroLocalCommandSchema = z.object({
     'Similar to a function call, macros can accept parameters through variables. ' +
     'This helps avoid duplicating complex command sequences and makes configurations more maintainable.');
 
-
-
 const macroVariableValueSchema = z.object({
   type: z.enum(['string', 'number']).describe('To validate the type, or cast from env variables'),
   optional: z.boolean().optional().describe('If set to true, the key is be removed is var is not passed'),
@@ -101,20 +90,6 @@ const macroVariablesDescriptionSchema = z.record(macroVariableValueSchema)
   .optional()
   .describe('Set of variables descriptors for macro');
 
-
-const unknownCommandSchema = z.lazy(() => z.union([
-  remoteCommandSchema,
-  getInfoRemoteCommandSchema,
-  macroLocalCommandSchema,
-  expressionLocalCommandSchema,
-  transactionLocalCommandSchema,
-  threadsLocalCommandSchema,
-  loopLocalCommandSchema,
-  ifLocalCommandSchema,
-  shuffleLocalCommandSchema,
-  printLocalCommandSchema,
-  reloadConfigLocalCommandSchema,
-]));
 
 const macroDefinitionSchema = z.object({
   commands: z.array(unknownCommandSchema).describe('Set of commands for this macro'),
@@ -144,5 +119,4 @@ export {
   macroVariablesDescriptionSchema,
   macroDefinitionSchema,
   macrosListSchema,
-  unknownCommandSchema,
 };

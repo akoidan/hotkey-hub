@@ -32,7 +32,7 @@ import {
 import {type ReloadConfigLocalCommand, reloadConfigLocalCommandSchema} from '@/config/types/local/relocal-config-local-command';
 
 // Define localCommandSchema as union of all local command schemas
-const localCommandSchema = z.union([
+const localCommandSchema = z.lazy(() => z.union([
   macroLocalCommandSchema,
   expressionLocalCommandSchema,
   transactionLocalCommandSchema,
@@ -42,7 +42,7 @@ const localCommandSchema = z.union([
   shuffleLocalCommandSchema,
   printLocalCommandSchema,
   reloadConfigLocalCommandSchema,
-]).describe('A local command that would be executed on this machine');
+])).describe('A local command that would be executed on this machine');
 
 // Define unknownCommandSchema as union of remote, get-info, and local
 
