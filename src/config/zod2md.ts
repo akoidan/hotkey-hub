@@ -1,78 +1,76 @@
-import {convertSchemas, formatModelsAsMarkdown, loadZodSchemas, NamedModel} from 'zod2md';
+import {convertSchemas, formatModelsAsMarkdown, loadZodSchemas, type NamedModel, type Ref} from 'zod2md';
 import {promises as fs} from 'fs';
-import {rethrow} from '@nestjs/core/helpers/rethrow';
+import type {ZodUnion} from 'zod/src/v4/classic/schemas';
+
+const order = ['config', 'ips', 'shortcut', 'unknownCommand'];
+const seen = new Set<string>();
+const resultModels: NamedModel[] = [];
+let allModels: NamedModel[] = [];
 
 
-(async function main() {
+function markSeen(passedModel: NamedModel[]): void {
+  for (const model of passedModel) {
+    seen.add(model.name!);
+  }
+}
+
+
+function normalizeName(name: string | undefined): string {
+  if (!name) {
+    throw new Error('Undefined name');
+  }
+  if (!name.endsWith('Schema')) {
+    throw new Error(`name ${name} doesnt end with schema`);
+  }
+  return name.slice(0, -6);
+}
+
+
+function processSection(name: string, individualFilter: (name: string) => boolean): void {
+  const commandModel = allModels.find(m => m.name === name)!;
+  const optionNames = (commandModel as any as ZodUnion)!.options!.map((o: unknown) => (o as {
+    kind: 'ref';
+    ref: Ref;
+  }).ref.name) || [];
+  let groupsOfCommands = allModels.filter(m => optionNames.includes(m.name!));
+  let commands = allModels.filter(m => individualFilter(m.name!) && !optionNames.includes(m.name!) && m !== commandModel);
+  if (commands.length === 0) {
+    commands = groupsOfCommands;
+    groupsOfCommands = [commandModel];
+  } else {
+    groupsOfCommands.unshift(commandModel!);
+  }
+  // Filter out already seen
+  groupsOfCommands = groupsOfCommands.filter(m => !seen.has(m.name!));
+  commands = commands.filter(m => !seen.has(m.name!));
+  resultModels.push(...groupsOfCommands, ...commands);
+  markSeen(groupsOfCommands);
+  markSeen(commands);
+}
+
+
+void (async function main(): Promise<void> {
   const schemas = await loadZodSchemas({
     entry: 'src/config/types/schema.ts',
     tsconfig: 'tsconfig.json',
   });
-  const models = convertSchemas(schemas);
+  allModels = convertSchemas(schemas);
 
-  const seen = new Set<string>();
+  const orderedModels = allModels
+    .filter(m => order.includes(normalizeName(m.name)))
+    .sort((a, b) => order.indexOf(normalizeName(a.name)) - order.indexOf(normalizeName(b.name)));
 
+  resultModels.push(...orderedModels);
+  markSeen(orderedModels);
 
-  function markAllModelsSubmited(models: NamedModel[]) {
-    for (let model of models) {
-      if (seen.has(model.name!)) {
-        throw new Error("IVALID")
-      }
-      seen.add(model.name!);;
-    }
-  }
+  processSection('remoteCommandSchema', name => name.includes('RemoteCommand'));
+  processSection('localCommandSchema', name => name.includes('LocalCommand'));
+  processSection('getInfoCommandSchema', name => name.toLowerCase().startsWith('get'));
 
-  let order = ['config', 'ips',  'shortcut', 'unknownCommand'];
+  const remaining = allModels.filter(m => !seen.has(m.name!));
+  resultModels.push(...remaining);
 
-  function noremalizeName(name: string|undefined) {
-    if (!name) {
-      throw new Error(`Undefined name`);
-    }
-    if (!name.endsWith('Schema')) {
-      throw new Error(`name ${name} doesnt end with schema`);
-    }
-    return name.slice(0, -6)
-  }
-  const orderedModels = models
-    .filter(m => order.includes(noremalizeName(m.name)))
-    .sort((a, b) => order.indexOf(noremalizeName(a.name)) - order.indexOf(noremalizeName(b.name)));
-  let headMD = formatModelsAsMarkdown(orderedModels, {title: 'Hotkey HUB'});
-  markAllModelsSubmited(orderedModels);
+  const md = formatModelsAsMarkdown(resultModels, {title: 'Hotkey HUB'});
 
-  function formatCommandSectionMd(name: string, individualFilter: (name: string) => boolean, extra?: NamedModel): [string, string] {
-    const commandModel = models.find(m => m.name === name)!;
-    const optionNames = (commandModel as any)?.options?.map((o: any) => o.ref.name) || [];
-    let groupsOfCommands = models.filter(m => optionNames.includes(m.name!));
-    let commands = models.filter(m => individualFilter(m.name!) && !optionNames.includes(m.name!) && m !== commandModel);
-    if (commands.length === 0) {
-      commands = groupsOfCommands;
-      groupsOfCommands = [commandModel];
-    } else {
-      groupsOfCommands.unshift(commandModel!)
-    }
-    markAllModelsSubmited(groupsOfCommands);
-    markAllModelsSubmited(commands);
-    let a = '';
-    let b = '';
-
-    if (groupsOfCommands.length > 0) {
-      a = formatModelsAsMarkdown(groupsOfCommands, {title: ''}).replace(/^# \n\n/, '');
-    }
-    if (commands.length > 0) {
-      b = formatModelsAsMarkdown(commands, {title: ''}).replace(/^# \n\n/, '');
-    }
-    return [a,b];
-  }
-
-  const [r1, r2] = formatCommandSectionMd('remoteCommandSchema', name => name.includes('RemoteCommand'));
-  const [l1, l2] = formatCommandSectionMd( 'localCommandSchema', name => name.includes('LocalCommand'));
-  const [g1, g2]= formatCommandSectionMd('getInfoCommandSchema', name => name.toLowerCase().startsWith('get'));
-
-
-  const remaining = models.filter(m => !seen.has(m.name!));
-  let helpers = formatModelsAsMarkdown(remaining, {title: 'Helpers'});
-
-  const res = `${headMD}\n${r1}\n${l1}\n${g1}\n${r2}\n${l2}\n${g2}\n${helpers}`;
-
-  await fs.writeFile('./CONFIG.md', res);
+  await fs.writeFile('./CONFIG.md', md);
 })();

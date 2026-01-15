@@ -9,7 +9,7 @@ import {
   keyboardCommandsSchema,
   keyPressRemoteCommandSchema,
   keySchema,
-  typeTextRemoteCommandSchema
+  typeTextRemoteCommandSchema,
 } from '@/config/types/remote/keyboard-commands-schema';
 import {leftMouseClickRemoteCommandSchema, mouseCommandsSchema, mouseMoveClickRemoteCommandSchema} from '@/config/types/remote/mouse-commands-schema';
 import {
