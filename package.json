@@ -9,7 +9,7 @@
     "schema:json": "node -r tsconfig-paths/register -r ts-node/register src/config/generate-schema.ts",
     "lint": "eslint --ext .ts --max-warnings=0 src",
     "autoformat": "eslint --ext .ts --max-warnings=0 --fix src",
-    "schema:doc": "node ./zod2md.js",
+    "schema:doc": "ts-node src/config/zod2md.ts",
     "test": "jest --coverage  --detectOpenHandles --testTimeout=10000",
     "start": "rm -rf ./dist/ && node -r tsconfig-paths/register -r ts-node/register src/main.ts",
     "rgb": "rm -rf ./dist/ && node -r tsconfig-paths/register -r ts-node/register src/rgb-test.ts",

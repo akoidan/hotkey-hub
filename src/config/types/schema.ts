@@ -172,7 +172,6 @@ export {
   getInfoRemoteCommandSchema,
   windowPropertiesSchema,
   shortcutSchema,
-  shortcutsSchema,
   loopLocalCommandSchema,
   variablesSchema,
   macroVariableValueSchema,
