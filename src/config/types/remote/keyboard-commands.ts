@@ -13,7 +13,7 @@ const keyPressRemoteVariableSchema = z.object({
   key: z.union([keySchema, z.array(keySchema)])
     .describe('Key(s) to press. Can be a single key or array of keys for multiple presses.'),
   duration: z.number().min(50).optional()
-    .describe('How long to hold the key down in milliseconds. Minimum 50ms to ensure reliable key registration.'),
+    .describe('How long to hold the key down in milliseconds. Recommended minimum 50ms to ensure reliable key registration.'),
   durationDeviation: z.number().min(0).default(0).optional()
     .describe('Adds randomness to key press duration. Value is the maximum +/- deviation in milliseconds. ' +
       'Useful for simulating human-like input patterns.'),
@@ -35,14 +35,14 @@ const typeTextRemoteCommandSchema = baseRemoteCommandSchema.extend({
     text: z.union([variableValueSchema, z.string()])
       .describe('Any string to type'),
     keyDelay: z.union([variableValueSchema, z.number()])
-      .default(0)
+      .default(100) //
       .optional()
       .describe('Delay between keystroke in milliseconds. By default types as fast as possible, around 40ms per char'),
     keyDelayDeviation: z.union([
       variableValueSchema,
       z.number().positive(),
     ])
-      .default(0)
+      .default(0.1)
       .optional()
       .describe('Deviation for randomness of delay. E.g if keyDelay = 100 and deviation = 0.2. Then value would be 80-120ms'),
   }).strict(),

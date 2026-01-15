@@ -65,7 +65,7 @@ export class RgbService implements RgbServiceI {
       this.logger.debug('Openrgb is not defined, returning');
       return;
     }
-    this.client = new Client(rgb.clientName ?? 'PRC', rgb.serverPort ?? 6742, rgb.serverAddr ?? 'localhost');
+    this.client = new Client(rgb.clientName!, rgb.serverPort!, rgb.serverAddr!);
 
     try {
       this.logger.debug('Connecting to OpenRGB...');

@@ -123,7 +123,7 @@ export class ConfigService implements ConfigProvider {
     const macroConfigString = await this.configReader.loadMacroConfigString();
     const separateMacros: NonNullable<MacroList> = macroConfigString ? parse(macroConfigString) as NonNullable<MacroList> : {};
     schemaRootCache.macros = separateMacros;
-    await this.validateWithErrorHandling(macrosListSchema, separateMacros, 'Macro Config');
+    schemaRootCache.macros = await this.validateWithErrorHandling(macrosListSchema, separateMacros, 'Macro Config');
     schemaRootCache.macros = null!;
     return separateMacros;
   }
@@ -143,7 +143,7 @@ export class ConfigService implements ConfigProvider {
       schemaRootCache.macros = separateMacros;
     }
     schemaRootCache.data = configValueWoMacro;
-    await this.validateWithErrorHandling(configSchema, confValueWithMacro, 'main confg');
+    schemaRootCache.data = await this.validateWithErrorHandling(configSchema, confValueWithMacro, 'main confg');
     const configData = schemaRootCache.data;
     const macros = schemaRootCache.macros ?? {};
     schemaRootCache.data = null!;
@@ -212,7 +212,7 @@ export class ConfigService implements ConfigProvider {
   }
 
   public getClientPort(): number {
-    return this.configData!.clientPort || 5000;
+    return this.configData!.clientPort!;
   }
 
   public setVariable(name: string, value: unknown): void {
