@@ -1,14 +1,14 @@
 import {z} from 'zod';
-import {keyboardCommands} from '@/config/types/remote/keyboard-commands';
-import {mouseCommands} from '@/config/types/remote/mouse-commands';
-import {processCommands} from '@/config/types/remote/process-commands';
-import {windowCommands} from '@/config/types/remote/window-commands';
+import {keyboardCommandsSchema} from '@/config/types/remote/keyboard-commands-schema';
+import {mouseCommandsSchema} from '@/config/types/remote/mouse-commands-schema';
+import {processCommandsSchema} from '@/config/types/remote/process-commands-schema';
+import {windowCommandsSchema} from '@/config/types/remote/window-commands-schema';
 
 const remoteCommandSchema = z.union([
-  keyboardCommands,
-  mouseCommands,
-  processCommands,
-  windowCommands,
+  keyboardCommandsSchema,
+  mouseCommandsSchema,
+  processCommandsSchema,
+  windowCommandsSchema,
 ]).describe('One of the commands that would be sent to a remote machine specified in destination property');
 
 type RemoteCommand = z.infer<typeof remoteCommandSchema>

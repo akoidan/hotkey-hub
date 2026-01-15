@@ -34,7 +34,7 @@ const launchExeRemoteCommandSchema = baseRemoteCommandSchema.extend({
   }).strict(),
 }).strict().describe('Starts a program on a remote PC.');
 
-const processCommands = z.union([
+const processCommandsSchema = z.union([
   killExeByNameRemoteCommandSchema,
   killExeByPidRemoteCommandSchema,
   launchExeRemoteCommandSchema,
@@ -54,5 +54,5 @@ export {
   launchExeRemoteCommandSchema,
   killExeByNameRemoteCommandSchema,
   killExeByPidRemoteCommandSchema,
-  processCommands,
+  processCommandsSchema,
 };

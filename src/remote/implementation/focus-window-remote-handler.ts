@@ -1,4 +1,4 @@
-import type {FocusWindowRemoteCommand} from '@/config/types/remote/window-commands';
+import type {FocusWindowRemoteCommand} from '@/config/types/remote/window-commands-schema';
 import type {RemoteCommand} from '@/config/types/remote/remote-commands';
 import {CommandRemoteHandler} from '@/remote/command-remote-handler';
 import type {FocusWindowRequest} from '@/client/dtos';

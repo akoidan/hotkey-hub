@@ -1,7 +1,7 @@
 import {Injectable} from '@nestjs/common';
 import {GetInfoHandler} from '@/get-info/get-info-handler';
 import {GetInfoRemoteCommand} from '@/config/types/get-commands/get-commands';
-import {GetMonitorFromWindowCommand} from '@/config/types/get-commands/get-monitor-commands';
+import {GetMonitorFromWindowCommand} from '@/config/types/get-commands/get-monitor-commands-schema';
 
 @Injectable()
 export class GetMonitorFromWindowHandler extends GetInfoHandler {

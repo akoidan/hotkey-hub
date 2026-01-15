@@ -2,7 +2,7 @@ import {z} from 'zod';
 import {variableValueSchema} from '@/config/types/variables';
 import {baseGetInfoCommandSchema} from '@/config/types/get-commands/get-commands-shared';
 
-const getPidsByNameSchema = baseGetInfoCommandSchema.extend({
+const getPidsByNameCommandSchema = baseGetInfoCommandSchema.extend({
   get: z.literal('getPidsByName'),
   variables: z.object({
     name: z.union([variableValueSchema, z.string()])
@@ -10,28 +10,28 @@ const getPidsByNameSchema = baseGetInfoCommandSchema.extend({
   }).strict(),
 }).strict().describe('Gets list of process ids that match criteria');
 
-const getProcessMainWindowSchema = baseGetInfoCommandSchema.extend({
+const getProcessMainWindowCommandSchema = baseGetInfoCommandSchema.extend({
   get: z.literal('getProcessMainWindow'),
   variables: z.object({
     pid: z.number().int().positive('Process ID must be a positive integer'),
   }).strict(),
 }).strict().describe('Get process\' main window');
 
-type GetPidsByNameCommand = z.infer<typeof getPidsByNameSchema>;
-type GetProcessMainWindowCommand = z.infer<typeof getProcessMainWindowSchema>;
+type GetPidsByNameCommand = z.infer<typeof getPidsByNameCommandSchema>;
+type GetProcessMainWindowCommand = z.infer<typeof getProcessMainWindowCommandSchema>;
 
 
-const getProcessCommands = z.union([
-  getPidsByNameSchema,
-  getProcessMainWindowSchema,
+const getProcessCommandsSchema = z.union([
+  getPidsByNameCommandSchema,
+  getProcessMainWindowCommandSchema,
 ]).describe('Handles processes');
 
 // Export all schemas
 export {
-  getProcessCommands,
-  getPidsByNameSchema,
+  getProcessCommandsSchema,
+  getPidsByNameCommandSchema,
   baseGetInfoCommandSchema,
-  getProcessMainWindowSchema,
+  getProcessMainWindowCommandSchema,
 };
 
 

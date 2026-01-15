@@ -9,7 +9,7 @@ const windowPropertiesSchema = z.object({
   height: z.union([variableValueSchema, z.number()]).describe('height'),
 }).strict().describe('Definition of window location and size');
 
-const setWindowBoundsRemoteSchema = baseRemoteCommandSchema.extend({
+const setWindowBoundsRemoteCommandSchema = baseRemoteCommandSchema.extend({
   performOnRemote: z.literal('setWindowBounds'),
   variables: z.object({
     wid: z.union([variableValueSchema, z.number()]).describe('Window id'),
@@ -38,15 +38,15 @@ const focusWindowRemoteCommandSchema = baseRemoteCommandSchema.extend({
   ' Window IDs can be retrieved using findProcessWindows or findProcessesWindows commands.');
 
 
-const windowCommands = z.union([
-  setWindowBoundsRemoteSchema,
+const windowCommandsSchema = z.union([
+  setWindowBoundsRemoteCommandSchema,
   focusProcessWindowRemoteCommandSchema,
   focusWindowRemoteCommandSchema,
 ]).describe('Window-related remote commands');
 
 type FocusProcessWindowRemoteCommand = z.infer<typeof focusProcessWindowRemoteCommandSchema>
 type FocusWindowRemoteCommand = z.infer<typeof focusWindowRemoteCommandSchema>
-type SetWindowBoundsRemoteCommand = z.infer<typeof setWindowBoundsRemoteSchema>
+type SetWindowBoundsRemoteCommand = z.infer<typeof setWindowBoundsRemoteCommandSchema>
 
 export type {
   SetWindowBoundsRemoteCommand,
@@ -55,9 +55,9 @@ export type {
 };
 
 export {
-  setWindowBoundsRemoteSchema,
+  setWindowBoundsRemoteCommandSchema,
   focusProcessWindowRemoteCommandSchema,
   windowPropertiesSchema,
   focusWindowRemoteCommandSchema,
-  windowCommands,
+  windowCommandsSchema,
 };

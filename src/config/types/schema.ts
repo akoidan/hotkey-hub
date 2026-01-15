@@ -6,23 +6,23 @@ import {variablesSchema, variableValueSchema} from '@/config/types/variables';
 import {behaviourObjectSchema, shortcutSchema, shortcutsSchema} from '@/config/types/shortcut';
 import {globalDelaySchema} from '@/config/types/delays';
 import {
-  keyboardCommands,
+  keyboardCommandsSchema,
   keyPressRemoteCommandSchema,
   keySchema,
   typeTextRemoteCommandSchema
-} from '@/config/types/remote/keyboard-commands';
-import {leftMouseClickRemoteCommandSchema, mouseCommands, mouseMoveClickRemoteCommandSchema} from '@/config/types/remote/mouse-commands';
+} from '@/config/types/remote/keyboard-commands-schema';
+import {leftMouseClickRemoteCommandSchema, mouseCommandsSchema, mouseMoveClickRemoteCommandSchema} from '@/config/types/remote/mouse-commands-schema';
 import {
   killExeByNameRemoteCommandSchema,
   killExeByPidRemoteCommandSchema,
-  launchExeRemoteCommandSchema, processCommands,
-} from '@/config/types/remote/process-commands';
+  launchExeRemoteCommandSchema, processCommandsSchema,
+} from '@/config/types/remote/process-commands-schema';
 import {
   focusProcessWindowRemoteCommandSchema,
   focusWindowRemoteCommandSchema,
-  setWindowBoundsRemoteSchema, windowCommands,
+  setWindowBoundsRemoteCommandSchema, windowCommandsSchema,
   windowPropertiesSchema,
-} from '@/config/types/remote/window-commands';
+} from '@/config/types/remote/window-commands-schema';
 import {remoteCommandSchema} from '@/config/types/remote/remote-commands';
 import {
   expressionLocalCommandSchema,
@@ -43,32 +43,32 @@ import {
 } from '@/config/types/local/local-commands';
 import {unknownCommandSchema} from '@/config/types/commands';
 import {
-  getActiveWindowIdSchema,
-  getActiveWindowSchema,
-  getWindowCommands,
-  getWindowBoundsSchema,
-  getWindowOpacitySchema,
-  getWindowOwnerSchema,
-  getWindowsIdByPidSchema,
-  getWindowTitleSchema,
-  isWindowSchema,
-  isWindowVisibleSchema,
-} from '@/config/types/get-commands/get-window-commands';
+  getActiveWindowIdCommandSchema,
+  getActiveWindowCommandSchema,
+  getWindowCommandsSchema,
+  getWindowBoundsCommandSchema,
+  getWindowOpacityCommandSchema,
+  getWindowOwnerCommandSchema,
+  getWindowsIdByPidCommandSchema,
+  getWindowTitleCommandSchema,
+  getWindowValidityCommandSchema,
+  getWindowVisibilityCommandSchema,
+} from '@/config/types/get-commands/get-window-commands-schema';
 import {
-  getMonitorCommands,
-  getMonitorFromWindowSchema,
-  getMonitorInfoSchema,
-  getMonitorScaleFactorSchema,
-  getMonitorsSchema,
-} from '@/config/types/get-commands/get-monitor-commands';
-import {getPidsByNameSchema, getProcessCommands, getProcessMainWindowSchema} from '@/config/types/get-commands/get-process-commands';
-import {getInfoCommandSchema, pingSchema} from '@/config/types/get-commands/get-commands';
+  getMonitorCommandsSchema,
+  getMonitorFromWindowCommandSchema,
+  getMonitorInfoCommandSchema,
+  getMonitorScaleFactorCommandSchema,
+  getMonitorsCommandSchema,
+} from '@/config/types/get-commands/get-monitor-commands-schema';
+import {getPidsByNameCommandSchema, getProcessCommandsSchema, getProcessMainWindowCommandSchema} from '@/config/types/get-commands/get-process-commands-schema';
+import {getInfoCommandSchema, pingCommandSchema} from '@/config/types/get-commands/get-commands';
 
 
-const remoteAddressSchema = z.string().describe('Remote host. Must be resolvable from the current PC');
 
-const ipsSchema = z.record(z.string(), remoteAddressSchema)
-  .describe('Maps PC names to IP addresses. Each key identifies a remote PC, value is its IP. IP must be accessible from remote PC. ' +
+const ipsSchema = z.record(z.string(), z.string())
+  .describe('Maps PC names to IP addresses or host names.' +
+    ' Each key identifies a remote PC, value is its IP/Domain. The address must be accessible from this PC. ' +
     'For internet access, use VPN or tunneling (e.g. ngrok.com).');
 
 const rgbSchema = z.object({
@@ -136,31 +136,30 @@ export type {
 
 
 export {
-  keyboardCommands,
-  mouseCommands,
-  processCommands,
-  windowCommands,
-  pingSchema,
-  getMonitorCommands,
-  getProcessCommands,
-  getWindowCommands,
-  getWindowsIdByPidSchema,
+  keyboardCommandsSchema,
+  mouseCommandsSchema,
+  processCommandsSchema,
+  windowCommandsSchema,
+  pingCommandSchema,
+  getMonitorCommandsSchema,
+  getProcessCommandsSchema,
+  getWindowCommandsSchema,
+  getWindowsIdByPidCommandSchema,
   localCommandSchema,
-  getActiveWindowSchema,
-  getActiveWindowIdSchema,
-  getWindowBoundsSchema,
-  getWindowTitleSchema,
-  getWindowOpacitySchema,
-  getWindowOwnerSchema,
-  isWindowSchema,
-  isWindowVisibleSchema,
-  getMonitorsSchema,
-  getMonitorInfoSchema,
-  getMonitorFromWindowSchema,
-  getMonitorScaleFactorSchema,
-  getProcessMainWindowSchema,
-  getPidsByNameSchema,
-  remoteAddressSchema,
+  getActiveWindowCommandSchema,
+  getActiveWindowIdCommandSchema,
+  getWindowBoundsCommandSchema,
+  getWindowTitleCommandSchema,
+  getWindowOpacityCommandSchema,
+  getWindowOwnerCommandSchema,
+  getWindowValidityCommandSchema,
+  getWindowVisibilityCommandSchema,
+  getMonitorsCommandSchema,
+  getMonitorInfoCommandSchema,
+  getMonitorFromWindowCommandSchema,
+  getMonitorScaleFactorCommandSchema,
+  getProcessMainWindowCommandSchema,
+  getPidsByNameCommandSchema,
   rgbSchema,
   configSchema,
   globalDelaySchema,
@@ -189,7 +188,7 @@ export {
   threadsLocalCommandSchema,
   macroLocalCommandSchema,
   unknownCommandSchema,
-  setWindowBoundsRemoteSchema,
+  setWindowBoundsRemoteCommandSchema,
   expressionLocalCommandSchema,
   threadLocalSchema,
   transactionLocalCommandSchema,

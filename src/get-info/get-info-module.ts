@@ -7,8 +7,8 @@ import {GetWindowBoundsHandler} from '@/get-info/implementation/get-window-bound
 import {GetWindowTitleHandler} from '@/get-info/implementation/get-window-title-handler';
 import {GetWindowOpacityHandler} from '@/get-info/implementation/get-window-opacity-handler';
 import {GetWindowOwnerHandler} from '@/get-info/implementation/get-window-owner-handler';
-import {IsWindowHandler} from '@/get-info/implementation/is-window-handler';
-import {IsWindowVisibleHandler} from '@/get-info/implementation/is-window-visible-handler';
+import {GetWindowValidityHandler} from '@/get-info/implementation/get-window-validity-handler.service';
+import {GetWindowVisibilityHandler} from '@/get-info/implementation/get-window-visibility-handler.service';
 import {GetMonitorsHandler} from '@/get-info/implementation/get-monitors-handler';
 import {GetMonitorInfoHandler} from '@/get-info/implementation/get-monitor-info-handler';
 import {GetMonitorFromWindowHandler} from '@/get-info/implementation/get-monitor-from-window-handler';
@@ -25,8 +25,8 @@ const getInfoHandlers = [
   GetWindowTitleHandler,
   GetWindowOpacityHandler,
   GetWindowOwnerHandler,
-  IsWindowHandler,
-  IsWindowVisibleHandler,
+  GetWindowValidityHandler,
+  GetWindowVisibilityHandler,
   GetMonitorsHandler,
   GetMonitorInfoHandler,
   GetMonitorFromWindowHandler,

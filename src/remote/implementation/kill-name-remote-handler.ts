@@ -1,4 +1,4 @@
-import type {KillExeByNameRemoteCommand} from '@/config/types/remote/process-commands';
+import type {KillExeByNameRemoteCommand} from '@/config/types/remote/process-commands-schema';
 import type {RemoteCommand} from '@/config/types/remote/remote-commands';
 import {CommandRemoteHandler} from '@/remote/command-remote-handler';
 import type {KillExeByNameRequest} from '@/client/dtos';

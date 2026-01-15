@@ -1,4 +1,4 @@
-import type {Key} from '@/config/types/remote/keyboard-commands';
+import type {Key} from '@/config/types/remote/keyboard-commands-schema';
 
 interface MouseClickRequest {
   x: number;
