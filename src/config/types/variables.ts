@@ -1,6 +1,6 @@
 import {z} from 'zod';
 
-const variablesSchema = z.record(z.any())
+const variablesSchema = z.record(z.string(), z.any())
   .describe('Variable definitions for configuration.' +
     ' Values can be any type (numeric strings auto-convert to integers). Use {{varName}} to reference.');
 

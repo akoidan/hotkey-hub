@@ -40,10 +40,10 @@ You gonna have to use following certificates in the future. (Described later)
 **If client and server certificates are different you'll get an exception on startup that server is unable to connnect to the client**
 
 ### Define Main Configuration (Required)
-Create `config.jsonc`. This file defines your hotkey bindings and actions.
+Create `config.jsonc`. This file defines your hotkey bindings and actions. Read the following
 
 There are:
- - [flow control](https://github.com/akoidan/hotkey-hub/tree/main/src/local/implementation) commands:
+ - [flow control](https://github.com/akoidan/hotkey-hub/tree/main/src/local/implementation) are also known as LocalCommands. You can do things like
    - Conditions with `if`
    - While and for loop with `loops`
    - Macros for reusable piece of code with `macro`

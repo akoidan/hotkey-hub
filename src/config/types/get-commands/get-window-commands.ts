@@ -66,7 +66,7 @@ type IsWindowCommand = z.infer<typeof isWindowSchema>;
 type IsWindowVisibleCommand = z.infer<typeof isWindowVisibleSchema>;
 
 
-const getWindowAllSchema = z.union([
+const getWindowCommands = z.union([
   getWindowsIdByPidSchema,
   getActiveWindowIdSchema,
   getActiveWindowSchema,
@@ -81,7 +81,7 @@ const getWindowAllSchema = z.union([
 
 // Export all schemas
 export {
-  getWindowAllSchema,
+  getWindowCommands,
   windowIdVariablesSchema,
   getWindowsIdByPidSchema,
   getActiveWindowIdSchema,

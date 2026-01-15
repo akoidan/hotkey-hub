@@ -1,7 +1,7 @@
 import {z} from 'zod';
-import {getMonitorAllSchemas} from '@/config/types/get-commands/get-monitor-commands';
-import {baseGetInfoCommandSchema, getProcessAllSchema} from '@/config/types/get-commands/get-process-commands';
-import {getWindowAllSchema} from '@/config/types/get-commands/get-window-commands';
+import {getMonitorCommands} from '@/config/types/get-commands/get-monitor-commands';
+import {baseGetInfoCommandSchema, getProcessCommands} from '@/config/types/get-commands/get-process-commands';
+import {getWindowCommands} from '@/config/types/get-commands/get-window-commands';
 
 
 // Individual command schemas
@@ -13,9 +13,9 @@ const pingSchema = baseGetInfoCommandSchema.extend({
 // Union of all command schemas
 const getInfoRemoteCommandSchema = z.union([
   pingSchema,
-  getMonitorAllSchemas,
-  getProcessAllSchema,
-  getWindowAllSchema,
+  getMonitorCommands,
+  getProcessCommands,
+  getWindowCommands,
 ]).describe('Allows to execute getRequest on remote schema and assign it to a variable');
 
 // Type definitions

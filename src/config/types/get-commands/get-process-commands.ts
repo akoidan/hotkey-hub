@@ -21,14 +21,14 @@ type GetPidsByNameCommand = z.infer<typeof getPidsByNameSchema>;
 type GetProcessMainWindowCommand = z.infer<typeof getProcessMainWindowSchema>;
 
 
-const getProcessAllSchema = z.union([
+const getProcessCommands = z.union([
   getPidsByNameSchema,
   getProcessMainWindowSchema,
 ]).describe('Handles processes');
 
 // Export all schemas
 export {
-  getProcessAllSchema,
+  getProcessCommands,
   getPidsByNameSchema,
   baseGetInfoCommandSchema,
   getProcessMainWindowSchema,

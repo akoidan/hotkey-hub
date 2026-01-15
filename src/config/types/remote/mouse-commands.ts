@@ -9,7 +9,7 @@ const mouseMoveClickRemoteCommandSchema = baseRemoteCommandSchema.extend({
       .describe('X coordinate for mouse cursor.'),
     y: z.union([variableValueSchema, z.number()])
       .describe('Y coordinate for mouse cursor.'),
-    pixelsPerIteration: z.union([variableValueSchema, z.number()]).optional().default(20)
+    pixelsPerIteration: z.union([variableValueSchema, z.number()]).default(20).optional()
       .describe('X coordinate for mouse cursor.'),
   }).strict(),
 }).strict().describe('Moves mouse cursor to specified screen coordinates and performs a left-click.' +
@@ -26,7 +26,7 @@ const leftMouseClickRemoteCommandSchema = baseRemoteCommandSchema.extend({
   .strict()
   .describe('Performs a left mouse click at the current cursor position without moving the mouse. Use when cursor is already positioned.');
 
-const mouseAllSchemas = z.union([
+const mouseCommands = z.union([
   mouseMoveClickRemoteCommandSchema,
   leftMouseClickRemoteCommandSchema,
 ]).describe('Mouse-related remote commands');
@@ -42,5 +42,5 @@ export type {
 export {
   mouseMoveClickRemoteCommandSchema,
   leftMouseClickRemoteCommandSchema,
-  mouseAllSchemas,
+  mouseCommands,
 };

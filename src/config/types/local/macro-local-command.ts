@@ -8,7 +8,10 @@ import {unknownCommandSchema} from '@/config/types/commands';
 const macroLocalCommandSchema = z.object({
   macro: z.string().describe('Name of the macro to execute, which must match a key defined in the macros section. ' +
     'Macros help reduce configuration repetition by reusing command sequences.'),
-  variables: z.record(z.union([z.string(), z.number(), variableValueSchema])).optional()
+  variables: z.record(
+    z.string(),
+    z.union([z.string(), z.number(), variableValueSchema])
+  ).optional()
     .describe('Variables to pass to the macro. Object where keys are variable names and values are their values. ' +
       'Values can be strings or numbers and must match the types defined in the macro\'s variables section.'),
 })
@@ -85,7 +88,7 @@ const macroVariableValueSchema = z.object({
     }
   ).describe('Variable description for macro');
 
-const macroVariablesDescriptionSchema = z.record(macroVariableValueSchema)
+const macroVariablesDescriptionSchema = z.record(z.string(), macroVariableValueSchema)
   .optional()
   .describe('Set of variables descriptors for macro');
 
@@ -96,7 +99,7 @@ const macroDefinitionSchema = z.lazy(() => z.object({
 }).strict())
   .describe('A reusable command sequence that can accept variables. Similar to a function that runs a predefined set of commands.');
 
-const macrosListSchema = z.record(macroDefinitionSchema)
+const macrosListSchema = z.record(z.string(), macroDefinitionSchema)
   .optional()
   .describe('A map of macros where a key is the macro name and value is its body');
 

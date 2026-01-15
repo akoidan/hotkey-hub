@@ -48,7 +48,7 @@ const typeTextRemoteCommandSchema = baseRemoteCommandSchema.extend({
   }).strict(),
 }).strict().describe('Types text on the remote PC.');
 
-const keyboardAllSchemas = z.union([
+const keyboardCommands = z.union([
   keyPressRemoteCommandSchema,
   typeTextRemoteCommandSchema,
 ]).describe('Keyboard-related remote commands');
@@ -67,5 +67,5 @@ export {
   keySchema,
   keyPressRemoteCommandSchema,
   typeTextRemoteCommandSchema,
-  keyboardAllSchemas,
+  keyboardCommands,
 };

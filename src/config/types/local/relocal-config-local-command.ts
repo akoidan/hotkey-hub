@@ -17,10 +17,10 @@ const base = z.object({
 // Helper: mark one field as required+nonempty
 function requireField<K extends keyof typeof fieldDescriptions>(
   key: K
-): z.ZodObject<{ [P in keyof typeof fieldDescriptions]: P extends K ? z.ZodString : z.ZodOptional<z.ZodString>; }, 'strict'> {
+): z.ZodObject<{ [P in keyof typeof fieldDescriptions]: P extends K ? z.ZodString : z.ZodOptional<z.ZodString>; }> {
   return base.extend({
     [key]: z.string().nonempty().describe(fieldDescriptions[key]),
-  }) as z.ZodObject<{ [P in keyof typeof fieldDescriptions]: P extends K ? z.ZodString : z.ZodOptional<z.ZodString>; }, 'strict'>;
+  }) as z.ZodObject<{ [P in keyof typeof fieldDescriptions]: P extends K ? z.ZodString : z.ZodOptional<z.ZodString>; }>;
 }
 
 const reloadConfigLocalCommandSchema = z.union([

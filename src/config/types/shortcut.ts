@@ -41,15 +41,18 @@ const behaviourSchema = z.nativeEnum(BehaviourEnum)
   'Restart = Current process will stop running and new one will start\n');
 
 const behaviourObjectSchema = z.object({
-  groupWith: z.string().optional()
+  groupWith: z.string()
+    .optional()
     .describe('If type is "restart" or "pausable" then groupWith will restart/pause all shortcuts with the same name'),
   type: behaviourSchema,
 }).strict();
 
 const shortcutSchema = z.object({
-  delayAfter: z.number().optional()
+  delayAfter: z.number()
+    .optional()
     .describe('Delay (ms) after each command. Ensures commands have time to complete.'),
-  delayBefore: z.number().optional()
+  delayBefore: z.number()
+    .optional()
     .describe('Delay (ms) before each command. Helps coordinate timing between different shortcuts.'),
   name: z.string().describe('Name shown during startup. Helps identify the shortcut\'s purpose.'),
   shortCut: shortcut,

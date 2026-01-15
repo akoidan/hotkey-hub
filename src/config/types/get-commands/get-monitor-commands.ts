@@ -26,7 +26,7 @@ const getMonitorScaleFactorSchema = baseGetInfoCommandSchema.extend({
 }).strict().describe('Get monitor scale factor');
 
 
-const getMonitorAllSchemas = z.union([
+const getMonitorCommands = z.union([
   getMonitorsSchema,
   getMonitorInfoSchema,
   getMonitorFromWindowSchema,
@@ -41,7 +41,7 @@ type GetMonitorScaleFactorCommand = z.infer<typeof getMonitorScaleFactorSchema>;
 
 // Export all schemas
 export {
-  getMonitorAllSchemas,
+  getMonitorCommands,
   windowIdVariablesSchema,
   monitorVariablesSchema,
   getMonitorsSchema,

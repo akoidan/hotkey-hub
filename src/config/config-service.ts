@@ -1,4 +1,4 @@
-import {aARootSchema, ConfigData, ConfigDataWoMacro, IpsData, macrosListSchema, RgbData} from '@/config/types/schema';
+import {configSchema, ConfigData, ConfigDataWoMacro, IpsData, macrosListSchema, RgbData} from '@/config/types/schema';
 import {parse} from 'jsonc-parser';
 import {Inject, Injectable, Logger} from '@nestjs/common';
 /* eslint-disable max-lines*/
@@ -13,7 +13,7 @@ import {DelayData} from '@/config/types/delays';
 import {ConfigCombination} from '@/config/config-model';
 import {MacroList} from '@/config/types/local/local-commands';
 import {ENV, ZodErrorCollected} from '@/config/types/config-path';
-import {ZodInvalidTypeIssue, ZodInvalidUnionIssue, ZodIssue} from 'zod/lib/ZodError';
+import {ZodInvalidTypeIssue, ZodInvalidUnionIssue, ZodIssue} from 'zod/v3/ZodError';
 
 @Injectable()
 export class ConfigService implements ConfigProvider {
@@ -44,10 +44,12 @@ export class ConfigService implements ConfigProvider {
     const zodUnionErrors = (issue as ZodInvalidUnionIssue).unionErrors;
     if (Array.isArray(zodissues)) {
       for (const subIssue of zodissues) {
+        // @ts-ignore
         this.collectAllErrors(subIssue, errors, currentPath);
       }
     } else if (zodUnionErrors) {
       for (const unionError of zodUnionErrors) {
+        // @ts-ignore
         this.collectAllErrors(unionError, errors, currentPath);
       }
     }
@@ -141,7 +143,7 @@ export class ConfigService implements ConfigProvider {
       schemaRootCache.macros = separateMacros;
     }
     schemaRootCache.data = configValueWoMacro;
-    await this.validateWithErrorHandling(aARootSchema, confValueWithMacro, 'main confg');
+    await this.validateWithErrorHandling(configSchema, confValueWithMacro, 'main confg');
     const configData = schemaRootCache.data;
     const macros = schemaRootCache.macros ?? {};
     schemaRootCache.data = null!;

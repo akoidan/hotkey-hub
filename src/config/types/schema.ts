@@ -6,21 +6,21 @@ import {variablesSchema, variableValueSchema} from '@/config/types/variables';
 import {behaviourObjectSchema, shortcutSchema, shortcutsSchema} from '@/config/types/shortcut';
 import {globalDelaySchema} from '@/config/types/delays';
 import {
-  keyboardAllSchemas,
+  keyboardCommands,
   keyPressRemoteCommandSchema,
   keySchema,
   typeTextRemoteCommandSchema
 } from '@/config/types/remote/keyboard-commands';
-import {leftMouseClickRemoteCommandSchema, mouseAllSchemas, mouseMoveClickRemoteCommandSchema} from '@/config/types/remote/mouse-commands';
+import {leftMouseClickRemoteCommandSchema, mouseCommands, mouseMoveClickRemoteCommandSchema} from '@/config/types/remote/mouse-commands';
 import {
   killExeByNameRemoteCommandSchema,
   killExeByPidRemoteCommandSchema,
-  launchExeRemoteCommandSchema, processAllSchemas,
+  launchExeRemoteCommandSchema, processCommands,
 } from '@/config/types/remote/process-commands';
 import {
   focusProcessWindowRemoteCommandSchema,
   focusWindowRemoteCommandSchema,
-  setWindowBoundsRemoteSchema, windowAllSchemas,
+  setWindowBoundsRemoteSchema, windowCommands,
   windowPropertiesSchema,
 } from '@/config/types/remote/window-commands';
 import {remoteCommandSchema} from '@/config/types/remote/remote-commands';
@@ -45,7 +45,7 @@ import {unknownCommandSchema} from '@/config/types/commands';
 import {
   getActiveWindowIdSchema,
   getActiveWindowSchema,
-  getWindowAllSchema,
+  getWindowCommands,
   getWindowBoundsSchema,
   getWindowOpacitySchema,
   getWindowOwnerSchema,
@@ -55,22 +55,19 @@ import {
   isWindowVisibleSchema,
 } from '@/config/types/get-commands/get-window-commands';
 import {
-  getMonitorAllSchemas,
+  getMonitorCommands,
   getMonitorFromWindowSchema,
   getMonitorInfoSchema,
   getMonitorScaleFactorSchema,
   getMonitorsSchema,
 } from '@/config/types/get-commands/get-monitor-commands';
-import {getPidsByNameSchema, getProcessAllSchema, getProcessMainWindowSchema} from '@/config/types/get-commands/get-process-commands';
+import {getPidsByNameSchema, getProcessCommands, getProcessMainWindowSchema} from '@/config/types/get-commands/get-process-commands';
 import {getInfoRemoteCommandSchema, pingSchema} from '@/config/types/get-commands/get-commands';
 
-const remoteAddressDefinition = z.union([z.string().ip(), z.string().regex(
-  /^(?:[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*)$/u,
-  'Invalid domain name'
-),
-]).describe('Remote host. Must be resolvable from the current PC');
 
-const ipsSchema = z.record(remoteAddressDefinition)
+const remoteAddressDefinition = z.string().describe('Remote host. Must be resolvable from the current PC');
+
+const ipsSchema = z.record(z.string(), remoteAddressDefinition)
   .describe('Maps PC names to IP addresses. Each key identifies a remote PC, value is its IP. IP must be accessible from remote PC. ' +
     'For internet access, use VPN or tunneling (e.g. ngrok.com).');
 
@@ -78,30 +75,42 @@ const rgbSchema = z.object({
   deviceName: z.string().describe('Device name of the keyboard. ' +
     'You can extract it with "openrgb --list-devices" command. Select the name after number.' +
     ' Also you can check in openrgb UI in Devices Tab.'),
-  clientName: z.string().default('RPC').describe('Name of this client when connecting to openrg').optional(),
-  serverPort: z.number().default(6742).describe('Port of the openrgb server').optional(),
-  serverAddr: z.string().default('localhost').describe('Address of the openrgb server').optional(),
+  clientName: z.string()
+    .default('RPC')
+    .describe('Name of this client when connecting to openrg')
+    .optional(),
+  serverPort: z.number()
+    .default(6742)
+    .describe('Port of the openrgb server')
+    .optional(),
+  serverAddr: z.string()
+    .default('localhost')
+    .describe('Address of the openrgb server')
+    .optional(),
   keyMapFn: z.string()
     .default('x.toLowerCase().replace(\' arrow\', \'\').replace(\'key: \', \'\').replace(\' (ansi)\', \'\').replace(\' \', \'_\')')
     .describe('Mapping of keyboard api key name to default map key names. ' +
       'This should be a JS expression that accept variable "x" and evaluates to a string')
     .optional(),
-}).strict().optional()
+}).strict()
+  .optional()
   .describe('RGB keyboard lighting for shortcut feedback. Changes key colors during execution.' +
     ' You need to run openrgb server for it, which you can download from https://openrgb.org.' +
     ' Run the application, go to the SDK server tab and click on Start server.' +
     ' Needs OpenRGB server and compatible keyboard, the supported keyboards are here: https://openrgb.org/devices.html.' +
     ' For Linux just install openrgb via your package manager and run the openrgb from root with you default service manager like systemd');
 
-const aARootSchema = z.object({
+const configSchema = z.object({
   ips: ipsSchema,
   clientPort: z.number()
-    .optional()
     .default(5000)
+    .optional()
     .describe('HTTPS port for secure client PC connections. ' +
       'Must be accessible and not blocked by firewalls. Default is 5000 if not specified.'),
   rgb: rgbSchema,
-  name: z.string().optional().describe('Name of this schema to print in logs'),
+  name: z.string()
+    .optional()
+    .describe('Name of this schema to print in logs'),
   combinations: shortcutsSchema,
   delays: globalDelaySchema,
   macros: macrosListSchema,
@@ -110,7 +119,7 @@ const aARootSchema = z.object({
     'All sections must follow their respective schemas strictly.');
 
 // Generate TypeScript type
-type ConfigData = z.infer<typeof aARootSchema>;
+type ConfigData = z.infer<typeof configSchema>;
 type ConfigDataWoMacro = Omit<ConfigData, 'macros'>;
 
 type IpsData = z.infer<typeof ipsSchema>
@@ -127,14 +136,14 @@ export type {
 
 
 export {
-  keyboardAllSchemas,
-  mouseAllSchemas,
-  processAllSchemas,
-  windowAllSchemas,
+  keyboardCommands,
+  mouseCommands,
+  processCommands,
+  windowCommands,
   pingSchema,
-  getMonitorAllSchemas,
-  getProcessAllSchema,
-  getWindowAllSchema,
+  getMonitorCommands,
+  getProcessCommands,
+  getWindowCommands,
   getWindowsIdByPidSchema,
   localCommandSchema,
   getActiveWindowSchema,
@@ -153,7 +162,7 @@ export {
   getPidsByNameSchema,
   remoteAddressDefinition,
   rgbSchema,
-  aARootSchema,
+  configSchema,
   globalDelaySchema,
   ipsSchema,
   variableValueSchema,
