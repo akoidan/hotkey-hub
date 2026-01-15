@@ -3,10 +3,6 @@ import {getMonitorAllSchemas} from '@/config/types/get-commands/get-monitor-comm
 import {baseGetInfoCommandSchema, getProcessAllSchema} from '@/config/types/get-commands/get-process-commands';
 import {getWindowAllSchema} from '@/config/types/get-commands/get-window-commands';
 
-console.log('get-commands.ts: getMonitorAllSchemas', !!getMonitorAllSchemas);
-console.log('get-commands.ts: baseGetInfoCommandSchema', !!baseGetInfoCommandSchema);
-console.log('get-commands.ts: getProcessAllSchema', !!getProcessAllSchema);
-console.log('get-commands.ts: getWindowAllSchema', !!getWindowAllSchema);
 
 // Individual command schemas
 const pingSchema = baseGetInfoCommandSchema.extend({

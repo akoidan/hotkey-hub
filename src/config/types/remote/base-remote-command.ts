@@ -3,9 +3,6 @@ import {type VariableValue, variableValueSchema} from '@/config/types/variables'
 import {schemaRootCache} from '@/config/types/cache';
 import type {ConfigDataWoMacro} from '@/config/types/schema';
 
-console.log('base-remote-command.ts: variableValueSchema', !!variableValueSchema);
-console.log('base-remote-command.ts: schemaRootCache', !!schemaRootCache);
-
 const delayCommandsSchema = z.object({
   delayAfter: z.union([variableValueSchema, z.number()]).optional()
     .describe('Delay (ms) after command completes, before next command. Ensures command has time to take effect.'),

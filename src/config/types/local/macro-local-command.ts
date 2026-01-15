@@ -5,11 +5,6 @@ import {type VariableValue, variableValueSchema} from '@/config/types/variables'
 import {delayCommandsSchema} from '@/config/types/remote/base-remote-command';
 import {unknownCommandSchema} from '@/config/types/commands';
 
-console.log('macro-local-command.ts: schemaRootCache', !!schemaRootCache);
-console.log('macro-local-command.ts: variableValueSchema', !!variableValueSchema);
-console.log('macro-local-command.ts: delayCommandsSchema', !!delayCommandsSchema);
-console.log('macro-local-command.ts: unknownCommandSchema', !!unknownCommandSchema);
-
 const macroLocalCommandSchema = z.object({
   macro: z.string().describe('Name of the macro to execute, which must match a key defined in the macros section. ' +
     'Macros help reduce configuration repetition by reusing command sequences.'),
@@ -95,11 +90,10 @@ const macroVariablesDescriptionSchema = z.record(macroVariableValueSchema)
   .describe('Set of variables descriptors for macro');
 
 
-const macroDefinitionSchema = z.object({
+const macroDefinitionSchema = z.lazy(() => z.object({
   commands: z.array(unknownCommandSchema).describe('Set of commands for this macro'),
   variables: macroVariablesDescriptionSchema,
-})
-  .strict()
+}).strict())
   .describe('A reusable command sequence that can accept variables. Similar to a function that runs a predefined set of commands.');
 
 const macrosListSchema = z.record(macroDefinitionSchema)

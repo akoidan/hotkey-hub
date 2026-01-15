@@ -32,28 +32,17 @@ import {
 import {type ReloadConfigLocalCommand, reloadConfigLocalCommandSchema} from '@/config/types/local/relocal-config-local-command';
 
 // Define localCommandSchema as union of all local command schemas
-const localCommandSchema = z.lazy(() => {
-console.log('local-commands.ts: macroLocalCommandSchema', !!macroLocalCommandSchema);
-console.log('local-commands.ts: expressionLocalCommandSchema', !!expressionLocalCommandSchema);
-console.log('local-commands.ts: transactionLocalCommandSchema', !!transactionLocalCommandSchema);
-console.log('local-commands.ts: threadsLocalCommandSchema', !!threadsLocalCommandSchema);
-console.log('local-commands.ts: loopLocalCommandSchema', !!loopLocalCommandSchema);
-console.log('local-commands.ts: ifLocalCommandSchema', !!ifLocalCommandSchema);
-console.log('local-commands.ts: shuffleLocalCommandSchema', !!shuffleLocalCommandSchema);
-console.log('local-commands.ts: printLocalCommandSchema', !!printLocalCommandSchema);
-console.log('local-commands.ts: reloadConfigLocalCommandSchema', !!reloadConfigLocalCommandSchema);
-return z.union([
-  macroLocalCommandSchema,
-  expressionLocalCommandSchema,
-  transactionLocalCommandSchema,
-  threadsLocalCommandSchema,
-  loopLocalCommandSchema,
-  ifLocalCommandSchema,
-  shuffleLocalCommandSchema,
-  printLocalCommandSchema,
-  reloadConfigLocalCommandSchema,
-]);
-}).describe('A local command that would be executed on this machine');
+const localCommandSchema = z.lazy(() => z.union([
+    macroLocalCommandSchema,
+    expressionLocalCommandSchema,
+    transactionLocalCommandSchema,
+    threadsLocalCommandSchema,
+    loopLocalCommandSchema,
+    ifLocalCommandSchema,
+    shuffleLocalCommandSchema,
+    printLocalCommandSchema,
+    reloadConfigLocalCommandSchema,
+  ])).describe('A local command that would be executed on this machine');
 
 // Define unknownCommandSchema as union of remote, get-info, and local
 

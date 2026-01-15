@@ -2,9 +2,6 @@ import {z} from 'zod';
 import {variableValueSchema} from '@/config/types/variables';
 import {baseRemoteCommandSchema} from '@/config/types/remote/base-remote-command';
 
-console.log('window-commands.ts: variableValueSchema', !!variableValueSchema);
-console.log('window-commands.ts: baseRemoteCommandSchema', !!baseRemoteCommandSchema);
-
 const windowPropertiesSchema = z.object({
   x: z.union([variableValueSchema, z.number()]).describe('x position'),
   y: z.union([variableValueSchema, z.number()]).describe('y position'),

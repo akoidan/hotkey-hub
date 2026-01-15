@@ -1,7 +1,6 @@
 import {z} from 'zod';
 import {baseGetInfoCommandSchema} from '@/config/types/get-commands/get-commands-shared';
 
-console.log('get-window-commands.ts: baseGetInfoCommandSchema', !!baseGetInfoCommandSchema);
 // Reusable schemas
 const windowIdVariablesSchema = z.object({
   wid: z.number().int().positive('Window ID must be a positive integer'),

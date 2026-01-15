@@ -2,9 +2,6 @@ import {z} from 'zod';
 import {variableValueSchema} from '@/config/types/variables';
 import {baseGetInfoCommandSchema} from '@/config/types/get-commands/get-commands-shared';
 
-console.log('get-process-commands.ts: variableValueSchema', !!variableValueSchema);
-console.log('get-process-commands.ts: baseGetInfoCommandSchema', !!baseGetInfoCommandSchema);
-
 const getPidsByNameSchema = baseGetInfoCommandSchema.extend({
   get: z.literal('getPidsByName'),
   variables: z.object({

@@ -1,7 +1,6 @@
 import {z} from 'zod';
 import {expressionSchema} from '@/config/types/local/expression-local-command';
 
-console.log('print-local-command.ts: expressionSchema', !!expressionSchema);
 const printLocalCommandSchema = z.object({
   print: expressionSchema,
   // z.lazy requires manual type definition cause of reqursive type

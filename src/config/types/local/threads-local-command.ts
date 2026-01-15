@@ -1,7 +1,6 @@
 import {z, type ZodType} from 'zod';
 import {type UnknownCommand, unknownCommandSchema} from '@/config/types/commands';
 
-console.log('threads-local-command.ts: unknownCommandSchema', !!unknownCommandSchema); // used in threadLocalArraySchema commands array
 const threadLocalArraySchema = z.lazy(() => z.object({
   name: z.string().max(10).nonempty().describe('name of the thread, required for req-id log, '),
   commands: z.array(unknownCommandSchema).describe('list of commands in this thread'),

@@ -2,8 +2,6 @@ import {z, type ZodType} from 'zod';
 import {variableValueSchema} from '@/config/types/variables';
 import {type UnknownCommand, unknownCommandSchema} from '@/config/types/commands';
 
-console.log('transaction-local-command.ts: variableValueSchema', !!variableValueSchema);
-console.log('transaction-local-command.ts: unknownCommandSchema', !!unknownCommandSchema); // used in commands array
 const transactionLocalCommandSchema = z.lazy(() => z.object({
   commands: z.array(unknownCommandSchema)
     .describe('Commands to execute atomically in this transaction. All commands either succeed or fail together.'),

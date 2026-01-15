@@ -2,8 +2,6 @@ import {z} from 'zod';
 import {baseGetInfoCommandSchema} from '@/config/types/get-commands/get-commands-shared';
 import {windowIdVariablesSchema} from '@/config/types/get-commands/get-window-commands';
 
-console.log('get-monitor-commands.ts: baseGetInfoCommandSchema', !!baseGetInfoCommandSchema);
-console.log('get-monitor-commands.ts: windowIdVariablesSchema', !!windowIdVariablesSchema);
 const getMonitorsSchema = baseGetInfoCommandSchema.extend({
   get: z.literal('getMonitors'),
 }).strict().describe('List monitors');

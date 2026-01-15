@@ -2,8 +2,6 @@ import {z} from 'zod';
 import {variableValueSchema} from '@/config/types/variables';
 import {baseRemoteCommandSchema} from '@/config/types/remote/base-remote-command';
 
-console.log('mouse-commands.ts: variableValueSchema', !!variableValueSchema);
-console.log('mouse-commands.ts: baseRemoteCommandSchema', !!baseRemoteCommandSchema);
 const mouseMoveClickRemoteCommandSchema = baseRemoteCommandSchema.extend({
   performOnRemote: z.literal('mouseMoveClick'),
   variables: z.object({

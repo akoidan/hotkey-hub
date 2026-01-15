@@ -4,10 +4,6 @@ import {mouseAllSchemas} from '@/config/types/remote/mouse-commands';
 import {processAllSchemas} from '@/config/types/remote/process-commands';
 import {windowAllSchemas} from '@/config/types/remote/window-commands';
 
-console.log('remote-commands.ts: keyboardAllSchemas', !!keyboardAllSchemas);
-console.log('remote-commands.ts: mouseAllSchemas', !!mouseAllSchemas);
-console.log('remote-commands.ts: processAllSchemas', !!processAllSchemas);
-console.log('remote-commands.ts: windowAllSchemas', !!windowAllSchemas);
 const remoteCommandSchema = z.union([
   keyboardAllSchemas,
   mouseAllSchemas,
