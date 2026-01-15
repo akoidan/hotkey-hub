@@ -79,9 +79,9 @@ There are 3 types of commands:
     - window control with e.g. `performOnRemote: "focusProcessWindow"`
     - ...
 - [Get info](https://akoidan.github.io/hotkey-hub/#getinfocommand) commands:
-    - keyboards events with e.g.  `performOnRemote: "typeText"`
-    - mouse events with e.g. `performOnRemote: "mouseMove"`
-    - window control with e.g. `performOnRemote: "focusProcessWindow"`
+    - keyboards events with e.g.  `performOnRemote: "getInfo"`
+    - mouse events with e.g. `performOnRemote: "getInfo"`
+    - window control with e.g. `performOnRemote: "getInfo"`
     - ...
 
 - `main` branch documentation is available at [github-pages](https://akoidan.github.io/hotkey-hub) 

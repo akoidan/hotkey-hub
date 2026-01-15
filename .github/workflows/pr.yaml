@@ -34,22 +34,6 @@ jobs:
         run: yarn schema:doc
       - name: Generate json schema
         run: yarn schema:json
-      - run: |
-          mkdir docs
-          sudo apt-get update
-          sudo apt-get install -y pandoc
-          pandoc CONFIG.md -s \
-            -c https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.0/github-markdown.min.css \
-            --self-contained \
-            --include-before-body=<(echo '<style>.markdown-body{max-width:1200px;margin:auto;padding:50px;}</style><article class="markdown-body">') \
-            --include-after-body=<(echo '</article>') \
-            -o docs/index.html
-
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./docs
-      - uses: actions/deploy-pages@v4
 
   lint:
     runs-on: ubuntu-22.04
