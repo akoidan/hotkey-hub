@@ -10,7 +10,7 @@ export class GetWindowOwnerHandler extends GetInfoHandler {
     return command.get === 'getWindowOwner';
   }
 
-  protected async execute(destination: string, command: GetWindowOwnerCommand): Promise<any> {
+  protected async execute(destination: string, command: GetWindowOwnerCommand): Promise<number> {
     const res = await this.clientService.getWindowOwner(destination, (command.variables as WindowIdVariables).wid);
     return res.wid;
   }

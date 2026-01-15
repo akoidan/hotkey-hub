@@ -9,7 +9,7 @@ export class GetMonitorsHandler extends GetInfoHandler {
     return command.get === 'getMonitors';
   }
 
-  protected async execute(destination: string): Promise<unknown[]> {
+  protected async execute(destination: string): Promise<number[]> {
     return this.clientService.getMonitors(destination);
   }
 }

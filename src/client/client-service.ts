@@ -23,7 +23,7 @@ import {
   ActiveWindowIdResponseDto,
   MonitorScaleFactorResponseDto,
   MonitorIdResponseDto,
-  WindowHandleResponseDto,
+  WindowHandleResponseDto, WindowBounds,
 } from '@/client/dtos';
 import {Injectable} from '@nestjs/common';
 
@@ -71,7 +71,7 @@ export class ClientService {
     return this.client.post(client, '/process/kill-exe-by-name', request);
   }
 
-  async findPidsByName(client: string, request: FindPidsByNameRequest): Promise<void> {
+  async findPidsByName(client: string, request: FindPidsByNameRequest): Promise<number[]> {
     return this.client.post(client, '/process/find-pids-by-name', request, 6000, true);
   }
 
@@ -103,7 +103,7 @@ export class ClientService {
     return this.client.get(client, '/window/active-info');
   }
 
-  async getWindowBounds(client: string, wid: number): Promise<void> {
+  async getWindowBounds(client: string, wid: number): Promise<WindowBounds> {
     return this.client.get(client, `/window/${wid}/bounds`);
   }
 
@@ -127,7 +127,7 @@ export class ClientService {
     return this.client.get(client, `/window/${wid}/is-visible`);
   }
 
-  async getMonitors(client: string): Promise<void> {
+  async getMonitors(client: string): Promise<number[]> {
     return this.client.get(client, '/monitor');
   }
 

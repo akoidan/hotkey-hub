@@ -11,6 +11,7 @@ export class GetWindowOpacityHandler extends GetInfoHandler {
   }
 
   protected async execute(destination: string, command: GetWindowOpacityCommand): Promise<number> {
-    return this.clientService.getWindowOpacity(destination, (command.variables as WindowIdVariables).wid);
+    const res = await this.clientService.getWindowOpacity(destination, (command.variables as WindowIdVariables).wid);
+    return res.opacity;
   }
 }

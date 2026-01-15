@@ -11,7 +11,7 @@ export class GetActiveWindowInfoHandler extends GetInfoHandler {
     return command.get === 'getPidsByName';
   }
 
-  protected async execute(destination: string, command: GetPidsByNameCommand): Promise<unknown> {
+  protected async execute(destination: string, command: GetPidsByNameCommand): Promise<number[]> {
     return this.clientService.findPidsByName(destination, {
       name: command.variables.name as string,
     });

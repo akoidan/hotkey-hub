@@ -11,6 +11,7 @@ export class GetWindowVisibilityHandler extends GetInfoHandler {
   }
 
   protected async execute(destination: string, command: GetWindowVisibilityCommand): Promise<boolean> {
-    return this.clientService.isWindowVisible(destination, (command.variables as WindowIdVariables).wid);
+    const res = await this.clientService.isWindowVisible(destination, (command.variables as WindowIdVariables).wid);
+    return res.isVisible;
   }
 }

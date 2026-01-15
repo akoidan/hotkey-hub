@@ -10,7 +10,8 @@ export class GetMonitorFromWindowHandler extends GetInfoHandler {
     return command.get === 'getMonitorFromWindow';
   }
 
-  protected async execute(destination: string, command: GetMonitorFromWindowCommand): Promise<any> {
-    return this.clientService.getMonitorFromWindow(destination, (command.variables as WindowIdVariables).wid);
+  protected async execute(destination: string, command: GetMonitorFromWindowCommand): Promise<number> {
+    const res = await this.clientService.getMonitorFromWindow(destination, (command.variables as WindowIdVariables).wid);
+    return res.mid;
   }
 }
