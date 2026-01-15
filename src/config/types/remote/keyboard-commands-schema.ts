@@ -20,7 +20,8 @@ const keyPressRemoteVariableSchema = z.object({
   holdKeys: z.union([keySchema, z.array(keySchema)])
     .optional()
     .describe('Modifier keys to hold (e.g., Alt for Alt+1, Ctrl+Shift for Ctrl+Shift+A). Can be a key or key array.'),
-}).strict();
+});
+
 const keyPressRemoteCommandVariableSchema = makeVariableUnion(keyPressRemoteVariableSchema)
 
 const keyPressRemoteCommandSchema = baseRemoteCommandSchema.extend({
@@ -46,7 +47,7 @@ const typeTextRemoteCommandSchema = baseRemoteCommandSchema.extend({
       .default(0.1)
       .optional()
       .describe('Deviation for randomness of delay. E.g if keyDelay = 100 and deviation = 0.2. Then value would be 80-120ms'),
-  }).strict(),
+  }),
 }).strict().describe('Types text on the remote PC.');
 
 const keyboardCommandsSchema = z.union([
