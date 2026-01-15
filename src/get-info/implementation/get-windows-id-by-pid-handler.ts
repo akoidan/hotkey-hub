@@ -1,7 +1,7 @@
 import {Injectable} from '@nestjs/common';
 
 import {GetInfoRemoteCommand} from '@/config/types/get-commands/get-commands';
-import {GetWindowsIdByPidCommand} from '@/config/types/get-commands/get-window-commands-schema';
+import {GetWindowsIdByPidCommand, GetWindowsIdByPidVariables} from '@/config/types/get-commands/get-window-commands-schema';
 import {GetInfoHandler} from '@/get-info/get-info-handler';
 
 @Injectable()
@@ -11,6 +11,6 @@ export class GetWindowsIdByPidHandler extends GetInfoHandler {
   }
 
   protected async execute(destination: string, command: GetWindowsIdByPidCommand): Promise<number[]> {
-    return this.clientService.getProcessWindows(destination, command.variables.id);
+    return this.clientService.getProcessWindows(destination, (command.variables as GetWindowsIdByPidVariables).id);
   }
 }

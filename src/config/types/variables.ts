@@ -24,7 +24,7 @@ function unpack(inner: any, options: any) {
     options.union = true;
     return inner;
   }
-  if (inner.type == 'number') {
+  if (inner.type == 'number' || inner.type == 'string'|| inner.type == 'boolean' || inner.type == 'array' || inner.type == 'object') {
     return inner;
   }
   throw new Error('Unknown type: ' + inner.type);

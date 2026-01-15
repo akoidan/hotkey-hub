@@ -2,6 +2,7 @@ import {Injectable} from '@nestjs/common';
 import {GetInfoHandler} from '@/get-info/get-info-handler';
 import {GetInfoRemoteCommand} from '@/config/types/get-commands/get-commands';
 import {GetMonitorFromWindowCommand} from '@/config/types/get-commands/get-monitor-commands-schema';
+import {WindowIdVariables} from '@/config/types/get-commands/get-window-commands-schema';
 
 @Injectable()
 export class GetMonitorFromWindowHandler extends GetInfoHandler {
@@ -10,6 +11,6 @@ export class GetMonitorFromWindowHandler extends GetInfoHandler {
   }
 
   protected async execute(destination: string, command: GetMonitorFromWindowCommand): Promise<any> {
-    return this.clientService.getMonitorFromWindow(destination, command.variables.wid);
+    return this.clientService.getMonitorFromWindow(destination, (command.variables as WindowIdVariables).wid);
   }
 }

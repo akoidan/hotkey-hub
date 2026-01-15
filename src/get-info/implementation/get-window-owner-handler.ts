@@ -1,7 +1,7 @@
 import {Injectable} from '@nestjs/common';
 
 import {GetInfoRemoteCommand} from '@/config/types/get-commands/get-commands';
-import {GetWindowOwnerCommand} from '@/config/types/get-commands/get-window-commands-schema';
+import {GetWindowOwnerCommand, WindowIdVariables} from '@/config/types/get-commands/get-window-commands-schema';
 import {GetInfoHandler} from '@/get-info/get-info-handler';
 
 @Injectable()
@@ -11,6 +11,6 @@ export class GetWindowOwnerHandler extends GetInfoHandler {
   }
 
   protected async execute(destination: string, command: GetWindowOwnerCommand): Promise<any> {
-    return this.clientService.getWindowOwner(destination, command.variables.wid);
+    return this.clientService.getWindowOwner(destination, (command.variables as WindowIdVariables).wid);
   }
 }

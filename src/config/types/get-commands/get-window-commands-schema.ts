@@ -89,7 +89,7 @@ export {
   windowIdVariablesSchema,
   windowIdVariablesCommandSchema,
   getWindowsIdByPidCommandSchema,
-  getWindowsIdByPidCommandVariablesSchema,
+  getWindowsIdByPidVariablesSchema,
   getActiveWindowIdCommandSchema,
   getActiveWindowCommandSchema,
   getWindowBoundsCommandSchema,
@@ -98,7 +98,6 @@ export {
   getWindowOwnerCommandSchema,
   getWindowValidityCommandSchema,
   getWindowVisibilityCommandSchema,
-  getWindowsIdByPidVariablesSchema,
 };
 
 // Export all types

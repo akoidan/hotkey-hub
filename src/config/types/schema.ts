@@ -75,9 +75,7 @@ import {
   getMonitorInfoCommandSchema,
   getMonitorScaleFactorCommandSchema,
   getMonitorsCommandSchema,
-  getWindowsIdByPidCommandVariablesSchema,
   monitorVariablesCommandSchema,
-  windowIdVariablesCommandSchema,
 } from '@/config/types/get-commands/get-monitor-commands-schema';
 import {
   getPidsByNameCommandSchema,
@@ -228,23 +226,4 @@ export {
   focusProcessWindowRemoteCommandVariableSchema,
   focusWindowRemoteCommandVariableSchema,
   monitorVariablesCommandSchema,
-  windowIdVariablesCommandSchema,
-  getWindowsIdByPidCommandVariablesSchema,
-
-  // Export base variable schemas
-  keyPressRemoteVariableSchema,
-  typeTextRemoteVariableSchema,
-  mouseMoveClickRemoteVariableSchema,
-  leftMouseClickRemoteVariableSchema,
-  killExeByNameRemoteVariableSchema,
-  killExeByPidRemoteVariableSchema,
-  launchExeRemoteVariableSchema,
-  setWindowBoundsRemoteVariableSchema,
-  focusProcessWindowRemoteVariableSchema,
-  focusWindowRemoteVariableSchema,
-  getPidsByNameVariablesSchema,
-  getProcessMainWindowVariablesSchema,
-  monitorVariablesSchema,
-  windowIdVariablesSchema,
-  getWindowsIdByPidVariablesSchema,
 };

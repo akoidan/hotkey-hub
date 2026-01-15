@@ -1,8 +1,7 @@
 import {z} from 'zod';
 import {baseRemoteCommandSchema} from '@/config/types/remote/base-remote-command';
-import {makeVariableUnion} from '@/config/types/utils';
-import {variableValueSchema} from '@/config/types/variables';
 import {allowedKeys, modifierKeys} from '@/config/types/keyboard';
+import { makeVariableUnion } from '@/config/types/variables';
 
 const keySchema =  z.enum([
   ...allowedKeys,

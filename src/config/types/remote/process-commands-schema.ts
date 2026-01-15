@@ -68,6 +68,9 @@ export type {
 };
 
 export {
+  killExeByPidRemoteCommandVariableSchema,
+  launchExeRemoteCommandVariableSchema,
+  killExeByNameRemoteCommandVariableSchema,
   killExeByNameRemoteCommandSchema,
   killExeByPidRemoteCommandSchema,
   launchExeRemoteCommandSchema,

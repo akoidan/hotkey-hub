@@ -1,7 +1,7 @@
 import {Injectable} from '@nestjs/common';
 
 import {GetInfoRemoteCommand} from '@/config/types/get-commands/get-commands';
-import {GetWindowValidityCommand} from '@/config/types/get-commands/get-window-commands-schema';
+import {GetWindowValidityCommand, WindowIdVariables} from '@/config/types/get-commands/get-window-commands-schema';
 import {GetInfoHandler} from '@/get-info/get-info-handler';
 
 @Injectable()
@@ -11,6 +11,6 @@ export class GetWindowValidityHandler extends GetInfoHandler {
   }
 
   protected async execute(destination: string, command: GetWindowValidityCommand): Promise<boolean> {
-    return this.clientService.isWindow(destination, command.variables.wid);
+    return this.clientService.isWindow(destination, (command.variables as WindowIdVariables).wid);
   }
 }
