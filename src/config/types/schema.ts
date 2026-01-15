@@ -62,7 +62,7 @@ import {
   getMonitorsSchema,
 } from '@/config/types/get-commands/get-monitor-commands';
 import {getPidsByNameSchema, getProcessCommands, getProcessMainWindowSchema} from '@/config/types/get-commands/get-process-commands';
-import {getInfoRemoteCommandSchema, pingSchema} from '@/config/types/get-commands/get-commands';
+import {getInfoCommandSchema, pingSchema} from '@/config/types/get-commands/get-commands';
 
 
 const remoteAddressSchema = z.string().describe('Remote host. Must be resolvable from the current PC');
@@ -169,7 +169,7 @@ export {
   behaviourObjectSchema,
   ifLocalCommandSchema,
   printLocalCommandSchema,
-  getInfoRemoteCommandSchema,
+  getInfoCommandSchema,
   windowPropertiesSchema,
   shortcutSchema,
   loopLocalCommandSchema,

@@ -11,7 +11,7 @@ const pingSchema = baseGetInfoCommandSchema.extend({
 
 
 // Union of all command schemas
-const getInfoRemoteCommandSchema = z.union([
+const getInfoCommandSchema = z.union([
   pingSchema,
   getMonitorCommands,
   getProcessCommands,
@@ -20,13 +20,13 @@ const getInfoRemoteCommandSchema = z.union([
 
 // Type definitions
 type PingCommand = z.infer<typeof pingSchema>;
-type GetInfoRemoteCommand = z.infer<typeof getInfoRemoteCommandSchema>;
+type GetInfoRemoteCommand = z.infer<typeof getInfoCommandSchema>;
 
 
 // Export all schemas
 export {
   pingSchema,
-  getInfoRemoteCommandSchema,
+  getInfoCommandSchema,
 };
 
 

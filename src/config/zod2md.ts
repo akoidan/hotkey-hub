@@ -44,13 +44,23 @@ import { promises as fs } from 'fs';
     }
     return false;
   });
+  const unionNames = ['remoteCommandSchema', 'localCommandSchema', 'getInfoCommandSchema'];
+  const orderedModelsFiltered = orderedModels.filter(m => !unionNames.includes(m.name!));
   const commandModels = models.filter(m => !orderedModels.includes(m));
   const remainingCommands = commandModels.filter(m => !localCommands.includes(m) && !remoteCommands.includes(m) && !getCommands.includes(m));
 
-  const orderedMd = formatModelsAsMarkdown(orderedModels, { title: '' }).replace(/^# \n\n/, '');
-  const localMd = formatModelsAsMarkdown(localCommands, { title: '' }).replace(/^# \n\n/, '');
-  const remoteMd = formatModelsAsMarkdown(remoteCommands, { title: '' }).replace(/^# \n\n/, '');
-  const getMd = formatModelsAsMarkdown(getCommands, { title: '' }).replace(/^# \n\n/, '');
+  const remoteCommandModel = models.find(m => m.name === 'remoteCommandSchema');
+  const localCommandModel = models.find(m => m.name === 'localCommandSchema');
+  const getInfoRemoteCommandModel = models.find(m => m.name === 'getInfoCommandSchema');
+
+  const remoteCommandMd = remoteCommandModel ? formatModelsAsMarkdown([remoteCommandModel], { title: '' }).replace(/^# \n\n/, '') : '';
+  const localCommandMd = localCommandModel ? formatModelsAsMarkdown([localCommandModel], { title: '' }).replace(/^# \n\n/, '') : '';
+  const getInfoCommandMd = getInfoRemoteCommandModel ? formatModelsAsMarkdown([getInfoRemoteCommandModel], { title: '' }).replace(/^# \n\n/, '') : '';
+
+  const orderedMd = formatModelsAsMarkdown(orderedModelsFiltered, { title: '' }).replace(/^# \n\n/, '');
+  const localMd = (localCommandMd ? localCommandMd + '\n\n' : '') + formatModelsAsMarkdown(localCommands, { title: '' }).replace(/^# \n\n/, '');
+  const remoteMd = (remoteCommandMd ? remoteCommandMd + '\n\n' : '') + formatModelsAsMarkdown(remoteCommands, { title: '' }).replace(/^# \n\n/, '');
+  const getMd = (getInfoCommandMd ? getInfoCommandMd + '\n\n' : '') + formatModelsAsMarkdown(getCommands, { title: '' }).replace(/^# \n\n/, '');
   const remainingMd = formatModelsAsMarkdown(remainingCommands, { title: '' }).replace(/^# \n\n/, '');
 
   const res = orderedMd + '\n\n' + `# LocalCommands\n\n${localMd}\n\n# RemoteCommands\n\n${remoteMd}\n\n# Get Commands\n\n${getMd}` + (remainingMd ? '\n\n' + remainingMd : '');

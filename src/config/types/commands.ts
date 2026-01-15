@@ -1,12 +1,12 @@
 import {z, type ZodType} from 'zod';
 import {type RemoteCommand, remoteCommandSchema} from '@/config/types/remote/remote-commands';
-import {type GetInfoRemoteCommand, getInfoRemoteCommandSchema} from '@/config/types/get-commands/get-commands';
+import {type GetInfoRemoteCommand, getInfoCommandSchema} from '@/config/types/get-commands/get-commands';
 import {type LocalCommand, localCommandSchema} from '@/config/types/local/local-commands';
 
 
 const unknownCommandSchema = z.lazy(() => z.union([
   remoteCommandSchema,
-  getInfoRemoteCommandSchema,
+  getInfoCommandSchema,
   localCommandSchema,
 ])).describe('A command that would be executed on this machine') as ZodType<UnknownCommand>;
 
