@@ -31,10 +31,29 @@ import { promises as fs } from 'fs';
     return 0;
   });
 
+  const localCommands = models.filter(m => m.name?.includes('LocalCommand'));
+  const remoteCommands = models.filter(m => m.name?.includes('RemoteCommand'));
+  const getCommands = models.filter(m => m.name?.toLowerCase().startsWith('get'));
 
-  const res = formatModelsAsMarkdown(models, {
-    title: 'Hotkey HUB',
+  const orderedBases = order;
+  const orderedModels = models.filter(m => {
+    const name = m.name;
+    if (name && name.endsWith('Schema')) {
+      const base = name.slice(0, -6);
+      return orderedBases.includes(base);
+    }
+    return false;
   });
+  const commandModels = models.filter(m => !orderedModels.includes(m));
+  const remainingCommands = commandModels.filter(m => !localCommands.includes(m) && !remoteCommands.includes(m) && !getCommands.includes(m));
+
+  const orderedMd = formatModelsAsMarkdown(orderedModels, { title: '' }).replace(/^# \n\n/, '');
+  const localMd = formatModelsAsMarkdown(localCommands, { title: '' }).replace(/^# \n\n/, '');
+  const remoteMd = formatModelsAsMarkdown(remoteCommands, { title: '' }).replace(/^# \n\n/, '');
+  const getMd = formatModelsAsMarkdown(getCommands, { title: '' }).replace(/^# \n\n/, '');
+  const remainingMd = formatModelsAsMarkdown(remainingCommands, { title: '' }).replace(/^# \n\n/, '');
+
+  const res = orderedMd + '\n\n' + `# LocalCommands\n\n${localMd}\n\n# RemoteCommands\n\n${remoteMd}\n\n# Get Commands\n\n${getMd}` + (remainingMd ? '\n\n' + remainingMd : '');
 
   await fs.writeFile('./CONFIG.md', res);
 })();
