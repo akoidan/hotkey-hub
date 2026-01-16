@@ -29,7 +29,7 @@ export class CommandLocalHandler extends BaseLocalHandler {
     combDelayBefore: undefined | number,
     tId: string | undefined,
   ): AsyncGenerator<void> {
-    const currRec: RemoteCommand = this.variableService.replaceEnvVars(input);
+    const currRec: RemoteCommand = this.variableService.replaceVariables(input);
     this.logger.debug(`Running ${JSON.stringify(input)}`);
     if (tId) {
       await this.delayService.awaitDelay(combDelayBefore, input.delayBefore as number | undefined, 'before', 'command');

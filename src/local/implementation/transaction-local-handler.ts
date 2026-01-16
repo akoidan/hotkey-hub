@@ -29,7 +29,7 @@ export class TransactionLocalHandler extends BaseLocalHandler {
     combDelayBefore: number | undefined,
     transactionId: string | undefined,
   ): AsyncGenerator<void> {
-    const preparedInput = this.variableService.replaceEnvVars(input);
+    const preparedInput = this.variableService.replaceVariables(input);
     const tId = transactionId ?? this.semaphoreService.getNewTransactionId();
     const that = this;
     yield* this.semaphoreService.spawnGeneratorChild(

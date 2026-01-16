@@ -44,7 +44,7 @@ export class MacroLocalHandler extends BaseLocalHandler {
         }
         for (let i = 0; i < executable.commands.length; i++) {
           yield* that.semaphoreService.spawnGeneratorChild(`c=${String(i)}`, async function* loopGenerator(): AsyncGenerator<void> {
-            const preparedCommand = that.variableService.replacePlaceholders(
+            const preparedCommand = that.variableService.replaceMacroVariables(
               executable.commands[i],
               input.variables,
               executable.variables

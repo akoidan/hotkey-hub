@@ -11,23 +11,23 @@ export class VariableResolutionService {
   ) {
   }
 
-  replacePlaceholders<T extends object>(command: T, values: Record<string, unknown> | undefined, definition: VariablesDefinition): T {
+  replaceMacroVariables<T extends object>(command: T, values: Record<string, unknown> | undefined, definition: VariablesDefinition): T {
     if (!values) {
       return command;
     }
     if (Array.isArray(command)) {
       // thread each array element as the whole object
       // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-      return command.map(item => this.replacePlaceholders(item, values, definition)) as any;
+      return command.map(item => this.replaceMacroVariables(item, values, definition)) as any;
     } else if (typeof command === 'object' && !(command as VariableValue).$ref) {
       const result: Partial<T> = {};
       for (const [key, value] of Object.entries(command) as [keyof T, T[keyof T]][]) {
         // thread objects as primitive, do not go down
-        result[key] = this.replacePlaceholders(value as VariableValue, values, definition) as T[keyof T];
+        result[key] = this.replaceMacroVariables(value as VariableValue, values, definition) as T[keyof T];
       }
       return result as T;
     }
-    return this.replacePrimitive(command, values ,definition);
+    return this.replaceMacroPrimitive(command, values ,definition);
   }
 
   private extractVariableName(variable: unknown): { varName: string|undefined, varExpress: string|undefined} {
@@ -41,7 +41,7 @@ export class VariableResolutionService {
     return  {varName: undefined, varExpress: undefined} ;
   }
 
-  private replacePrimitive<T>(command: T, values: Record<string, unknown>, definition: VariablesDefinition): T {
+  private replaceMacroPrimitive<T>(command: T, values: Record<string, unknown>, definition: VariablesDefinition): T {
     const {varName, varExpress} = this.extractVariableName(command)!;
     if (!varName || !definition?.[varName]) {
       return command;
@@ -68,24 +68,43 @@ export class VariableResolutionService {
     return Function(varName, `return ${variableExpression};`)(varValue);
   }
 
-  replaceEnvVars<T extends object>(obj: T): T {
+  replaceVariables<T extends object>(obj: T): T {
     const result: Partial<T> = {};
     for (const [key, value] of Object.entries(obj) as [keyof T, T[keyof T]][]) {
-      const {varName, varExpress} = this.extractVariableName(value);
-      if (varName) {
-        const globalVars = this.configService.getGlobalVars();
-        const scriptVars = this.configService.getVariables();
-        if (varName in scriptVars) { // if object has the key, even if it's null or undefined
-          result[key] = this.evaluateVariable<T[keyof T]>(varName, varExpress!, scriptVars[varName]);
-        } else if (varName in globalVars) { // if object has the key, even if it's null or undefined
-          result[key] = this.evaluateVariable<T[keyof T]>(varName, varExpress!, globalVars[varName]);
-        } else {
-          throw Error(`Unknown environment variable ${(value as VariableValue)?.$ref ?? JSON.stringify(value)}`);
-        }
-      } else {
-        result[key] = value;
-      }
+      result[key] = this.getValue(value);
     }
     return result as T;
+  }
+
+  private replaceVarsReqursively<T>(objVars: T): T {
+    if (Array.isArray(objVars)) {
+      // thread each array element as the whole object
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+      return objVars.map((item: T[keyof T]) => this.replaceVarsReqursively<T[keyof T]>(item));
+    }
+    if (typeof objVars === 'object' && !(objVars as VariableValue).$ref) {
+      const result: Partial<T> = {};
+      for (const [key, value] of Object.entries(objVars) as [keyof T, T[keyof T]][]) {
+        result[key] = this.getValue(value);
+      }
+      return result as T;
+    }
+    return this.getValue<T>(objVars);
+  }
+
+  private getValue<T>(value: T): T {
+    const {varName, varExpress} = this.extractVariableName(value);
+    if (!varName) {
+      return value;
+    }
+    const globalVars = this.configService.getGlobalVars();
+    const scriptVars = this.configService.getVariables();
+    if (varName in scriptVars) { // if object has the key, even if it's null or undefined
+      return this.evaluateVariable<T[keyof T]>(varName, varExpress!, scriptVars[varName]);
+    } else if (varName in globalVars) { // if object has the key, even if it's null or undefined
+      return this.evaluateVariable<T[keyof T]>(varName, varExpress!, globalVars[varName]);
+    } else {
+      throw Error(`Unknown environment variable ${(value as VariableValue)?.$ref ?? JSON.stringify(value)}`);
+    }
   }
 }
