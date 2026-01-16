@@ -162,8 +162,8 @@ const fs = require('fs');
 
 if (require.main === module) {
   const {parse} = require('jsonc-parser');
-  const inputPath = 'C:\\Users\\death\\WebstormProjects\\l2\\examples\\config\\tyrs-after-ban.jsonc';
-  const outputPath = 'C:\\Users\\death\\WebstormProjects\\l2\\configs\\config.jsonc';
+  const inputPath = './examples/configs/inputs.jsonc';
+  const outputPath = './configs/config.jsonc';
   const oldConfig = parse(fs.readFileSync(inputPath, 'utf8'));
   const newConfig = v1ConfigV2(oldConfig);
   fs.writeFileSync(outputPath, JSON.stringify(newConfig, null, 2));
