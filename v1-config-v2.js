@@ -38,7 +38,15 @@ const baseFields = ['destination', 'delayAfter', 'delayBefore', 'commands'];
 const specialFields = ['assignVariable']; // Fields to move to top level instead of variables
 
 function convertCommand(command) {
-  if (!command.destination || command.variables) {
+  if (command.threads) {
+    let newComm = {...command}
+    newComm.threads = command.threads.map(t => ({
+      name: t.name,
+      commands: t.commands.map(convertCommand).flat()
+    })).flat();
+    return newComm;;
+  }
+  if ((!command.destination || command.variables)) {
     // Local command
     const newCommand = { ...command };
     if (command.commands) {
@@ -154,8 +162,8 @@ const fs = require('fs');
 
 if (require.main === module) {
   const {parse} = require('jsonc-parser');
-  const inputPath = 'C:\\Users\\death\\WebstormProjects\\l2\\examples\\macros-example.jsonc';
-  const outputPath = 'C:\\Users\\death\\WebstormProjects\\l2\\configs\\macros.jsonc';
+  const inputPath = 'C:\\Users\\death\\WebstormProjects\\l2\\examples\\config\\tyrs-after-ban.jsonc';
+  const outputPath = 'C:\\Users\\death\\WebstormProjects\\l2\\configs\\config.jsonc';
   const oldConfig = parse(fs.readFileSync(inputPath, 'utf8'));
   const newConfig = v1ConfigV2(oldConfig);
   fs.writeFileSync(outputPath, JSON.stringify(newConfig, null, 2));
