@@ -7,7 +7,7 @@ enum ShufflePolicy {
   straight = 'straight',
 }
 
-const shufflePolicySchema = z.nativeEnum(ShufflePolicy)
+const shufflePolicySchema = z.enum(ShufflePolicy)
   .describe('Random = shuffle array so it takes next element randomly.' +
     ' Reverse = each time it changes the order from first to last, then from last to first.' +
     ' Straight = Default order from first to last');

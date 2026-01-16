@@ -89,6 +89,7 @@ export class ConfigService implements ConfigProvider {
       let errorMessage = `${firstError.message} at ${firstError.path}`;
 
       if (firstError.expected && firstError.received) {
+        /* eslint-disable-next-line @typescript-eslint/restrict-template-expressions */
         errorMessage += ` (expected ${firstError.expected}, received ${firstError.received})`;
       }
 

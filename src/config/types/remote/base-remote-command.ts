@@ -1,4 +1,4 @@
-import {z, ZodIssueCode} from 'zod';
+import {z} from 'zod';
 import {type VariableValue, variableValueSchema} from '@/config/types/variables';
 import {schemaRootCache} from '@/config/types/cache';
 import type {ConfigDataWoMacro} from '@/config/types/schema';
@@ -18,7 +18,7 @@ const baseDestinationSchema = z.object({
     if (!(destination as VariableValue).$ref && !data.ips[destination as string] ) {
       const allOptions = JSON.stringify(Array.from(ipsKeys));
       ctx.addIssue({
-        code: ZodIssueCode.custom,
+        code: 'custom',
         path: ['destination'],
         message: `"${JSON.stringify(destination)}" is not a valid destination, possible options are ${allOptions}`,
       });

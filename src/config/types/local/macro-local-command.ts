@@ -1,5 +1,5 @@
 /* eslint-disable max-lines, @typescript-eslint/no-use-before-define */
-import {z, ZodIssueCode} from 'zod';
+import {z} from 'zod';
 import {schemaRootCache} from '@/config/types/cache';
 import {type VariableValue, variableValueSchema} from '@/config/types/variables';
 import {delayCommandsSchema} from '@/config/types/remote/base-remote-command';
@@ -21,7 +21,7 @@ const macroLocalCommandSchema = z.object({
     const definedMacros: NonNullable<MacroList> = schemaRootCache.macros!;
     if (!definedMacros[command.macro]) {
       ctx.addIssue({
-        code: ZodIssueCode.custom,
+        code: 'custom',
         path: ['macro'],
         message: `Macro ${command.macro} doesn't exist. Available macros are ${Object.keys(definedMacros).join(', ')}`,
       });
@@ -34,7 +34,7 @@ const macroLocalCommandSchema = z.object({
     for (const [key, value] of Object.entries(command.variables!)) {
       if (!definedMacros[command.macro]?.variables?.[key]) {
         ctx.addIssue({
-          code: ZodIssueCode.custom,
+          code: 'custom',
           path: ['variables'],
           message: `Passed variable ${JSON.stringify(key)}=${JSON.stringify(value)} doesn't have a description on macro`,
         });
@@ -56,7 +56,7 @@ const macroLocalCommandSchema = z.object({
       }
       if (command.variables?.[key] && value!.type !== typeof command.variables?.[key] && !isVariable) {
         ctx.addIssue({
-          code: ZodIssueCode.custom,
+          code: 'custom',
           path: ['variables'],
           message: `Passed variable ${key}=${JSON.stringify(command.variables?.[key])} type of ${typeof command.variables?.[key]},` +
             `expected ${value!.type}`,
@@ -64,7 +64,7 @@ const macroLocalCommandSchema = z.object({
       }
       if (!value!.optional && !command.variables?.[key]) {
         ctx.addIssue({
-          code: ZodIssueCode.custom,
+          code: 'custom',
           path: ['variables'],
           message: `macro ${command.macro} requires variable ${key} but only ${JSON.stringify(command.variables)} were passed`,
         });

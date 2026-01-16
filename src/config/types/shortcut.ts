@@ -1,4 +1,4 @@
-import {z, ZodIssueCode} from 'zod';
+import {z} from 'zod';
 import {allowedKeys, modifierKeys} from '@/config/types/keyboard';
 import {unknownCommandSchema} from '@/config/types/commands';
 
@@ -33,7 +33,7 @@ enum BehaviourEnum {
   'pausable'= 'pausable',
   'restart'= 'restart',
 }
-const behaviourSchema = z.nativeEnum(BehaviourEnum)
+const behaviourSchema = z.enum(BehaviourEnum)
   .describe('Stacking = Current process will keep running and new one will spawn as well.' +
   ' Since all executable items run in transaction by default.' +
   'The next iteration will wait until current is finished. The default behaviour\n' +
@@ -74,7 +74,7 @@ const shortcutsSchema = z.array(shortcutSchema)
     combinations.forEach((value, i) => {
       if (shortCuts.has(value.shortCut.toLowerCase())) {
         ctx.addIssue({
-          code: ZodIssueCode.custom,
+          code: 'custom',
           path: ['shortcut', i],
           message: `Shortcut ${value.shortCut} already exists at index ${shortCuts.get(value.shortCut)}`,
         });

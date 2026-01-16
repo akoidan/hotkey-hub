@@ -2,7 +2,7 @@ import {z} from 'zod';
 import {makeVariableUnion} from '@/config/types/variables';
 import {baseRemoteCommandSchema} from '@/config/types/remote/base-remote-command';
 
-export const windowPropertiesSchema = z.object({
+const windowPropertiesSchema = z.object({
   x: z.number().describe('x position'),
   y: z.number().describe('y position'),
   width: z.number().describe('width'),
@@ -74,6 +74,7 @@ export type {
 };
 
 export {
+  windowPropertiesSchema,
   windowPropertiesVariableSchema,
   focusProcessWindowRemoteCommandSchema,
   focusWindowRemoteCommandSchema,
