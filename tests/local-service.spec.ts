@@ -276,8 +276,8 @@ describe('Logic service', () => {
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const tyrs = testModule.get<ConfigService>(ConfigService);
     const clientService = testModule.get<ClientService>(ClientService);
-    clientService.window.focusExe = jest.fn().mockImplementation();
-    const spyFocusExe = jest.spyOn(clientService.window, 'focusExe');
+    clientService.window.focusByPid = jest.fn().mockImplementation();
+    const spyFocusExe = jest.spyOn(clientService.window, 'focusByPid');
     await tyrs.parseConfig();
 
     await shortCutService.runShortcut({
