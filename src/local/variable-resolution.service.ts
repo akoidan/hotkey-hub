@@ -71,7 +71,11 @@ export class VariableResolutionService {
   replaceVariables<T extends object>(obj: T): T {
     const result: Partial<T> = {};
     for (const [key, value] of Object.entries(obj) as [keyof T, T[keyof T]][]) {
-      result[key] = this.getValue(value);
+      if (key === 'variables') {
+        result[key] = this.replaceVarsReqursively(value);
+      } else {
+        result[key] = this.getValue(value);
+      }
     }
     return result as T;
   }
@@ -80,11 +84,11 @@ export class VariableResolutionService {
     if (Array.isArray(objVars)) {
       // thread each array element as the whole object
       // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-      return objVars.map((item: T[keyof T]) => this.replaceVarsReqursively<T[keyof T]>(item));
+      return objVars.map((item: T) => this.replaceVarsReqursively<T>(item)) as unknown as T;
     }
-    if (typeof objVars === 'object' && !(objVars as VariableValue).$ref) {
-      const result: Partial<T> = {};
-      for (const [key, value] of Object.entries(objVars) as [keyof T, T[keyof T]][]) {
+    if (objVars && typeof objVars === 'object' && !(objVars as unknown as VariableValue).$ref) {
+      const result = {} as Record<string, unknown>;
+      for (const [key, value] of Object.entries(objVars)) {
         result[key] = this.getValue(value);
       }
       return result as T;
@@ -100,11 +104,11 @@ export class VariableResolutionService {
     const globalVars = this.configService.getGlobalVars();
     const scriptVars = this.configService.getVariables();
     if (varName in scriptVars) { // if object has the key, even if it's null or undefined
-      return this.evaluateVariable<T[keyof T]>(varName, varExpress!, scriptVars[varName]);
-    } else if (varName in globalVars) { // if object has the key, even if it's null or undefined
-      return this.evaluateVariable<T[keyof T]>(varName, varExpress!, globalVars[varName]);
-    } else {
-      throw Error(`Unknown environment variable ${(value as VariableValue)?.$ref ?? JSON.stringify(value)}`);
+      return this.evaluateVariable<T>(varName, varExpress!, scriptVars[varName]) as unknown as T;
     }
+    if (varName in globalVars) { // if object has the key, even if it's null or undefined
+      return this.evaluateVariable<T>(varName, varExpress!, globalVars[varName]) as unknown as T;
+    }
+    throw Error(`Unknown environment variable ${(value as VariableValue)?.$ref ?? JSON.stringify(value)}`);
   }
 }
