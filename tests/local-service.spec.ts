@@ -88,9 +88,12 @@ describe('Logic service', () => {
       commands: [
         {
           destination: 'this',
-          keyPress: 'a',
-          holdKeys: ['shift'],
-          duration: 100
+          performOnRemote: 'keyPress',
+          variables: {
+            key: 'a',
+            holdKeys: ['shift'],
+            duration: 100
+          }
         },
       ],
       name: 'Key press test',
@@ -117,8 +120,11 @@ describe('Logic service', () => {
       commands: [
         {
           destination: 'this',
-          mouseMoveX: 100,
-          mouseMoveY: 200
+          performOnRemote: 'mouseMoveClick',
+          variables: {
+            x: 100,
+            y: 200
+          },
         },
       ],
       name: 'Mouse click test',
@@ -145,7 +151,11 @@ describe('Logic service', () => {
       commands: [
         {
           destination: 'this',
-          findPidsByName: 'notepad.exe'
+          get: 'getPidsByName',
+          assignVariable: 'pid',
+          variables: {
+            name: 'notepad.exe'
+          },
         },
       ],
       name: 'Find pids test',
@@ -170,7 +180,10 @@ describe('Logic service', () => {
       commands: [
         {
           destination: 'this',
-          killByName: 'notepad.exe'
+          performOnRemote: 'killExeByName',
+          variables: {
+            name: 'notepad.exe'
+          },
         },
       ],
       name: 'Kill process test',
@@ -195,7 +208,10 @@ describe('Logic service', () => {
       commands: [
         {
           destination: 'this',
-          findProcessWindows: 789,
+          get: 'getWindowsIdByPid',
+          variables: {
+            pid: 789,
+          },
           assignIds: 'windowIds',
         },
       ],

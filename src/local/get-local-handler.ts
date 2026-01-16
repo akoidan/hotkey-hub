@@ -26,7 +26,21 @@ export class GetLocalHandler extends BaseLocalHandler {
     const currRec: GetInfoRemoteCommand = this.variableService.replaceEnvVars(input);
     this.logger.debug(`Running ${JSON.stringify(input)}`);
     const res = await this.getInfoHandler.handle(currRec.destination as string, input);
-    this.configService.setVariable(input.assignVariable, res);
+    if (Array.isArray(input.assignVariable)) {
+      if (!Array.isArray(res)) {
+        throw Error(`Unable to map  """${JSON.stringify(res)}"""` +
+          `into variables ${JSON.stringify(input.assignVariable)}, since response is not an array`);
+      }
+      if (res.length !== input.assignVariable.length) {
+        throw Error(`Unable to map  """${JSON.stringify(res)}"""` +
+          `into variables ${JSON.stringify(input.assignVariable)}, since different length`);
+      }
+      for (let i = 0; i < input.assignVariable.length; i ++) {
+        this.configService.setVariable(input.assignVariable[i], res[i]);
+      }
+    } else {
+      this.configService.setVariable(input.assignVariable, res);
+    }
     yield undefined;
   }
 }

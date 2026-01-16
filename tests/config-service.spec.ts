@@ -37,7 +37,7 @@ describe('Config service', () => {
   it('Should throw error on invalid conf', async () => {
     const testModule = await getTestModule('invalid-config-fixture.jsonc');
     const tyrs = testModule.get<ConfigService>(ConfigService);
-    await expect(tyrs.parseConfig()).rejects.toThrow(/Unrecognized key\(s\) in object: 'destination:'/);
+    await expect(tyrs.parseConfig()).rejects.toThrow(/Unrecognized key: \"key2\" at variables/);
   })
 
 
