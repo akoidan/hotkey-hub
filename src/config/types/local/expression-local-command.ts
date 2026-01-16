@@ -1,4 +1,4 @@
-import {z, ZodIssueCode} from 'zod';
+import {z} from 'zod';
 
 const expressionSchema = z.string().superRefine((expr, ctx) => {
   try {
@@ -6,7 +6,7 @@ const expressionSchema = z.string().superRefine((expr, ctx) => {
     new Function(`return (${expr});`);
   } catch (e) {
     ctx.addIssue({
-      code: ZodIssueCode.custom,
+      code: 'custom',
       path: [],
       message: `"${expr}" is not a valid expression, because of ${e?.message ?? e}`,
     });

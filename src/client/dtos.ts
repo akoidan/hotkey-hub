@@ -11,6 +11,14 @@ interface MouseClickRequest {
 }
 
 interface MouseMoveHumanRequest {
+  x: number;
+  y: number;
+  destinationRandomX?: number;
+  destinationRandomY?: number;
+  delayBetweenIterations?: number;
+  pixelsPerIteration?: number;
+  curveIntensity?: number;
+  curveIntensityDeviation?: number;
 }
 
 interface SendKeyRequest {
