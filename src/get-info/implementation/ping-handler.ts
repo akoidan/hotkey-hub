@@ -11,7 +11,7 @@ export class PingHandler extends GetInfoHandler {
 
   protected async execute(destination: string): Promise<boolean> {
     try {
-      await this.clientService.ping(destination);
+      await this.clientService.app.ping(destination);
       return true;
     } catch (e) {
       this.logger.error(`Unable ping ${destination}, because of ${e?.message || e}`, e.stack);

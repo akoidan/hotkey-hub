@@ -30,7 +30,7 @@ export class KeyPressRemoteHandler extends CommandRemoteHandler {
     if (command.variables.duration && command.variables.durationDeviation) {
       duration = this.randomService.calcDeviation(command.variables.duration as number, command.variables.durationDeviation as number);
     }
-    await this.clientService.keyPress(destination, {
+    await this.clientService.keyboard.keyPress(destination, {
       keys: Array.isArray(command.variables.key) ? command.variables.key as Key[] : [command.variables.key as Key],
       holdKeys,
       duration,

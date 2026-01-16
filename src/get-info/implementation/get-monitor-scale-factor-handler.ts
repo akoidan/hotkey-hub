@@ -11,7 +11,7 @@ export class GetMonitorScaleFactorHandler extends GetInfoHandler {
   }
 
   protected async execute(destination: string, command: GetMonitorScaleFactorCommand): Promise<number> {
-    const res = await this.clientService.getMonitorScaleFactor(destination, (command.variables as MonitorVariables).mid);
+    const res = await this.clientService.monitor.getMonitorScaleFactor(destination, (command.variables as MonitorVariables).mid);
     return res.scaleFactor;
   }
 }

@@ -12,6 +12,6 @@ export class GetActiveWindowInfoHandler extends GetInfoHandler {
   }
 
   protected async execute(destination: string): Promise<GetActiveWindowInfoResponse> {
-    return this.clientService.getActiveWindowInfo(destination);
+    return this.clientService.window.getActiveWindowInfo(destination);
   }
 }

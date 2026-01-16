@@ -8,6 +8,6 @@ export class MouseMoveRemoteHandler extends CommandRemoteHandler {
   }
 
   async execute(destination: string, command: MouseMoveRemoteCommand): Promise<void> {
-    await this.clientService.mouse.moveHuman(destination, command.variables as MouseMoveClickRemoteVariable);
+    await this.clientService.mouse.mouseMoveHuman(destination, command.variables as MouseMoveClickRemoteVariable);
   }
 }

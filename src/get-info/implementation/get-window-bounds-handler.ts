@@ -12,6 +12,6 @@ export class GetWindowBoundsHandler extends GetInfoHandler {
   }
 
   protected async execute(destination: string, command: GetWindowBoundsCommand): Promise<WindowBounds> {
-    return this.clientService.getWindowBounds(destination, (command.variables as WindowIdVariables).wid);
+    return this.clientService.window.getWindowBounds(destination, (command.variables as WindowIdVariables).wid);
   }
 }

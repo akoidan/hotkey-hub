@@ -11,7 +11,7 @@ export class GetWindowValidityHandler extends GetInfoHandler {
   }
 
   protected async execute(destination: string, command: GetWindowValidityCommand): Promise<boolean> {
-    const res = await  this.clientService.isWindow(destination, (command.variables as WindowIdVariables).wid);
+    const res = await this.clientService.window.isWindow(destination, (command.variables as WindowIdVariables).wid);
     return res.isValid;
   }
 }

@@ -12,6 +12,6 @@ export class GetMonitorInfoHandler extends GetInfoHandler {
   }
 
   protected async execute(destination: string, command: GetMonitorInfoCommand): Promise<MonitorInfo> {
-    return this.clientService.monitorInfo(destination, (command.variables as MonitorVariables).mid);
+    return this.clientService.monitor.monitorInfo(destination, (command.variables as MonitorVariables).mid);
   }
 }

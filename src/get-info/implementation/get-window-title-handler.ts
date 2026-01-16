@@ -11,7 +11,7 @@ export class GetWindowTitleHandler extends GetInfoHandler {
   }
 
   protected async execute(destination: string, command: GetWindowTitleCommand): Promise<string> {
-    const res = await this.clientService.getWindowTitle(destination, (command.variables as WindowIdVariables).wid);
+    const res = await this.clientService.window.getWindowTitle(destination, (command.variables as WindowIdVariables).wid);
     return res.title;
   }
 }

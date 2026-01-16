@@ -11,6 +11,6 @@ export class SetWindowBoundsRemoteHandler extends CommandRemoteHandler {
   }
 
   async execute(destination: string, command: SetWindowBoundsRemoteCommand): Promise<void> {
-    await this.clientService.setWindowBounds(destination, command.variables as unknown as SetWindowBoundsRequest);
+    await this.clientService.window.setWindowBounds(destination, command.variables as unknown as SetWindowBoundsRequest);
   }
 }

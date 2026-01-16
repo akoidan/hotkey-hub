@@ -10,6 +10,6 @@ export class GetMonitorsHandler extends GetInfoHandler {
   }
 
   protected async execute(destination: string): Promise<number[]> {
-    return this.clientService.getMonitors(destination);
+    return this.clientService.monitor.getMonitors(destination);
   }
 }
