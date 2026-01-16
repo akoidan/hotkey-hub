@@ -16,6 +16,7 @@ import {GetMonitorScaleFactorHandler} from '@/get-info/implementation/get-monito
 import {GetProcessMainWindowHandler} from '@/get-info/implementation/get-process-main-window-handler';
 import {GetWindowsIdByPidHandler} from '@/get-info/implementation/get-windows-id-by-pid-handler';
 import {GetActiveWindowInfoHandler} from '@/get-info/implementation/get-active-window-info-handler';
+import {Provider} from '@nestjs/common/interfaces/modules/provider.interface';
 
 const getInfoHandlers = [
   PingHandler,
@@ -27,6 +28,7 @@ const getInfoHandlers = [
   GetWindowOwnerHandler,
   GetWindowValidityHandler,
   GetWindowVisibilityHandler,
+  GetWindowsIdByPidHandler,
   GetMonitorsHandler,
   GetMonitorInfoHandler,
   GetMonitorFromWindowHandler,
@@ -35,24 +37,29 @@ const getInfoHandlers = [
   GetWindowsIdByPidHandler,
 ];
 
+const getInfoProviders: Provider[] = [
+  ...getInfoHandlers,
+  {
+    provide: GetInfoHandler,
+    useFactory: (...handlers: GetInfoHandler[]): GetInfoHandler => {
+      for (let i = 0; i < handlers.length - 1; i++) {
+        handlers[i].setNext(handlers[i + 1]);
+      }
+      return handlers[0];
+    },
+    inject: [...getInfoHandlers],
+  },
+];
+
 @Module({
   imports: [ClientModule, ConfigModule],
   providers: [
     Logger,
-    ...getInfoHandlers,
-    {
-      provide: GetInfoHandler,
-      useFactory: (...handlers: GetInfoHandler[]): GetInfoHandler => {
-        for (let i = 0; i < handlers.length - 1; i++) {
-          handlers[i].setNext(handlers[i + 1]);
-        }
-        return handlers[0];
-      },
-      inject: [...getInfoHandlers],
-    },
+    ...getInfoProviders,
   ],
   exports: [GetInfoHandler],
 })
-export class GetInfoModule {
+class GetInfoModule {
 }
 
+export {getInfoHandlers, getInfoProviders, GetInfoModule};

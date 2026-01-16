@@ -13,13 +13,14 @@ import {AsyncStorageModule} from '../src/asyncstore/async-storage.module';
 import {RandomModule} from '../src/random/random.module';
 import {SemaphorModule} from '../src/semaphor/semaphor.module';
 import {DelayService} from '../src/local/delay.service';
-import {processingProviders} from '../src/local/local.module';
+import {localProviders} from '../src/local/local.module';
 import {RgbService} from '../src/rgb/rgb-service';
 import {RgbServiceI} from '../src/rgb/rgb-model';
 import {ConfigPathClass, ENV} from '../src/config/types/config-path';
 import process from 'node:process';
 import {ReloadLocalHandler} from '../src/local/implementation/reload-local-handler';
 import {EvaluateService} from '../src/local/evaluate-serivce';
+import {getInfoProviders} from '../src/get-info/get-info-module';
 
 const globalEnv = {};
 
@@ -35,7 +36,8 @@ async function getTestModule(configFilePath: string): Promise<TestingModule> {
     imports: [AsyncStorageModule, RandomModule, SemaphorModule],
     providers: [
       ...remoteHandlerProviders,
-      ...processingProviders,
+      ...localProviders,
+      ...getInfoProviders,
       ShortcutProcessingService,
       EvaluateService,
       DelayService,
@@ -123,7 +125,8 @@ describe('Logic service', () => {
           performOnRemote: 'mouseMoveClick',
           variables: {
             x: 100,
-            y: 200
+            y: 200,
+            pixelsPerIteration: 20,
           },
         },
       ],
@@ -212,7 +215,7 @@ describe('Logic service', () => {
           variables: {
             pid: 789,
           },
-          assignIds: 'windowIds',
+          assignVariable: 'windowIds',
         },
       ],
       name: 'Find process windows test',
@@ -235,8 +238,11 @@ describe('Logic service', () => {
       commands: [
         {
           destination: 'this',
-          findProcessesWindows: [789, 101],
-          assignIds: ['window1', 'window2'],
+          get: 'getWindowsIdByPid',
+          variables: {
+
+          },
+          assignVariable: ['window1', 'window2'],
         },
       ],
       name: 'Find processes windows test',
@@ -261,7 +267,10 @@ describe('Logic service', () => {
       commands: [
         {
           destination: 'this',
-          focusPid: 789
+          performOnRemote: 'focusProcessWindow',
+          variables: {
+            pid: 789
+          }
         },
       ],
       name: 'Focus process window test',
@@ -284,7 +293,10 @@ describe('Logic service', () => {
       commands: [
         {
           destination: 'this',
-          focusWid: 789
+          performOnRemote: 'focusWindow',
+          variables: {
+            wid: 789
+          },
         },
       ],
       name: 'Focus window test',
@@ -307,7 +319,10 @@ describe('Logic service', () => {
       commands: [
         {
           destination: 'this',
-          typeText: 'Hello World'
+          performOnRemote: 'typeText',
+          variables: {
+            text: 'Hello World'
+          },
         },
       ],
       name: 'Type text test',
@@ -333,7 +348,10 @@ describe('Logic service', () => {
           loop: 3,
           commands: [
             {
-              keyPress: 'a',
+              performOnRemote: 'keyPress',
+              variables: {
+                key: 'a',
+              },
               destination: 'that'
             }
           ]
@@ -367,8 +385,11 @@ describe('Logic service', () => {
               name: 't1',
               commands: [
                 {
-                  mouseMoveX: 537,
-                  mouseMoveY: 123,
+                  performOnRemote: 'mouseMoveClick',
+                  variables: {
+                    x: 537,
+                    y: 123,
+                  },
                   destination: 'that'
                 }
               ]
@@ -377,7 +398,7 @@ describe('Logic service', () => {
               name: 't2',
               commands: [
                 {
-                  leftMouseClick: true,
+                  performOnRemote: 'leftMouseClick',
                   destination: 'that'
                 }
               ]
@@ -407,7 +428,10 @@ describe('Logic service', () => {
       commands: [
         {
           destination: 'this',
-          keyPress: 'f6',
+          performOnRemote: 'keyPress',
+          variables: {
+            key: 'f6',
+          },
         },
       ],
       name: 'test1',
@@ -429,8 +453,11 @@ describe('Logic service', () => {
       commands: [
         {
           destination: 'this',
-          launch: 'C:\\Windows\\System32\\shutdown.exe',
-          arguments: ['/s', '/t', '0'],
+          performOnRemote: 'launchExe',
+          variables: {
+            arguments: ['/s', '/t', '0'],
+            path: 'C:\\Windows\\System32\\shutdown.exe',
+          },
         },
       ],
       name: 'Launch exe test',
@@ -456,7 +483,10 @@ describe('Logic service', () => {
       commands: [
         {
           destination: 'this',
-          killByPid: 123,
+          performOnRemote: 'killExeByPid',
+          variables: {
+            pid: 123,
+          }
         },
       ],
       name: 'Launch exe test',
@@ -487,9 +517,12 @@ describe('Logic service', () => {
       commands: [
         {
           destination: 'this',
-          typeText: {
-            $ref: 'login'
-          }
+          performOnRemote: 'typeText',
+          variables: {
+            text: {
+              $ref: 'login'
+            }
+          },
         },
       ],
       name: 'variable-test',

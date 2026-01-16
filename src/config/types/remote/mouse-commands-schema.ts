@@ -19,17 +19,9 @@ const mouseMoveClickRemoteCommandSchema = baseRemoteCommandSchema.extend({
 }).strict().describe('Moves mouse cursor to specified screen coordinates and performs a left-click. ' +
   'Combines movement and clicking into one action.');
 
-const leftMouseClickRemoteVariableSchema = z.object({
-  leftMouseClick: z.boolean()
-    .describe('Set to true to perform a left mouse click. ' +
-      'The click will occur at the current cursor position without moving the mouse.'),
-}).strict();
-
-const leftMouseClickRemoteCommandVariableSchema = makeVariableUnion(leftMouseClickRemoteVariableSchema);
 
 const leftMouseClickRemoteCommandSchema = baseRemoteCommandSchema.extend({
   performOnRemote: z.literal('leftMouseClick'),
-  variables: leftMouseClickRemoteCommandVariableSchema,
 }).strict()
   .describe('Performs a left mouse click at the current cursor position without moving the mouse. Use when cursor is already positioned.');
 
@@ -40,13 +32,11 @@ const mouseCommandsSchema = z.union([
 
 type MouseMoveClickRemoteVariable = z.infer<typeof mouseMoveClickRemoteVariableSchema>;
 type MouseMoveClickRemoteCommand = z.infer<typeof mouseMoveClickRemoteCommandSchema>;
-type LeftMouseClickRemoteVariable = z.infer<typeof leftMouseClickRemoteVariableSchema>;
 type LeftMouseClickRemoteCommand = z.infer<typeof leftMouseClickRemoteCommandSchema>;
 
 export type {
   MouseMoveClickRemoteVariable,
   MouseMoveClickRemoteCommand,
-  LeftMouseClickRemoteVariable,
   LeftMouseClickRemoteCommand,
 };
 
@@ -55,7 +45,5 @@ export {
   leftMouseClickRemoteCommandSchema,
   mouseCommandsSchema,
   mouseMoveClickRemoteCommandVariableSchema,
-  leftMouseClickRemoteCommandVariableSchema,
   mouseMoveClickRemoteVariableSchema,
-  leftMouseClickRemoteVariableSchema,
 };

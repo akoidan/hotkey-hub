@@ -15,7 +15,6 @@ import {
 } from '@/config/types/remote/keyboard-commands-schema';
 import {
   leftMouseClickRemoteCommandSchema,
-  leftMouseClickRemoteCommandVariableSchema,
   mouseCommandsSchema,
   mouseMoveClickRemoteCommandSchema,
   mouseMoveClickRemoteCommandVariableSchema,
@@ -65,7 +64,7 @@ import {
   getWindowBoundsCommandSchema,
   getWindowCommandsSchema,
   getWindowOpacityCommandSchema,
-  getWindowOwnerCommandSchema,
+  getWindowOwnerCommandSchema, getWindowsIdByMultiplePidsCommandVariablesSchema, getWindowsIdByMutliplePidsCommandSchema,
   getWindowsIdByPidCommandSchema,
   getWindowsIdByPidCommandVariablesSchema,
   getWindowTitleCommandSchema,
@@ -159,6 +158,8 @@ export type {
 };
 
 export {
+  getWindowsIdByMutliplePidsCommandSchema,
+  getWindowsIdByMultiplePidsCommandVariablesSchema,
   getWindowsIdByPidCommandVariablesSchema,
   getProcessMainWindowCommandVariablesSchema,
   getPidsByNameCommandVariablesSchema,
@@ -229,7 +230,6 @@ export {
   reloadConfigLocalCommandSchema,
   typeTextRemoteCommandVariableSchema,
   mouseMoveClickRemoteCommandVariableSchema,
-  leftMouseClickRemoteCommandVariableSchema,
   killExeByNameRemoteCommandVariableSchema,
   killExeByPidRemoteCommandVariableSchema,
   launchExeRemoteCommandVariableSchema,

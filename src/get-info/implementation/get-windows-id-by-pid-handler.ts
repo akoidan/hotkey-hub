@@ -11,6 +11,6 @@ export class GetWindowsIdByPidHandler extends GetInfoHandler {
   }
 
   protected async execute(destination: string, command: GetWindowsIdByPidCommand): Promise<number[]> {
-    return this.clientService.getProcessWindows(destination, (command.variables as GetWindowsIdByPidVariables).id);
+    return this.clientService.getProcessWindows(destination, (command.variables as GetWindowsIdByPidVariables).pid);
   }
 }

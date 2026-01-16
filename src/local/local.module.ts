@@ -27,7 +27,7 @@ import {GetLocalHandler} from '@/local/get-local-handler';
 import {GetInfoModule} from '@/get-info/get-info-module';
 
 
-const handlers =[
+const localHandlers =[
   MacroLocalHandler,
   TransactionLocalHandler,
   ExpressionLocalHandler,
@@ -41,11 +41,11 @@ const handlers =[
   CommandLocalHandler,
 ];
 
-const processingProviders: Provider[] = [
-  ...handlers,
+const localProviders: Provider[] = [
+  ...localHandlers,
   {
     provide: BaseLocalHandler,
-    inject: handlers,
+    inject: localHandlers,
     useFactory: (...lhandl: BaseLocalHandler[]): BaseLocalHandler => {
       for (let i = 0; i < lhandl.length - 1; i++) {
         lhandl[i].setNext(lhandl[i + 1], lhandl[0]);
@@ -66,7 +66,7 @@ const processingProviders: Provider[] = [
     VariableResolutionService,
     EvaluateService,
     CommandLocalHandler,
-    ...processingProviders,
+    ...localProviders,
   ],
   exports: [KeybindingService],
 })
@@ -82,4 +82,4 @@ class LocalModule implements OnModuleInit {
   }
 }
 
-export {LocalModule, processingProviders};
+export {LocalModule, localProviders};

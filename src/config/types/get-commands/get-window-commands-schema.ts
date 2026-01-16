@@ -48,14 +48,25 @@ const getWindowVisibilityCommandSchema = baseGetInfoCommandSchema.extend({
 }).strict().describe('Check if window is visible');
 
 const getWindowsIdByPidVariablesSchema = z.object({
-  id: z.number().int().positive('Process ID must be a positive integer'),
+  pid: z.number().int().positive('Process ID must be a positive integer'),
 }).strict();
 
 const getWindowsIdByPidCommandVariablesSchema = makeVariableUnion(getWindowsIdByPidVariablesSchema);
 
+const getWindowsIdByMultiplePidsVariablesSchema = z.object({
+  pids: z.array(z.number().int().positive('Process ID must be a positive integer')),
+}).strict();
+
+const getWindowsIdByMultiplePidsCommandVariablesSchema = makeVariableUnion(getWindowsIdByMultiplePidsVariablesSchema);
+
 const getWindowsIdByPidCommandSchema = baseGetInfoCommandSchema.extend({
   get: z.literal('getWindowsIdByPid'),
   variables: getWindowsIdByPidCommandVariablesSchema,
+}).strict().describe('Get all windows with their IDs for a concrete process id');
+
+const getWindowsIdByMutliplePidsCommandSchema = baseGetInfoCommandSchema.extend({
+  get: z.literal('getWindowsIdByMultiplePids'),
+  variables: getWindowsIdByMultiplePidsCommandVariablesSchema,
 }).strict().describe('Get all windows with their IDs for a concrete process id');
 
 // Type definitions
@@ -70,11 +81,13 @@ type GetWindowOpacityCommand = z.infer<typeof getWindowOpacityCommandSchema>;
 type GetWindowOwnerCommand = z.infer<typeof getWindowOwnerCommandSchema>;
 type GetWindowValidityCommand = z.infer<typeof getWindowValidityCommandSchema>;
 type GetWindowVisibilityCommand = z.infer<typeof getWindowVisibilityCommandSchema>;
+type GetWindowsIdByMultiplePidsVariables = z.infer<typeof getWindowsIdByMultiplePidsVariablesSchema>;
 
 const getWindowCommandsSchema = z.union([
   getWindowsIdByPidCommandSchema,
   getActiveWindowIdCommandSchema,
   getActiveWindowCommandSchema,
+  getWindowsIdByMutliplePidsCommandSchema,
   getWindowBoundsCommandSchema,
   getWindowTitleCommandSchema,
   getWindowOpacityCommandSchema,
@@ -85,6 +98,8 @@ const getWindowCommandsSchema = z.union([
 
 // Export all schemas
 export {
+  getWindowsIdByMultiplePidsCommandVariablesSchema,
+  getWindowsIdByMutliplePidsCommandSchema,
   getWindowCommandsSchema,
   windowIdVariablesSchema,
   getWindowsIdByPidCommandVariablesSchema,
@@ -103,6 +118,7 @@ export {
 
 // Export all types
 export type {
+  GetWindowsIdByMultiplePidsVariables,
   WindowIdVariables,
   GetWindowsIdByPidVariables,
   GetWindowsIdByPidCommand,
