@@ -60,7 +60,7 @@ void (async function main(): Promise<void> {
   allModels = convertSchemas(schemas);
   const noNmaedModels = allModels.filter(m => (m as any).kind === 'Model');
   if (noNmaedModels.length >0 ) {
-    throw Error('Schema is missing following imports: ' + noNmaedModels.map(m => m.name).join(', '));
+    throw Error(`Schema is missing following imports: ${  noNmaedModels.map(m => m.name).join(', ')}`);
   }
 
   const orderedModels = allModels

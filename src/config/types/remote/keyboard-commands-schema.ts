@@ -1,7 +1,7 @@
 import {z} from 'zod';
 import {baseRemoteCommandSchema} from '@/config/types/remote/base-remote-command';
 import {allowedKeys, modifierKeys} from '@/config/types/keyboard';
-import { makeVariableUnion } from '@/config/types/variables';
+import {makeVariableUnion} from '@/config/types/variables';
 
 const keySchema =  z.enum([
   ...allowedKeys,
@@ -21,7 +21,7 @@ const keyPressRemoteVariableSchema = z.object({
     .describe('Modifier keys to hold (e.g., Alt for Alt+1, Ctrl+Shift for Ctrl+Shift+A). Can be a key or key array.'),
 });
 
-const keyPressRemoteCommandVariableSchema = makeVariableUnion(keyPressRemoteVariableSchema)
+const keyPressRemoteCommandVariableSchema = makeVariableUnion(keyPressRemoteVariableSchema);
 
 const keyPressRemoteCommandSchema = baseRemoteCommandSchema.extend({
   performOnRemote: z.literal('keyPress'),

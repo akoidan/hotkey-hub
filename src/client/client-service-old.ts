@@ -1,13 +1,18 @@
 import {FetchClient} from '@/client/http-client';
 import {
-  FindPidsByNameRequest, FindPidsByNameResponse, FindProcessWindowsResponse,
-  FocusExeRequest, FocusWindowRequest,
+  FindPidsByNameRequest,
+  FindPidsByNameResponse,
+  FindProcessWindowsResponse,
+  FocusExeRequest,
+  FocusWindowRequest,
   KillExeByNameRequest,
   KillExeByPidRequest,
   LaunchExeRequest,
   LaunchPidResponse,
-  MouseClickRequest, MouseMoveHumanRequest,
-  SendKeyRequest, SetWindowBoundsRequest,
+  MouseClickRequest,
+  MouseMoveHumanRequest,
+  SendKeyRequest,
+  SetWindowBoundsRequest,
   TypeTextRequest,
 } from '@/client/dtos';
 import {Injectable} from '@nestjs/common';

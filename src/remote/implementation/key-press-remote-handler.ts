@@ -1,10 +1,9 @@
 import {RandomService} from '@/random/random-service';
 import {ClientService} from '@/client/client-service';
 import {Injectable} from '@nestjs/common';
-import {Key, KeyPressRemoteCommand, KeyPressRemoteVariable} from '@/config/types/remote/keyboard-commands-schema';
+import {Key, KeyPressRemoteCommand} from '@/config/types/remote/keyboard-commands-schema';
 import {RemoteCommand} from '@/config/types/remote/remote-commands';
 import {CommandRemoteHandler} from '@/remote/command-remote-handler';
-import {SendKeyRequest} from '@/client/dtos';
 
 @Injectable()
 export class KeyPressRemoteHandler extends CommandRemoteHandler {

@@ -18,7 +18,7 @@ import {
   leftMouseClickRemoteCommandVariableSchema,
   mouseCommandsSchema,
   mouseMoveClickRemoteCommandSchema,
-  mouseMoveClickRemoteCommandVariableSchema
+  mouseMoveClickRemoteCommandVariableSchema,
 } from '@/config/types/remote/mouse-commands-schema';
 import {
   killExeByNameRemoteCommandSchema,
@@ -37,7 +37,8 @@ import {
   setWindowBoundsRemoteCommandSchema,
   setWindowBoundsRemoteCommandVariableSchema,
   windowCommandsSchema,
-  windowPropertiesSchema, windowPropertiesVariableSchema,
+  windowPropertiesSchema,
+  windowPropertiesVariableSchema,
 } from '@/config/types/remote/window-commands-schema';
 import {remoteCommandSchema} from '@/config/types/remote/remote-commands';
 import {
@@ -51,7 +52,8 @@ import {
   macroVariablesDescriptionSchema,
   macroVariableValueSchema,
   printLocalCommandSchema,
-  reloadConfigLocalCommandSchema, shuffleLocalCommandSchema,
+  reloadConfigLocalCommandSchema,
+  shuffleLocalCommandSchema,
   threadLocalSchema,
   threadsLocalCommandSchema,
   transactionLocalCommandSchema,
@@ -64,10 +66,12 @@ import {
   getWindowCommandsSchema,
   getWindowOpacityCommandSchema,
   getWindowOwnerCommandSchema,
-  getWindowsIdByPidCommandSchema, getWindowsIdByPidCommandVariablesSchema,
+  getWindowsIdByPidCommandSchema,
+  getWindowsIdByPidCommandVariablesSchema,
   getWindowTitleCommandSchema,
   getWindowValidityCommandSchema,
-  getWindowVisibilityCommandSchema, windowIdVariablesCommandSchema,
+  getWindowVisibilityCommandSchema,
+  windowIdVariablesCommandSchema,
 } from '@/config/types/get-commands/get-window-commands-schema';
 import {
   getMonitorCommandsSchema,
@@ -78,9 +82,11 @@ import {
   monitorVariablesCommandSchema,
 } from '@/config/types/get-commands/get-monitor-commands-schema';
 import {
-  getPidsByNameCommandSchema, getPidsByNameCommandVariablesSchema,
+  getPidsByNameCommandSchema,
+  getPidsByNameCommandVariablesSchema,
   getProcessCommandsSchema,
-  getProcessMainWindowCommandSchema, getProcessMainWindowCommandVariablesSchema
+  getProcessMainWindowCommandSchema,
+  getProcessMainWindowCommandVariablesSchema,
 } from '@/config/types/get-commands/get-process-commands-schema';
 import {getInfoCommandSchema, pingCommandSchema} from '@/config/types/get-commands/get-commands';
 
