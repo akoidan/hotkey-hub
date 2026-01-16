@@ -2,7 +2,7 @@ import {Injectable} from '@nestjs/common';
 import {FetchClient} from '@/client/http-client';
 import {
   ActiveWindowIdResponseDto,
-  FocusExeRequest,
+  FocusWindowByPidRequest,
   FocusWindowRequest,
   GetActiveWindowInfoResponse,
   IsWindowResponseDto,
@@ -18,7 +18,7 @@ import {
 export class WindowService {
   constructor(private readonly client: FetchClient) {}
 
-  async focusExe(client: string, request: FocusExeRequest): Promise<void> {
+  async focusByPid(client: string, request: FocusWindowByPidRequest): Promise<void> {
     return this.client.post(client, '/window/focus-by-pid', request);
   }
 

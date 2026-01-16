@@ -63,7 +63,7 @@
       "build/Debug/server.node"
     ],
     "targets": [
-      "node18-win-x64"
+      "host"
     ]
   },
   "binary": {

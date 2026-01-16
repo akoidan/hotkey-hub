@@ -27,7 +27,7 @@ interface SendKeyRequest {
   duration?: number;
 }
 
-interface FocusExeRequest {
+interface FocusWindowByPidRequest {
   pid: number;
 }
 
@@ -136,7 +136,7 @@ export type {
   MonitorInfo,
   MouseClickRequest,
   SendKeyRequest,
-  FocusExeRequest,
+  FocusWindowByPidRequest,
   LaunchPidResponse,
   LaunchExeRequest,
   TypeTextRequest,
