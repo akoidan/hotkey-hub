@@ -21,6 +21,7 @@ import process from 'node:process';
 import {ReloadLocalHandler} from '../src/local/implementation/reload-local-handler';
 import {EvaluateService} from '../src/local/evaluate-serivce';
 import {getInfoProviders} from '../src/get-info/get-info-module';
+import {SAVE_TIMEOUT} from "../src/config/config-model";
 
 const globalEnv = {};
 
@@ -41,6 +42,10 @@ async function getTestModule(configFilePath: string): Promise<TestingModule> {
       ShortcutProcessingService,
       EvaluateService,
       DelayService,
+      {
+        provide: SAVE_TIMEOUT,
+        useValue: -1, // do not save config at at
+      },
       {
         provide: RgbService,
         useValue: rgbStub
@@ -230,17 +235,21 @@ describe('Logic service', () => {
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const tyrs = testModule.get<ConfigService>(ConfigService);
     const clientService = testModule.get<ClientService>(ClientService);
-    clientService.getProcessWindows = jest.fn().mockImplementation(() => ([123, 456]));
+    clientService.getProcessWindows = jest.fn()
+        .mockImplementationOnce(() => ([123, 456]))
+        .mockImplementationOnce(() => ([1235, 124]));
     const spyGetWindows = jest.spyOn(clientService, 'getProcessWindows');
     await tyrs.parseConfig();
 
+    delete tyrs.getVariables()['window1'];
+    delete tyrs.getVariables()['window2'];
     await shortCutService.runShortcut({
       commands: [
         {
           destination: 'this',
-          get: 'getWindowsIdByPid',
+          get: 'getWindowsIdByMultiplePids',
           variables: {
-
+            pids: [789, 101]
           },
           assignVariable: ['window1', 'window2'],
         },
@@ -252,6 +261,8 @@ describe('Logic service', () => {
     expect(spyGetWindows).toHaveBeenCalledWith('this', 789);
     expect(spyGetWindows).toHaveBeenCalledWith('this', 101);
     expect(spyGetWindows).toHaveBeenCalledTimes(2);
+    expect(tyrs.getVariables()).toHaveProperty('window1', [123, 456]);
+    expect(tyrs.getVariables()).toHaveProperty('window2', [1235, 124]);
   });
 
   it('should execute focus process window remote command', async () => {

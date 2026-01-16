@@ -6,6 +6,7 @@ import {ConfigReaderService} from '../src/config/config-reader-service';
 import path from 'path';
 import {ConfigPathClass, ENV} from '../src/config/types/config-path';
 import {EvaluateService} from '../src/local/evaluate-serivce';
+import {SAVE_TIMEOUT} from "../src/config/config-model";
 
 const globalEnv = {};
 
@@ -21,6 +22,10 @@ async function getTestModule(configFilePath: string): Promise<TestingModule> {
           setConfigPaths(config?: string, macro?: string, variable?: string) {
           }
         }
+      },
+      {
+        provide: SAVE_TIMEOUT,
+        useValue: -1, // do not save config at at
       },
       ConfigService,
       ConfigReaderService,

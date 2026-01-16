@@ -27,8 +27,8 @@ async function getTestModule(configFilePath: string): Promise<TestingModule> {
           variablesFilePath: path.join(__dirname, 'fixtures', 'variables.jsonc'),
           macroFilePath: null!,
           setConfigPaths(config?: string, macro?: string, variable?: string) {
-          }
-        })),
+          },
+        },), -1),
         inject: [Logger],
       },
       Logger,
@@ -40,7 +40,7 @@ describe('Variable Service', () => {
   it('should keyPress client call', async () => {
     const testModule = await getTestModule('config-fixture.jsonc');
     const variableService = testModule.get<VariableResolutionService>(VariableResolutionService);
-    const res = variableService.replacePlaceholders({
+    const res = variableService.replaceMacroVariables({
       'transaction': {
         $ref: 'destination'
       },

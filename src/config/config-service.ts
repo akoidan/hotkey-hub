@@ -10,7 +10,7 @@ import {ConfigProvider} from '@/config/interfaces';
 import {ConfigReaderService} from '@/config/config-reader-service';
 import clc from 'cli-color';
 import {DelayData} from '@/config/types/delays';
-import {ConfigCombination} from '@/config/config-model';
+import {ConfigCombination, SAVE_TIMEOUT} from '@/config/config-model';
 import {MacroList} from '@/config/types/local/local-commands';
 import {ENV, ZodErrorCollected} from '@/config/types/config-path';
 
@@ -29,6 +29,8 @@ export class ConfigService implements ConfigProvider {
     @Inject(ENV)
     private readonly envVars: Record<string, string | undefined>,
     private readonly configReader: ConfigReaderService,
+    @Inject(SAVE_TIMEOUT)
+    private readonly saveTimeout: number,
   ) {
     this.logger.debug(`Created new instance of config service from ${configReader.getId()}`);
   }
@@ -227,6 +229,9 @@ export class ConfigService implements ConfigProvider {
 
   public setVariable(name: string, value: unknown): void {
     this.variables[name] = value;
+    if (this.saveTimeout < 0) {
+      return; // do not perform save on tests
+    }
     if (this.variablesSaveTimeoutId) {
       clearTimeout(this.variablesSaveTimeoutId);
     }
@@ -240,7 +245,7 @@ export class ConfigService implements ConfigProvider {
       } catch(e) {
         this.logger.error(`Unable to save variables because ${e?.message || e}`, e.stack);
       }
-    }, 1000); // I hope save to disk a file takes less than 1s,
+    }, this.saveTimeout); // I hope save to disk a file takes less than 1s,
     // so we dont save while other process is saving
     // also prevents multiple async spam for variables backup
     // we can sacrifice 1s of old variable
