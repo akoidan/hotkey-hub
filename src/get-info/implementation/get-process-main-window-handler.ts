@@ -14,7 +14,8 @@ export class GetProcessMainWindowHandler extends GetInfoHandler {
   }
 
   protected async execute(destination: string, command: GetProcessMainWindowCommand): Promise<number> {
-    const res = await this.clientService.process.getProcessMainWindow(destination, (command.variables as GetProcessMainWindowVariables).pid);
+    const res = await this.clientService.process
+        .getProcessMainWindow(destination, (command.variables as GetProcessMainWindowVariables).pid);
     return res.wid;
   }
 }
