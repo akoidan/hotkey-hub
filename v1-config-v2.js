@@ -38,7 +38,7 @@ const baseFields = ['destination', 'delayAfter', 'delayBefore', 'commands'];
 const specialFields = ['assignVariable']; // Fields to move to top level instead of variables
 
 function convertCommand(command) {
-  if (!command.destination) {
+  if (!command.destination || command.variables) {
     // Local command
     const newCommand = { ...command };
     if (command.commands) {
@@ -116,7 +116,15 @@ function convertCommand(command) {
 
 function v1ConfigV2(config) {
   const newConfig = { ...config };
-
+  if (!config.combinations) {
+    for (const macroName in newConfig) {
+      const macro = newConfig[macroName];
+      if (macro.commands) {
+        macro.commands = macro.commands.map(convertCommand).flat();
+      }
+    }
+    return newConfig;
+  }
   if (newConfig.macros) {
     for (const macroName in newConfig.macros) {
       const macro = newConfig.macros[macroName];
@@ -141,9 +149,10 @@ function v1ConfigV2(config) {
 const fs = require('fs');
 
 if (require.main === module) {
-  const inputPath = 'tests/fixtures/config-fixture.jsonc';
-  const outputPath = 'converted-config.json';
-  const oldConfig = JSON.parse(fs.readFileSync(inputPath, 'utf8'));
+  const {parse} = require('jsonc-parser');
+  const inputPath = 'C:\\Users\\death\\WebstormProjects\\l2\\examples\\macros-example.jsonc';
+  const outputPath = 'C:\\Users\\death\\WebstormProjects\\l2\\examples\\config\\macros.json';
+  const oldConfig = parse(fs.readFileSync(inputPath, 'utf8'));
   const newConfig = v1ConfigV2(oldConfig);
   fs.writeFileSync(outputPath, JSON.stringify(newConfig, null, 2));
   console.log('Conversion complete. Output written to', outputPath);
