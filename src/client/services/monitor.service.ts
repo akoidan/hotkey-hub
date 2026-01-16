@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
-import { FetchClient } from '@/client/http-client';
-import { MonitorIdResponseDto, MonitorInfo, MonitorScaleFactorResponseDto } from '@/client/dtos';
+import {Injectable} from '@nestjs/common';
+import {FetchClient} from '@/client/http-client';
+import {MonitorIdResponseDto, MonitorInfo, MonitorScaleFactorResponseDto} from '@/client/dtos';
 
 @Injectable()
 export class MonitorService {

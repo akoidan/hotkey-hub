@@ -1,7 +1,10 @@
 import {Injectable} from '@nestjs/common';
 
 import {GetInfoRemoteCommand} from '@/config/types/get-commands/get-commands';
-import {GetWindowsIdByMultiplePidsVariables, GetWindowsIdByPidCommand} from '@/config/types/get-commands/get-window-commands-schema';
+import {
+  GetWindowsIdByMultiplePidsVariables,
+  GetWindowsIdByPidCommand,
+} from '@/config/types/get-commands/get-window-commands-schema';
 import {GetInfoHandler} from '@/get-info/get-info-handler';
 
 @Injectable()

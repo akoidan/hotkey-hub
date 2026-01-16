@@ -1,12 +1,12 @@
-import { Injectable } from '@nestjs/common';
-import { FetchClient } from '@/client/http-client';
-import { 
-  FindPidsByNameRequest, 
-  KillExeByNameRequest, 
-  KillExeByPidRequest, 
-  LaunchExeRequest, 
-  LaunchPidResponse, 
-  WindowHandleResponseDto 
+import {Injectable} from '@nestjs/common';
+import {FetchClient} from '@/client/http-client';
+import {
+  FindPidsByNameRequest,
+  KillExeByNameRequest,
+  KillExeByPidRequest,
+  LaunchExeRequest,
+  LaunchPidResponse,
+  WindowHandleResponseDto,
 } from '@/client/dtos';
 
 @Injectable()

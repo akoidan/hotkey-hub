@@ -1,6 +1,9 @@
 import {z} from 'zod';
 import {getMonitorCommandsSchema} from '@/config/types/get-commands/get-monitor-commands-schema';
-import {baseGetInfoCommandSchema, getProcessCommandsSchema} from '@/config/types/get-commands/get-process-commands-schema';
+import {
+  baseGetInfoCommandSchema,
+  getProcessCommandsSchema,
+} from '@/config/types/get-commands/get-process-commands-schema';
 import {getWindowCommandsSchema} from '@/config/types/get-commands/get-window-commands-schema';
 
 

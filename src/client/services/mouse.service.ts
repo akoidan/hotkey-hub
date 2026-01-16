@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
-import { FetchClient } from '@/client/http-client';
-import { MouseClickRequest, MouseMoveHumanRequest } from '@/client/dtos';
+import {Injectable} from '@nestjs/common';
+import {FetchClient} from '@/client/http-client';
+import {MouseClickRequest, MouseMoveHumanRequest} from '@/client/dtos';
 
 @Injectable()
 export class MouseService {

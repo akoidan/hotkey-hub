@@ -17,7 +17,8 @@ import {
   leftMouseClickRemoteCommandSchema,
   mouseCommandsSchema,
   mouseMoveClickRemoteCommandSchema,
-  mouseMoveClickRemoteCommandVariableSchema, mouseMoveRemoteCommandSchema,
+  mouseMoveClickRemoteCommandVariableSchema,
+  mouseMoveRemoteCommandSchema,
 } from '@/config/types/remote/mouse-commands-schema';
 import {
   killExeByNameRemoteCommandSchema,
@@ -64,7 +65,9 @@ import {
   getWindowBoundsCommandSchema,
   getWindowCommandsSchema,
   getWindowOpacityCommandSchema,
-  getWindowOwnerCommandSchema, getWindowsIdByMultiplePidsCommandVariablesSchema, getWindowsIdByMutliplePidsCommandSchema,
+  getWindowOwnerCommandSchema,
+  getWindowsIdByMultiplePidsCommandVariablesSchema,
+  getWindowsIdByMutliplePidsCommandSchema,
   getWindowsIdByPidCommandSchema,
   getWindowsIdByPidCommandVariablesSchema,
   getWindowTitleCommandSchema,

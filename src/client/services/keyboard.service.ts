@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
-import { FetchClient } from '@/client/http-client';
-import { SendKeyRequest, TypeTextRequest } from '@/client/dtos';
+import {Injectable} from '@nestjs/common';
+import {FetchClient} from '@/client/http-client';
+import {SendKeyRequest, TypeTextRequest} from '@/client/dtos';
 
 @Injectable()
 export class KeyboardService {

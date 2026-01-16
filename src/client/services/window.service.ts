@@ -1,17 +1,17 @@
-import { Injectable } from '@nestjs/common';
-import { FetchClient } from '@/client/http-client';
-import { 
-  ActiveWindowIdResponseDto, 
-  FocusExeRequest, 
-  FocusWindowRequest, 
-  GetActiveWindowInfoResponse, 
-  IsWindowResponseDto, 
-  IsWindowVisibleResponseDto, 
-  SetWindowBoundsRequest, 
-  WindowBounds, 
-  WindowOpacityResponseDto, 
-  WindowOwnerResponseDto, 
-  WindowTitleResponseDto 
+import {Injectable} from '@nestjs/common';
+import {FetchClient} from '@/client/http-client';
+import {
+  ActiveWindowIdResponseDto,
+  FocusExeRequest,
+  FocusWindowRequest,
+  GetActiveWindowInfoResponse,
+  IsWindowResponseDto,
+  IsWindowVisibleResponseDto,
+  SetWindowBoundsRequest,
+  WindowBounds,
+  WindowOpacityResponseDto,
+  WindowOwnerResponseDto,
+  WindowTitleResponseDto,
 } from '@/client/dtos';
 
 @Injectable()
