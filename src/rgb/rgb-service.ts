@@ -88,12 +88,17 @@ export class RgbService implements RgbServiceI {
       this.colors = Array<Color>(keyboard.colors.length).fill({red: 0, green: 0, blue: 0});
       // this hack is required because otherwise TCP socket error would be throws to unhandled error
       this.client!.disconnect();
+      if (process.platform === 'linux') {
+        // bug of opoenrgb client, disconnect, should be async with await, but it's not, so we have to wait
+        // somehow only reproducable on linux only
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
       await this.client!.connect();
       // remove this hack when openrgb-sdk is fixed
       this.logger.debug('Setting keyboard colors...');
       //doesnt work
       //      this.client!.updateLeds(this.deviceId!, this.colors);
-      for (let i =0; i < this.colors.length; i++) {
+      for (let i = 0; i < this.colors.length; i++) {
         this.client!.updateSingleLed(this.deviceId!, i, this.colors[i]);
       }
     } catch (error) {
@@ -110,11 +115,11 @@ export class RgbService implements RgbServiceI {
       return f(led.name) as string;
     }
     return led.name
-        .toLowerCase()
-        .replace(' arrow', '')
-        .replace('pause/break', 'pause')
-        .replace('key: ', '')
-        .replace(' (ansi)', '')
-        .replace(' ', '_');
+      .toLowerCase()
+      .replace(' arrow', '')
+      .replace('pause/break', 'pause')
+      .replace('key: ', '')
+      .replace(' (ansi)', '')
+      .replace(' ', '_');
   }
 }
