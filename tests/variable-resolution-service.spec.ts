@@ -17,7 +17,13 @@ async function getTestModule(configFilePath: string): Promise<TestingModule> {
       VariableResolutionService,
       {
         provide: ClientService,
-        useClass: class Empty {
+        useValue: {
+          keyboard: { typeText: jest.fn(), keyPress: jest.fn() },
+          mouse: { mouseMoveHuman: jest.fn(), leftMouseClick: jest.fn(), mouseMoveLeftClick: jest.fn() },
+          window: { focusWindow: jest.fn(), setWindowBounds: jest.fn(), getActiveWindowId: jest.fn() },
+          process: { launchExe: jest.fn(), killExeByName: jest.fn(), killExeById: jest.fn(), findPidsByName: jest.fn() },
+          monitor: { getMonitors: jest.fn(), monitorInfo: jest.fn(), getMonitorScaleFactor: jest.fn() },
+          app: { ping: jest.fn() }
         },
       },
       {

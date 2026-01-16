@@ -54,7 +54,13 @@ async function getTestModule(configFilePath: string): Promise<TestingModule> {
       CommandLocalHandler,
       {
         provide: ClientService,
-        useClass: class Empty {
+        useValue: {
+          keyboard: { typeText: jest.fn(), keyPress: jest.fn() },
+          mouse: { mouseMoveHuman: jest.fn(), leftMouseClick: jest.fn(), mouseMoveLeftClick: jest.fn() },
+          window: { focusWindow: jest.fn(), setWindowBounds: jest.fn(), getActiveWindowId: jest.fn() },
+          process: { launchExe: jest.fn(), killExeByName: jest.fn(), killExeById: jest.fn(), findPidsByName: jest.fn() },
+          monitor: { getMonitors: jest.fn(), monitorInfo: jest.fn(), getMonitorScaleFactor: jest.fn() },
+          app: { ping: jest.fn() }
         },
       },
       {
@@ -87,8 +93,8 @@ describe('Logic service', () => {
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const tyrs = testModule.get<ConfigService>(ConfigService);
     const clientService = testModule.get<ClientService>(ClientService);
-    clientService.keyPress = jest.fn().mockImplementation();
-    const spyKeyPress = jest.spyOn(clientService, 'keyPress');
+    (clientService.keyboard.keyPress as jest.Mock).mockImplementation(() => Promise.resolve());
+    const spyKeyPress = jest.spyOn(clientService.keyboard, 'keyPress');
     await tyrs.parseConfig();
 
     await shortCutService.runShortcut({
@@ -119,8 +125,8 @@ describe('Logic service', () => {
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const tyrs = testModule.get<ConfigService>(ConfigService);
     const clientService = testModule.get<ClientService>(ClientService);
-    clientService.mouseMoveHuman = jest.fn().mockImplementation();
-    const spyMouseClick = jest.spyOn(clientService, 'mouseMoveHuman');
+    clientService.mouse.mouseMoveHuman = jest.fn().mockImplementation();
+    const spyMouseClick = jest.spyOn(clientService.mouse, 'mouseMoveHuman');
     await tyrs.parseConfig();
 
     await shortCutService.runShortcut({
@@ -151,8 +157,8 @@ describe('Logic service', () => {
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const tyrs = testModule.get<ConfigService>(ConfigService);
     const clientService = testModule.get<ClientService>(ClientService);
-    clientService.findPidsByName = jest.fn().mockImplementation();
-    const spyFindPids = jest.spyOn(clientService, 'findPidsByName');
+    clientService.process.findPidsByName = jest.fn().mockImplementation();
+    const spyFindPids = jest.spyOn(clientService.process, 'findPidsByName');
     await tyrs.parseConfig();
 
     await shortCutService.runShortcut({
@@ -180,8 +186,8 @@ describe('Logic service', () => {
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const tyrs = testModule.get<ConfigService>(ConfigService);
     const clientService = testModule.get<ClientService>(ClientService);
-    clientService.killExeByName = jest.fn().mockImplementation();
-    const spyKillProcess = jest.spyOn(clientService, 'killExeByName');
+    clientService.process.killExeByName = jest.fn().mockImplementation();
+    const spyKillProcess = jest.spyOn(clientService.process, 'killExeByName');
     await tyrs.parseConfig();
 
     await shortCutService.runShortcut({
@@ -208,8 +214,8 @@ describe('Logic service', () => {
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const tyrs = testModule.get<ConfigService>(ConfigService);
     const clientService = testModule.get<ClientService>(ClientService);
-    clientService.getProcessWindows = jest.fn().mockImplementation(() => ({wids: ['123', '456']}));
-    const spyGetWindows = jest.spyOn(clientService, 'getProcessWindows');
+    clientService.window.getProcessWindows = jest.fn().mockImplementation(() => ({wids: ['123', '456']}));
+    const spyGetWindows = jest.spyOn(clientService.window, 'getProcessWindows');
     await tyrs.parseConfig();
 
     await shortCutService.runShortcut({
@@ -235,10 +241,10 @@ describe('Logic service', () => {
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const tyrs = testModule.get<ConfigService>(ConfigService);
     const clientService = testModule.get<ClientService>(ClientService);
-    clientService.getProcessWindows = jest.fn()
+    clientService.window.getProcessWindows = jest.fn()
         .mockImplementationOnce(() => ([123, 456]))
         .mockImplementationOnce(() => ([1235, 124]));
-    const spyGetWindows = jest.spyOn(clientService, 'getProcessWindows');
+    const spyGetWindows = jest.spyOn(clientService.window, 'getProcessWindows');
     await tyrs.parseConfig();
 
     delete tyrs.getVariables()['window1'];
@@ -270,8 +276,8 @@ describe('Logic service', () => {
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const tyrs = testModule.get<ConfigService>(ConfigService);
     const clientService = testModule.get<ClientService>(ClientService);
-    clientService.focusExe = jest.fn().mockImplementation();
-    const spyFocusExe = jest.spyOn(clientService, 'focusExe');
+    clientService.window.focusExe = jest.fn().mockImplementation();
+    const spyFocusExe = jest.spyOn(clientService.window, 'focusExe');
     await tyrs.parseConfig();
 
     await shortCutService.runShortcut({
@@ -296,8 +302,8 @@ describe('Logic service', () => {
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const tyrs = testModule.get<ConfigService>(ConfigService);
     const clientService = testModule.get<ClientService>(ClientService);
-    clientService.focusWindow = jest.fn().mockImplementation();
-    const spyFocusWindow = jest.spyOn(clientService, 'focusWindow');
+    clientService.window.focusWindow = jest.fn().mockImplementation();
+    const spyFocusWindow = jest.spyOn(clientService.window, 'focusWindow');
     await tyrs.parseConfig();
 
     await shortCutService.runShortcut({
@@ -322,8 +328,8 @@ describe('Logic service', () => {
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const tyrs = testModule.get<ConfigService>(ConfigService);
     const clientService = testModule.get<ClientService>(ClientService);
-    clientService.typeText = jest.fn().mockImplementation();
-    const spyTypeText = jest.spyOn(clientService, 'typeText');
+    clientService.keyboard.typeText = jest.fn().mockImplementation();
+    const spyTypeText = jest.spyOn(clientService.keyboard, 'typeText');
     await tyrs.parseConfig();
 
     await shortCutService.runShortcut({
@@ -350,8 +356,8 @@ describe('Logic service', () => {
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const tyrs = testModule.get<ConfigService>(ConfigService);
     const clientService = testModule.get<ClientService>(ClientService);
-    clientService.keyPress = jest.fn().mockImplementation();
-    const spykeyPress = jest.spyOn(clientService, 'keyPress');
+    clientService.keyboard.keyPress = jest.fn().mockImplementation();
+    const spykeyPress = jest.spyOn(clientService.keyboard, 'keyPress');
     await tyrs.parseConfig();
     await shortCutService.runShortcut({
       commands: [
@@ -383,10 +389,10 @@ describe('Logic service', () => {
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const tyrs = testModule.get<ConfigService>(ConfigService);
     const clientService = testModule.get<ClientService>(ClientService);
-    clientService.leftMouseClick = jest.fn().mockImplementation();
-    clientService.mouseMoveHuman = jest.fn().mockImplementation();
-    const skyMouseMoveClick = jest.spyOn(clientService, 'mouseMoveHuman');
-    const skyMouseClick = jest.spyOn(clientService, 'leftMouseClick');
+    clientService.mouse.leftMouseClick = jest.fn().mockImplementation();
+    clientService.mouse.mouseMoveHuman = jest.fn().mockImplementation();
+    const skyMouseMoveClick = jest.spyOn(clientService.mouse, 'mouseMoveHuman');
+    const skyMouseClick = jest.spyOn(clientService.mouse, 'leftMouseClick');
     await tyrs.parseConfig();
     await shortCutService.runShortcut({
       commands: [
@@ -432,8 +438,8 @@ describe('Logic service', () => {
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const tyrs = testModule.get<ConfigService>(ConfigService);
     const clientService = testModule.get<ClientService>(ClientService);
-    clientService.keyPress = jest.fn().mockImplementation();
-    const spykeyPress = jest.spyOn(clientService, 'keyPress');
+    clientService.keyboard.keyPress = jest.fn().mockImplementation();
+    const spykeyPress = jest.spyOn(clientService.keyboard, 'keyPress');
     await tyrs.parseConfig();
     await shortCutService.runShortcut({
       commands: [
@@ -456,8 +462,8 @@ describe('Logic service', () => {
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const tyrs = testModule.get<ConfigService>(ConfigService);
     const clientService = testModule.get<ClientService>(ClientService);
-    clientService.launchExe = jest.fn().mockImplementation();
-    const spyLaucnhExe = jest.spyOn(clientService, 'launchExe');
+    clientService.process.launchExe = jest.fn().mockImplementation();
+    const spyLaucnhExe = jest.spyOn(clientService.process, 'launchExe');
     await tyrs.parseConfig();
 
     await shortCutService.runShortcut({
@@ -486,8 +492,8 @@ describe('Logic service', () => {
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const tyrs = testModule.get<ConfigService>(ConfigService);
     const clientService = testModule.get<ClientService>(ClientService);
-    clientService.killExeById = jest.fn().mockImplementation();
-    const spyLaucnhExe = jest.spyOn(clientService, 'killExeById');
+    clientService.process.killExeById = jest.fn().mockImplementation();
+    const spyLaucnhExe = jest.spyOn(clientService.process, 'killExeById');
     await tyrs.parseConfig();
     await shortCutService.runShortcut({
       commands: [
@@ -515,8 +521,8 @@ describe('Logic service', () => {
     const clientService = testModule.get<ClientService>(ClientService);
     const variableService = testModule.get<VariableResolutionService>(VariableResolutionService);
 
-    clientService.typeText = jest.fn().mockImplementation();
-    const spyTypeText = jest.spyOn(clientService, 'typeText');
+    clientService.keyboard.typeText = jest.fn().mockImplementation();
+    const spyTypeText = jest.spyOn(clientService.keyboard, 'typeText');
 
     // Set up environment variable
     (globalEnv as any)['login'] = 'testuser123';
@@ -550,10 +556,10 @@ describe('Logic service', () => {
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const configService = testModule.get<ConfigService>(ConfigService);
     const clientService = testModule.get<ClientService>(ClientService);
-    clientService.typeText = jest.fn().mockImplementation();
-    clientService.keyPress = jest.fn().mockImplementation();
-    const spyTypeText = jest.spyOn(clientService, 'typeText');
-    const spyKeyPress = jest.spyOn(clientService, 'keyPress');
+    clientService.keyboard.typeText = jest.fn().mockImplementation();
+    clientService.keyboard.keyPress = jest.fn().mockImplementation();
+    const spyTypeText = jest.spyOn(clientService.keyboard, 'typeText');
+    const spyKeyPress = jest.spyOn(clientService.keyboard, 'keyPress');
 
     await configService.parseConfig();
 
