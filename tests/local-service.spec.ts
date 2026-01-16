@@ -122,7 +122,7 @@ describe('Logic service', () => {
       commands: [
         {
           destination: 'this',
-          performOnRemote: 'mouseMoveClick',
+          performOnRemote: 'mouseMoveLeftClick',
           variables: {
             x: 100,
             y: 200,
@@ -230,7 +230,7 @@ describe('Logic service', () => {
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const tyrs = testModule.get<ConfigService>(ConfigService);
     const clientService = testModule.get<ClientService>(ClientService);
-    clientService.getProcessWindows = jest.fn().mockImplementation(() => ({wids: ['123', '456']}));
+    clientService.getProcessWindows = jest.fn().mockImplementation(() => ([123, 456]));
     const spyGetWindows = jest.spyOn(clientService, 'getProcessWindows');
     await tyrs.parseConfig();
 
@@ -385,7 +385,7 @@ describe('Logic service', () => {
               name: 't1',
               commands: [
                 {
-                  performOnRemote: 'mouseMoveClick',
+                  performOnRemote: 'mouseMoveLeftClick',
                   variables: {
                     x: 537,
                     y: 123,
@@ -411,7 +411,7 @@ describe('Logic service', () => {
       name: 'Tyrs attack each other',
       shortCut: 'Alt+2'
     })
-    expect(skyMouseMoveClick).toHaveBeenCalledWith('that', {x: 537, y: 123, pixelsPerIteration: 20});
+    expect(skyMouseMoveClick).toHaveBeenCalledWith('that', {x: 537, y: 123});
     expect(skyMouseClick).toHaveBeenCalledWith('that');
   });
 
@@ -466,8 +466,7 @@ describe('Logic service', () => {
 
     expect(spyLaucnhExe).toHaveBeenCalledWith('this', {
       arguments: ['/s', '/t', '0'],
-      path: 'C:\\Windows\\System32\\shutdown.exe',
-      waitTillFinish: false,
+      path: 'C:\\Windows\\System32\\shutdown.exe'
     });
   });
 
