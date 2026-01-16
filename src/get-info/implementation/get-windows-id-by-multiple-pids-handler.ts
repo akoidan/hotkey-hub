@@ -5,7 +5,7 @@ import {GetWindowsIdByMultiplePidsVariables, GetWindowsIdByPidCommand} from '@/c
 import {GetInfoHandler} from '@/get-info/get-info-handler';
 
 @Injectable()
-export class GetWindowsIdByPidHandler extends GetInfoHandler {
+export class GetWindowsIdByMultiplePidsHandler extends GetInfoHandler {
   canHandle(command: GetInfoRemoteCommand): command is GetWindowsIdByPidCommand {
     return command.get === 'getWindowsIdByMultiplePids';
   }

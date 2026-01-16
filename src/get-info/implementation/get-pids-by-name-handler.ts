@@ -6,7 +6,7 @@ import {GetPidsByNameCommand} from '@/config/types/get-commands/get-process-comm
 import {GetInfoHandler} from '@/get-info/get-info-handler';
 
 @Injectable()
-export class GetActiveWindowInfoHandler extends GetInfoHandler {
+export class GetPidsByNameHandler extends GetInfoHandler {
   canHandle(command: GetInfoRemoteCommand): command is GetActiveWindowIdCommand {
     return command.get === 'getPidsByName';
   }

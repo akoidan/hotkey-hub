@@ -17,6 +17,8 @@ import {GetProcessMainWindowHandler} from '@/get-info/implementation/get-process
 import {GetWindowsIdByPidHandler} from '@/get-info/implementation/get-windows-id-by-pid-handler';
 import {GetActiveWindowInfoHandler} from '@/get-info/implementation/get-active-window-info-handler';
 import {Provider} from '@nestjs/common/interfaces/modules/provider.interface';
+import {GetWindowsIdByMultiplePidsHandler} from '@/get-info/implementation/get-windows-id-by-multiple-pids-handler';
+import {GetPidsByNameHandler} from '@/get-info/implementation/get-pids-by-name-handler';
 
 const getInfoHandlers = [
   PingHandler,
@@ -28,7 +30,8 @@ const getInfoHandlers = [
   GetWindowOwnerHandler,
   GetWindowValidityHandler,
   GetWindowVisibilityHandler,
-  GetWindowsIdByPidHandler,
+  GetWindowsIdByMultiplePidsHandler,
+  GetPidsByNameHandler,
   GetMonitorsHandler,
   GetMonitorInfoHandler,
   GetMonitorFromWindowHandler,
