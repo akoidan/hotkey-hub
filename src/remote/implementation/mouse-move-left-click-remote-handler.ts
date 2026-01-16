@@ -2,9 +2,9 @@ import type {MouseMoveClickRemoteCommand, MouseMoveClickRemoteVariable} from '@/
 import type {RemoteCommand} from '@/config/types/remote/remote-commands';
 import {CommandRemoteHandler} from '@/remote/command-remote-handler';
 
-export class MouseClickRemoteHandler extends CommandRemoteHandler {
+export class MouseMoveLeftClickRemoteHandler extends CommandRemoteHandler {
   canHandle(command: RemoteCommand): command is MouseMoveClickRemoteCommand {
-    return command.performOnRemote === 'mouseMoveClick';
+    return command.performOnRemote === 'mouseMoveLeftClick';
   }
 
   async execute(destination: string, command: MouseMoveClickRemoteCommand): Promise<void> {

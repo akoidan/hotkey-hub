@@ -17,7 +17,7 @@ import {
   leftMouseClickRemoteCommandSchema,
   mouseCommandsSchema,
   mouseMoveClickRemoteCommandSchema,
-  mouseMoveClickRemoteCommandVariableSchema,
+  mouseMoveClickRemoteCommandVariableSchema, mouseMoveRemoteCommandSchema,
 } from '@/config/types/remote/mouse-commands-schema';
 import {
   killExeByNameRemoteCommandSchema,
@@ -219,7 +219,7 @@ export {
   threadsLocalCommandSchema,
   macroLocalCommandSchema,
   unknownCommandSchema,
-
+  mouseMoveRemoteCommandSchema,
   setWindowBoundsRemoteCommandSchema,
   expressionLocalCommandSchema,
   threadLocalSchema,

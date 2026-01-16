@@ -60,6 +60,10 @@ export class ClientService {
     return this.client.post(client, '/mouse/left-click', {});
   }
 
+  async mouseMoveLeftClick(client: string, request: MouseClickRequest): Promise<void> {
+    return this.client.post(client, '/mouse/move-left-click', request);
+  }
+
   async launchExe(client: string, request: LaunchExeRequest): Promise<LaunchPidResponse> {
     return this.client.post(client, '/process/launch-exe', request, 3000, true);
   }

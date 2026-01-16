@@ -1,7 +1,7 @@
 import {Logger, Module} from '@nestjs/common';
 import {ClientModule} from '@/client/client-module';
 import {KeyPressRemoteHandler} from '@/remote/implementation/key-press-remote-handler';
-import {MouseClickRemoteHandler} from '@/remote/implementation/mouse-click-remote-handler';
+import {MouseMoveLeftClickRemoteHandler} from '@/remote/implementation/mouse-move-left-click-remote-handler';
 import {ExecuteRemoteHandler} from '@/remote/implementation/execute-remote-handler.service';
 import {TypeTextRemoteHandler} from '@/remote/implementation/type-text-remote-handler';
 import {KillNameRemoteHandler} from '@/remote/implementation/kill-name-remote-handler';
@@ -15,12 +15,14 @@ import {FocusWindowRemoteHandler} from '@/remote/implementation/focus-window-rem
 import {CommandRemoteHandler} from '@/remote/command-remote-handler';
 import {SetWindowBoundsRemoteHandler} from '@/remote/implementation/set-window-bounds-remote-handler.service';
 import {FocusProcessWindowRemoteHandler} from '@/remote/implementation/focus-process-window-remote-handler';
+import {MouseMoveRemoteHandler} from '@/remote/implementation/mouse-move-remote-handler';
 
 
 const handlers =[
   KeyPressRemoteHandler,
   FocusProcessWindowRemoteHandler,
-  MouseClickRemoteHandler,
+  MouseMoveLeftClickRemoteHandler,
+  MouseMoveRemoteHandler,
   ExecuteRemoteHandler,
   TypeTextRemoteHandler,
   KillNameRemoteHandler,
