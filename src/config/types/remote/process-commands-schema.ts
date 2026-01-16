@@ -1,5 +1,5 @@
 import {z} from 'zod';
-import {makeVariableUnion} from '@/config/types/variables';
+import {makeVariableUnion, variableValueSchema} from '@/config/types/variables';
 import {baseRemoteCommandSchema} from '@/config/types/remote/base-remote-command';
 
 const killExeByNameRemoteVariableSchema = z.object({
@@ -41,7 +41,9 @@ const launchExeRemoteCommandVariableSchema = makeVariableUnion(launchExeRemoteVa
 
 const launchExeRemoteCommandSchema = baseRemoteCommandSchema.extend({
   performOnRemote: z.literal('launchExe'),
-  assignVariable: z.string().optional().describe('If provided, would assign launched process id to this variable'),
+  assignVariable: z.union([z.string(), variableValueSchema])
+    .optional()
+    .describe('If provided, would assign launched process id to this variable'),
   variables: launchExeRemoteCommandVariableSchema,
 }).strict().describe('Starts a program on a remote PC.');
 
