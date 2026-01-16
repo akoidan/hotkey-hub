@@ -5,8 +5,7 @@ import {CommandRemoteHandler} from '@/remote/command-remote-handler';
 import {DelayService} from '@/local/delay.service';
 import {SemaphorService} from '@/semaphor/semaphor-service';
 import {BaseLocalHandler} from '@/local/base-local-handler';
-import {UnknownCommand} from '@/config/types/local-commands';
-import {RemoteCommand} from '@/config/types/remote-commands';
+import {RemoteCommand} from '@/config/types/remote/remote-commands';
 
 @Injectable()
 export class CommandLocalHandler extends BaseLocalHandler {
@@ -20,8 +19,8 @@ export class CommandLocalHandler extends BaseLocalHandler {
     super();
   }
 
-  canHandle(command: UnknownCommand): command is RemoteCommand {
-    return true;
+  canHandle(command: RemoteCommand): command is RemoteCommand {
+    return Boolean(command.performOnRemote);
   }
 
   public async *execute(
@@ -30,7 +29,7 @@ export class CommandLocalHandler extends BaseLocalHandler {
     combDelayBefore: undefined | number,
     tId: string | undefined,
   ): AsyncGenerator<void> {
-    const currRec: RemoteCommand = this.variableService.replaceEnvVars(input);
+    const currRec: RemoteCommand = this.variableService.replaceVariables(input);
     this.logger.debug(`Running ${JSON.stringify(input)}`);
     if (tId) {
       await this.delayService.awaitDelay(combDelayBefore, input.delayBefore as number | undefined, 'before', 'command');

@@ -3,8 +3,9 @@ import {DelayService} from '@/local/delay.service';
 import {SemaphorService} from '@/semaphor/semaphor-service';
 import {BaseLocalHandler} from '@/local/base-local-handler';
 import {VariableResolutionService} from '@/local/variable-resolution.service';
-import {TransactionLocalCommand, UnknownCommand} from '@/config/types/local-commands';
-import {Delay} from '@/config/types/remote-commands';
+import {TransactionLocalCommand} from '@/config/types/local/local-commands';
+import {UnknownCommand} from '@/config/types/commands';
+import {Delay} from '@/config/types/remote/base-remote-command';
 
 @Injectable()
 export class TransactionLocalHandler extends BaseLocalHandler {
@@ -28,7 +29,7 @@ export class TransactionLocalHandler extends BaseLocalHandler {
     combDelayBefore: number | undefined,
     transactionId: string | undefined,
   ): AsyncGenerator<void> {
-    const preparedInput = this.variableService.replaceEnvVars(input);
+    const preparedInput = this.variableService.replaceVariables(input);
     const tId = transactionId ?? this.semaphoreService.getNewTransactionId();
     const that = this;
     yield* this.semaphoreService.spawnGeneratorChild(

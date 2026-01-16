@@ -11,7 +11,7 @@ interface ConfigPath {
 interface ZodErrorCollected {
   path: string;
   message: string;
-  expected?: string;
+  expected?: string[];
   received?: string;
 }
 

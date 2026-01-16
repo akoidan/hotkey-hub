@@ -1,6 +1,7 @@
 import {Injectable, Logger} from '@nestjs/common';
 import {BaseLocalHandler} from '@/local/base-local-handler';
-import {PrintLocalCommand, UnknownCommand} from '@/config/types/local-commands';
+import {PrintLocalCommand} from '@/config/types/local/local-commands';
+import {UnknownCommand} from '@/config/types/commands';
 import {EvaluateService} from '@/local/evaluate-serivce';
 import clc from 'cli-color';
 

@@ -1,31 +1,24 @@
 {
   "name": "hotkey-hub",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "main": "src/index.js",
   "repository": "git@github.com:akoidan/hotkey-hub.git",
   "author": "akoidan <deathangel908@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "schema:json": "node -r tsconfig-paths/register -r ts-node/register src/config/generate-schema.ts",
-    "lint": "eslint --ext .ts --max-warnings=0 src",
-    "autoformat": "eslint --ext .ts --max-warnings=0 --fix src",
-    "schema:doc": "zod2md --entry ./src/config/types/schema.ts --title 'Schema for config.jsonc' --output CONFIG.md",
-    "test": "jest --coverage  --detectOpenHandles --testTimeout=10000",
     "start": "rm -rf ./dist/ && node -r tsconfig-paths/register -r ts-node/register src/main.ts",
+    "cmake": "cmake-js build",
+    "cmake:debug": "cmake-js build --debug",
+    "nest": "nest build",
+    "native": "pkg .",
+    "build": "npm-run-all -s cmake nest native",
+    "test": "jest --coverage  --detectOpenHandles --testTimeout=10000",
+    "schema:json": "node -r tsconfig-paths/register -r ts-node/register src/config/generate-schema.ts",
+    "schema:doc": "ts-node src/config/zod2md.ts",
     "rgb": "rm -rf ./dist/ && node -r tsconfig-paths/register -r ts-node/register src/rgb-test.ts",
     "clean": "rm -rf ./dist/ && rm -rf ./build",
-    "transpile": "nest build",
-    "build:local": "npm-run-all -s clean native:configure:debug native:build:debug",
-    "pkg:win32": "pkg . --targets win --output hotkey-hub.exe",
-    "pkg:linux": "pkg . --targets linux --output hotkey-hub.elf",
-    "build:win32": "npm-run-all -s clean native:configure native:build transpile pkg:win32",
-    "build:linux": "npm-run-all -s clean native:configure native:build transpile pkg:linux",
-    "vs2022": "cmake-js configure --generator \"Visual Studio 17 2022\" --debug",
-    "wine": "wine hotkey-hub.exe",
-    "native:configure": "cmake-js configure",
-    "native:build": "cmake-js compile",
-    "native:configure:debug": "rm -rf build && cmake-js configure --debug",
-    "native:build:debug": "cmake-js build --debug",
+    "lint": "eslint --ext .ts --max-warnings=0 src",
+    "autoformat": "eslint --ext .ts --max-warnings=0 --fix src",
     "postinstall": "patch-package"
   },
   "devDependencies": {
@@ -55,8 +48,7 @@
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.4.5",
-    "zod-to-json-schema": "^3.24.1",
-    "zod2md": "^0.1.4"
+    "zod2md": "0.2.5"
   },
   "engines": {
     "node": ">=18.0.0 <19",
@@ -71,7 +63,7 @@
       "build/Debug/server.node"
     ],
     "targets": [
-      "node18-win-x64"
+      "host"
     ]
   },
   "binary": {
@@ -90,6 +82,6 @@
     "reflect-metadata": "^0.2.2",
     "rxjs": "7.1.0",
     "yargs": "^17.7.2",
-    "zod": "^3.23.8"
+    "zod": "^4.3.5"
   }
 }

@@ -14,7 +14,7 @@ Hotkey Hub is a powerful remote PC control tool that lets you bind hotkeys on on
 The project requires several files for configuration and security:
 
 ### Required Files
-- `configs/config.jsonc`: Main configuration file that defines your hotkey bindings and actions. Schema is defined in `json-schema.json`. See `CONFIG.md` in releases for detailed documentation.
+- `configs/config.jsonc`: Main configuration file that defines your hotkey bindings and actions. Schema is defined in `json-schema.json`. Check [github-pages](https://akoidan.github.io/hotkey-hub/) or `CONFIG.md` in releases for detailed documentation.
 - `certs/cert.pem`: Client certificate for mutual TLS authentication
 - `certs/key.pem`: Client private key
 - `certs/ca-cert.pem`: CA certificate
@@ -28,7 +28,6 @@ The project requires several files for configuration and security:
 ### Remote
 Install [http-remote-pc-control](https://github.com/akoidan/http-remote-pc-control) on a remote PC which you want to control.
 
-
 ### Certificates (Requied)
 The client server app both use [mutual TLS authentication](https://www.cloudflare.com/learning/access-management/what-is-mutual-tls/).
 Generates them based on [Certificates](https://github.com/akoidan/http-remote-pc-control?tab=readme-ov-file#certificates) section.
@@ -40,27 +39,25 @@ You gonna have to use following certificates in the future. (Described later)
 **If client and server certificates are different you'll get an exception on startup that server is unable to connnect to the client**
 
 ### Define Main Configuration (Required)
-Create `config.jsonc`. This file defines your hotkey bindings and actions:
-Example of the minimal config:
+
+Example of `configs/config.jsonc`:
 ```json
 {
   "ips": {
-    "this": "127.0.0.1", // replace with the IP of the remote PC
+    "this": "127.0.0.1", // replace with the IP of the remote PC you have install http-remote-pc-control
   },
   "combinations": [
     {
       "commands": [
         {
-          "typeText": "Hello wolrd", // will literally type this text (press key by key)
+          "performOnRemote": "typeText",
+          "variables": {
+            "text": "Hello wolrd", // will literally type this text (press key by key)
+          },
           "destination": "this",
         },
-        {
-          "mouseMoveX": 200, // move mouse cursor to the position (200, 200)
-          "mouseMoveY": 200,
-          "destination": "this"
-        }
       ],
-      "name": "Mouse move + type text",
+      "name": "Type text",
       // Note you need to have signal keys like alt, ctrl, shift, super (windows key) pressed. 
       // Since OS API usually requires them for a shortcut
       // any OS shortcuts allowd (Alt+1, Ctrl+Shift+2, etc)
@@ -69,13 +66,29 @@ Example of the minimal config:
   ]
 }
 ```
+There are 3 types of commands:
+- [local](https://akoidan.github.io/hotkey-hub/#localcommand) flow control commands. Examples are
+    - Conditions with `if`
+    - While and for loop with `loops`
+    - Macros for reusable piece of code with `macro`
+    - Expresssions to evaluate JS code and build conditions and arguments on it with `expression`
+    - ...
+- [Remote](https://akoidan.github.io/hotkey-hub/#remotecommand) commands:
+    - keyboards events with e.g.  `performOnRemote: "typeText"`
+    - mouse events with e.g. `performOnRemote: "mouseMove"`
+    - window control with e.g. `performOnRemote: "focusProcessWindow"`
+    - ...
+- [Get info](https://akoidan.github.io/hotkey-hub/#getinfocommand) commands:
+    - windows information getters with e.g.  `get: "activeWindow"`
+    - ...
 
+- `main` branch documentation is available at [github-pages](https://akoidan.github.io/hotkey-hub) 
+- Documentation per specific version is available in [releases](https://github.com/akoidan/hotkey-hub/releases) at `CONFIG.md` file
 - You can more examples in fixtures, e.g. [config-fixture.jsonc](./tests/fixtures/config-fixture.jsonc)
 - Uses JSON with comments (JSONC) format
 - Schema is defined in `json-schema.json`, available in [releases](https://github.com/akoidan/hotkey-hub/releases)
 - Documentation is defined at `CONFIG.md`, available in [releases](https://github.com/akoidan/hotkey-hub/releases)
-- Can reference macros and variables from optional configuration files
-- Bellow you will find instruction where to put this file and how to use schema from `json-schema.json`
+- Can reference macros and variables from optional configuration files`
 
 ### Macros (Optional)
 You can create macros in `config.jsonc` and additionally in `macros.jsonc`:
@@ -83,14 +96,12 @@ You can create macros in `config.jsonc` and additionally in `macros.jsonc`:
 - Schema is defined in `macros-schema.json`, available in [releases](https://github.com/akoidan/hotkey-hub/releases)
 - Documentation is defined at `CONFIG.md` same schema as "macros" in the root object. 
 - Can be referenced from `config.jsonc`
-- Bellow you will find instruction where to put this file.
 
 ### Variables (Optional)
 Create `configs/variables.json` to define custom variables:
 - Can have any valid JSON structure with a root object
-- To reference a variable use double curly braces. E.g. `"destination": "{"$ref": "varName"}`
+- To reference a variable use object with `$ref` keyword.  E.g. `"destination": "{"$ref": "varName"}`
 - Variables can be referenced in both `config.jsonc` and `macros.jsonc`
-- Bellow you will find instruction where to put this file.
 
 ### JSON Schema Support
 You can validate your configuration using any JSON schema validator (e.g., [jsonschemavalidator.net](https://www.jsonschemavalidator.net/)):
@@ -136,12 +147,14 @@ You can validate your configuration using any JSON schema validator (e.g., [json
 - Download `hotkey-hub.exe` from [releases](https://github.com/akoidan/hotkey-hub/releases).
 - Put ceritifates into `./certs` directory where `hotkey-hub.exe` is.
 - Put configs into `./configs` directory where `hotkey-hub.exe` is
-- Run the `hotkey-hub.exe` from regular user. You can also run it from command line to view stdout and sterror if the app crashes.
+- Open the terminal from a regular user and run  `hotkey-hub.exe`. 
+- You can also run it by double clicking the .exe file like you normally do, but in case of error it will exit promptly.
 
 ### Help
  - The app will ping client from the start in order to check connection. If one/more clients in config.jsonc `ips` section is not reachable, the app will `exit 1`
- - If the certificats are incorrect you will get connection errors in the output and app will exit.
+ - If the certificats are incorrect you will get connection errors in the output and app will exit, e.g. unable to ping the client.
  - If if there are no active shorcuts in `combinations` of `config.jsonc`, the app will `exit 0`
+ - If the shortcut already taken you the app won't start as well with a corresponding error.
  - You can check cli arguments with `hotkey-hub --help`
 
 ## Log example

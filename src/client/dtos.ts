@@ -1,4 +1,9 @@
-import type {Key} from '@/config/types/remote-commands';
+import type {Key} from '@/config/types/remote/keyboard-commands-schema';
+
+interface PingResponseDto {
+  status: string;
+  version: string;
+}
 
 interface MouseClickRequest {
   x: number;
@@ -22,7 +27,7 @@ interface SendKeyRequest {
   duration?: number;
 }
 
-interface FocusExeRequest {
+interface FocusWindowByPidRequest {
   pid: number;
 }
 
@@ -30,6 +35,12 @@ interface LaunchExeRequest {
   path: string;
   arguments: string[];
   waitTillFinish: boolean;
+}
+
+interface GetActiveWindowInfoResponse {
+  path: string;
+  wid: number;
+  pid: number
 }
 
 interface WindowBounds {
@@ -52,16 +63,22 @@ interface FindPidsByNameRequest {
   name: string;
 }
 
-interface FindPidsByNameResponse {
-  pids: string;
-}
-
-interface FindProcessWindowsResponse {
-  wids: string;
-}
 
 interface FocusWindowRequest {
   wid: number;
+}
+
+interface MonitorBounds {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+interface MonitorInfo {
+  bounds: MonitorBounds;
+  workArea: MonitorBounds;
+  isPrimary: boolean
 }
 
 interface KillExeByPidRequest {
@@ -78,20 +95,67 @@ interface LaunchPidResponse {
   pid: number;
 }
 
+interface WindowTitleResponseDto {
+  title: string;
+}
+
+interface WindowOpacityResponseDto {
+  opacity: number;
+}
+
+interface WindowOwnerResponseDto {
+  wid: number;
+}
+
+interface IsWindowResponseDto {
+  isValid: boolean;
+}
+
+interface IsWindowVisibleResponseDto {
+  isVisible: boolean;
+}
+
+interface ActiveWindowIdResponseDto {
+  wid: number;
+}
+
+interface MonitorScaleFactorResponseDto {
+  scaleFactor: number;
+}
+
+interface MonitorIdResponseDto {
+  mid: number;
+}
+
+interface WindowHandleResponseDto {
+  wid: number;
+}
+
 export type {
+  MonitorBounds,
+  MonitorInfo,
   MouseClickRequest,
   SendKeyRequest,
-  FocusExeRequest,
+  FocusWindowByPidRequest,
   LaunchPidResponse,
   LaunchExeRequest,
   TypeTextRequest,
   FindPidsByNameRequest,
   KillExeByNameRequest,
   KillExeByPidRequest,
+  GetActiveWindowInfoResponse,
   FocusWindowRequest,
-  FindPidsByNameResponse,
   SetWindowBoundsRequest,
   WindowBounds,
-  FindProcessWindowsResponse,
   MouseMoveHumanRequest,
+  PingResponseDto,
+  WindowTitleResponseDto,
+  WindowOpacityResponseDto,
+  WindowOwnerResponseDto,
+  IsWindowResponseDto,
+  IsWindowVisibleResponseDto,
+  ActiveWindowIdResponseDto,
+  MonitorScaleFactorResponseDto,
+  MonitorIdResponseDto,
+  WindowHandleResponseDto,
 };

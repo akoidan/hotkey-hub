@@ -1,7 +1,8 @@
 import {ConfigService} from '@/config/config-service';
 import {Injectable} from '@nestjs/common';
 import {ClientService} from '@/client/client-service';
-import {ExecuteRemoteCommand, RemoteCommand} from '@/config/types/remote-commands';
+import {LaunchExeRemoteCommand, LaunchExeRemoteVariable} from '@/config/types/remote/process-commands-schema';
+import {RemoteCommand} from '@/config/types/remote/remote-commands';
 import {CommandRemoteHandler} from '@/remote/command-remote-handler';
 
 @Injectable()
@@ -13,19 +14,15 @@ export class ExecuteRemoteHandler extends CommandRemoteHandler {
     super(clientService);
   }
 
-  canHandle(command: RemoteCommand): command is ExecuteRemoteCommand {
-    return Boolean((command as ExecuteRemoteCommand).launch);
+  canHandle(command: RemoteCommand): command is LaunchExeRemoteCommand {
+    return command.performOnRemote === 'launchExe';
   }
 
-  async execute(destination: string, command: ExecuteRemoteCommand): Promise<void> {
-    const response = await this.clientService.launchExe(destination, {
-      path: command.launch as string,
-      arguments: command.arguments as string[] ?? [],
-      waitTillFinish: command.waitTillFinish as boolean ?? false,
-    });
+  async execute(destination: string, command: LaunchExeRemoteCommand): Promise<void> {
+    const response = await this.clientService.process.launchExe(destination, command.variables as LaunchExeRemoteVariable);
 
-    if (command.assignId) {
-      this.configService.setVariable(command.assignId as string, response.pid);
+    if (command.assignVariable) {
+      this.configService.setVariable(command.assignVariable as string, response.pid);
     }
   }
 }

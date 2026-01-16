@@ -3,8 +3,9 @@ import {ConfigService} from '@/config/config-service';
 import {VariableResolutionService} from '@/local/variable-resolution.service';
 import {DelayService} from '@/local/delay.service';
 import {BaseLocalHandler} from '@/local/base-local-handler';
-import {MacroLocalCommand, UnknownCommand} from '@/config/types/local-commands';
-import {Delay} from '@/config/types/remote-commands';
+import {MacroLocalCommand} from '@/config/types/local/local-commands';
+import {UnknownCommand} from '@/config/types/commands';
+import {Delay} from '@/config/types/remote/base-remote-command';
 import {SemaphorService} from '@/semaphor/semaphor-service';
 
 @Injectable()
@@ -43,7 +44,7 @@ export class MacroLocalHandler extends BaseLocalHandler {
         }
         for (let i = 0; i < executable.commands.length; i++) {
           yield* that.semaphoreService.spawnGeneratorChild(`c=${String(i)}`, async function* loopGenerator(): AsyncGenerator<void> {
-            const preparedCommand = that.variableService.replacePlaceholders(
+            const preparedCommand = that.variableService.replaceMacroVariables(
               executable.commands[i],
               input.variables,
               executable.variables

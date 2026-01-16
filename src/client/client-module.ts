@@ -1,7 +1,4 @@
-import {
-  Logger,
-  Module,
-} from '@nestjs/common';
+import {Logger, Module} from '@nestjs/common';
 import {FetchClient} from '@/client/http-client';
 import {ClientService} from '@/client/client-service';
 import {CertService} from '@/client/cert-service';
@@ -9,6 +6,12 @@ import {ConfigModule} from '@/config/config-module';
 import {ConfigService} from '@/config/config-service';
 import {SemaphorService} from '@/semaphor/semaphor-service';
 import {SemaphorModule} from '@/semaphor/semaphor.module';
+import {AppService} from '@/client/services/app.service';
+import {KeyboardService} from '@/client/services/keyboard.service';
+import {MonitorService} from '@/client/services/monitor.service';
+import {MouseService} from '@/client/services/mouse.service';
+import {ProcessService} from '@/client/services/process.service';
+import {WindowService} from '@/client/services/window.service';
 
 
 @Module({
@@ -18,6 +21,12 @@ import {SemaphorModule} from '@/semaphor/semaphor.module';
   ],
   providers: [
     Logger,
+    AppService,
+    KeyboardService,
+    MonitorService,
+    MouseService,
+    ProcessService,
+    WindowService,
     CertService,
     {
       provide: FetchClient,

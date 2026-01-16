@@ -4,7 +4,7 @@ import {ClientModule} from '@/client/client-module';
 import {ShortcutProcessingService} from '@/local/shortcut-processing.service';
 import {VariableResolutionService} from '@/local/variable-resolution.service';
 import {RemoteHandlerModule} from '@/remote/remote-handler-module';
-import {CommandLocalHandler} from '@/local/implementation/command-local-handler';
+import {CommandLocalHandler} from '@/local/command-local-handler';
 import {DelayService} from '@/local/delay.service';
 import {SemaphorModule} from '@/semaphor/semaphor.module';
 import {RandomModule} from '@/random/random.module';
@@ -23,62 +23,41 @@ import {EvaluateService} from '@/local/evaluate-serivce';
 import {IfLocalHandler} from '@/local/implementation/if-local-handler';
 import {ShuffleLocalHandler} from '@/local/implementation/shuffle-local-handler';
 import {PrintLocalHandler} from '@/local/implementation/print-local-handler';
+import {GetLocalHandler} from '@/local/get-local-handler';
+import {GetInfoModule} from '@/get-info/get-info-module';
 
 
-const processingProviders: Provider[] = [
+const localHandlers =[
   MacroLocalHandler,
   TransactionLocalHandler,
   ExpressionLocalHandler,
-  CommandLocalHandler,
   ThreadsLocalHandler,
   LoopLocalHandler,
   ReloadLocalHandler,
   IfLocalHandler,
-  PrintLocalHandler,
   ShuffleLocalHandler,
+  PrintLocalHandler,
+  GetLocalHandler,
+  CommandLocalHandler,
+];
+
+const localProviders: Provider[] = [
+  ...localHandlers,
   {
     provide: BaseLocalHandler,
-    inject: [
-      MacroLocalHandler,
-      TransactionLocalHandler,
-      ExpressionLocalHandler,
-      ThreadsLocalHandler,
-      LoopLocalHandler,
-      ReloadLocalHandler,
-      IfLocalHandler,
-      ShuffleLocalHandler,
-      PrintLocalHandler,
-      CommandLocalHandler,
-    ],
-    useFactory: (
-      macro: BaseLocalHandler,
-      transaction: BaseLocalHandler,
-      variable: BaseLocalHandler,
-      thread: BaseLocalHandler,
-      loopLocalHandler: BaseLocalHandler,
-      reloadLocalHandler: ReloadLocalHandler,
-      ifLocalHandler: IfLocalHandler,
-      shuffleLocalHandler: ShuffleLocalHandler,
-      printLocalHandler: PrintLocalHandler,
-      command: BaseLocalHandler,
-    ): BaseLocalHandler => {
-      macro.setNext(transaction, macro)
-        .setNext(variable, macro)
-        .setNext(thread, macro)
-        .setNext(loopLocalHandler, macro)
-        .setNext(reloadLocalHandler, macro)
-        .setNext(ifLocalHandler, macro)
-        .setNext(shuffleLocalHandler, macro)
-        .setNext(printLocalHandler, macro)
-        .setNext(command, macro)
-        .setNext(null!, macro);
-      return macro;
+    inject: localHandlers,
+    useFactory: (...lhandl: BaseLocalHandler[]): BaseLocalHandler => {
+      for (let i = 0; i < lhandl.length - 1; i++) {
+        lhandl[i].setNext(lhandl[i + 1], lhandl[0]);
+      }
+      lhandl[lhandl.length -1].setNext(null!, lhandl[0]);
+      return lhandl[0];
     },
   },
 ];
 
 @Module({
-  imports: [ConfigModule, ClientModule, RemoteHandlerModule, SemaphorModule, RandomModule, RgbModule, NativeModule],
+  imports: [ConfigModule, ClientModule, RemoteHandlerModule, SemaphorModule, RandomModule, RgbModule, NativeModule, GetInfoModule],
   providers: [
     Logger,
     DelayService,
@@ -87,7 +66,7 @@ const processingProviders: Provider[] = [
     VariableResolutionService,
     EvaluateService,
     CommandLocalHandler,
-    ...processingProviders,
+    ...localProviders,
   ],
   exports: [KeybindingService],
 })
@@ -103,4 +82,4 @@ class LocalModule implements OnModuleInit {
   }
 }
 
-export {LocalModule, processingProviders};
+export {LocalModule, localProviders};

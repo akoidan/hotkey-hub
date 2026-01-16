@@ -1,7 +1,4 @@
-import {
-  Injectable,
-  Logger,
-} from '@nestjs/common';
+import {Injectable, Logger} from '@nestjs/common';
 import {ConfigService} from '@/config/config-service';
 import {RandomService} from '@/random/random-service';
 
@@ -31,7 +28,7 @@ export class DelayService {
     }
 
     const configDelay = type === 'before' ? delays.beforeCommand : delays.afterCommand;
-    if (combDelay === undefined && configDelay !== undefined) {
+    if (combDelay === undefined && configDelay !== undefined) { // TODO I think they are ommited
       combDelay = this.randomService.calcDeviation(configDelay, delays.standardDeviation);
       if (delays.randomHugeDelay && delays.randomHugeDelayChance && Math.random() < delays.randomHugeDelayChance) {
         combDelay += this.randomService.calcDeviation(delays.randomHugeDelay, delays.randomHugeDelayDeviation);

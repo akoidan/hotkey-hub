@@ -1,7 +1,8 @@
 import {Injectable, Logger} from '@nestjs/common';
 import {SemaphorService} from '@/semaphor/semaphor-service';
 import {BaseLocalHandler} from '@/local/base-local-handler';
-import {Thread, ThreadsLocalCommand, UnknownCommand} from '@/config/types/local-commands';
+import {Thread, ThreadsLocalCommand} from '@/config/types/local/local-commands';
+import {UnknownCommand} from '@/config/types/commands';
 
 @Injectable()
 export class ThreadsLocalHandler extends BaseLocalHandler {

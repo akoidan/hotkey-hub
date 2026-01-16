@@ -1,13 +1,10 @@
-import {
-  Logger,
-  Module,
-  OnModuleInit,
-} from '@nestjs/common';
+import {Logger, Module, OnModuleInit} from '@nestjs/common';
 import {ConfigService} from '@/config/config-service';
 import * as process from 'node:process';
 import {ConfigsPathService} from '@/config/configs-path.service';
 import {ConfigReaderService} from '@/config/config-reader-service';
 import {ConfigPathClass, ENV} from '@/config/types/config-path';
+import {SAVE_TIMEOUT} from '@/config/config-model';
 
 @Module({
   providers: [
@@ -16,6 +13,10 @@ import {ConfigPathClass, ENV} from '@/config/types/config-path';
     {
       provide: ConfigPathClass,
       useExisting: ConfigsPathService,
+    },
+    {
+      provide: SAVE_TIMEOUT,
+      useValue: 1000, // 1s
     },
     ConfigReaderService,
     ConfigService,

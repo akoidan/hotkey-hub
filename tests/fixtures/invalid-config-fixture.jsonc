@@ -11,7 +11,10 @@
       "commands": [
         {
           "destination:": "this",
-          "keyPress": "f6"
+          "performOnRemote": "keyPress",
+          "variables": {
+            "key2": "f6"
+          }
         }
       ]
     }

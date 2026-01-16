@@ -3,74 +3,141 @@ import {z} from 'zod';
 
 
 import {variablesSchema, variableValueSchema} from '@/config/types/variables';
-import {behaviourObjectSchema, behaviourSchema, shortcutSchema, shortcutsSchema} from '@/config/types/shortcut';
+import {behaviourObjectSchema, shortcutSchema, shortcutsSchema} from '@/config/types/shortcut';
 import {globalDelaySchema} from '@/config/types/delays';
 import {
-  findPidsByNameRemoteCommandSchema,
-  findProcessesWindowsRemoteCommandSchema,
-  findProcessWindowsRemoteCommandSchema,
-  focusProcessWindowRemoteCommandSchema,
-  focusWindowRemoteCommandSchema,
+  keyboardCommandsSchema,
   keyPressRemoteCommandSchema,
+  keyPressRemoteCommandVariableSchema,
   keySchema,
-  killExeByNameRemoteCommandSchema,
-  killExeByPidRemoteCommandSchema,
-  launchExeRemoteCommandSchema,
-  leftMouseClickRemoteCommandSchema,
-  mouseMoveClickRemoteCommandSchema,
-  remoteCommandSchema,
-  setWindowBoundsRemoteSchema,
   typeTextRemoteCommandSchema,
+  typeTextRemoteCommandVariableSchema,
+} from '@/config/types/remote/keyboard-commands-schema';
+import {
+  leftMouseClickRemoteCommandSchema,
+  mouseCommandsSchema,
+  mouseMoveClickRemoteCommandSchema,
+  mouseMoveClickRemoteCommandVariableSchema,
+  mouseMoveRemoteCommandSchema,
+} from '@/config/types/remote/mouse-commands-schema';
+import {
+  killExeByNameRemoteCommandSchema,
+  killExeByNameRemoteCommandVariableSchema,
+  killExeByPidRemoteCommandSchema,
+  killExeByPidRemoteCommandVariableSchema,
+  launchExeRemoteCommandSchema,
+  launchExeRemoteCommandVariableSchema,
+  processCommandsSchema,
+} from '@/config/types/remote/process-commands-schema';
+import {
+  focusProcessWindowRemoteCommandSchema,
+  focusProcessWindowRemoteCommandVariableSchema,
+  focusWindowRemoteCommandSchema,
+  focusWindowRemoteCommandVariableSchema,
+  setWindowBoundsRemoteCommandSchema,
+  setWindowBoundsRemoteCommandVariableSchema,
+  windowCommandsSchema,
   windowPropertiesSchema,
-} from '@/config/types/remote-commands';
+  windowPropertiesVariableSchema,
+} from '@/config/types/remote/window-commands-schema';
+import {remoteCommandSchema} from '@/config/types/remote/remote-commands';
 import {
   expressionLocalCommandSchema,
-  expressionSchema,
+  ifLocalCommandSchema,
+  localCommandSchema,
   loopLocalCommandSchema,
   macroDefinitionSchema,
   macroLocalCommandSchema,
   macrosListSchema,
-  macroVariablesDescriptionSchema, macroVariableValueSchema,
+  macroVariablesDescriptionSchema,
+  macroVariableValueSchema,
+  printLocalCommandSchema,
   reloadConfigLocalCommandSchema,
   shuffleLocalCommandSchema,
-  threadLocalArraySchema,
+  threadLocalSchema,
   threadsLocalCommandSchema,
   transactionLocalCommandSchema,
-  unknownCommandSchema,
-} from '@/config/types/local-commands';
+} from '@/config/types/local/local-commands';
+import {unknownCommandSchema} from '@/config/types/commands';
+import {
+  getActiveWindowCommandSchema,
+  getActiveWindowIdCommandSchema,
+  getWindowBoundsCommandSchema,
+  getWindowCommandsSchema,
+  getWindowOpacityCommandSchema,
+  getWindowOwnerCommandSchema,
+  getWindowsIdByMultiplePidsCommandVariablesSchema,
+  getWindowsIdByMutliplePidsCommandSchema,
+  getWindowsIdByPidCommandSchema,
+  getWindowsIdByPidCommandVariablesSchema,
+  getWindowTitleCommandSchema,
+  getWindowValidityCommandSchema,
+  getWindowVisibilityCommandSchema,
+  windowIdVariablesCommandSchema,
+} from '@/config/types/get-commands/get-window-commands-schema';
+import {
+  getMonitorCommandsSchema,
+  getMonitorFromWindowCommandSchema,
+  getMonitorInfoCommandSchema,
+  getMonitorScaleFactorCommandSchema,
+  getMonitorsCommandSchema,
+  monitorVariablesCommandSchema,
+} from '@/config/types/get-commands/get-monitor-commands-schema';
+import {
+  getPidsByNameCommandSchema,
+  getPidsByNameCommandVariablesSchema,
+  getProcessCommandsSchema,
+  getProcessMainWindowCommandSchema,
+  getProcessMainWindowCommandVariablesSchema,
+} from '@/config/types/get-commands/get-process-commands-schema';
+import {getInfoCommandSchema, pingCommandSchema} from '@/config/types/get-commands/get-commands';
 
-const ipsSchema = z.record(z.string().ip())
-  .describe('Maps PC names to IP addresses. Each key identifies a remote PC, value is its IP. IP must be accessible from remote PC. ' +
+
+const ipsSchema = z.record(z.string(), z.string())
+  .describe('Maps PC names to IP addresses or host names.' +
+    ' Each key identifies a remote PC, value is its IP/Domain. The address must be accessible from this PC. ' +
     'For internet access, use VPN or tunneling (e.g. ngrok.com).');
 
 const rgbSchema = z.object({
   deviceName: z.string().describe('Device name of the keyboard. ' +
     'You can extract it with "openrgb --list-devices" command. Select the name after number.' +
     ' Also you can check in openrgb UI in Devices Tab.'),
-  clientName: z.string().default('RPC').describe('Name of this client when connecting to openrg').optional(),
-  serverPort: z.number().default(6742).describe('Port of the openrgb server').optional(),
-  serverAddr: z.string().default('localhost').describe('Address of the openrgb server').optional(),
+  clientName: z.string()
+    .default('RPC')
+    .describe('Name of this client when connecting to openrg')
+    .optional(),
+  serverPort: z.number()
+    .default(6742)
+    .describe('Port of the openrgb server')
+    .optional(),
+  serverAddr: z.string()
+    .default('localhost')
+    .describe('Address of the openrgb server')
+    .optional(),
   keyMapFn: z.string()
     .default('x.toLowerCase().replace(\' arrow\', \'\').replace(\'key: \', \'\').replace(\' (ansi)\', \'\').replace(\' \', \'_\')')
     .describe('Mapping of keyboard api key name to default map key names. ' +
       'This should be a JS expression that accept variable "x" and evaluates to a string')
     .optional(),
-}).strict().optional()
+}).strict()
+  .optional()
   .describe('RGB keyboard lighting for shortcut feedback. Changes key colors during execution.' +
     ' You need to run openrgb server for it, which you can download from https://openrgb.org.' +
     ' Run the application, go to the SDK server tab and click on Start server.' +
     ' Needs OpenRGB server and compatible keyboard, the supported keyboards are here: https://openrgb.org/devices.html.' +
     ' For Linux just install openrgb via your package manager and run the openrgb from root with you default service manager like systemd');
 
-const aARootSchema = z.object({
+const configSchema = z.object({
   ips: ipsSchema,
   clientPort: z.number()
-    .optional()
     .default(5000)
+    .optional()
     .describe('HTTPS port for secure client PC connections. ' +
       'Must be accessible and not blocked by firewalls. Default is 5000 if not specified.'),
   rgb: rgbSchema,
-  name: z.string().optional().describe('Name of this schema to print in logs'),
+  name: z.string()
+    .optional()
+    .describe('Name of this schema to print in logs'),
   combinations: shortcutsSchema,
   delays: globalDelaySchema,
   macros: macrosListSchema,
@@ -79,7 +146,7 @@ const aARootSchema = z.object({
     'All sections must follow their respective schemas strictly.');
 
 // Generate TypeScript type
-type ConfigData = z.infer<typeof aARootSchema>;
+type ConfigData = z.infer<typeof configSchema>;
 type ConfigDataWoMacro = Omit<ConfigData, 'macros'>;
 
 type IpsData = z.infer<typeof ipsSchema>
@@ -94,16 +161,50 @@ export type {
 };
 
 export {
+  getWindowsIdByMutliplePidsCommandSchema,
+  getWindowsIdByMultiplePidsCommandVariablesSchema,
+  getWindowsIdByPidCommandVariablesSchema,
+  getProcessMainWindowCommandVariablesSchema,
+  getPidsByNameCommandVariablesSchema,
+  windowIdVariablesCommandSchema,
+  keyPressRemoteCommandVariableSchema,
+  keyboardCommandsSchema,
+  windowPropertiesVariableSchema,
+  mouseCommandsSchema,
+  shuffleLocalCommandSchema,
+  processCommandsSchema,
+  windowCommandsSchema,
+  pingCommandSchema,
+  getMonitorCommandsSchema,
+  getProcessCommandsSchema,
+  getWindowCommandsSchema,
+  getWindowsIdByPidCommandSchema,
+  localCommandSchema,
+  getActiveWindowCommandSchema,
+  getActiveWindowIdCommandSchema,
+  getWindowBoundsCommandSchema,
+  getWindowTitleCommandSchema,
+  getWindowOpacityCommandSchema,
+  getWindowOwnerCommandSchema,
+  getWindowValidityCommandSchema,
+  getWindowVisibilityCommandSchema,
+  getMonitorsCommandSchema,
+  getMonitorInfoCommandSchema,
+  getMonitorFromWindowCommandSchema,
+  getMonitorScaleFactorCommandSchema,
+  getProcessMainWindowCommandSchema,
+  getPidsByNameCommandSchema,
   rgbSchema,
-  aARootSchema,
+  configSchema,
   globalDelaySchema,
   ipsSchema,
-  behaviourSchema,
   variableValueSchema,
   behaviourObjectSchema,
+  ifLocalCommandSchema,
+  printLocalCommandSchema,
+  getInfoCommandSchema,
   windowPropertiesSchema,
   shortcutSchema,
-  shortcutsSchema,
   loopLocalCommandSchema,
   variablesSchema,
   macroVariableValueSchema,
@@ -116,22 +217,27 @@ export {
   typeTextRemoteCommandSchema,
   killExeByPidRemoteCommandSchema,
   killExeByNameRemoteCommandSchema,
-  findPidsByNameRemoteCommandSchema,
-  findProcessWindowsRemoteCommandSchema,
-  findProcessesWindowsRemoteCommandSchema,
   remoteCommandSchema,
   keySchema,
   threadsLocalCommandSchema,
   macroLocalCommandSchema,
   unknownCommandSchema,
-  setWindowBoundsRemoteSchema,
+  mouseMoveRemoteCommandSchema,
+  setWindowBoundsRemoteCommandSchema,
   expressionLocalCommandSchema,
-  threadLocalArraySchema,
+  threadLocalSchema,
   transactionLocalCommandSchema,
   macroVariablesDescriptionSchema,
   macroDefinitionSchema,
   macrosListSchema,
-  expressionSchema,
   reloadConfigLocalCommandSchema,
-  shuffleLocalCommandSchema,
+  typeTextRemoteCommandVariableSchema,
+  mouseMoveClickRemoteCommandVariableSchema,
+  killExeByNameRemoteCommandVariableSchema,
+  killExeByPidRemoteCommandVariableSchema,
+  launchExeRemoteCommandVariableSchema,
+  setWindowBoundsRemoteCommandVariableSchema,
+  focusProcessWindowRemoteCommandVariableSchema,
+  focusWindowRemoteCommandVariableSchema,
+  monitorVariablesCommandSchema,
 };

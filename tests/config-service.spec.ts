@@ -6,6 +6,7 @@ import {ConfigReaderService} from '../src/config/config-reader-service';
 import path from 'path';
 import {ConfigPathClass, ENV} from '../src/config/types/config-path';
 import {EvaluateService} from '../src/local/evaluate-serivce';
+import {SAVE_TIMEOUT} from "../src/config/config-model";
 
 const globalEnv = {};
 
@@ -22,6 +23,10 @@ async function getTestModule(configFilePath: string): Promise<TestingModule> {
           }
         }
       },
+      {
+        provide: SAVE_TIMEOUT,
+        useValue: -1, // do not save config at at
+      },
       ConfigService,
       ConfigReaderService,
       {
@@ -37,7 +42,7 @@ describe('Config service', () => {
   it('Should throw error on invalid conf', async () => {
     const testModule = await getTestModule('invalid-config-fixture.jsonc');
     const tyrs = testModule.get<ConfigService>(ConfigService);
-    await expect(tyrs.parseConfig()).rejects.toThrow(/Unrecognized key\(s\) in object: 'destination:'/);
+    await expect(tyrs.parseConfig()).rejects.toThrow(/Unrecognized key: \"key2\" at variables/);
   })
 
 

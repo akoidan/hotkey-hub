@@ -27,7 +27,7 @@ To build the client you need
 ```sh
 nvm use 18 # If you already have node 18, skip it
 yarn # install depenencies
-yarn build:local # builds native c++ modules 
+yarn cmake # builds native c++ modules 
 yarn start # starts a nestjs server 
 ```
 
@@ -38,7 +38,7 @@ If you want to debug native Node.js modules in **CLion**, you need to build the 
 ## 1. Build the Native Module
 Run:
 ```bash
-yarn build:local
+yarn cmake:debug
 ```  
 This command already builds the native module in Debug mode.
 

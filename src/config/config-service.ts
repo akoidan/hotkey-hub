@@ -1,8 +1,8 @@
-import {aARootSchema, ConfigData, ConfigDataWoMacro, IpsData, macrosListSchema, RgbData} from '@/config/types/schema';
+import {ConfigData, ConfigDataWoMacro, configSchema, IpsData, macrosListSchema, RgbData} from '@/config/types/schema';
 import {parse} from 'jsonc-parser';
 import {Inject, Injectable, Logger} from '@nestjs/common';
 /* eslint-disable max-lines*/
-import {ZodError, ZodSchema} from 'zod';
+import {ZodError, ZodIssue, ZodSchema} from 'zod';
 import {schemaRootCache} from '@/config/types/cache';
 import {Variables, variablesSchema} from '@/config/types/variables';
 import {Shortcut} from '@/config/types/shortcut';
@@ -10,10 +10,9 @@ import {ConfigProvider} from '@/config/interfaces';
 import {ConfigReaderService} from '@/config/config-reader-service';
 import clc from 'cli-color';
 import {DelayData} from '@/config/types/delays';
-import {ConfigCombination} from '@/config/config-model';
-import {MacroList} from '@/config/types/local-commands';
+import {ConfigCombination, SAVE_TIMEOUT} from '@/config/config-model';
+import {MacroList} from '@/config/types/local/local-commands';
 import {ENV, ZodErrorCollected} from '@/config/types/config-path';
-import {ZodInvalidTypeIssue, ZodInvalidUnionIssue, ZodIssue} from 'zod/lib/ZodError';
 
 @Injectable()
 export class ConfigService implements ConfigProvider {
@@ -30,41 +29,55 @@ export class ConfigService implements ConfigProvider {
     @Inject(ENV)
     private readonly envVars: Record<string, string | undefined>,
     private readonly configReader: ConfigReaderService,
+    @Inject(SAVE_TIMEOUT)
+    private readonly saveTimeout: number,
   ) {
     this.logger.debug(`Created new instance of config service from ${configReader.getId()}`);
   }
 
 
   private collectAllErrors(
-    issue: ZodError | ZodInvalidUnionIssue | ZodIssue,
+    issue: ZodError | ZodIssue | ZodIssue[],
     errors: ZodErrorCollected[],
     currentPath: (string | number)[] = []
   ): void {
-    const zodissues = (issue as ZodError).issues;
-    const zodUnionErrors = (issue as ZodInvalidUnionIssue).unionErrors;
-    if (Array.isArray(zodissues)) {
-      for (const subIssue of zodissues) {
+    if (Array.isArray(issue)) {
+      for (const subIssue of issue) {
         this.collectAllErrors(subIssue, errors, currentPath);
       }
-    } else if (zodUnionErrors) {
-      for (const unionError of zodUnionErrors) {
+    } else if (issue instanceof ZodError) {
+      for (const subIssue of issue.issues) {
+        this.collectAllErrors(subIssue, errors, currentPath);
+      }
+    } else if ((issue as ZodIssue).code === 'invalid_union') {
+      const unionIssue = issue as ZodIssue & { errors: ZodError[] };
+      for (const unionError of unionIssue.errors) {
         this.collectAllErrors(unionError, errors, currentPath);
       }
     }
-
     const zodIssue = issue as ZodIssue;
-    const zodInvalidTypeIssue = issue as ZodInvalidTypeIssue;
     if (zodIssue.path) {
-      currentPath = [...zodIssue.path];
+      currentPath = [...(zodIssue.path as (string | number)[])];
     }
+    this.extractIssue(issue as ZodIssue, errors);
+  }
 
+  private extractIssue(zodIssue: ZodIssue, errors: ZodErrorCollected[]): void {
     if (zodIssue.message && zodIssue.path?.length > 0 && zodIssue.message !== 'Invalid input') {
-      errors.push({
+      const errorObj: ZodErrorCollected = {
         path: zodIssue.path.join('.'),
         message: zodIssue.message,
-        ...(zodInvalidTypeIssue.expected && {expected: zodInvalidTypeIssue.expected}),
-        ...(zodInvalidTypeIssue.received && {received: zodInvalidTypeIssue.received}),
-      });
+      };
+      if ((zodIssue as ZodIssue).code === 'invalid_type') {
+        const typeIssue = zodIssue as ZodIssue & { expected?: string[], received?: string };
+        if (typeIssue.expected) {
+          errorObj.expected = typeIssue.expected;
+        }
+        if (typeIssue.received) {
+          errorObj.received = typeIssue.received;
+        }
+      }
+      errors.push(errorObj);
     }
   }
 
@@ -78,6 +91,7 @@ export class ConfigService implements ConfigProvider {
       let errorMessage = `${firstError.message} at ${firstError.path}`;
 
       if (firstError.expected && firstError.received) {
+        /* eslint-disable-next-line @typescript-eslint/restrict-template-expressions */
         errorMessage += ` (expected ${firstError.expected}, received ${firstError.received})`;
       }
 
@@ -121,7 +135,7 @@ export class ConfigService implements ConfigProvider {
     const macroConfigString = await this.configReader.loadMacroConfigString();
     const separateMacros: NonNullable<MacroList> = macroConfigString ? parse(macroConfigString) as NonNullable<MacroList> : {};
     schemaRootCache.macros = separateMacros;
-    await this.validateWithErrorHandling(macrosListSchema, separateMacros, 'Macro Config');
+    schemaRootCache.macros = await this.validateWithErrorHandling(macrosListSchema, separateMacros, 'Macro Config');
     schemaRootCache.macros = null!;
     return separateMacros;
   }
@@ -141,7 +155,7 @@ export class ConfigService implements ConfigProvider {
       schemaRootCache.macros = separateMacros;
     }
     schemaRootCache.data = configValueWoMacro;
-    await this.validateWithErrorHandling(aARootSchema, confValueWithMacro, 'main confg');
+    schemaRootCache.data = await this.validateWithErrorHandling(configSchema, confValueWithMacro, 'main confg');
     const configData = schemaRootCache.data;
     const macros = schemaRootCache.macros ?? {};
     schemaRootCache.data = null!;
@@ -210,11 +224,14 @@ export class ConfigService implements ConfigProvider {
   }
 
   public getClientPort(): number {
-    return this.configData!.clientPort || 5000;
+    return this.configData!.clientPort!;
   }
 
   public setVariable(name: string, value: unknown): void {
     this.variables[name] = value;
+    if (this.saveTimeout < 0) {
+      return; // do not perform save on tests
+    }
     if (this.variablesSaveTimeoutId) {
       clearTimeout(this.variablesSaveTimeoutId);
     }
@@ -228,7 +245,7 @@ export class ConfigService implements ConfigProvider {
       } catch(e) {
         this.logger.error(`Unable to save variables because ${e?.message || e}`, e.stack);
       }
-    }, 1000); // I hope save to disk a file takes less than 1s,
+    }, this.saveTimeout); // I hope save to disk a file takes less than 1s,
     // so we dont save while other process is saving
     // also prevents multiple async spam for variables backup
     // we can sacrifice 1s of old variable

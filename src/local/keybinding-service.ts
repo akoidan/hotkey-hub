@@ -30,7 +30,7 @@ export class KeybindingService {
   async registerShortcuts(): Promise<void> {
     await Promise.all(
       Object.keys(this.configService.getIps())
-        .map(async(destination) => this.clientService.ping(destination))
+        .map(async(destination) => this.clientService.app.ping(destination))
     );
     const allNewShortcuts = new Set<string>();
     for (const comb of this.configService.getCombinations()) {

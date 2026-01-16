@@ -1,5 +1,5 @@
 import {Injectable} from '@nestjs/common';
-import {UnknownCommand} from '@/config/types/local-commands';
+import {UnknownCommand} from '@/config/types/commands';
 
 @Injectable()
 export abstract class BaseLocalHandler {

@@ -1,39 +1,6 @@
-import {z, ZodIssueCode} from 'zod';
-import {unknownCommandSchema} from '@/config/types/local-commands';
-
-/* eslint-disable array-element-newline */
-const allowedKeys = [
-  'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
-  'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-  '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-  'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8', 'f9', 'f10',
-  'f11', 'f12', 'f13', 'f14', 'f15', 'f16', 'f17', 'f18', 'f19', 'f20', 'f21', 'f22', 'f23', 'f24',
-  'backspace', 'delete', 'return', 'enter', 'tab', 'escape',
-  'space', 'insert', 'print_screen', 'home', 'end', 'page_up', 'page_down',
-  'up', 'down', 'left', 'right',
-  'caps_lock', 'num_lock', 'scroll_lock',
-  'add', 'subtract', 'multiply', 'divide', 'clear',
-  'numpad_0', 'numpad_1', 'numpad_2', 'numpad_3', 'numpad_4',
-  'numpad_5', 'numpad_6', 'numpad_7', 'numpad_8', 'numpad_9', 'numpad_decimal',
-  ',', '.', '/', ';', '\'', '[', ']', '\\', '-', '=', '`',
-  'audio_mute', 'audio_vol_down', 'audio_vol_up', 'audio_play', 'audio_stop',
-  'audio_pause', 'audio_prev', 'audio_next', 'audio_rewind',
-  'audio_forward', 'audio_repeat', 'audio_random',
-  'lights_mon_up', 'lights_mon_down',
-  'lights_kbd_toggle', 'lights_kbd_up', 'lights_kbd_down',
-  'menu', 'pause',
-];
-const modifierKeys = [
-  'control', 'right_control',
-  'alt', 'right_alt',
-  'shift', 'right_shift',
-  'meta', 'right_meta',
-  'win', 'right_win',
-  'cmd', 'right_cmd',
-  'fn',
-];
-
-/* eslint-enable array-element-newline */
+import {z} from 'zod';
+import {allowedKeys, modifierKeys} from '@/config/types/keyboard';
+import {unknownCommandSchema} from '@/config/types/commands';
 
 // Zod schema for shortcuts
 const shortcut = z
@@ -44,14 +11,16 @@ const shortcut = z
     if (modifiers.length < 2 || modifiers.length > 4) {
       return false;
     }
-    const mainKey = modifiers.pop();
+    const mainKey = modifiers.pop() as KeyType;
     // Ensure modifiers are unique and valid
     if (new Set(modifiers).size !== modifiers.length) {
       return false;
     }
+    // @ts-ignore
     if (!modifiers.every((mod) => modifierKeys.includes(mod))) {
       return false;
     }
+    // @ts-ignore
     return allowedKeys.includes(mainKey!);
     // eslint-disable-next-line max-len
   }, 'Shortcut requires format Modifier+Key. E.g. \'Alt+1\'.'
@@ -64,7 +33,7 @@ enum BehaviourEnum {
   'pausable'= 'pausable',
   'restart'= 'restart',
 }
-const behaviourSchema = z.nativeEnum(BehaviourEnum)
+const behaviourSchema = z.enum(BehaviourEnum)
   .describe('Stacking = Current process will keep running and new one will spawn as well.' +
   ' Since all executable items run in transaction by default.' +
   'The next iteration will wait until current is finished. The default behaviour\n' +
@@ -72,15 +41,18 @@ const behaviourSchema = z.nativeEnum(BehaviourEnum)
   'Restart = Current process will stop running and new one will start\n');
 
 const behaviourObjectSchema = z.object({
-  groupWith: z.string().optional()
+  groupWith: z.string()
+    .optional()
     .describe('If type is "restart" or "pausable" then groupWith will restart/pause all shortcuts with the same name'),
   type: behaviourSchema,
 }).strict();
 
 const shortcutSchema = z.object({
-  delayAfter: z.number().optional()
+  delayAfter: z.number()
+    .optional()
     .describe('Delay (ms) after each command. Ensures commands have time to complete.'),
-  delayBefore: z.number().optional()
+  delayBefore: z.number()
+    .optional()
     .describe('Delay (ms) before each command. Helps coordinate timing between different shortcuts.'),
   name: z.string().describe('Name shown during startup. Helps identify the shortcut\'s purpose.'),
   shortCut: shortcut,
@@ -102,7 +74,7 @@ const shortcutsSchema = z.array(shortcutSchema)
     combinations.forEach((value, i) => {
       if (shortCuts.has(value.shortCut.toLowerCase())) {
         ctx.addIssue({
-          code: ZodIssueCode.custom,
+          code: 'custom',
           path: ['shortcut', i],
           message: `Shortcut ${value.shortCut} already exists at index ${shortCuts.get(value.shortCut)}`,
         });

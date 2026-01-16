@@ -6540,22 +6540,17 @@ yocto-queue@^0.1.0:
   resolved "https://registry.yarnpkg.com/yocto-queue/-/yocto-queue-0.1.0.tgz#0294eb3dee05028d31ee1a5fa2c556a6aaf10a1b"
   integrity sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==
 
-zod-to-json-schema@^3.24.1:
-  version "3.24.5"
-  resolved "https://registry.yarnpkg.com/zod-to-json-schema/-/zod-to-json-schema-3.24.5.tgz#d1095440b147fb7c2093812a53c54df8d5df50a3"
-  integrity sha512-/AuWwMP+YqiPbsJx5D6TfgRTc4kTLjsh5SOcd4bLsfUg2RcEXrFMJl1DGgdHy2aCfsIA/cr/1JM0xcB2GZji8g==
-
-zod2md@^0.1.4:
-  version "0.1.8"
-  resolved "https://registry.yarnpkg.com/zod2md/-/zod2md-0.1.8.tgz#c28ef478633164a922a4aeabba53a9105ecd0185"
-  integrity sha512-h6WUZK3VDtFgBX6j3oE8qtJ/D7WjB8vL9oijM+uDW7yw2fEm761gDk6v4yx0oyNJ0VZESnm+mQHbTCFrP8co3Q==
+zod2md@0.2.5:
+  version "0.2.5"
+  resolved "https://registry.yarnpkg.com/zod2md/-/zod2md-0.2.5.tgz#c4ef4b6a8d4db58ccb292aba851d1e5d1d6c8422"
+  integrity sha512-Ru9GVlkgpy3rRY9FIy1UQbyg6K168qtwojzlCwlWtoq4Swt7T5nUe87iJuhssy9m6M8jTpjSKe1I2b+15FMSfg==
   dependencies:
     "@commander-js/extra-typings" "^12.0.0"
     bundle-require "^5.1.0"
     commander "^12.0.0"
     esbuild "^0.25.4"
 
-zod@^3.23.8:
-  version "3.24.1"
-  resolved "https://registry.yarnpkg.com/zod/-/zod-3.24.1.tgz#27445c912738c8ad1e9de1bea0359fa44d9d35ee"
-  integrity sha512-muH7gBL9sI1nciMZV67X5fTKKBLtwpZ5VBp1vsOQzj1MhrBZ4wlVCm3gedKZWLp0Oyel8sIGfeiz54Su+OVT+A==
+zod@^4.3.5:
+  version "4.3.5"
+  resolved "https://registry.yarnpkg.com/zod/-/zod-4.3.5.tgz#aeb269a6f9fc259b1212c348c7c5432aaa474d2a"
+  integrity sha512-k7Nwx6vuWx1IJ9Bjuf4Zt1PEllcwe7cls3VNzm4CQ1/hgtFUK2bRNG3rvnpPUhFjmqJKAKtjV576KnUkHocg/g==
