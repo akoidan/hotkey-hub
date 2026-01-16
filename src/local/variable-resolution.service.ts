@@ -89,7 +89,7 @@ export class VariableResolutionService {
     if (objVars && typeof objVars === 'object' && !(objVars as unknown as VariableValue).$ref) {
       const result = {} as Record<string, unknown>;
       for (const [key, value] of Object.entries(objVars)) {
-        result[key] = this.getValue(value);
+        result[key] = this.replaceVarsReqursively(value);
       }
       return result as T;
     }

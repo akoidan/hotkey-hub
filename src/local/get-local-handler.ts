@@ -24,22 +24,22 @@ export class GetLocalHandler extends BaseLocalHandler {
   public async* execute(input: GetInfoRemoteCommand): AsyncGenerator<void> {
     // ignore delays for Get commands, as they should not block/conflicts other commands like typeText
     const currRec: GetInfoRemoteCommand = this.variableService.replaceVariables(input);
-    this.logger.debug(`Running ${JSON.stringify(input)}`);
-    const res = await this.getInfoHandler.handle(currRec.destination as string, input);
-    if (Array.isArray(input.assignVariable)) {
+    this.logger.debug(`Running ${JSON.stringify(currRec)}`);
+    const res = await this.getInfoHandler.handle(currRec.destination as string, currRec);
+    if (Array.isArray(currRec.assignVariable)) {
       if (!Array.isArray(res)) {
         throw Error(`Unable to map  """${JSON.stringify(res)}"""` +
-          `into variables ${JSON.stringify(input.assignVariable)}, since response is not an array`);
+          `into variables ${JSON.stringify(currRec.assignVariable)}, since response is not an array`);
       }
-      if (res.length !== input.assignVariable.length) {
+      if (res.length !== currRec.assignVariable.length) {
         throw Error(`Unable to map  """${JSON.stringify(res)}"""` +
-          `into variables ${JSON.stringify(input.assignVariable)}, since different length`);
+          `into variables ${JSON.stringify(currRec.assignVariable)}, since different length`);
       }
-      for (let i = 0; i < input.assignVariable.length; i ++) {
-        this.configService.setVariable(input.assignVariable[i], res[i]);
+      for (let i = 0; i < currRec.assignVariable.length; i ++) {
+        this.configService.setVariable(currRec.assignVariable[i], res[i]);
       }
     } else {
-      this.configService.setVariable(input.assignVariable, res);
+      this.configService.setVariable(currRec.assignVariable, res);
     }
     yield undefined;
   }
