@@ -43,10 +43,10 @@ async function parseArgs(): Promise<AppConfig> {
 
 asyncLocalStorage.run(new Map<string, string>().set(SemaphorService.COMB_KEY, 'init'), () => {
   const customLogger = new CustomLogger(asyncLocalStorage);
-  // eslint-disable-next-line
-  const packageJson: string = require('../package.json').version;
-  customLogger.log(`Initializing hotkey-hub ${packageJson} ...`);
   (async function startApp(): Promise<void> {
+    // eslint-disable-next-line
+    const packageJson: string = require('../package.json').version;
+    customLogger.log(`Initializing hotkey-hub ${packageJson} ...`);
     const args = await parseArgs();
     await NestFactory.createApplicationContext(
       AppModule.forRoot(args),
