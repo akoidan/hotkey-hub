@@ -91,6 +91,11 @@ import {
   getProcessMainWindowCommandVariablesSchema,
 } from '@/config/types/get-commands/get-process-commands-schema';
 import {getInfoCommandSchema, pingCommandSchema} from '@/config/types/get-commands/get-commands';
+import {
+  macroArrayVariableTypeSchema,
+  macroObjectVariableTypeSchema,
+  macroPrimitiveVariableTypeSchema, macroVariableTypeSchema
+} from '@/config/types/local/macro-local-command';
 
 
 const ipsSchema = z.record(z.string(), z.string())
@@ -159,6 +164,10 @@ export type {
 };
 
 export {
+  macroPrimitiveVariableTypeSchema,
+  macroArrayVariableTypeSchema,
+  macroObjectVariableTypeSchema,
+  macroVariableTypeSchema,
   getWindowsIdByMutliplePidsCommandSchema,
   getWindowsIdByMultiplePidsCommandVariablesSchema,
   getWindowsIdByPidCommandVariablesSchema,

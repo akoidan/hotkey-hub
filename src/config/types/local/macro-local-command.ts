@@ -75,11 +75,43 @@ const macroLocalCommandSchema = z.object({
     'Similar to a function call, macros can accept parameters through variables. ' +
     'This helps avoid duplicating complex command sequences and makes configurations more maintainable.');
 
+
+// First, define the primitive types
+const macroPrimitiveVariableTypeSchema = z.union([
+  z.literal('string'),
+  z.literal('number'),
+  z.literal('boolean'),
+  z.literal('any'),
+]);
+
+// Then define the array type (recursive)
+const macroArrayVariableTypeSchema: z.ZodType<ArrayVariableType> = z.lazy(() =>
+  z.union([
+    z.string().refine(s => s.endsWith('[]') && macroPrimitiveVariableTypeSchema.safeParse(s.slice(0, -2)).success, {
+      message: 'Array type must be a primitive type followed by []',
+    }),
+    z.record(z.string(), macroVariableTypeSchema),
+  ]));
+
+// Then define the object type (recursive)
+const macroObjectVariableTypeSchema: z.ZodType<ObjectVariableType> = z.lazy(() =>
+  z.record(z.string(), macroVariableTypeSchema));
+
+// Finally, combine them into one schema
+const macroVariableTypeSchema = z.union([
+  macroPrimitiveVariableTypeSchema,
+  macroObjectVariableTypeSchema,
+  macroArrayVariableTypeSchema,
+]).describe('To validate the type, or cast from env variables');
+
+// TypeScript types for better type inference
+type PrimitiveVariableType = 'string' | 'number' | 'boolean' | 'any';
+type ArrayVariableType = Record<string, VariableType> | string;
+type ObjectVariableType = Record<string, VariableType>;
+type VariableType = PrimitiveVariableType | ArrayVariableType | ObjectVariableType;
+
 const macroVariableValueSchema = z.object({
-  type: z.union([
-    z.enum(['string', 'number', 'object', 'boolean', 'array']),
-    z.any(),
-  ]).describe('To validate the type, or cast from env variables'),
+  type: macroVariableTypeSchema,
   optional: z.boolean().optional().describe('If set to true, the key is be removed is var is not passed'),
   default: z.any().optional().describe('Default value if value is not passed. Optional should be set to true'),
 })
@@ -119,6 +151,10 @@ export type {
 };
 
 export {
+  macroPrimitiveVariableTypeSchema,
+  macroArrayVariableTypeSchema,
+  macroObjectVariableTypeSchema,
+  macroVariableTypeSchema,
   macroLocalCommandSchema,
   macroVariableValueSchema,
   macroVariablesDescriptionSchema,
