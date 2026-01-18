@@ -3,7 +3,6 @@ interface ConfigPath {
 
   setConfigPaths(config?: string, macro?: string, variable?: string): void;
 
-  macroFilePath: string;
   variablesFilePath: string;
 }
 

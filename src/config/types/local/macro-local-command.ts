@@ -7,10 +7,20 @@ import {unknownCommandSchema} from '@/config/types/commands';
 
 const macroLocalCommandSchema = z.object({
   macro: z.string().describe('Name of the macro to execute, which must match a key defined in the macros section. ' +
-    'Macros help reduce configuration repetition by reusing command sequences.'),
+    'Macros help reduce configuration repetition by reusing command sequences.').superRefine((macroName, ctx) => {
+    const macroList = new Set(Object.keys(schemaRootCache.data.macros ?? {}));
+
+    if (!macroList.has(macroName)) {
+      const allOptions = JSON.stringify(Array.from(macroList));
+      ctx.addIssue({
+        code: 'custom',
+        message: `Macro "${JSON.stringify(macroName)}" doesn't exist, available macros are ${allOptions}`,
+      });
+    }
+  }),
   variables: z.record(
     z.string(),
-    z.union([z.string(), z.number(), variableValueSchema])
+    z.union([z.any(), variableValueSchema])
   ).optional()
     .describe('Variables to pass to the macro. Object where keys are variable names and values are their values. ' +
       'Values can be strings or numbers and must match the types defined in the macro\'s variables section.'),
@@ -18,16 +28,7 @@ const macroLocalCommandSchema = z.object({
   .strict()
   .merge(delayCommandsSchema)
   .superRefine((command, ctx) => {
-    const definedMacros: NonNullable<MacroList> = schemaRootCache.macros!;
-    if (!definedMacros[command.macro]) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['macro'],
-        message: `Macro ${command.macro} doesn't exist. Available macros are ${Object.keys(definedMacros).join(', ')}`,
-      });
-    }
-  }).superRefine((command, ctx) => {
-    const definedMacros: NonNullable<MacroList> = schemaRootCache.macros!;
+    const definedMacros: NonNullable<MacroList> = schemaRootCache.data.macros ?? {};
     if (!definedMacros[command.macro] || !command.variables) {
       return;
     }
@@ -41,7 +42,7 @@ const macroLocalCommandSchema = z.object({
       }
     }
   }).superRefine((command, ctx) => {
-    const definedMacros: NonNullable<MacroList> = schemaRootCache.macros!;
+    const definedMacros: NonNullable<MacroList> = schemaRootCache.data.macros ?? {};
     if (!definedMacros[command.macro] || !command.variables) {
       return;
     }

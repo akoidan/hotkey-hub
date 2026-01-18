@@ -7,7 +7,6 @@ interface ShortcutDescription {
 
  interface AppConfig {
   configFile: string;
-  macrosFile: string;
   variablesFile: string;
   certDir: string
 }

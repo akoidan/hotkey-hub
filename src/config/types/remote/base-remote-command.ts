@@ -1,7 +1,6 @@
 import {z} from 'zod';
 import {type VariableValue, variableValueSchema} from '@/config/types/variables';
 import {schemaRootCache} from '@/config/types/cache';
-import type {ConfigDataWoMacro} from '@/config/types/schema';
 
 const delayCommandsSchema = z.object({
   delayAfter: z.union([variableValueSchema, z.number()]).optional()
@@ -12,10 +11,9 @@ const delayCommandsSchema = z.object({
 
 const baseDestinationSchema = z.object({
   destination: z.union([variableValueSchema, z.string()]).superRefine((destination, ctx) => {
-    const data: ConfigDataWoMacro = schemaRootCache.data ?? {ips: {}};
-    const ipsKeys = new Set(Object.keys(data.ips ?? {}));
+    const ipsKeys = new Set(Object.keys(schemaRootCache.data.ips ?? {}));
 
-    if (!(destination as VariableValue).$ref && !data.ips[destination as string] ) {
+    if (!(destination as VariableValue).$ref && !schemaRootCache.data.ips[destination as string] ) {
       const allOptions = JSON.stringify(Array.from(ipsKeys));
       ctx.addIssue({
         code: 'custom',

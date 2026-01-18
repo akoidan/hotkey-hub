@@ -147,14 +147,12 @@ const configSchema = z.object({
 
 // Generate TypeScript type
 type ConfigData = z.infer<typeof configSchema>;
-type ConfigDataWoMacro = Omit<ConfigData, 'macros'>;
 
 type IpsData = z.infer<typeof ipsSchema>
 type RgbData = z.infer<typeof rgbSchema>
 
 
 export type {
-  ConfigDataWoMacro,
   ConfigData,
   IpsData,
   RgbData,

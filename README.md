@@ -20,7 +20,6 @@ The project requires several files for configuration and security:
 - `certs/ca-cert.pem`: CA certificate
 
 ### Optional Files
-- `configs/macros.jsonc`: Define reusable code snippets that can be referenced in `config.jsonc`. Schema is defined in `macros-schema.json`.
 - `configs/variables.json`: Custom variables file (any valid JSON with a root object) that can be referenced in your configurations
 
 ## Get started
@@ -89,13 +88,6 @@ There are 3 types of commands:
 - Schema is defined in `json-schema.json`, available in [releases](https://github.com/akoidan/hotkey-hub/releases)
 - Documentation is defined at `CONFIG.md`, available in [releases](https://github.com/akoidan/hotkey-hub/releases)
 - Can reference macros and variables from optional configuration files`
-
-### Macros (Optional)
-You can create macros in `config.jsonc` and additionally in `macros.jsonc`:
-- Macroses helps avoid repetition in your main configuration
-- Schema is defined in `macros-schema.json`, available in [releases](https://github.com/akoidan/hotkey-hub/releases)
-- Documentation is defined at `CONFIG.md` same schema as "macros" in the root object. 
-- Can be referenced from `config.jsonc`
 
 ### Variables (Optional)
 Create `configs/variables.json` to define custom variables:

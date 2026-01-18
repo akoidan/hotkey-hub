@@ -23,11 +23,6 @@ async function parseArgs(): Promise<AppConfig> {
         default: path.join(commonDir, 'configs', 'config.jsonc'),
         description: 'Configs that describes hotkey bindins',
       })
-      .option('macros-file', {
-        type: 'string',
-        default: path.join(commonDir, 'configs', 'macros.jsonc'),
-        description: 'Macros files with reusable functions',
-      })
       .option('variables-file', {
         type: 'string',
         default: path.join(commonDir, 'configs', 'variables.jsonc'),

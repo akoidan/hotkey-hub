@@ -1,4 +1,4 @@
-import {ConfigData, ConfigDataWoMacro, configSchema, IpsData, macrosListSchema, RgbData} from '@/config/types/schema';
+import {ConfigData, configSchema, IpsData, RgbData} from '@/config/types/schema';
 import {parse} from 'jsonc-parser';
 import {Inject, Injectable, Logger} from '@nestjs/common';
 /* eslint-disable max-lines*/
@@ -16,8 +16,7 @@ import {ENV, ZodErrorCollected} from '@/config/types/config-path';
 
 @Injectable()
 export class ConfigService implements ConfigProvider {
-  private configData: ConfigDataWoMacro | null = null;
-  private macros: NonNullable<MacroList> = null!;
+  private configData: ConfigData | null = null;
 
   private variables: Variables = {};
 
@@ -117,7 +116,9 @@ export class ConfigService implements ConfigProvider {
       return await schema.parseAsync(data) as T;
     } catch (error) {
       if (error instanceof ZodError) {
-        throw new Error(`[${context}] ${this.formatZodError(error)}`);
+        throw new Error(`[${context}] ${this.formatZodError(error)}`, {
+          cause: error,
+        });
       }
       throw error;
     }
@@ -128,39 +129,6 @@ export class ConfigService implements ConfigProvider {
     const variablesConfigString = await this.configReader.loadVariablesConfigString();
     const variables = variablesConfigString ? parse(variablesConfigString) as Variables : {};
     return this.validateWithErrorHandling(variablesSchema, variables, 'Variables Config');
-  }
-
-  public async validateMacroConf(): Promise<NonNullable<MacroList>> {
-    this.logger.debug('Validating macro config');
-    const macroConfigString = await this.configReader.loadMacroConfigString();
-    const separateMacros: NonNullable<MacroList> = macroConfigString ? parse(macroConfigString) as NonNullable<MacroList> : {};
-    schemaRootCache.macros = separateMacros;
-    schemaRootCache.macros = await this.validateWithErrorHandling(macrosListSchema, separateMacros, 'Macro Config');
-    schemaRootCache.macros = null!;
-    return separateMacros;
-  }
-
-  public async validateOwnConfig(separateMacros: NonNullable<MacroList>): Promise<{
-    macros: NonNullable<MacroList>,
-    configData: ConfigData
-  }> {
-    this.logger.debug('Validating global config');
-    const configString = await this.configReader.loadConfigString();
-    const confValueWithMacro = parse(configString) as ConfigData;
-    const {macros: ownMacros, ...configValueWoMacro} = confValueWithMacro;
-    if (ownMacros && Object.keys(ownMacros).length > 0) {
-      this.logger.debug('Merging separate macros with own');
-      schemaRootCache.macros = {...separateMacros, ...ownMacros};
-    } else {
-      schemaRootCache.macros = separateMacros;
-    }
-    schemaRootCache.data = configValueWoMacro;
-    schemaRootCache.data = await this.validateWithErrorHandling(configSchema, confValueWithMacro, 'main confg');
-    const configData = schemaRootCache.data;
-    const macros = schemaRootCache.macros ?? {};
-    schemaRootCache.data = null!;
-    schemaRootCache.macros = null!;
-    return {macros, configData};
   }
 
   private printShortcuts(): void {
@@ -187,9 +155,12 @@ export class ConfigService implements ConfigProvider {
   public async parseConfig(): Promise<void> {
     this.logger.debug('parsing config');
     const variables = await this.validateVariableConf();
-    const separateMacros = await this.validateMacroConf();
-    const {macros, configData} = await this.validateOwnConfig(separateMacros);
-    this.macros = macros;
+    this.logger.debug('Validating global config');
+    const configString = await this.configReader.loadConfigString();
+    const parsedNoDefault = parse(configString) as ConfigData;
+    schemaRootCache.data = parsedNoDefault;
+    const configData = await this.validateWithErrorHandling<ConfigData>(configSchema, parsedNoDefault, 'main confg');
+    schemaRootCache.data = null!;
     this.configData = configData;
     this.variables = variables;
     this.setVariable('delays', configData.delays);
@@ -211,7 +182,7 @@ export class ConfigService implements ConfigProvider {
   }
 
   public getMacros(): NonNullable<MacroList> {
-    return this.macros;
+    return this.configData!.macros ?? {};
   }
 
   public getVariables(): NonNullable<Variables> {
