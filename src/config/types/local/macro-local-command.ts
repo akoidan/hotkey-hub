@@ -75,7 +75,10 @@ const macroLocalCommandSchema = z.object({
     'This helps avoid duplicating complex command sequences and makes configurations more maintainable.');
 
 const macroVariableValueSchema = z.object({
-  type: z.enum(['string', 'number']).describe('To validate the type, or cast from env variables'),
+  type: z.union([
+    z.enum(['string', 'number', 'object', 'boolean', 'array']),
+    z.any(),
+  ]).describe('To validate the type, or cast from env variables'),
   optional: z.boolean().optional().describe('If set to true, the key is be removed is var is not passed'),
   default: z.any().optional().describe('Default value if value is not passed. Optional should be set to true'),
 })

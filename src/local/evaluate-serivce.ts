@@ -10,6 +10,10 @@ export class EvaluateService {
   }
 
   /* eslint-disable */
+  public evaluateVariable<T>(varName: string, variableExpression: string, varValue: unknown): T {
+    return Function(`__${varName}`, `return __${variableExpression};`)(varValue);
+  }
+
   public evaluateExpression(expr: string) {
     const variables = this.configService.getVariables();
     const reserved = new Set(['this', 'arguments', 'eval', 'function', 'return', 'var', 'let', 'const']);
