@@ -34,18 +34,23 @@ export class KeybindingService {
     await Promise.all(
       Object.keys(this.configService.getIps())
         .map(async(destination) => {
-          const res = await this.clientService.app.ping(destination);
-          const [major] = this.version.split('.');
-          if (res && Array.isArray(res.version)) {
-            const [resMajor] = res.version.split('.');
-            if (resMajor !== major) {
-              throw new Error(`Unsupported client version ${res.version}, expected ${major}.x.x`);
-            }
-          } else {
-            throw new Error(`Unsupported client version 1.x.x, expected ${major}.x.x`);
-          }
+          await this.verifyClientVersion(destination);
         })
     );
+  }
+
+  private async verifyClientVersion(destination: string): Promise<void> {
+    const res = await this.clientService.app.ping(destination);
+    const [major] = this.version.split('.');
+    let clientVersion = '1.x.x';
+    if (res.version) {
+      clientVersion = res.version;
+      const [resMajor] = res.version.split('.');
+      if (resMajor === major) {
+        return;
+      }
+    }
+    throw new Error(`Unsupported client version ${clientVersion}, expected ${major}.x.x`);
   }
 
   async registerShortcuts(): Promise<void> {

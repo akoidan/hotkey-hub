@@ -27,7 +27,7 @@ export class WindowService {
   }
 
   async getProcessWindows(client: string, pid: number): Promise<number[]> {
-    return this.client.get(client, `/window/by-process/${pid}`, 6000, true);
+    return this.client.get(client, `/window/by-process/${pid}`, 6000);
   }
 
   async focusWindow(client: string, request: FocusWindowRequest): Promise<void> {

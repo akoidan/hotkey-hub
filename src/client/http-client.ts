@@ -136,7 +136,7 @@ export class FetchClient {
     return this.makeRequest<T>('POST', client, url, payload, timeout, withParse);
   }
 
-  async get<T>(client: string, url: string, timeout = 6000, withParse = false): Promise<T> {
+  async get<T>(client: string, url: string, timeout = 6000, withParse = true): Promise<T> {
     return this.makeRequest<T>('GET', client, url, undefined, timeout, withParse);
   }
 }
