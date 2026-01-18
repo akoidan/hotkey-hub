@@ -578,7 +578,7 @@ describe('Logic service', () => {
       shortCut: 'Alt+3',
     });
 
-    expect(spyTypeText).toHaveBeenCalledWith('this', {text: 'testuser'});
+    expect(spyTypeText).toHaveBeenCalledWith('this', {text: 'testuser', keyDelay: 100, keyDelayDeviation: 0.1,});
     expect(spyKeyPress).toHaveBeenCalledWith('this', {holdKeys: [], keys: ['tab']});
     expect(spyKeyPress).toHaveBeenCalledWith('this', {holdKeys: [], keys: ['enter']});
   });

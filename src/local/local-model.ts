@@ -1,13 +1,17 @@
 import type {Shortcut} from '@/config/types/shortcut';
 
-export enum ProcessStatus {
+enum ProcessStatus {
   TERMINATING = 'TERMINATING',
   RUNNING = 'RUNNING',
   STOPPED = 'STOPPED',
 }
+
+const VERSION_INJ = 'VERSION';
 
 export interface IterationDescription {
   id: string;
   status: ProcessStatus;
   shortCut: Shortcut;
 }
+
+export {VERSION_INJ, ProcessStatus};
