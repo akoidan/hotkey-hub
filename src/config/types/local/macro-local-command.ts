@@ -55,13 +55,47 @@ const macroLocalCommandSchema = z.object({
       if ((command.variables?.[key] as VariableValue)?.$ref) {
         isVariable = true;
       }
-      if (command.variables?.[key] && value!.type !== typeof command.variables?.[key] && !isVariable) {
-        ctx.addIssue({
-          code: 'custom',
-          path: ['variables'],
-          message: `Passed variable ${key}=${JSON.stringify(command.variables?.[key])} type of ${typeof command.variables?.[key]},` +
-            `expected ${value!.type}`,
-        });
+
+      if (command.variables?.[key] && !isVariable) {
+        const variableValue = command.variables[key];
+        const expectedType = value!.type;
+
+        const validateType = (val: any, type: VariableType): boolean => {
+          // Handle primitive types
+          if (typeof type === 'string') {
+            if (type.endsWith('[]')) {
+              // Handle array type (e.g., 'string[]')
+              if (!Array.isArray(val)) return false;
+              const elementType = type.slice(0, -2) as PrimitiveVariableType;
+              return val.every((item: any) => typeof item === elementType || elementType === 'any');
+            }
+            // Handle primitive type
+            return typeof val === type || type === 'any';
+          }
+
+          // Handle object type
+          if (typeof val !== 'object' || val === null || Array.isArray(val)) {
+            return false;
+          }
+
+          // Recursively validate object properties
+          for (const [k, t] of Object.entries(type)) {
+            if (!(k in val) || !validateType(val[k], t as VariableType)) {
+              return false;
+            }
+          }
+          return true;
+        };
+
+        if (!validateType(variableValue, expectedType)) {
+          ctx.addIssue({
+            code: 'custom',
+            path: ['variables'],
+            message: `Type mismatch for variable ${key}. ` +
+              `Expected type: ${JSON.stringify(expectedType)}, ` +
+              `got value: ${JSON.stringify(variableValue)}`,
+          });
+        }
       }
       if (!value!.optional && !command.variables?.[key]) {
         ctx.addIssue({
@@ -104,10 +138,13 @@ const macroVariableTypeSchema = z.union([
   macroArrayVariableTypeSchema,
 ]).describe('To validate the type, or cast from env variables');
 
+interface VariableTypeMap {
+  [key: string]: VariableType;
+}
 // TypeScript types for better type inference
 type PrimitiveVariableType = 'string' | 'number' | 'boolean' | 'any';
-type ArrayVariableType = Record<string, VariableType> | string;
-type ObjectVariableType = Record<string, VariableType>;
+type ArrayVariableType = string | VariableTypeMap;
+type ObjectVariableType = VariableTypeMap;
 type VariableType = PrimitiveVariableType | ArrayVariableType | ObjectVariableType;
 
 const macroVariableValueSchema = z.object({
