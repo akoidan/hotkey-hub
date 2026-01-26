@@ -62,6 +62,12 @@ const macroLocalCommandSchema = z.object({
 
         const validateType = (val: any, type: VariableType): boolean => {
           // Handle primitive types
+          if (type === 'any') {
+            return true;
+          }
+          if (val === undefined) {
+            return false;
+          }
           if (typeof type === 'string') {
             if (type.endsWith('[]')) {
               // Handle array type (e.g., 'string[]')
@@ -86,8 +92,8 @@ const macroLocalCommandSchema = z.object({
           }
           return true;
         };
-
-        if (!validateType(variableValue, expectedType)) {
+        const isValid =validateType(variableValue, expectedType);
+        if (!isValid) {
           ctx.addIssue({
             code: 'custom',
             path: ['variables'],
