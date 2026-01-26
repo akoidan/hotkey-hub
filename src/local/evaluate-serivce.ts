@@ -16,9 +16,6 @@ export class EvaluateService {
   }
 
   public evaluateExpression(expr: Expression) {
-    if (typeof expr !== 'string') {
-      return expr;
-    }
     const variables = this.configService.getVariables();
     const reserved = new Set(['this', 'arguments', 'eval', 'function', 'return', 'var', 'let', 'const']);
 

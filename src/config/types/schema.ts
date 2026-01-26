@@ -96,7 +96,6 @@ import {
   macroObjectVariableTypeSchema,
   macroPrimitiveVariableTypeSchema, macroVariableTypeSchema
 } from '@/config/types/local/macro-local-command';
-import {rawExpressionShcema} from '@/config/types/local/expression-local-command';
 
 
 const ipsSchema = z.record(z.string(), z.string())
@@ -166,7 +165,6 @@ export type {
 
 export {
   macroPrimitiveVariableTypeSchema,
-  rawExpressionShcema,
   macroArrayVariableTypeSchema,
   macroObjectVariableTypeSchema,
   macroVariableTypeSchema,
