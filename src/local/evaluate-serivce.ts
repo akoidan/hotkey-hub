@@ -1,5 +1,6 @@
 import {ConfigService} from '@/config/config-service';
 import {Injectable, Logger} from '@nestjs/common';
+import {Expression} from '@/config/types/local/expression-local-command';
 
 @Injectable()
 export class EvaluateService {
@@ -14,7 +15,10 @@ export class EvaluateService {
     return Function(`__${varName}`, `return __${variableExpression};`)(varValue);
   }
 
-  public evaluateExpression(expr: string) {
+  public evaluateExpression(expr: Expression) {
+    if (typeof expr !== 'string') {
+      return expr;
+    }
     const variables = this.configService.getVariables();
     const reserved = new Set(['this', 'arguments', 'eval', 'function', 'return', 'var', 'let', 'const']);
 

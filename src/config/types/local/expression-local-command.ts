@@ -1,6 +1,7 @@
 import {z} from 'zod';
+import {variableValueSchema} from '@/config/types/variables';
 
-const expressionSchema = z.string().superRefine((expr, ctx) => {
+const rawExpressionShcema = z.string().superRefine((expr, ctx) => {
   try {
     // eslint-disable-next-line
     new Function(`return (${expr});`);
@@ -11,7 +12,12 @@ const expressionSchema = z.string().superRefine((expr, ctx) => {
       message: `"${expr}" is not a valid expression, because of ${e?.message ?? e}`,
     });
   }
-}).describe('JS like expression that evaluates to some values. E.g. x*2.');
+});
+
+const expressionSchema = z.union([
+  rawExpressionShcema,
+  variableValueSchema,
+]).describe('JS like expression that evaluates to some values. E.g. x*2.');
 
 const expressionLocalCommandSchema = z.object({
   assignVariable: z.string().describe('Name of the variable to store the expression result. ' +
@@ -21,12 +27,15 @@ const expressionLocalCommandSchema = z.object({
   .describe('Allows to create/assign a variable by expression.');
 
 type ExpressionLocalCommand = z.infer<typeof expressionLocalCommandSchema>;
+type Expression = z.infer<typeof expressionSchema>;
 
 export {
   expressionSchema,
+  rawExpressionShcema,
   expressionLocalCommandSchema,
 };
 
 export type {
+  Expression,
   ExpressionLocalCommand,
 };

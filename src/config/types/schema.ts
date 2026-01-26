@@ -42,7 +42,7 @@ import {
 } from '@/config/types/remote/window-commands-schema';
 import {remoteCommandSchema} from '@/config/types/remote/remote-commands';
 import {
-  expressionLocalCommandSchema,
+  expressionLocalCommandSchema, expressionSchema,
   ifLocalCommandSchema,
   localCommandSchema,
   loopLocalCommandSchema,
@@ -96,6 +96,7 @@ import {
   macroObjectVariableTypeSchema,
   macroPrimitiveVariableTypeSchema, macroVariableTypeSchema
 } from '@/config/types/local/macro-local-command';
+import {rawExpressionShcema} from '@/config/types/local/expression-local-command';
 
 
 const ipsSchema = z.record(z.string(), z.string())
@@ -165,6 +166,7 @@ export type {
 
 export {
   macroPrimitiveVariableTypeSchema,
+  rawExpressionShcema,
   macroArrayVariableTypeSchema,
   macroObjectVariableTypeSchema,
   macroVariableTypeSchema,
