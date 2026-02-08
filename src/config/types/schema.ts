@@ -120,7 +120,8 @@ const rgbSchema = z.object({
     .describe('Address of the openrgb server')
     .optional(),
   keyMapFn: z.string()
-    .default('x.toLowerCase().replace(\' arrow\', \'\').replace(\'key: \', \'\').replace(\' (ansi)\', \'\').replace(\' \', \'_\')')
+      // eslint-disable-next-line max-len
+    .default('x.toLowerCase().replace(" arrow", "").replace("pause/break", "pause").replace("key: ", "").replace(" (ansi)", "").replace(" ", "_")')
     .describe('Mapping of keyboard api key name to default map key names. ' +
       'This should be a JS expression that accept variable "x" and evaluates to a string')
     .optional(),
