@@ -122,8 +122,11 @@ const rgbSchema = z.object({
   keyMapFn: z.string()
       // eslint-disable-next-line max-len
     .default('x.toLowerCase().replace(" arrow", "").replace("pause/break", "pause").replace("key: ", "").replace(" (ansi)", "").replace(" ", "_")')
-    .describe('Mapping of keyboard api key name to default map key names. ' +
-      'This should be a JS expression that accept variable "x" and evaluates to a string')
+    .describe('Mapping of openRGB provided keyboard "key" schema. In other words input: openRgb keyboard provider key name. ' +
+        'Output should be a string a type of "key" schema.' +
+        'This should be a JS expression that accept variable "x" and evaluates to a string. ' +
+        'Allows to properly setup mapping in order to avoid exceptions like "key XXX is not present in keymap". ' +
+        'Default value works for keyboard brand HyperX')
     .optional(),
 }).strict()
   .optional()
