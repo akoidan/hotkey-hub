@@ -14,7 +14,8 @@ interface ReloadRequest {
   configFile: string;
   variablesFile: string;
   certDir: string;
-  enableApi: boolean;
+  apiServer: boolean;
+  logLevel: string;
   apiPort: number;
 }
 

@@ -1,6 +1,6 @@
 {
   "name": "hotkey-hub",
-  "version": "2.0.1",
+  "version": "2.2.0",
   "main": "src/index.js",
   "repository": "git@github.com:akoidan/hotkey-hub.git",
   "author": "akoidan <deathangel908@gmail.com>",

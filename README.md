@@ -93,7 +93,7 @@ There are 3 types of commands:
 Create `configs/variables.json` to define custom variables:
 - Can have any valid JSON structure with a root object
 - To reference a variable use object with `$ref` keyword.  E.g. `"destination": "{"$ref": "varName"}`
-- Variables can be referenced in both `config.jsonc` and `macros.jsonc`
+- Variables can be referenced in `config.jsonc`
 
 ### JSON Schema Support
 You can validate your configuration using any JSON schema validator (e.g., [jsonschemavalidator.net](https://www.jsonschemavalidator.net/)):
@@ -109,7 +109,6 @@ You can validate your configuration using any JSON schema validator (e.g., [json
 - Install the package `sudo dpkg -i hotkey-hub.deb`
 - Put certificates in `~/.local/share/hotkey-hub/certs`
 - Put configs in `~/.local/share/hotkey-hub/configs/config.jsonc`
-- Put macros in `~/.local/share/hotkey-hub/configs/macros.jsonc`
 - Put variables in `~/.local/share/hotkey-hub/configs/variables.jsonc`
 - Start the service as a normal user: `systemctl --user start hotkey-hub` should be the same user as logged in X
 - To view logs check `journalctl --user -o cat -u hotkey-hub -f`
@@ -118,7 +117,6 @@ You can validate your configuration using any JSON schema validator (e.g., [json
 - Install the package with `yay` or `paru` from AUR `yay -S hotkey-hub`
 - Put certificates in `~/.local/share/hotkey-hub/certs`
 - Put configs in `~/.local/share/hotkey-hub/configs/config.jsonc`
-- Put macros in `~/.local/share/hotkey-hub/configs/macros.jsonc`
 - Put variables in `~/.local/share/hotkey-hub/configs/variables.jsonc`
 - Start the service as a normal user: `systemctl --user start hotkey-hub` should be the same user as logged in X
 - To view logs check `journalctl --user -o cat -u hotkey-hub -f`
@@ -130,7 +128,6 @@ You can validate your configuration using any JSON schema validator (e.g., [json
 - run `chmod +x hotkey-hub.elf`
 - Put certificates in `./certs`
 - Put configs in `./configs/config.jsonc`
-- Put macros in `./configs/macros.jsonc`
 - Put variables in `./configs/variables.jsonc`
 - Start the service from the non-root X user `./hotkey-hub.elf`
 - If you need systemd unit, check [hotkey-hub.service](./packages/hotkey-hub.service)
@@ -141,6 +138,12 @@ You can validate your configuration using any JSON schema validator (e.g., [json
 - Put configs into `./configs` directory where `hotkey-hub.exe` is
 - Open the terminal from a regular user and run  `hotkey-hub.exe`. 
 - You can also run it by double clicking the .exe file like you normally do, but in case of error it will exit promptly.
+
+### Apply new config
+If server is started under linux using systemd or with flag `--api-server`, running `hotkey-hub` with `--config-file` or `--variables-file` parameter will apply new configuration to existing server via http api, instead of creating a new process. E.g. after initial start of `systemctl --user start hotkey-hub`, use:
+```bash
+hotkey-hub --config-file=~/my-config.jsonc 
+```
 
 ### Help
  - The app will ping client from the start in order to check connection. If one/more clients in config.jsonc `ips` section is not reachable, the app will `exit 1`

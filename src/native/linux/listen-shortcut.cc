@@ -4,6 +4,7 @@
 #include <napi.h>
 #include <thread>
 #include <atomic>
+#include <chrono>
 
 struct HotkeyContext {
     std::atomic<bool> running{true};
@@ -46,20 +47,26 @@ void EventLoop(HotkeyContext* context) {
     XEvent event;
     
     while (context->running) {
-        XNextEvent(context->display, &event);
-        
-        if (event.type == KeyPress) {
-            unsigned int modifiers = event.xkey.state;
-            KeyCode keycode = event.xkey.keycode;
+        // Use non-blocking event checking
+        if (XPending(context->display)) {
+            XNextEvent(context->display, &event);
             
-            // Check if this matches our registered hotkey
-            if (keycode == context->keycode && modifiers == context->modifiers) {
-                auto callback = [](Napi::Env env, Napi::Function jsCallback) {
-                    jsCallback.Call({});
-                };
+            if (event.type == KeyPress) {
+                unsigned int modifiers = event.xkey.state;
+                KeyCode keycode = event.xkey.keycode;
                 
-                context->tsfn.BlockingCall(callback);
+                // Check if this matches our registered hotkey
+                if (keycode == context->keycode && modifiers == context->modifiers) {
+                    auto callback = [](Napi::Env env, Napi::Function jsCallback) {
+                        jsCallback.Call({});
+                    };
+                    
+                    context->tsfn.BlockingCall(callback);
+                }
             }
+        } else {
+            // Sleep briefly to avoid busy waiting
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
     }
 }

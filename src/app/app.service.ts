@@ -24,7 +24,9 @@ export class AppService {
   }
 
   async reload(reload: ReloadRequest): Promise<void> {
+    this.logger.debug(`Reloading config hotkey config from ${JSON.stringify(reload)}...`);
     this.configsPathService.setConfigPaths(reload.configFile, reload.variablesFile);
     await this.keybindingService.reloadShortcuts();
+    this.logger.log(`Loaded new config from ${JSON.stringify(reload)}`);
   }
 }

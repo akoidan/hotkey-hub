@@ -1,21 +1,26 @@
 import {NestFactory} from '@nestjs/core';
 import {AppModule} from '@/app/app.module';
-import {CustomLogger} from '@/app/custom-logger';
+import {ConsoleLogger} from '@/app/console-logger.service';
 import * as process from 'node:process';
 import {asyncLocalStorage} from '@/asyncstore/async-storage-value';
 import {SemaphorService} from '@/semaphor/semaphor-service';
 import type {ReloadRequest} from '@/app/app-model';
 import {isPortOpen, parseArgs, postLocalhost} from '@/app/utils';
-
+import type {LogLevel} from '@nestjs/common';
 
 
 asyncLocalStorage.run(new Map<string, string>().set(SemaphorService.COMB_KEY, 'init'), () => {
-  const customLogger = new CustomLogger(asyncLocalStorage);
+  const customLogger = new ConsoleLogger(asyncLocalStorage);
   (async function startApp(): Promise<void> {
     // eslint-disable-next-line
     const packageJson: string = require('../package.json').version;
     const args = await parseArgs();
-    if (args.enableApi) {
+    customLogger.setLogLevel(args.logLevel as LogLevel);
+    const portOpen = await isPortOpen(args.apiPort);
+    if (args.apiServer && portOpen) {
+      throw Error(`Hotkey is already running at port ${args.apiPort}`);
+    }
+    if (args.apiServer) {
       customLogger.log(`Initializing hotkey-hub ${packageJson} ...`);
       const app = await NestFactory.create(
         AppModule.forRoot(args),
@@ -25,7 +30,7 @@ asyncLocalStorage.run(new Map<string, string>().set(SemaphorService.COMB_KEY, 'i
       );
       customLogger.log(`Starting hotkey-hub ${packageJson} at prt ${args.apiPort}`);
       await app.listen(args.apiPort, '127.0.0.1');
-    } else if (await isPortOpen(args.apiPort)) {
+    } else if (portOpen) {
       const body: ReloadRequest = {};
       if (process.argv.some(arg => arg === '--config-file' || arg.startsWith('--config-file='))) {
         body.configFile = args.configFile;
@@ -48,7 +53,7 @@ asyncLocalStorage.run(new Map<string, string>().set(SemaphorService.COMB_KEY, 'i
       );
     }
   })().catch((err: unknown) => {
-    customLogger.error(err as (string | Error), (err as Error)?.stack);
+    customLogger.fatal(err as (string | Error), (err as Error)?.stack);
     process.exit(1);
   });
 });
