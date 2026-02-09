@@ -177,6 +177,7 @@ jobs:
           assets: |
             ./packages/arch/hotkey-hub.install
             ./packages/hotkey-hub.service
+            ./packages/config.jsonc
           commit_username: "GitHub Actions Bot"
           updpkgsums: "true"
           commit_email: "actions@github.com"
@@ -213,6 +214,7 @@ jobs:
           install -D -m 644 "${rootdir}/json-schema.json" "${pkgdir}/usr/share/hotkey-hub/json-schema.json"
           install -D -m 644 "${rootdir}/macros-schema.json" "${pkgdir}/usr/share/hotkey-hub/macros-schema.json"
           install -D -m 644 "${rootdir}/packages/hotkey-hub.service" "${pkgdir}/usr/lib/systemd/user/hotkey-hub.service"
+          install -D -m 644 "${rootdir}/packages/config.jsonc" "${pkgdir}/usr/share/hotkey-hub/config-example.jsonc"
           
           cd "$srcdir"
           dpkg-deb --build hotkey-hub hotkey-hub-amd64.deb

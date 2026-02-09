@@ -1,6 +1,6 @@
 import {NestFactory} from '@nestjs/core';
 import {AppModule} from '@/app/app.module';
-import {CustomLogger} from '@/app/custom-logger';
+import {ConsoleLogger} from '@/app/console-logger.service';
 import * as process from 'node:process';
 import {asyncLocalStorage} from '@/asyncstore/async-storage-value';
 import {SemaphorService} from '@/semaphor/semaphor-service';
@@ -10,20 +10,12 @@ import type {LogLevel} from '@nestjs/common';
 
 
 asyncLocalStorage.run(new Map<string, string>().set(SemaphorService.COMB_KEY, 'init'), () => {
-  const customLogger = new CustomLogger(asyncLocalStorage);
+  const customLogger = new ConsoleLogger(asyncLocalStorage);
   (async function startApp(): Promise<void> {
     // eslint-disable-next-line
     const packageJson: string = require('../package.json').version;
     const args = await parseArgs();
-    const levelMap: Record<LogLevel, LogLevel[]> = {
-      error: ['error', 'fatal'],
-      fatal: ['fatal'],
-      warn: ['error', 'warn', 'fatal'],
-      log: ['error', 'warn', 'log', 'fatal'],
-      debug: ['error', 'warn', 'log', 'debug', 'fatal'],
-      verbose: ['error', 'warn', 'log', 'debug', 'verbose', 'fatal'],
-    };
-    customLogger.setLogLevels(levelMap[args.logLevel as LogLevel]);
+    customLogger.setLogLevel(args.logLevel as LogLevel);
     const portOpen = await isPortOpen(args.apiPort);
     if (args.apiServer && portOpen) {
       throw Error(`Hotkey is already running at port ${args.apiPort}`);
@@ -61,7 +53,7 @@ asyncLocalStorage.run(new Map<string, string>().set(SemaphorService.COMB_KEY, 'i
       );
     }
   })().catch((err: unknown) => {
-    customLogger.error(err as (string | Error), (err as Error)?.stack);
+    customLogger.fatal(err as (string | Error), (err as Error)?.stack);
     process.exit(1);
   });
 });
