@@ -3,11 +3,12 @@ import path from 'path';
 import yargs from 'yargs';
 import net from 'net';
 import http from 'http';
+import type {LogLevel} from '@nestjs/common';
 
 async function parseArgs(): Promise<AppConfig> {
   const isNodeJs = process.execPath.endsWith('node') || process.execPath.endsWith('node.exe');
   const commonDir = isNodeJs ? process.cwd() : path.dirname(process.execPath);
-
+  const logLevel: LogLevel[] = ['log' , 'error' , 'warn' , 'debug' , 'verbose' , 'fatal'] as LogLevel[];
   return yargs(process.argv.slice(2))
       .strict()
       .scriptName('hotkey-hub')
@@ -23,16 +24,22 @@ async function parseArgs(): Promise<AppConfig> {
         default: path.join(commonDir, 'configs', 'variables.jsonc'),
         description: 'File that used to store permanent variables across restarts',
       })
-      .option('enable-api', {
+      .option('log-level', {
+        choices: logLevel,
+        default: 'log',
+        description: 'Log level. Set to debug to print more info',
+      })
+      .option('api-server', {
         type: 'boolean',
         default: false,
+        description: 'Runs http server on localhost that allows reload config or variables via http api',
       })
       .option('api-port', {
         type: 'number',
         default: 6000,
         description: 'if enable-api activates, exposes api on this port',
       })
-      .implies('api-port', 'enable-api')
+      .implies('api-port', 'api-server')
       .option('cert-dir', {
         type: 'string',
         default: path.join(commonDir, 'certs'),

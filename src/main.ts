@@ -6,7 +6,7 @@ import {asyncLocalStorage} from '@/asyncstore/async-storage-value';
 import {SemaphorService} from '@/semaphor/semaphor-service';
 import type {ReloadRequest} from '@/app/app-model';
 import {isPortOpen, parseArgs, postLocalhost} from '@/app/utils';
-
+import type {LogLevel} from '@nestjs/common';
 
 
 asyncLocalStorage.run(new Map<string, string>().set(SemaphorService.COMB_KEY, 'init'), () => {
@@ -15,7 +15,20 @@ asyncLocalStorage.run(new Map<string, string>().set(SemaphorService.COMB_KEY, 'i
     // eslint-disable-next-line
     const packageJson: string = require('../package.json').version;
     const args = await parseArgs();
-    if (args.enableApi) {
+    const levelMap: Record<LogLevel, LogLevel[]> = {
+      error: ['error', 'fatal'],
+      fatal: ['fatal'],
+      warn: ['error', 'warn', 'fatal'],
+      log: ['error', 'warn', 'log', 'fatal'],
+      debug: ['error', 'warn', 'log', 'debug', 'fatal'],
+      verbose: ['error', 'warn', 'log', 'debug', 'verbose', 'fatal'],
+    };
+    customLogger.setLogLevels(levelMap[args.logLevel as LogLevel]);
+    const portOpen = await isPortOpen(args.apiPort);
+    if (args.apiServer && portOpen) {
+      throw Error(`Hotkey is already running at port ${args.apiPort}`);
+    }
+    if (args.apiServer) {
       customLogger.log(`Initializing hotkey-hub ${packageJson} ...`);
       const app = await NestFactory.create(
         AppModule.forRoot(args),
@@ -25,7 +38,7 @@ asyncLocalStorage.run(new Map<string, string>().set(SemaphorService.COMB_KEY, 'i
       );
       customLogger.log(`Starting hotkey-hub ${packageJson} at prt ${args.apiPort}`);
       await app.listen(args.apiPort, '127.0.0.1');
-    } else if (await isPortOpen(args.apiPort)) {
+    } else if (portOpen) {
       const body: ReloadRequest = {};
       if (process.argv.some(arg => arg === '--config-file' || arg.startsWith('--config-file='))) {
         body.configFile = args.configFile;

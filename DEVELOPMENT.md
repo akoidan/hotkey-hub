@@ -47,7 +47,7 @@ This command already builds the native module in Debug mode.
   ```bash
   yarn start
   ```  
-- Once the native module loads, attach CLion’s debugger (`gdb`) to the running Node.js process.
+- Once the native module loads, attach CLion’s debugger (`gdb`) to the running Node.js process. NOTE: this should be node process, not parent yarn process.
 - CLion will automatically pull sourcemaps, allowing you to place breakpoints in native C++ code.
 
 ## 3. Enable Syntax Highlighting for Node.js Headers
