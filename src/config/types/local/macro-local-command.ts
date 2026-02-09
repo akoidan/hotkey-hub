@@ -5,6 +5,40 @@ import {type VariableValue, variableValueSchema} from '@/config/types/variables'
 import {delayCommandsSchema} from '@/config/types/remote/base-remote-command';
 import {unknownCommandSchema} from '@/config/types/commands';
 
+
+function validateType(val: any, type: VariableType): boolean {
+  // Handle primitive types
+  if (type === 'any') {
+    return true;
+  }
+  if (val === undefined) {
+    return false;
+  }
+  if (typeof type === 'string') {
+    if (type.endsWith('[]')) {
+      // Handle array type (e.g., 'string[]')
+      if (!Array.isArray(val)) {return false;}
+      const elementType = type.slice(0, -2) as PrimitiveVariableType;
+      return val.every((item: any) => typeof item === elementType || elementType === 'any');
+    }
+    // Handle primitive type
+    return typeof val === type || type === 'any';
+  }
+
+  // Handle object type
+  if (typeof val !== 'object' || val === null || Array.isArray(val)) {
+    return false;
+  }
+
+  // Recursively validate object properties
+  for (const [k, t] of Object.entries(type)) {
+    if (!(k in val) || !validateType(val[k], t as VariableType)) {
+      return false;
+    }
+  }
+  return true;
+}
+
 const macroLocalCommandSchema = z.object({
   macro: z.string().describe('Name of the macro to execute, which must match a key defined in the macros section. ' +
     'Macros help reduce configuration repetition by reusing command sequences.').superRefine((macroName, ctx) => {
@@ -41,6 +75,7 @@ const macroLocalCommandSchema = z.object({
         });
       }
     }
+    // eslint-disable-next-line max-lines-per-function
   }).superRefine((command, ctx) => {
     const definedMacros: NonNullable<MacroList> = schemaRootCache.data.macros ?? {};
     if (!definedMacros[command.macro] || !command.variables) {
@@ -57,36 +92,8 @@ const macroLocalCommandSchema = z.object({
       }
 
       if (command.variables?.[key] && !isVariable) {
-        const variableValue = command.variables[key];
-        const expectedType = value!.type;
-
-        const validateType = (val: any, type: VariableType): boolean => {
-          // Handle primitive types
-          if (typeof type === 'string') {
-            if (type.endsWith('[]')) {
-              // Handle array type (e.g., 'string[]')
-              if (!Array.isArray(val)) return false;
-              const elementType = type.slice(0, -2) as PrimitiveVariableType;
-              return val.every((item: any) => typeof item === elementType || elementType === 'any');
-            }
-            // Handle primitive type
-            return typeof val === type || type === 'any';
-          }
-
-          // Handle object type
-          if (typeof val !== 'object' || val === null || Array.isArray(val)) {
-            return false;
-          }
-
-          // Recursively validate object properties
-          for (const [k, t] of Object.entries(type)) {
-            if (!(k in val) || !validateType(val[k], t as VariableType)) {
-              return false;
-            }
-          }
-          return true;
-        };
-
+        const variableValue: unknown = command.variables[key];
+        const expectedType: VariableType = value!.type;
         if (!validateType(variableValue, expectedType)) {
           ctx.addIssue({
             code: 'custom',
@@ -138,6 +145,7 @@ const macroVariableTypeSchema = z.union([
   macroArrayVariableTypeSchema,
 ]).describe('To validate the type, or cast from env variables');
 
+// eslint-disable-next-line
 interface VariableTypeMap {
   [key: string]: VariableType;
 }
@@ -145,6 +153,7 @@ interface VariableTypeMap {
 type PrimitiveVariableType = 'string' | 'number' | 'boolean' | 'any';
 type ArrayVariableType = string | VariableTypeMap;
 type ObjectVariableType = VariableTypeMap;
+// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 type VariableType = PrimitiveVariableType | ArrayVariableType | ObjectVariableType;
 
 const macroVariableValueSchema = z.object({

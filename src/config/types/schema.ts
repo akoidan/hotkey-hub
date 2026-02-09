@@ -94,7 +94,7 @@ import {getInfoCommandSchema, pingCommandSchema} from '@/config/types/get-comman
 import {
   macroArrayVariableTypeSchema,
   macroObjectVariableTypeSchema,
-  macroPrimitiveVariableTypeSchema, macroVariableTypeSchema
+  macroPrimitiveVariableTypeSchema, macroVariableTypeSchema,
 } from '@/config/types/local/macro-local-command';
 
 
@@ -120,9 +120,13 @@ const rgbSchema = z.object({
     .describe('Address of the openrgb server')
     .optional(),
   keyMapFn: z.string()
-    .default('x.toLowerCase().replace(\' arrow\', \'\').replace(\'key: \', \'\').replace(\' (ansi)\', \'\').replace(\' \', \'_\')')
-    .describe('Mapping of keyboard api key name to default map key names. ' +
-      'This should be a JS expression that accept variable "x" and evaluates to a string')
+      // eslint-disable-next-line max-len
+    .default('x.toLowerCase().replace(" arrow", "").replace("pause/break", "pause").replace("key: ", "").replace(" (ansi)", "").replace(" ", "_")')
+    .describe('Mapping of openRGB provided keyboard "key" schema. In other words input: openRgb keyboard provider key name. ' +
+        'Output should be a string a type of "key" schema.' +
+        'This should be a JS expression that accept variable "x" and evaluates to a string. ' +
+        'Allows to properly setup mapping in order to avoid exceptions like "key XXX is not present in keymap". ' +
+        'Default value works for keyboard brand HyperX')
     .optional(),
 }).strict()
   .optional()

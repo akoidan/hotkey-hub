@@ -120,12 +120,6 @@ export class RgbService implements RgbServiceI {
       const f = new Function('x', `return (${keyMapFn});`);
       return f(led.name) as string;
     }
-    return led.name
-        .toLowerCase()
-        .replace(' arrow', '')
-        .replace('pause/break', 'pause')
-        .replace('key: ', '')
-        .replace(' (ansi)', '')
-        .replace(' ', '_');
+    return led.name;
   }
 }
