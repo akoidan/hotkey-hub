@@ -6,7 +6,7 @@ import {delayCommandsSchema} from '@/config/types/remote/base-remote-command';
 import {unknownCommandSchema} from '@/config/types/commands';
 
 
-function validateType(val: unknown, type: VariableType): boolean {
+function validateType(val: any, type: VariableType): boolean {
   // Handle primitive types
   if (type === 'any') {
     return true;
@@ -93,9 +93,8 @@ const macroLocalCommandSchema = z.object({
 
       if (command.variables?.[key] && !isVariable) {
         const variableValue: unknown = command.variables[key];
-        const expectedType: unknown = value!.type;
-        const isValid =validateType(variableValue, expectedType);
-        if (!isValid) {
+        const expectedType: VariableType = value!.type;
+        if (!validateType(variableValue, expectedType)) {
           ctx.addIssue({
             code: 'custom',
             path: ['variables'],
