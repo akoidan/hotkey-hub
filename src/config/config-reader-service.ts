@@ -19,18 +19,11 @@ export class ConfigReaderService {
 
   public async loadConfigString(): Promise<string> {
     this.logger.debug(`Loading config from ${this.configsPathService.configFilePath}`);
-    return fs.readFile(this.configsPathService.configFilePath, 'utf8');
+    return fs.readFile(this.configsPathService.configFilePath, 'utf8').catch((err: unknown) => {
+      throw new Error(`Unable to open file ${this.configsPathService.configFilePath}, because ${(err as Error).message}`);
+    });
   }
 
-  public async loadMacroConfigString(): Promise<string | null> {
-    this.logger.debug(`Loading macro config from ${this.configsPathService.macroFilePath}`);
-    try {
-      return await fs.readFile(this.configsPathService.macroFilePath, 'utf8');
-    } catch (error) {
-      this.logger.warn(`Unable to load global macros from ${this.configsPathService.macroFilePath} because of ${error?.message ?? error}`);
-      return null;
-    }
-  }
 
   public async loadVariablesConfigString(): Promise<string | null> {
     this.logger.debug(`Loading variable config from ${this.configsPathService.variablesFilePath}`);

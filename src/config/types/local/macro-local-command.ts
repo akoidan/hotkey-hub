@@ -5,12 +5,56 @@ import {type VariableValue, variableValueSchema} from '@/config/types/variables'
 import {delayCommandsSchema} from '@/config/types/remote/base-remote-command';
 import {unknownCommandSchema} from '@/config/types/commands';
 
+
+function validateType(val: any, type: VariableType): boolean {
+  // Handle primitive types
+  if (type === 'any') {
+    return true;
+  }
+  if (val === undefined) {
+    return false;
+  }
+  if (typeof type === 'string') {
+    if (type.endsWith('[]')) {
+      // Handle array type (e.g., 'string[]')
+      if (!Array.isArray(val)) {return false;}
+      const elementType = type.slice(0, -2) as PrimitiveVariableType;
+      return val.every((item: any) => typeof item === elementType || elementType === 'any');
+    }
+    // Handle primitive type
+    return typeof val === type || type === 'any';
+  }
+
+  // Handle object type
+  if (typeof val !== 'object' || val === null || Array.isArray(val)) {
+    return false;
+  }
+
+  // Recursively validate object properties
+  for (const [k, t] of Object.entries(type)) {
+    if (!(k in val) || !validateType(val[k], t as VariableType)) {
+      return false;
+    }
+  }
+  return true;
+}
+
 const macroLocalCommandSchema = z.object({
   macro: z.string().describe('Name of the macro to execute, which must match a key defined in the macros section. ' +
-    'Macros help reduce configuration repetition by reusing command sequences.'),
+    'Macros help reduce configuration repetition by reusing command sequences.').superRefine((macroName, ctx) => {
+    const macroList = new Set(Object.keys(schemaRootCache.data.macros ?? {}));
+
+    if (!macroList.has(macroName)) {
+      const allOptions = JSON.stringify(Array.from(macroList));
+      ctx.addIssue({
+        code: 'custom',
+        message: `Macro "${JSON.stringify(macroName)}" doesn't exist, available macros are ${allOptions}`,
+      });
+    }
+  }),
   variables: z.record(
     z.string(),
-    z.union([z.string(), z.number(), variableValueSchema])
+    z.union([z.any(), variableValueSchema])
   ).optional()
     .describe('Variables to pass to the macro. Object where keys are variable names and values are their values. ' +
       'Values can be strings or numbers and must match the types defined in the macro\'s variables section.'),
@@ -18,16 +62,7 @@ const macroLocalCommandSchema = z.object({
   .strict()
   .merge(delayCommandsSchema)
   .superRefine((command, ctx) => {
-    const definedMacros: NonNullable<MacroList> = schemaRootCache.macros!;
-    if (!definedMacros[command.macro]) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['macro'],
-        message: `Macro ${command.macro} doesn't exist. Available macros are ${Object.keys(definedMacros).join(', ')}`,
-      });
-    }
-  }).superRefine((command, ctx) => {
-    const definedMacros: NonNullable<MacroList> = schemaRootCache.macros!;
+    const definedMacros: NonNullable<MacroList> = schemaRootCache.data.macros ?? {};
     if (!definedMacros[command.macro] || !command.variables) {
       return;
     }
@@ -40,8 +75,9 @@ const macroLocalCommandSchema = z.object({
         });
       }
     }
+    // eslint-disable-next-line max-lines-per-function
   }).superRefine((command, ctx) => {
-    const definedMacros: NonNullable<MacroList> = schemaRootCache.macros!;
+    const definedMacros: NonNullable<MacroList> = schemaRootCache.data.macros ?? {};
     if (!definedMacros[command.macro] || !command.variables) {
       return;
     }
@@ -54,13 +90,19 @@ const macroLocalCommandSchema = z.object({
       if ((command.variables?.[key] as VariableValue)?.$ref) {
         isVariable = true;
       }
-      if (command.variables?.[key] && value!.type !== typeof command.variables?.[key] && !isVariable) {
-        ctx.addIssue({
-          code: 'custom',
-          path: ['variables'],
-          message: `Passed variable ${key}=${JSON.stringify(command.variables?.[key])} type of ${typeof command.variables?.[key]},` +
-            `expected ${value!.type}`,
-        });
+
+      if (command.variables?.[key] && !isVariable) {
+        const variableValue: unknown = command.variables[key];
+        const expectedType: VariableType = value!.type;
+        if (!validateType(variableValue, expectedType)) {
+          ctx.addIssue({
+            code: 'custom',
+            path: ['variables'],
+            message: `Type mismatch for variable ${key}. ` +
+              `Expected type: ${JSON.stringify(expectedType)}, ` +
+              `got value: ${JSON.stringify(variableValue)}`,
+          });
+        }
       }
       if (!value!.optional && !command.variables?.[key]) {
         ctx.addIssue({
@@ -74,8 +116,48 @@ const macroLocalCommandSchema = z.object({
     'Similar to a function call, macros can accept parameters through variables. ' +
     'This helps avoid duplicating complex command sequences and makes configurations more maintainable.');
 
+
+// First, define the primitive types
+const macroPrimitiveVariableTypeSchema = z.union([
+  z.literal('string'),
+  z.literal('number'),
+  z.literal('boolean'),
+  z.literal('any'),
+]);
+
+// Then define the array type (recursive)
+const macroArrayVariableTypeSchema: z.ZodType<ArrayVariableType> = z.lazy(() =>
+  z.union([
+    z.string().refine(s => s.endsWith('[]') && macroPrimitiveVariableTypeSchema.safeParse(s.slice(0, -2)).success, {
+      message: 'Array type must be a primitive type followed by []',
+    }),
+    z.record(z.string(), macroVariableTypeSchema),
+  ]));
+
+// Then define the object type (recursive)
+const macroObjectVariableTypeSchema: z.ZodType<ObjectVariableType> = z.lazy(() =>
+  z.record(z.string(), macroVariableTypeSchema));
+
+// Finally, combine them into one schema
+const macroVariableTypeSchema = z.union([
+  macroPrimitiveVariableTypeSchema,
+  macroObjectVariableTypeSchema,
+  macroArrayVariableTypeSchema,
+]).describe('To validate the type, or cast from env variables');
+
+// eslint-disable-next-line
+interface VariableTypeMap {
+  [key: string]: VariableType;
+}
+// TypeScript types for better type inference
+type PrimitiveVariableType = 'string' | 'number' | 'boolean' | 'any';
+type ArrayVariableType = string | VariableTypeMap;
+type ObjectVariableType = VariableTypeMap;
+// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+type VariableType = PrimitiveVariableType | ArrayVariableType | ObjectVariableType;
+
 const macroVariableValueSchema = z.object({
-  type: z.enum(['string', 'number']).describe('To validate the type, or cast from env variables'),
+  type: macroVariableTypeSchema,
   optional: z.boolean().optional().describe('If set to true, the key is be removed is var is not passed'),
   default: z.any().optional().describe('Default value if value is not passed. Optional should be set to true'),
 })
@@ -115,6 +197,10 @@ export type {
 };
 
 export {
+  macroPrimitiveVariableTypeSchema,
+  macroArrayVariableTypeSchema,
+  macroObjectVariableTypeSchema,
+  macroVariableTypeSchema,
   macroLocalCommandSchema,
   macroVariableValueSchema,
   macroVariablesDescriptionSchema,

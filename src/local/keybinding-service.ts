@@ -6,6 +6,7 @@ import {INativeModule, ModifierKey, Native} from '@/native/native-model';
 import {ShortcutDescription} from '@/app/app-model';
 import {ShortcutProcessingService} from '@/local/shortcut-processing.service';
 import {Shortcut} from '@/config/types/shortcut';
+import {VERSION_INJ} from '@/local/local-model';
 
 
 export class KeybindingService {
@@ -13,6 +14,8 @@ export class KeybindingService {
 
   constructor(
     private readonly logger: Logger,
+    @Inject(VERSION_INJ)
+    private readonly version: string,
     private readonly configService: ConfigService,
     private readonly clientService: ClientService,
     private readonly shortcutProcessingService: ShortcutProcessingService,
@@ -27,11 +30,31 @@ export class KeybindingService {
     await this.registerShortcuts();
   }
 
-  async registerShortcuts(): Promise<void> {
+  async pingClients(): Promise<void> {
     await Promise.all(
       Object.keys(this.configService.getIps())
-        .map(async(destination) => this.clientService.app.ping(destination))
+        .map(async(destination) => {
+          await this.verifyClientVersion(destination);
+        })
     );
+  }
+
+  private async verifyClientVersion(destination: string): Promise<void> {
+    const res = await this.clientService.app.ping(destination);
+    const [major] = this.version.split('.');
+    let clientVersion = '1.x.x';
+    if (res.version) {
+      clientVersion = res.version;
+      const [resMajor] = res.version.split('.');
+      if (resMajor === major) {
+        return;
+      }
+    }
+    throw new Error(`Unsupported client version ${clientVersion}, expected ${major}.x.x`);
+  }
+
+  async registerShortcuts(): Promise<void> {
+    await this.pingClients();
     const allNewShortcuts = new Set<string>();
     for (const comb of this.configService.getCombinations()) {
       try {

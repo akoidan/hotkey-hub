@@ -91,6 +91,11 @@ import {
   getProcessMainWindowCommandVariablesSchema,
 } from '@/config/types/get-commands/get-process-commands-schema';
 import {getInfoCommandSchema, pingCommandSchema} from '@/config/types/get-commands/get-commands';
+import {
+  macroArrayVariableTypeSchema,
+  macroObjectVariableTypeSchema,
+  macroPrimitiveVariableTypeSchema, macroVariableTypeSchema,
+} from '@/config/types/local/macro-local-command';
 
 
 const ipsSchema = z.record(z.string(), z.string())
@@ -115,9 +120,13 @@ const rgbSchema = z.object({
     .describe('Address of the openrgb server')
     .optional(),
   keyMapFn: z.string()
-    .default('x.toLowerCase().replace(\' arrow\', \'\').replace(\'key: \', \'\').replace(\' (ansi)\', \'\').replace(\' \', \'_\')')
-    .describe('Mapping of keyboard api key name to default map key names. ' +
-      'This should be a JS expression that accept variable "x" and evaluates to a string')
+      // eslint-disable-next-line max-len
+    .default('x.toLowerCase().replace(" arrow", "").replace("pause/break", "pause").replace("key: ", "").replace(" (ansi)", "").replace(" ", "_")')
+    .describe('Mapping of openRGB provided keyboard "key" schema. In other words input: openRgb keyboard provider key name. ' +
+        'Output should be a string a type of "key" schema.' +
+        'This should be a JS expression that accept variable "x" and evaluates to a string. ' +
+        'Allows to properly setup mapping in order to avoid exceptions like "key XXX is not present in keymap". ' +
+        'Default value works for keyboard brand HyperX')
     .optional(),
 }).strict()
   .optional()
@@ -147,20 +156,22 @@ const configSchema = z.object({
 
 // Generate TypeScript type
 type ConfigData = z.infer<typeof configSchema>;
-type ConfigDataWoMacro = Omit<ConfigData, 'macros'>;
 
 type IpsData = z.infer<typeof ipsSchema>
 type RgbData = z.infer<typeof rgbSchema>
 
 
 export type {
-  ConfigDataWoMacro,
   ConfigData,
   IpsData,
   RgbData,
 };
 
 export {
+  macroPrimitiveVariableTypeSchema,
+  macroArrayVariableTypeSchema,
+  macroObjectVariableTypeSchema,
+  macroVariableTypeSchema,
   getWindowsIdByMutliplePidsCommandSchema,
   getWindowsIdByMultiplePidsCommandVariablesSchema,
   getWindowsIdByPidCommandVariablesSchema,

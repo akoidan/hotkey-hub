@@ -9,12 +9,14 @@ import path from 'path';
 import {AsyncStorageModule} from '@/asyncstore/async-storage.module';
 import {RandomModule} from '@/random/random.module';
 import {SemaphorModule} from '../src/semaphor/semaphor.module';
+import {EvaluateService} from '../src/local/evaluate-serivce';
 
 async function getTestModule(configFilePath: string): Promise<TestingModule> {
   return Test.createTestingModule({
     imports: [AsyncStorageModule, RandomModule, SemaphorModule],
     providers: [
       VariableResolutionService,
+      EvaluateService,
       {
         provide: ClientService,
         useValue: {
@@ -31,7 +33,6 @@ async function getTestModule(configFilePath: string): Promise<TestingModule> {
         useFactory: (logger: Logger) => new ConfigService(logger, process.env, new ConfigReaderService(logger, {
           configFilePath: path.join(__dirname, 'fixtures', configFilePath),
           variablesFilePath: path.join(__dirname, 'fixtures', 'variables.jsonc'),
-          macroFilePath: null!,
           setConfigPaths(config?: string, macro?: string, variable?: string) {
           },
         },), -1),
@@ -43,7 +44,7 @@ async function getTestModule(configFilePath: string): Promise<TestingModule> {
 }
 
 describe('Variable Service', () => {
-  it('should keyPress client call', async () => {
+  it('should replace macro variables', async () => {
     const testModule = await getTestModule('config-fixture.jsonc');
     const variableService = testModule.get<VariableResolutionService>(VariableResolutionService);
     const res = variableService.replaceMacroVariables({
@@ -107,6 +108,43 @@ describe('Variable Service', () => {
           },
           'keyPress': 'f4',
           'delayAfter': 50
+        }
+      ]
+    });
+  });
+
+  it('should replace object macro variables', async () => {
+    const testModule = await getTestModule('config-fixture.jsonc');
+    const variableService = testModule.get<VariableResolutionService>(VariableResolutionService);
+    const res = variableService.replaceMacroVariables({
+      'transaction': {
+        $ref: 'destination'
+      },
+      'commands': [
+        {
+          'destination': {
+            $ref: 'this.bd'
+          },
+        }
+      ]
+    }, {
+      'this': {
+        'bd': 'pcbd'
+      }
+    }, {
+      'this': {
+        'type': {
+          'bd': 'string'
+        }
+      },
+    });
+    expect(res).toEqual({
+      'transaction': {
+        $ref: 'destination'
+      },
+      'commands': [
+        {
+          'destination': 'pcbd',
         }
       ]
     });

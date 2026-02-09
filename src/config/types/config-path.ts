@@ -1,9 +1,8 @@
 interface ConfigPath {
   configFilePath: string;
 
-  setConfigPaths(config?: string, macro?: string, variable?: string): void;
+  setConfigPaths(config?: string, variable?: string): void;
 
-  macroFilePath: string;
   variablesFilePath: string;
 }
 

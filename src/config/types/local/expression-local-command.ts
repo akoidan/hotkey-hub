@@ -21,6 +21,7 @@ const expressionLocalCommandSchema = z.object({
   .describe('Allows to create/assign a variable by expression.');
 
 type ExpressionLocalCommand = z.infer<typeof expressionLocalCommandSchema>;
+type Expression = z.infer<typeof expressionSchema>;
 
 export {
   expressionSchema,
@@ -28,5 +29,6 @@ export {
 };
 
 export type {
+  Expression,
   ExpressionLocalCommand,
 };

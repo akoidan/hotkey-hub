@@ -1,5 +1,6 @@
 import {ConfigService} from '@/config/config-service';
 import {Injectable, Logger} from '@nestjs/common';
+import {Expression} from '@/config/types/local/expression-local-command';
 
 @Injectable()
 export class EvaluateService {
@@ -10,7 +11,11 @@ export class EvaluateService {
   }
 
   /* eslint-disable */
-  public evaluateExpression(expr: string) {
+  public evaluateVariable<T>(varName: string, variableExpression: string, varValue: unknown): T {
+    return Function(`__${varName}`, `return __${variableExpression};`)(varValue);
+  }
+
+  public evaluateExpression(expr: Expression) {
     const variables = this.configService.getVariables();
     const reserved = new Set(['this', 'arguments', 'eval', 'function', 'return', 'var', 'let', 'const']);
 

@@ -2,16 +2,23 @@ import {Injectable, Logger} from '@nestjs/common';
 import {ConfigService} from '@/config/config-service';
 import type {VariablesDefinition} from '@/config/types/local/macro-local-command';
 import {variableRegex, VariableValue} from '@/config/types/variables';
+import {EvaluateService} from '@/local/evaluate-serivce';
 
 @Injectable()
 export class VariableResolutionService {
   constructor(
     private readonly configService: ConfigService,
+    private readonly evaluateService: EvaluateService,
     private readonly logger: Logger,
   ) {
   }
 
-  replaceMacroVariables<T extends object>(command: T, values: Record<string, unknown> | undefined, definition: VariablesDefinition): T {
+  replaceMacroVariables<T=unknown>(
+    command: T,
+    values: Record<string, unknown> | undefined,
+    definition: VariablesDefinition,
+    key: string|null = null
+  ): T {
     if (!values) {
       return command;
     }
@@ -20,36 +27,54 @@ export class VariableResolutionService {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       return command.map(item => this.replaceMacroVariables(item, values, definition)) as any;
     } else if (typeof command === 'object' && !(command as VariableValue).$ref) {
-      const result: Partial<T> = {};
-      for (const [key, value] of Object.entries(command) as [keyof T, T[keyof T]][]) {
-        // thread objects as primitive, do not go down
-        result[key] = this.replaceMacroVariables(value as VariableValue, values, definition) as T[keyof T];
+      const result: Record<string, unknown> = {};
+      for (const [innerKey, value] of Object.entries(command as object)) {
+        result[innerKey] = this.replaceMacroVariables(value as VariableValue, values, definition, innerKey);
       }
       return result as T;
     }
-    return this.replaceMacroPrimitive(command, values ,definition);
+    return this.replaceMacroPrimitive(command, values ,definition, key!);
   }
 
   private extractVariableName(variable: unknown): { varName: string|undefined, varExpress: string|undefined} {
     if (typeof variable === 'object' && (variable as VariableValue).$ref) {
-      const name = variableRegex.exec((variable as VariableValue).$ref);
-      if (!name) {
-        throw Error(`Illegal varname ${(variable as VariableValue).$ref}`);
-      }
-      return {varName: name.groups!.variable, varExpress: (variable as VariableValue).$ref} ;
+      return this.extratVarNameInner((variable as VariableValue).$ref);
     }
     return  {varName: undefined, varExpress: undefined} ;
   }
 
-  private replaceMacroPrimitive<T>(command: T, values: Record<string, unknown>, definition: VariablesDefinition): T {
-    const {varName, varExpress} = this.extractVariableName(command)!;
+  private extratVarNameInner(expression: string): { varName: string|undefined, varExpress: string|undefined} {
+    const name = variableRegex.exec(expression);
+    if (!name) {
+      throw Error(`Illegal varname ${expression}`);
+    }
+    return {varName: name.groups!.variable, varExpress: expression};
+  }
+
+  private replaceMacroPrimitive<T>(
+    command: T,
+    values: Record<string, unknown>,
+    definition: VariablesDefinition,
+    key: string
+  ): T {
+    let varName: string|undefined;
+    let varExpress: string|undefined;
+    const exactValue = typeof command === 'string' && key === 'if' && definition?.[command];
+    if (exactValue) {
+      ({varName, varExpress} = this.extratVarNameInner(command));
+    } else {
+      ({varName, varExpress} = this.extractVariableName(command))!;
+    }
     if (!varName || !definition?.[varName]) {
       return command;
     }
     if (Object.hasOwn(values, varName)) {
       this.logger.debug(`Replaced variable ${varName} to ${JSON.stringify(values[varName])} for ${JSON.stringify(command)}`);
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      return this.evaluateVariable(varName, varExpress!, values[varName]);
+      const res =  this.evaluateService.evaluateVariable(varName, varExpress!, values[varName]);
+      if (exactValue && typeof res === 'string') {
+        return `"${res}"` as T;
+      }
+      return res as T;
     }
     if (definition[varName]!.optional) {
       if (definition[varName]!.default) {
@@ -62,11 +87,6 @@ export class VariableResolutionService {
     throw Error(`Unable to resolve macros variable ${varName} when running ${JSON.stringify(command)}`);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
-  public evaluateVariable<T>(varName: string, variableExpression: string, varValue: unknown): T {
-    // eslint-disable-next-line no-new-func,@typescript-eslint/no-implied-eval,@typescript-eslint/no-unsafe-return
-    return Function(varName, `return ${variableExpression};`)(varValue);
-  }
 
   replaceVariables<T extends object>(obj: T): T {
     const result: Partial<T> = {};
@@ -104,10 +124,10 @@ export class VariableResolutionService {
     const globalVars = this.configService.getGlobalVars();
     const scriptVars = this.configService.getVariables();
     if (varName in scriptVars) { // if object has the key, even if it's null or undefined
-      return this.evaluateVariable<T>(varName, varExpress!, scriptVars[varName]) as unknown as T;
+      return this.evaluateService.evaluateVariable<T>(varName, varExpress!, scriptVars[varName]) as unknown as T;
     }
     if (varName in globalVars) { // if object has the key, even if it's null or undefined
-      return this.evaluateVariable<T>(varName, varExpress!, globalVars[varName]) as unknown as T;
+      return this.evaluateService.evaluateVariable<T>(varName, varExpress!, globalVars[varName]) as unknown as T;
     }
     throw Error(`Unknown environment variable ${(value as VariableValue)?.$ref ?? JSON.stringify(value)}`);
   }
