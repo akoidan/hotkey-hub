@@ -23,7 +23,7 @@ export class ReloadLocalHandler extends BaseLocalHandler {
 
   canHandle(command: UnknownCommand): command is ReloadConfigLocalCommand {
     const cc = command as ReloadConfigLocalCommand;
-    return typeof cc.reloadConfig !== 'undefined' || typeof cc.reloadMacro !== 'undefined' || typeof cc.reloadVariables !== 'undefined';
+    return typeof cc.reloadConfig !== 'undefined' || typeof cc.reloadVariables !== 'undefined';
   }
 
   public async* execute(
@@ -32,7 +32,7 @@ export class ReloadLocalHandler extends BaseLocalHandler {
     if (!this.keyBindingService) {
       throw Error('Module not loaded, keybinding service required');
     }
-    this.configsPathService.setConfigPaths(input.reloadConfig, input.reloadMacro, input.reloadVariables);
+    this.configsPathService.setConfigPaths(input.reloadConfig, input.reloadVariables);
     await this.keyBindingService.reloadShortcuts();
     yield undefined;
   }

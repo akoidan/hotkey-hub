@@ -42,7 +42,7 @@ import {
 } from '@/config/types/remote/window-commands-schema';
 import {remoteCommandSchema} from '@/config/types/remote/remote-commands';
 import {
-  expressionLocalCommandSchema, expressionSchema,
+  expressionLocalCommandSchema,
   ifLocalCommandSchema,
   localCommandSchema,
   loopLocalCommandSchema,
@@ -94,7 +94,7 @@ import {getInfoCommandSchema, pingCommandSchema} from '@/config/types/get-comman
 import {
   macroArrayVariableTypeSchema,
   macroObjectVariableTypeSchema,
-  macroPrimitiveVariableTypeSchema, macroVariableTypeSchema
+  macroPrimitiveVariableTypeSchema, macroVariableTypeSchema,
 } from '@/config/types/local/macro-local-command';
 
 

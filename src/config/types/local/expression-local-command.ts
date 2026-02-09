@@ -11,7 +11,7 @@ const expressionSchema = z.string().superRefine((expr, ctx) => {
       message: `"${expr}" is not a valid expression, because of ${e?.message ?? e}`,
     });
   }
-}).describe('JS like expression that evaluates to some values. E.g. x*2.')
+}).describe('JS like expression that evaluates to some values. E.g. x*2.');
 
 const expressionLocalCommandSchema = z.object({
   assignVariable: z.string().describe('Name of the variable to store the expression result. ' +

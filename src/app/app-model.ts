@@ -5,10 +5,17 @@ interface ShortcutDescription {
   shortcut: Shortcut;
 }
 
+interface ReloadRequest {
+  configFile?: string;
+  variablesFile?: string;
+}
+
  interface AppConfig {
   configFile: string;
   variablesFile: string;
-  certDir: string
+  certDir: string;
+  enableApi: boolean;
+  apiPort: number;
 }
 
-export type {ShortcutDescription, AppConfig};
+export type {ShortcutDescription, ReloadRequest, AppConfig};

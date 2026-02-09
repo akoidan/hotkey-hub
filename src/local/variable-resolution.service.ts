@@ -28,8 +28,8 @@ export class VariableResolutionService {
       return command.map(item => this.replaceMacroVariables(item, values, definition)) as any;
     } else if (typeof command === 'object' && !(command as VariableValue).$ref) {
       const result: Record<string, unknown> = {};
-      for (const [key, value] of Object.entries(command as object)) {
-        result[key] = this.replaceMacroVariables(value as VariableValue, values, definition, key);
+      for (const [innerKey, value] of Object.entries(command as object)) {
+        result[innerKey] = this.replaceMacroVariables(value as VariableValue, values, definition, innerKey);
       }
       return result as T;
     }

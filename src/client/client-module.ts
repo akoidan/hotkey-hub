@@ -6,7 +6,7 @@ import {ConfigModule} from '@/config/config-module';
 import {ConfigService} from '@/config/config-service';
 import {SemaphorService} from '@/semaphor/semaphor-service';
 import {SemaphorModule} from '@/semaphor/semaphor.module';
-import {AppService} from '@/client/services/app.service';
+import {PingService} from '@/client/services/ping.service';
 import {KeyboardService} from '@/client/services/keyboard.service';
 import {MonitorService} from '@/client/services/monitor.service';
 import {MouseService} from '@/client/services/mouse.service';
@@ -21,7 +21,7 @@ import {WindowService} from '@/client/services/window.service';
   ],
   providers: [
     Logger,
-    AppService,
+    PingService,
     KeyboardService,
     MonitorService,
     MouseService,

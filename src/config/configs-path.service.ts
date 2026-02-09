@@ -11,7 +11,7 @@ export class ConfigsPathService implements ConfigPath {
   ) {
   }
 
-  public setConfigPaths(config?: string, macro?: string, variable?: string): void {
+  public setConfigPaths(config?: string, variable?: string): void {
     if (config) {
       this.configFilePath = config;
     }
