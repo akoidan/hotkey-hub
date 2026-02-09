@@ -47,7 +47,7 @@ export class AppController {
       await this.appService.reload(body);
     } catch (error) {
       this.logger.error(error, error.stack);
-      throw new BadRequestException(error);
+      throw new BadRequestException(error.message);
     }
   }
 }

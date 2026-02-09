@@ -8,6 +8,7 @@ import path from 'path';
 import yargs from 'yargs';
 import type {AppConfig, ReloadRequest} from '@/app/app-model';
 import net from 'net';
+import * as http from 'http';
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 async function parseArgs(): Promise<AppConfig> {
@@ -68,6 +69,44 @@ async function isPortOpen(port: number, timeout = 2000): Promise<boolean> {
   });
 }
 
+function postReload(body: any, port: number): Promise<any> {
+  return new Promise((resolve, reject) => {
+    const data = JSON.stringify(body);
+
+    const options: http.RequestOptions = {
+      hostname: '127.0.0.1', // use 127.0.0.1 instead of localhost
+      port: port,
+      path: '/reload',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(data),
+      },
+    };
+
+    const req = http.request(options, (res) => {
+      let responseData = '';
+      res.on('data', (chunk) => (responseData += chunk));
+      res.on('end', () => {
+        if (res.statusCode && res.statusCode >= 200 && res.statusCode < 300) {
+          resolve(responseData);
+        } else {
+          try {
+            const bodyObj = JSON.parse(responseData) as Error;
+            reject(new Error(`Unable to apply new configuration. ${bodyObj.message}`));
+          } catch (e) {
+            reject(new Error(`Unable to apply new configuration. Unkown error ${responseData}`));
+          }
+        }
+      });
+    });
+
+    req.on('error', (err) => reject(err));
+    req.write(data);
+    req.end();
+  });
+}
+
 asyncLocalStorage.run(new Map<string, string>().set(SemaphorService.COMB_KEY, 'init'), () => {
   const customLogger = new CustomLogger(asyncLocalStorage);
   (async function startApp(): Promise<void> {
@@ -85,7 +124,6 @@ asyncLocalStorage.run(new Map<string, string>().set(SemaphorService.COMB_KEY, 'i
         customLogger.log(`Starting hotkey-hub ${packageJson} at prt ${args.apiPort}`);
         await app.listen(args.apiPort, '127.0.0.1');
     } else if (await isPortOpen(args.apiPort)) {
-      customLogger.log(`hotkey-hub ${packageJson} is already running at port ${args.apiPort}`);
       const body: ReloadRequest = {
       };
       if (process.argv.some(arg => arg === '--config-file' || arg.startsWith('--config-file='))) {
@@ -97,17 +135,8 @@ asyncLocalStorage.run(new Map<string, string>().set(SemaphorService.COMB_KEY, 'i
       if (Object.keys(body).length === 0) {
         throw new Error(`hotkey-hub is already running at port ${args.apiPort}`);
       }
-      const response = await fetch(`http://localhost:${args.apiPort}/reload`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body),
-      });
-      if (!response.ok) {
-        const errorText = await response.text(); // Use text() for error responses
-        throw new Error(`Unable to reload config ${response.status}: ${errorText}`);
-      }
+      await postReload(body, args.apiPort);
+      customLogger.log(`Applied new configuration ${JSON.stringify(body)} to already running hotkey-hub at port ${args.apiPort}`);
     } else {
       customLogger.log(`Initializing hotkey-hub ${packageJson} ...`);
       await NestFactory.createApplicationContext(
