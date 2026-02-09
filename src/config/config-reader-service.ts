@@ -19,8 +19,8 @@ export class ConfigReaderService {
 
   public async loadConfigString(): Promise<string> {
     this.logger.debug(`Loading config from ${this.configsPathService.configFilePath}`);
-    return fs.readFile(this.configsPathService.configFilePath, 'utf8').catch(err => {
-      throw new Error(`Unable to open file ${this.configsPathService.configFilePath}, because ${err.message}`);
+    return fs.readFile(this.configsPathService.configFilePath, 'utf8').catch((err: unknown) => {
+      throw new Error(`Unable to open file ${this.configsPathService.configFilePath}, because ${(err as Error).message}`);
     });
   }
 

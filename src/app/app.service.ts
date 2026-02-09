@@ -3,7 +3,7 @@ import {KeybindingService} from '@/local/keybinding-service';
 import clc from 'cli-color';
 import {ConfigService} from '@/config/config-service';
 import {ReloadRequest} from '@/app/app-model';
-import {ConfigPath, ConfigPathClass} from "@/config/types/config-path";
+import {ConfigPath, ConfigPathClass} from '@/config/types/config-path';
 
 @Injectable()
 export class AppService {
