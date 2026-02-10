@@ -4,7 +4,7 @@ const variablesSchema = z.record(z.string(), z.any())
   .describe('Variable definitions for configuration.' +
     ' Values can be any type (numeric strings auto-convert to integers). Use {{varName}} to reference.');
 
-const variableRegex = /(?<variable>[a-zA-Z_$][\w$]*)(?:\[[^\]]+\]|\.[a-zA-Z_$][\w$]*)*/u;
+const variableRegex = /^(?<variable>[a-zA-Z_$][\w$]*)(?:\[[^\]]+\]|\.[a-zA-Z_$][\w$]*)*$/u;
 
 /* eslint-disable */
 // horrible code ;(
