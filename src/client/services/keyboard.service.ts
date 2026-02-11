@@ -10,15 +10,15 @@ import {KeyPressRequestDto, TypeTextRequestDto, SetKeyboardLayoutRequestDto} fro
 export class KeyboardService {
   constructor(private readonly client: FetchClient) {}
 
-  async keyPress(client: string, request: KeyPressRequestDto): Promise<void> {
-    return this.client.post(client, '/keyboard/key-press', request);
+  async keyPress(client: string, payload: KeyPressRequestDto): Promise<void> {
+    return this.client.post(client, '/keyboard/key-press', { payload });
   }
 
-  async typeText(client: string, request: TypeTextRequestDto): Promise<void> {
-    return this.client.post(client, '/keyboard/type-text', request);
+  async typeText(client: string, payload: TypeTextRequestDto): Promise<void> {
+    return this.client.post(client, '/keyboard/type-text', { payload });
   }
 
-  async setLayout(client: string, request: SetKeyboardLayoutRequestDto): Promise<void> {
-    return this.client.post(client, '/keyboard/set-layout', request);
+  async setLayout(client: string, payload: SetKeyboardLayoutRequestDto): Promise<void> {
+    return this.client.post(client, '/keyboard/set-layout', { payload });
   }
 }

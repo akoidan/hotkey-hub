@@ -93,9 +93,12 @@ export class FetchClient {
     client: string,
     url: string,
     payload?: unknown,
+    query?: Record<string, string>,
   ): Promise<T> {
     const payloadstr: string = payload ? JSON.stringify(payload) : '';
-
+    if (query) {
+      url += `?${new URLSearchParams(query).toString()}`;
+    }
     try {
       const controller = new AbortController();
       const [result, statusCode] = await Promise.race([
@@ -130,26 +133,26 @@ export class FetchClient {
   }
 
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-  async post<T>(client: string, url: string, payload?: any): Promise<T> {
-    return this.makeRequest<T>('POST', client, url, payload);
+  async post<T>(client: string, url: string, options: {query?: Record<string, string>, payload?: any} = {}): Promise<T> {
+    return this.makeRequest<T>('POST', client, url, options.payload, options.query);
   }
 
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-  async patch<T>(client: string, url: string, payload?: any): Promise<T> {
-    return this.makeRequest<T>('PATCH', client, url, payload);
+  async patch<T>(client: string, url: string, options: {query?: Record<string, string>, payload?: any} = {}): Promise<T> {
+    return this.makeRequest<T>('PATCH', client, url, options.payload, options.query);
   }
 
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-  async put<T>(client: string, url: string, payload?: any): Promise<T> {
-    return this.makeRequest<T>('PUT', client, url, payload);
+  async put<T>(client: string, url: string, options: {query?: Record<string, string>, payload?: any} = {}): Promise<T> {
+    return this.makeRequest<T>('PUT', client, url, options.payload, options.query);
   }
 
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-  async delete<T>(client: string, url: string, payload?: any): Promise<T> {
-    return this.makeRequest<T>('DELETE', client, url, payload);
+  async delete<T>(client: string, url: string,  options: {query?: Record<string, string>, payload?: any} = {}): Promise<T> {
+    return this.makeRequest<T>('DELETE', client, url, options.payload, options.query);
   }
 
-  async get<T>(client: string, url: string): Promise<T> {
-    return this.makeRequest<T>('GET', client, url, undefined);
+  async get<T>(client: string, url: string, options: {query?: Record<string, string>, payload?: any} = {}): Promise<T> {
+    return this.makeRequest<T>('GET', client, url, options.payload, options.query);
   }
 }

@@ -582,38 +582,46 @@ ${methods}
   private generateMethodParameters(method: GeneratedMethod): string {
     const params: string[] = ['client: string'];
 
-    // Path parameters
+    // Add query parameters as separate arguments
+    const queryParams = method.parameters.filter(p => p.in === 'query');
+    for (const param of queryParams) {
+      const optional = !param.required ? '?' : '';
+      params.push(`${param.name}${optional}: ${param.type}`);
+    }
+
+    // Add path parameters
     const pathParams = method.parameters.filter(p => p.in === 'path');
     for (const param of pathParams) {
       params.push(`${param.name}: ${param.type}`);
     }
 
-    // Request body
+    // Add payload parameter if request body exists
     if (method.requestBody) {
-      params.push(`request: ${method.requestBody}`);
+      params.push(`payload: ${method.requestBody}`);
     }
 
     return params.join(', ');
   }
 
   private generateClientCall(method: GeneratedMethod): string {
-    const parts: string[] = [];
-    let path = `'${method.path}'`;
-
-    // Handle path parameters by replacing them in the path
-    const pathParams = method.parameters.filter(p => p.in === 'path');
-    if (pathParams.length > 0) {
-      for (const param of pathParams) {
-        path = path.replace(`{${param.name}}`, `\${${param.name}}`);
-      }
-      path = `\`${path}\``;
+    const options: string[] = [];
+    
+    // Handle query parameters
+    const queryParams = method.parameters.filter(p => p.in === 'query');
+    if (queryParams.length > 0) {
+      const queryProps = queryParams.map(p => `${p.name}`).join(', ');
+      options.push(`query: { ${queryProps} }`);
     }
-
-    // Request body
+    
+    // Handle request body
     if (method.requestBody) {
-      return ', request';
+      options.push('payload');
     }
-
+    
+    if (options.length > 0) {
+      return `, { ${options.join(', ')} }`;
+    }
+    
     return '';
   }
 }

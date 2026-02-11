@@ -14,19 +14,19 @@ export class MouseService {
     return this.client.get(client, '/mouse/position');
   }
 
-  async moveLeftClick(client: string, request: MousePositionRRDto): Promise<void> {
-    return this.client.post(client, '/mouse/move-left-click', request);
+  async moveLeftClick(client: string, payload: MousePositionRRDto): Promise<void> {
+    return this.client.post(client, '/mouse/move-left-click', { payload });
   }
 
-  async setMousePosition(client: string, request: MousePositionRRDto): Promise<void> {
-    return this.client.post(client, '/mouse/move', request);
+  async setMousePosition(client: string, payload: MousePositionRRDto): Promise<void> {
+    return this.client.post(client, '/mouse/move', { payload });
   }
 
-  async mouseMoveHuman(client: string, request: MouseMoveHumanRequestDto): Promise<void> {
-    return this.client.post(client, '/mouse/move-human', request);
+  async mouseMoveHuman(client: string, payload: MouseMoveHumanRequestDto): Promise<void> {
+    return this.client.post(client, '/mouse/move-human', { payload });
   }
 
-  async click(client: string, request: MouseClickRequestDto): Promise<void> {
-    return this.client.post(client, '/mouse/click', request);
+  async click(client: string, payload: MouseClickRequestDto): Promise<void> {
+    return this.client.post(client, '/mouse/click', { payload });
   }
 }
