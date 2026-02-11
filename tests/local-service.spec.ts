@@ -551,4 +551,234 @@ describe('Logic service', () => {
     expect(spyKeyPress).toHaveBeenCalledWith('this', {holdKeys: [], keys: ['enter']});
   });
 
+  it('should execute get active window command', async () => {
+    const testModule = await getTestModule('config-fixture.jsonc');
+    const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
+    const tyrs = testModule.get<ConfigService>(ConfigService);
+    const clientService = testModule.get<ClientService>(ClientService);
+    clientService.window.getActiveWindowInfo = jest.fn().mockImplementation();
+    const spyGetActiveWindow = jest.spyOn(clientService.window, 'getActiveWindowInfo');
+    await tyrs.parseConfig();
+
+    await shortCutService.runShortcut({
+      commands: [
+        {
+          destination: 'this',
+          get: 'getActiveWindow',
+          assignVariable: 'activeWindow',
+        },
+      ],
+      name: 'Get active window test',
+      shortCut: 'Alt+A',
+    });
+
+    expect(spyGetActiveWindow).toHaveBeenCalledWith('this');
+    expect(tyrs.getVariables()).toHaveProperty('activeWindow');
+  });
+
+  it('should execute get monitors command', async () => {
+    const testModule = await getTestModule('config-fixture.jsonc');
+    const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
+    const tyrs = testModule.get<ConfigService>(ConfigService);
+    const clientService = testModule.get<ClientService>(ClientService);
+    clientService.monitor.getMonitors = jest.fn().mockImplementation();
+    const spyGetMonitors = jest.spyOn(clientService.monitor, 'getMonitors');
+    await tyrs.parseConfig();
+
+    await shortCutService.runShortcut({
+      commands: [
+        {
+          destination: 'this',
+          get: 'getMonitors',
+          assignVariable: 'monitors',
+        },
+      ],
+      name: 'Get monitors test',
+      shortCut: 'Alt+M',
+    });
+
+    expect(spyGetMonitors).toHaveBeenCalledWith('this');
+    expect(tyrs.getVariables()).toHaveProperty('monitors');
+  });
+
+  it('should execute get monitor info command', async () => {
+    const testModule = await getTestModule('config-fixture.jsonc');
+    const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
+    const tyrs = testModule.get<ConfigService>(ConfigService);
+    const clientService = testModule.get<ClientService>(ClientService);
+    clientService.monitor.getMonitorInfo = jest.fn().mockImplementation();
+    const spyGetMonitorInfo = jest.spyOn(clientService.monitor, 'getMonitorInfo');
+    await tyrs.parseConfig();
+
+    await shortCutService.runShortcut({
+      commands: [
+        {
+          destination: 'this',
+          get: 'getMonitorInfo',
+          assignVariable: 'monitorInfo',
+          variables: {
+            mid: 0
+          },
+        },
+      ],
+      name: 'Get monitor info test',
+      shortCut: 'Alt+I',
+    });
+
+    expect(spyGetMonitorInfo).toHaveBeenCalledWith('this', 0);
+    expect(tyrs.getVariables()).toHaveProperty('monitorInfo');
+  });
+
+  it('should execute get window command', async () => {
+    const testModule = await getTestModule('config-fixture.jsonc');
+    const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
+    const tyrs = testModule.get<ConfigService>(ConfigService);
+    const clientService = testModule.get<ClientService>(ClientService);
+    clientService.window.getWindowInfo = jest.fn().mockImplementation();
+    const spyGetWindow = jest.spyOn(clientService.window, 'getWindowInfo');
+    await tyrs.parseConfig();
+
+    await shortCutService.runShortcut({
+      commands: [
+        {
+          destination: 'this',
+          get: 'getWindow',
+          assignVariable: 'windowInfo',
+          variables: {
+            wid: 123456
+          },
+        },
+      ],
+      name: 'Get window test',
+      shortCut: 'Alt+W',
+    });
+
+    expect(spyGetWindow).toHaveBeenCalledWith('this', 123456);
+    expect(tyrs.getVariables()).toHaveProperty('windowInfo');
+  });
+
+  it('should execute ping command', async () => {
+    const testModule = await getTestModule('config-fixture.jsonc');
+    const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
+    const tyrs = testModule.get<ConfigService>(ConfigService);
+    const clientService = testModule.get<ClientService>(ClientService);
+    clientService.app.ping = jest.fn().mockImplementation();
+    const spyPing = jest.spyOn(clientService.app, 'ping');
+    await tyrs.parseConfig();
+
+    await shortCutService.runShortcut({
+      commands: [
+        {
+          destination: 'this',
+          get: 'ping',
+          assignVariable: 'pingResult',
+        },
+      ],
+      name: 'Ping test',
+      shortCut: 'Alt+P',
+    });
+
+    expect(spyPing).toHaveBeenCalledWith('this');
+    expect(tyrs.getVariables()).toHaveProperty('pingResult');
+  });
+
+  it('should execute mouse move remote command', async () => {
+    const testModule = await getTestModule('config-fixture.jsonc');
+    const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
+    const tyrs = testModule.get<ConfigService>(ConfigService);
+    const clientService = testModule.get<ClientService>(ClientService);
+    clientService.mouse.mouseMoveHuman = jest.fn().mockImplementation();
+    const spyMouseMove = jest.spyOn(clientService.mouse, 'mouseMoveHuman');
+    await tyrs.parseConfig();
+
+    await shortCutService.runShortcut({
+      commands: [
+        {
+          destination: 'this',
+          performOnRemote: 'mouseMove',
+          variables: {
+            x: 300,
+            y: 400,
+            pixelsPerIteration: 15,
+          },
+        },
+      ],
+      name: 'Mouse move test',
+      shortCut: 'Alt+V',
+    });
+
+    expect(spyMouseMove).toHaveBeenCalledWith('this', {
+      x: 300,
+      y: 400,
+      pixelsPerIteration: 15
+    });
+  });
+
+  it('should execute set keyboard layout remote command', async () => {
+    const testModule = await getTestModule('config-fixture.jsonc');
+    const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
+    const tyrs = testModule.get<ConfigService>(ConfigService);
+    const clientService = testModule.get<ClientService>(ClientService);
+    clientService.keyboard.setLayout = jest.fn().mockImplementation();
+    const spySetLayout = jest.spyOn(clientService.keyboard, 'setLayout');
+    await tyrs.parseConfig();
+
+    await shortCutService.runShortcut({
+      commands: [
+        {
+          destination: 'this',
+          performOnRemote: 'setKeyboardLayout',
+          variables: {
+            layout: 'us'
+          },
+        },
+      ],
+      name: 'Set keyboard layout test',
+      shortCut: 'Alt+L',
+    });
+
+    expect(spySetLayout).toHaveBeenCalledWith('this', {
+      layout: 'us'
+    });
+  });
+
+  it('should execute set window bounds remote command', async () => {
+    const testModule = await getTestModule('config-fixture.jsonc');
+    const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
+    const tyrs = testModule.get<ConfigService>(ConfigService);
+    const clientService = testModule.get<ClientService>(ClientService);
+    clientService.window.setWindowProperties = jest.fn().mockImplementation();
+    const spySetWindowBounds = jest.spyOn(clientService.window, 'setWindowProperties');
+    await tyrs.parseConfig();
+
+    await shortCutService.runShortcut({
+      commands: [
+        {
+          destination: 'this',
+          performOnRemote: 'setWindowBounds',
+          variables: {
+            wid: 123456,
+            bounds: {
+              x: 100,
+              y: 200,
+              width: 800,
+              height: 600
+            }
+          },
+        },
+      ],
+      name: 'Set window bounds test',
+      shortCut: 'Alt+B',
+    });
+
+    expect(spySetWindowBounds).toHaveBeenCalledWith('this', 123456, {
+      bounds: {
+        x: 100,
+        y: 200,
+        width: 800,
+        height: 600
+      }
+    });
+  });
+
 });
