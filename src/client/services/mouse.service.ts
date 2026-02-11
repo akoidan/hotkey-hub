@@ -26,7 +26,7 @@ export class MouseService {
     return this.client.post(client, '/mouse/move-human', request);
   }
 
-  async leftMouseClick(client: string, request: MouseClickRequestDto): Promise<void> {
+  async click(client: string, request: MouseClickRequestDto): Promise<void> {
     return this.client.post(client, '/mouse/click', request);
   }
 }

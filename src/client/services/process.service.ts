@@ -10,7 +10,7 @@ import {LaunchExeRequestDto, ProcessResponseDto} from '@/client/dtos';
 export class ProcessService {
   constructor(private readonly client: FetchClient) {}
 
-  async getWindowsIdByPid(client: string, pid: number): Promise<number[]> {
+  async getProcessInfo(client: string, pid: number): Promise<number[]> {
     return this.client.get(client, `/process/${pid}`);
   }
 

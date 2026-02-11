@@ -18,7 +18,7 @@ export class KeyboardService {
     return this.client.post(client, '/keyboard/type-text', request);
   }
 
-  async setKeyboardLayout(client: string, request: SetKeyboardLayoutRequestDto): Promise<void> {
+  async setLayout(client: string, request: SetKeyboardLayoutRequestDto): Promise<void> {
     return this.client.post(client, '/keyboard/set-layout', request);
   }
 }
