@@ -12,7 +12,7 @@ export class GetPidsByNameHandler extends GetInfoHandler {
   }
 
   protected async execute(destination: string, command: GetPidsByNameCommand): Promise<number[]> {
-    return this.clientService.process.findPidsByName(destination, {
+    return this.clientService.process.findPidByName(destination, {
       name: command.variables.name as string,
     });
   }

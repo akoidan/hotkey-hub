@@ -6,6 +6,7 @@ import {
   GetWindowsIdByPidVariables,
 } from '@/config/types/get-commands/get-window-commands-schema';
 import {GetInfoHandler} from '@/get-info/get-info-handler';
+import {ProcessResponseDto} from '@/client/dtos';
 
 @Injectable()
 export class GetWindowsIdByPidHandler extends GetInfoHandler {
@@ -13,7 +14,7 @@ export class GetWindowsIdByPidHandler extends GetInfoHandler {
     return command.get === 'getWindowsIdByPid';
   }
 
-  protected async execute(destination: string, command: GetWindowsIdByPidCommand): Promise<number[]> {
-    return this.clientService.window.getProcessWindows(destination, (command.variables as GetWindowsIdByPidVariables).pid);
+  protected async execute(destination: string, command: GetWindowsIdByPidCommand): Promise<ProcessResponseDto> {
+    return this.clientService.process.getProcessInfo(destination, (command.variables as GetWindowsIdByPidVariables).pid);
   }
 }

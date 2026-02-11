@@ -11,7 +11,7 @@ export class GetActiveWindowIdHandler extends GetInfoHandler {
   }
 
   protected async execute(destination: string): Promise<number> {
-    const res = await this.clientService.window.getActiveWindowId(destination);
+    const res = await this.clientService.window.getActiveWindowInfo(destination);
     return res.wid;
   }
 }

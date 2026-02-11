@@ -140,15 +140,6 @@ interface MonitorInfoResponseDto {
 }
 
 /**
- * Path to executable
- */
-interface LaunchExeRequestDto {
-  path: string;
-  arguments: string[];
-  waitTillFinish: boolean;
-}
-
-/**
  * Current amount of memory used by the process in Bytes. This is actual memory currently resident in RAM that belongs to this process
  */
 interface Generated5Bounds {
@@ -181,6 +172,15 @@ interface ProcessResponseDto {
   wids: number[];
 }
 
+/**
+ * Path to executable
+ */
+interface LaunchExeRequestDto {
+  path: string;
+  arguments: string[];
+  waitTillFinish: boolean;
+}
+
 export type {
   PingResponseDto,
   KeyPressRequestDto,
@@ -196,8 +196,8 @@ export type {
   Generated3Bounds,
   Generated4Bounds,
   MonitorInfoResponseDto,
-  LaunchExeRequestDto,
   Generated5Bounds,
   Generated6Bounds,
   ProcessResponseDto,
+  LaunchExeRequestDto,
 };

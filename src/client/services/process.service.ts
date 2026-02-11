@@ -4,13 +4,13 @@
  */
 import {Injectable} from '@nestjs/common';
 import {FetchClient} from '@/client/http-client';
-import {LaunchExeRequestDto, ProcessResponseDto} from '@/client/dtos';
+import {ProcessResponseDto, LaunchExeRequestDto} from '@/client/dtos';
 
 @Injectable()
 export class ProcessService {
   constructor(private readonly client: FetchClient) {}
 
-  async getProcessInfo(client: string, pid: number): Promise<number[]> {
+  async getProcessInfo(client: string, pid: number): Promise<ProcessResponseDto> {
     return this.client.get(client, `/process/${pid}`);
   }
 
