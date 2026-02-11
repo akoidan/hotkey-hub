@@ -157,8 +157,8 @@ describe('Logic service', () => {
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const tyrs = testModule.get<ConfigService>(ConfigService);
     const clientService = testModule.get<ClientService>(ClientService);
-    clientService.process.findPidsByName = jest.fn().mockImplementation();
-    const spyFindPids = jest.spyOn(clientService.process, 'findPidsByName');
+    clientService.process.findPidByName = jest.fn().mockImplementation();
+    const spyFindPids = jest.spyOn(clientService.process, 'findPidByName');
     await tyrs.parseConfig();
 
     await shortCutService.runShortcut({
@@ -176,9 +176,7 @@ describe('Logic service', () => {
       shortCut: 'Alt+F',
     });
 
-    expect(spyFindPids).toHaveBeenCalledWith('this', {
-      name: 'notepad.exe'
-    });
+    expect(spyFindPids).toHaveBeenCalledWith('this', 'notepad.exe');
   });
 
   it('should execute kill process by name remote command', async () => {
@@ -204,9 +202,7 @@ describe('Logic service', () => {
       shortCut: 'Alt+K',
     });
 
-    expect(spyKillProcess).toHaveBeenCalledWith('this', {
-      name: 'notepad.exe'
-    });
+    expect(spyKillProcess).toHaveBeenCalledWith('this', 'notepad.exe');
   });
 
   it('should execute find process windows remote command', async () => {
@@ -214,8 +210,8 @@ describe('Logic service', () => {
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const tyrs = testModule.get<ConfigService>(ConfigService);
     const clientService = testModule.get<ClientService>(ClientService);
-    clientService.window.getProcessWindows = jest.fn().mockImplementation(() => ({wids: ['123', '456']}));
-    const spyGetWindows = jest.spyOn(clientService.window, 'getProcessWindows');
+    clientService.process.getProcessInfo = jest.fn().mockImplementation(() => ({wids: ['123', '456']}));
+    const spyGetWindows = jest.spyOn(clientService.process, 'getProcessInfo');
     await tyrs.parseConfig();
 
     await shortCutService.runShortcut({
@@ -241,10 +237,10 @@ describe('Logic service', () => {
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const tyrs = testModule.get<ConfigService>(ConfigService);
     const clientService = testModule.get<ClientService>(ClientService);
-    clientService.window.getProcessWindows = jest.fn()
-        .mockImplementationOnce(() => ([123, 456]))
-        .mockImplementationOnce(() => ([1235, 124]));
-    const spyGetWindows = jest.spyOn(clientService.window, 'getProcessWindows');
+    clientService.process.getProcessInfo = jest.fn()
+        .mockImplementationOnce(() => ({wids: [123, 456]}))
+        .mockImplementationOnce(() => ({wids: [1235, 124]}));
+    const spyGetWindows = jest.spyOn(clientService.process, 'getProcessInfo');
     await tyrs.parseConfig();
 
     delete tyrs.getVariables()['window1'];
@@ -271,39 +267,13 @@ describe('Logic service', () => {
     expect(tyrs.getVariables()).toHaveProperty('window2', [1235, 124]);
   });
 
-  it('should execute focus process window remote command', async () => {
-    const testModule = await getTestModule('config-fixture.jsonc');
-    const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
-    const tyrs = testModule.get<ConfigService>(ConfigService);
-    const clientService = testModule.get<ClientService>(ClientService);
-    clientService.window.focusByPid = jest.fn().mockImplementation();
-    const spyFocusExe = jest.spyOn(clientService.window, 'focusByPid');
-    await tyrs.parseConfig();
-
-    await shortCutService.runShortcut({
-      commands: [
-        {
-          destination: 'this',
-          performOnRemote: 'focusProcessWindow',
-          variables: {
-            pid: 789
-          }
-        },
-      ],
-      name: 'Focus process window test',
-      shortCut: 'Alt+F',
-    });
-
-    expect(spyFocusExe).toHaveBeenCalledWith('this', {pid: 789});
-  });
-
   it('should execute focus window remote command', async () => {
     const testModule = await getTestModule('config-fixture.jsonc');
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const tyrs = testModule.get<ConfigService>(ConfigService);
     const clientService = testModule.get<ClientService>(ClientService);
-    clientService.window.focusWindow = jest.fn().mockImplementation();
-    const spyFocusWindow = jest.spyOn(clientService.window, 'focusWindow');
+    clientService.window.setWindowActive = jest.fn().mockImplementation();
+    const spyFocusWindow = jest.spyOn(clientService.window, 'setWindowActive');
     await tyrs.parseConfig();
 
     await shortCutService.runShortcut({
@@ -320,7 +290,7 @@ describe('Logic service', () => {
       shortCut: 'Alt+F',
     });
 
-    expect(spyFocusWindow).toHaveBeenCalledWith('this', {wid: 789});
+    expect(spyFocusWindow).toHaveBeenCalledWith('this', 789);
   });
 
   it('should execute type text remote command', async () => {
@@ -389,10 +359,10 @@ describe('Logic service', () => {
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const tyrs = testModule.get<ConfigService>(ConfigService);
     const clientService = testModule.get<ClientService>(ClientService);
-    clientService.mouse.leftMouseClick = jest.fn().mockImplementation();
+    clientService.mouse.click = jest.fn().mockImplementation();
     clientService.mouse.mouseMoveHuman = jest.fn().mockImplementation();
     const skyMouseMoveClick = jest.spyOn(clientService.mouse, 'mouseMoveHuman');
-    const skyMouseClick = jest.spyOn(clientService.mouse, 'leftMouseClick');
+    const skyMouseClick = jest.spyOn(clientService.mouse, 'click');
     await tyrs.parseConfig();
     await shortCutService.runShortcut({
       commands: [
@@ -429,7 +399,7 @@ describe('Logic service', () => {
       shortCut: 'Alt+2'
     })
     expect(skyMouseMoveClick).toHaveBeenCalledWith('that', {x: 537, y: 123});
-    expect(skyMouseClick).toHaveBeenCalledWith('that');
+    expect(skyMouseClick).toHaveBeenCalledWith('that', {'button': 'LEFT'});
   });
 
 
@@ -462,8 +432,8 @@ describe('Logic service', () => {
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const tyrs = testModule.get<ConfigService>(ConfigService);
     const clientService = testModule.get<ClientService>(ClientService);
-    clientService.process.launchExe = jest.fn().mockImplementation();
-    const spyLaucnhExe = jest.spyOn(clientService.process, 'launchExe');
+    clientService.process.createProcess = jest.fn().mockImplementation();
+    const spyLaucnhExe = jest.spyOn(clientService.process, 'createProcess');
     await tyrs.parseConfig();
 
     await shortCutService.runShortcut({
@@ -492,8 +462,8 @@ describe('Logic service', () => {
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const tyrs = testModule.get<ConfigService>(ConfigService);
     const clientService = testModule.get<ClientService>(ClientService);
-    clientService.process.killExeById = jest.fn().mockImplementation();
-    const spyLaucnhExe = jest.spyOn(clientService.process, 'killExeById');
+    clientService.process.killExeByPid = jest.fn().mockImplementation();
+    const spyLaucnhExe = jest.spyOn(clientService.process, 'killExeByPid');
     await tyrs.parseConfig();
     await shortCutService.runShortcut({
       commands: [
@@ -508,9 +478,7 @@ describe('Logic service', () => {
       name: 'Launch exe test',
       shortCut: 'Alt+F11',
     });
-    expect(spyLaucnhExe).toHaveBeenCalledWith('this', {
-      pid: 123,
-    });
+    expect(spyLaucnhExe).toHaveBeenCalledWith('this', 123);
   });
 
 
