@@ -15,10 +15,12 @@ import {FocusWindowRemoteHandler} from '@/remote/implementation/focus-window-rem
 import {CommandRemoteHandler} from '@/remote/command-remote-handler';
 import {SetWindowBoundsRemoteHandler} from '@/remote/implementation/set-window-bounds-remote-handler.service';
 import {MouseMoveRemoteHandler} from '@/remote/implementation/mouse-move-remote-handler';
+import {SetKeyboardLayoutRemoteHandler} from "@/remote/implementation/set-keyboard-layout-remote-handler";
 
 
 const handlers =[
   KeyPressRemoteHandler,
+  SetKeyboardLayoutRemoteHandler,
   MouseMoveLeftClickRemoteHandler,
   MouseMoveRemoteHandler,
   ExecuteRemoteHandler,
