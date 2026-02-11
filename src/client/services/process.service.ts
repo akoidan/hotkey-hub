@@ -19,14 +19,14 @@ export class ProcessService {
   }
 
   async findPidByName(client: string, name: string): Promise<number[]> {
-    return this.client.get(client, '/process', { query: { name } });
+    return this.client.get(client, '/process', {query: {name}});
   }
 
   async createProcess(client: string, payload: LaunchExeRequestDto): Promise<ProcessResponseDto> {
-    return this.client.post(client, '/process', { payload });
+    return this.client.post(client, '/process', {payload});
   }
 
   async killExeByName(client: string, name: string): Promise<void> {
-    return this.client.delete(client, '/process', { query: { name } });
+    return this.client.delete(client, '/process', {query: {name}});
   }
 }

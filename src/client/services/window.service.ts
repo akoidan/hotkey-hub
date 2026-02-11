@@ -15,7 +15,7 @@ export class WindowService {
   }
 
   async setWindowProperties(client: string, wid: number, payload: SetWindowPropertiesRequestDto): Promise<void> {
-    return this.client.patch(client, `/window/by-wid/${wid}`, { payload });
+    return this.client.patch(client, `/window/by-wid/${wid}`, {payload});
   }
 
   async getActiveWindowInfo(client: string): Promise<GetWindowResponseDto> {

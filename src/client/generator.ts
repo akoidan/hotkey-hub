@@ -610,7 +610,7 @@ ${methods}
     const queryParams = method.parameters.filter(p => p.in === 'query');
     if (queryParams.length > 0) {
       const queryProps = queryParams.map(p => `${p.name}`).join(', ');
-      options.push(`query: { ${queryProps} }`);
+      options.push(`query: {${queryProps}}`);
     }
     
     // Handle request body
@@ -619,7 +619,7 @@ ${methods}
     }
     
     if (options.length > 0) {
-      return `, { ${options.join(', ')} }`;
+      return `, {${options.join(', ')}}`;
     }
     
     return '';
