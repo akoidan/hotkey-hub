@@ -10,15 +10,15 @@ import {LaunchExeRequestDto} from '@/client/dtos';
 export class ProcessService {
   constructor(private readonly client: FetchClient) {}
 
-  async getProcess(client: string, pid: number): Promise<void> {
+  async getWindowsIdByPid(client: string, pid: number): Promise<void> {
     return this.client.get(client, `/process/${pid}`);
   }
 
-  async deleteProcess(client: string, pid: number): Promise<void> {
+  async killExeByPid(client: string, pid: number): Promise<void> {
     return this.client.delete(client, `/process/${pid}`);
   }
 
-  async getProcess1(client: string): Promise<void> {
+  async findPidByName(client: string): Promise<void> {
     return this.client.get(client, '/process');
   }
 
@@ -26,7 +26,7 @@ export class ProcessService {
     return this.client.post(client, '/process', request);
   }
 
-  async deleteProcess1(client: string): Promise<void> {
+  async killExeByName(client: string): Promise<void> {
     return this.client.delete(client, '/process');
   }
 }

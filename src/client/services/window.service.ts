@@ -10,19 +10,19 @@ import {SetWindowPropertiesRequestDto} from '@/client/dtos';
 export class WindowService {
   constructor(private readonly client: FetchClient) {}
 
-  async byWid(client: string, wid: number): Promise<void> {
+  async getWindowBounds(client: string, wid: number): Promise<void> {
     return this.client.get(client, `/window/by-wid/${wid}`);
   }
 
-  async byWidByWid(client: string, wid: number, request: SetWindowPropertiesRequestDto): Promise<void> {
+  async setWindowBounds(client: string, wid: number, request: SetWindowPropertiesRequestDto): Promise<void> {
     return this.client.patch(client, `/window/by-wid/${wid}`, request);
   }
 
-  async active(client: string): Promise<void> {
+  async getWindowActiveId(client: string): Promise<void> {
     return this.client.get(client, '/window/active');
   }
 
-  async byWidFocus(client: string, wid: number): Promise<void> {
+  async focusWindowId(client: string, wid: number): Promise<void> {
     return this.client.post(client, `/window/by-wid/${wid}/focus`);
   }
 }

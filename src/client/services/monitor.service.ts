@@ -9,11 +9,11 @@ import {FetchClient} from '@/client/http-client';
 export class MonitorService {
   constructor(private readonly client: FetchClient) {}
 
-  async getMonitor(client: string): Promise<void> {
+  async getMonitors(client: string): Promise<void> {
     return this.client.get(client, '/monitor');
   }
 
-  async info(client: string, mid: number): Promise<void> {
+  async getMonitorInfo(client: string, mid: number): Promise<void> {
     return this.client.get(client, `/monitor/${mid}/info`);
   }
 }

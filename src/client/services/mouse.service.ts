@@ -10,7 +10,7 @@ import {MousePositionRRDto, MouseMoveHumanRequestDto, MouseClickRequestDto} from
 export class MouseService {
   constructor(private readonly client: FetchClient) {}
 
-  async position(client: string): Promise<void> {
+  async getPosition(client: string): Promise<void> {
     return this.client.get(client, '/mouse/position');
   }
 
@@ -18,15 +18,15 @@ export class MouseService {
     return this.client.post(client, '/mouse/move-left-click', request);
   }
 
-  async move(client: string, request: MousePositionRRDto): Promise<void> {
+  async setMousePosition(client: string, request: MousePositionRRDto): Promise<void> {
     return this.client.post(client, '/mouse/move', request);
   }
 
-  async moveHuman(client: string, request: MouseMoveHumanRequestDto): Promise<void> {
+  async mouseMoveHuman(client: string, request: MouseMoveHumanRequestDto): Promise<void> {
     return this.client.post(client, '/mouse/move-human', request);
   }
 
-  async click(client: string, request: MouseClickRequestDto): Promise<void> {
+  async leftMouseClick(client: string, request: MouseClickRequestDto): Promise<void> {
     return this.client.post(client, '/mouse/click', request);
   }
 }

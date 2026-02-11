@@ -196,9 +196,26 @@ class OpenApiGenerator {
   }
 
   private generateMethod(operation: OperationObject, httpMethod: string, path: string): GeneratedMethod | null {
-    // Generate method name from path, e.g., /mouse/position -> position
-    // /window/{wid} -> getWindow (get method) or setWindow (patch method)
-    const methodName = this.generateMethodNameFromPath(path, httpMethod);
+    // Generate method name from operationId, e.g., WindowController_getWindowBounds -> getWindowBounds
+    // Fallback to URL path if operationId is not available
+    let methodName: string;
+    
+    if (operation.operationId) {
+      // Convert operationId to camelCase method name
+      // WindowController_getWindowBounds -> getWindowBounds
+      // KeyboardController_keyPress -> keyPress
+      const parts = operation.operationId.split('_');
+      if (parts.length >= 2) {
+        // Remove controller prefix and convert to camelCase
+        methodName = parts.slice(1).join('_');
+        methodName = this.toCamelCase(methodName);
+      } else {
+        methodName = this.toCamelCase(operation.operationId);
+      }
+    } else {
+      // Fallback to URL path-based naming
+      methodName = this.generateMethodNameFromPath(path, httpMethod);
+    }
 
     const parameters = this.extractParameters(operation.parameters || []);
     const requestBody = this.extractRequestBody(operation.requestBody);
