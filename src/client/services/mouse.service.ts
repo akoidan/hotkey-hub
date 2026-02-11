@@ -1,7 +1,7 @@
 
 import {Injectable} from '@nestjs/common';
 import {FetchClient} from '@/client/http-client';
-import {MousePositionRRDto, Function, MouseClickRequestDto} from '@/client/dtos';
+import {MousePositionRRDto, MouseMoveHumanRequestDto, MouseClickRequestDto} from '@/client/dtos';
 
 @Injectable()
 export class MouseService {
@@ -19,7 +19,7 @@ export class MouseService {
     return this.client.post(client, '/mouse/move', request);
   }
 
-  async moveHuman(client: string, request: Function): Promise<void> {
+  async moveHuman(client: string, request: MouseMoveHumanRequestDto): Promise<void> {
     return this.client.post(client, '/mouse/move-human', request);
   }
 

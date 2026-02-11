@@ -39,8 +39,18 @@ interface MousePositionRRDto {
   y: number;
 }
 
-interface FunctionDto {
-
+/**
+ * Maximum random offset in pixels from the target X coordinate. Adds natural imprecision to final position.
+ */
+interface MouseMoveHumanRequestDto {
+  destinationRandomX?: number;
+  destinationRandomY?: number;
+  delayBetweenIterations?: number;
+  pixelsPerIteration?: number;
+  curveIntensity?: number;
+  curveIntensityDeviation?: number;
+  x: number;
+  y: number;
 }
 
 /**
@@ -111,7 +121,7 @@ export type {
   TypeTextRequestDto,
   SetKeyboardLayoutRequestDto,
   MousePositionRRDto,
-  FunctionDto,
+  MouseMoveHumanRequestDto,
   MouseClickRequestDto,
   GetWindowResponseDto,
   SetWindowPropertiesRequestDto,

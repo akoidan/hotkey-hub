@@ -7,12 +7,12 @@ import {LaunchExeRequestDto} from '@/client/dtos';
 export class ProcessService {
   constructor(private readonly client: FetchClient) {}
 
-  async getProcess(client: string, id: number): Promise<void> {
-    return this.client.get(client, `/process/${id}`);
+  async getProcess(client: string, pid: number): Promise<void> {
+    return this.client.get(client, `/process/${pid}`);
   }
 
-  async deleteProcess(client: string, mid: number): Promise<void> {
-    return this.client.delete(client, `/process/${mid}`);
+  async deleteProcess(client: string, pid: number): Promise<void> {
+    return this.client.delete(client, `/process/${pid}`);
   }
 
   async getProcess1(client: string): Promise<void> {
