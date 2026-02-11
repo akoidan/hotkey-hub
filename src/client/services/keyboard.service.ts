@@ -1,16 +1,21 @@
+
 import {Injectable} from '@nestjs/common';
 import {FetchClient} from '@/client/http-client';
-import {SendKeyRequest, TypeTextRequest} from '@/client/dtos';
+import {KeyPressRequestDto, TypeTextRequestDto, SetKeyboardLayoutRequestDto} from '@/client/dtos';
 
 @Injectable()
 export class KeyboardService {
   constructor(private readonly client: FetchClient) {}
 
-  async keyPress(client: string, request: SendKeyRequest): Promise<void> {
+  async keyPress(client: string, request: KeyPressRequestDto): Promise<void> {
     return this.client.post(client, '/keyboard/key-press', request);
   }
 
-  async typeText(client: string, request: TypeTextRequest): Promise<void> {
-    return this.client.post(client, '/keyboard/type-text', request, 9000);
+  async typeText(client: string, request: TypeTextRequestDto): Promise<void> {
+    return this.client.post(client, '/keyboard/type-text', request);
+  }
+
+  async setLayout(client: string, request: SetKeyboardLayoutRequestDto): Promise<void> {
+    return this.client.post(client, '/keyboard/set-layout', request);
   }
 }

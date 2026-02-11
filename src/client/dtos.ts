@@ -1,161 +1,121 @@
-import type {Key} from '@/config/types/remote/keyboard-commands-schema';
-
+/**
+ * Ping status
+ */
 interface PingResponseDto {
   status: string;
   version: string;
 }
 
-interface MouseClickRequest {
-  x: number;
-  y: number;
-}
-
-interface MouseMoveHumanRequest {
-  x: number;
-  y: number;
-  destinationRandomX?: number;
-  destinationRandomY?: number;
-  delayBetweenIterations?: number;
-  pixelsPerIteration?: number;
-  curveIntensity?: number;
-  curveIntensityDeviation?: number;
-}
-
-interface SendKeyRequest {
-  keys: Key[];
-  holdKeys: Key[];
+/**
+ * Duration of key beeing presssed
+ */
+interface KeyPressRequestDto {
+  keys: string[];
   duration?: number;
+  holdKeys?: string[];
 }
 
-interface FocusWindowByPidRequest {
+/**
+ * A delay between keystrokes in milliseconds. By default type as fast as possible
+ */
+interface TypeTextRequestDto {
+  text: string;
+  keyDelay?: number;
+  keyDelayDeviation?: number;
+}
+
+/**
+ * Keyboard layout
+ */
+interface SetKeyboardLayoutRequestDto {
+  layout: string;
+}
+
+/**
+ * X coordinate to move mouse to
+ */
+interface MousePositionRRDto {
+  x: number;
+  y: number;
+}
+
+interface FunctionDto {
+
+}
+
+/**
+ * Mouse button, left=1, right=2 , middle=3
+ */
+interface MouseClickRequestDto {
+  button?: string;
+}
+
+/**
+ * Rectangle bounds for a window
+ */
+interface GetWindowResponseDto {
+  bounds: object;
+  wid: number;
   pid: number;
+  path: string;
+  parentWid: number;
+  opacity: number;
+  title: string;
 }
 
-interface LaunchExeRequest {
+/**
+ * Rectangle bounds for a window
+ */
+interface SetWindowPropertiesRequestDto {
+  bounds?: object;
+  state?: string;
+  opacity?: number;
+}
+
+/**
+ * Full monitor bounds
+ */
+interface MonitorInfoResponseDto {
+  bounds: object;
+  workArea: object;
+  scale: number;
+  isPrimary: boolean;
+}
+
+/**
+ * Path to executable
+ */
+interface LaunchExeRequestDto {
   path: string;
   arguments: string[];
   waitTillFinish: boolean;
 }
 
-interface GetActiveWindowInfoResponse {
+/**
+ * Process ID
+ */
+interface ProcessResponseDto {
+  pid: number;
+  parentPid: number;
   path: string;
-  wid: number;
-  pid: number
-}
-
-interface WindowBounds {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-
-interface SetWindowBoundsRequest {
-  wid: number;
-  bounds: WindowBounds;
-}
-
-interface KillExeByNameRequest {
-  name: string;
-}
-
-interface FindPidsByNameRequest {
-  name: string;
-}
-
-
-interface FocusWindowRequest {
-  wid: number;
-}
-
-interface MonitorBounds {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-
-interface MonitorInfo {
-  bounds: MonitorBounds;
-  workArea: MonitorBounds;
-  isPrimary: boolean
-}
-
-interface KillExeByPidRequest {
-  pid: number;
-}
-
-interface TypeTextRequest {
-  text: string;
-  keyDelayDeviation?: number;
-  keyDelay?: number;
-}
-
-interface LaunchPidResponse {
-  pid: number;
-}
-
-interface WindowTitleResponseDto {
-  title: string;
-}
-
-interface WindowOpacityResponseDto {
-  opacity: number;
-}
-
-interface WindowOwnerResponseDto {
-  wid: number;
-}
-
-interface IsWindowResponseDto {
-  isValid: boolean;
-}
-
-interface IsWindowVisibleResponseDto {
-  isVisible: boolean;
-}
-
-interface ActiveWindowIdResponseDto {
-  wid: number;
-}
-
-interface MonitorScaleFactorResponseDto {
-  scaleFactor: number;
-}
-
-interface MonitorIdResponseDto {
-  mid: number;
-}
-
-interface WindowHandleResponseDto {
-  wid: number;
+  isElevated: boolean;
+  threadCount: number;
+  memory: object;
+  times: object;
+  wids: number[];
 }
 
 export type {
-  MonitorBounds,
-  MonitorInfo,
-  MouseClickRequest,
-  SendKeyRequest,
-  FocusWindowByPidRequest,
-  LaunchPidResponse,
-  LaunchExeRequest,
-  TypeTextRequest,
-  FindPidsByNameRequest,
-  KillExeByNameRequest,
-  KillExeByPidRequest,
-  GetActiveWindowInfoResponse,
-  FocusWindowRequest,
-  SetWindowBoundsRequest,
-  WindowBounds,
-  MouseMoveHumanRequest,
   PingResponseDto,
-  WindowTitleResponseDto,
-  WindowOpacityResponseDto,
-  WindowOwnerResponseDto,
-  IsWindowResponseDto,
-  IsWindowVisibleResponseDto,
-  ActiveWindowIdResponseDto,
-  MonitorScaleFactorResponseDto,
-  MonitorIdResponseDto,
-  WindowHandleResponseDto,
+  KeyPressRequestDto,
+  TypeTextRequestDto,
+  SetKeyboardLayoutRequestDto,
+  MousePositionRRDto,
+  FunctionDto,
+  MouseClickRequestDto,
+  GetWindowResponseDto,
+  SetWindowPropertiesRequestDto,
+  MonitorInfoResponseDto,
+  LaunchExeRequestDto,
+  ProcessResponseDto,
 };

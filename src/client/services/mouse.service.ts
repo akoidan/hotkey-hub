@@ -1,24 +1,29 @@
+
 import {Injectable} from '@nestjs/common';
 import {FetchClient} from '@/client/http-client';
-import {MouseClickRequest, MouseMoveHumanRequest} from '@/client/dtos';
+import {MousePositionRRDto, Function, MouseClickRequestDto} from '@/client/dtos';
 
 @Injectable()
 export class MouseService {
   constructor(private readonly client: FetchClient) {}
 
-  async mouseMove(client: string, request: MouseClickRequest): Promise<void> {
+  async position(client: string): Promise<void> {
+    return this.client.get(client, '/mouse/position');
+  }
+
+  async moveLeftClick(client: string, request: MousePositionRRDto): Promise<void> {
+    return this.client.post(client, '/mouse/move-left-click', request);
+  }
+
+  async move(client: string, request: MousePositionRRDto): Promise<void> {
     return this.client.post(client, '/mouse/move', request);
   }
 
-  async mouseMoveHuman(client: string, request: MouseMoveHumanRequest): Promise<void> {
+  async moveHuman(client: string, request: Function): Promise<void> {
     return this.client.post(client, '/mouse/move-human', request);
   }
 
-  async leftMouseClick(client: string): Promise<void> {
-    return this.client.post(client, '/mouse/left-click', {});
-  }
-
-  async mouseMoveLeftClick(client: string, request: MouseClickRequest): Promise<void> {
-    return this.client.post(client, '/mouse/move-left-click', request);
+  async click(client: string, request: MouseClickRequestDto): Promise<void> {
+    return this.client.post(client, '/mouse/click', request);
   }
 }
