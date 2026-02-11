@@ -321,7 +321,17 @@ class OpenApiGenerator {
       case 'string':
         // Check if it's an enum
         if (schema.enum && Array.isArray(schema.enum)) {
-          const enumValues = schema.enum.map((val: string) => `'${val}'`).join(' | ');
+          const enumValues = schema.enum.map((val: string) => {
+            // Escape special characters for TypeScript
+            const escaped = val
+              .replace(/\\/g, '\\\\')  // Escape backslashes
+              .replace(/'/g, "\\'")    // Escape single quotes
+              .replace(/"/g, '\\"')    // Escape double quotes
+              .replace(/\n/g, '\\n')   // Escape newlines
+              .replace(/\r/g, '\\r')   // Escape carriage returns
+              .replace(/\t/g, '\\t');  // Escape tabs
+            return `'${escaped}'`;
+          }).join(' | ');
           return enumValues;
         }
         return 'string';
@@ -457,7 +467,7 @@ class OpenApiGenerator {
     interfaces.push(interfaceCode);
   }
 
-  const content = `/* eslint-disable max-lines */
+  const content = `/* eslint-disable max-lines, max-len */
 /** 
  * This code was generated via yarn openapi-client
  * Do not edit it manually
