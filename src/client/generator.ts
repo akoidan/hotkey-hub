@@ -319,9 +319,19 @@ class OpenApiGenerator {
 
     switch (schema.type) {
       case 'string':
+        // Check if it's an enum
+        if (schema.enum && Array.isArray(schema.enum)) {
+          const enumValues = schema.enum.map((val: string) => `'${val}'`).join(' | ');
+          return enumValues;
+        }
         return 'string';
       case 'number':
       case 'integer':
+        // Check if it's an enum
+        if (schema.enum && Array.isArray(schema.enum)) {
+          const enumValues = schema.enum.join(' | ');
+          return enumValues;
+        }
         return 'number';
       case 'boolean':
         return 'boolean';
