@@ -4,13 +4,13 @@
  */
 import {Injectable} from '@nestjs/common';
 import {FetchClient} from '@/client/http-client';
-import {SetWindowPropertiesRequestDto} from '@/client/dtos';
+import {GetWindowResponseDto, SetWindowPropertiesRequestDto} from '@/client/dtos';
 
 @Injectable()
 export class WindowService {
   constructor(private readonly client: FetchClient) {}
 
-  async getWindowBounds(client: string, wid: number): Promise<void> {
+  async getWindowBounds(client: string, wid: number): Promise<GetWindowResponseDto> {
     return this.client.get(client, `/window/by-wid/${wid}`);
   }
 
@@ -18,7 +18,7 @@ export class WindowService {
     return this.client.patch(client, `/window/by-wid/${wid}`, request);
   }
 
-  async getWindowActiveId(client: string): Promise<void> {
+  async getWindowActiveId(client: string): Promise<GetWindowResponseDto> {
     return this.client.get(client, '/window/active');
   }
 

@@ -1,4 +1,5 @@
 /* eslint-disable */
+/* Vibe coded ^^ */
 import {parse} from '@apidevtools/swagger-parser';
 import type {OpenAPI3, OperationObject, PathItemObject, SchemaObject} from 'openapi-typescript';
 import {writeFileSync, mkdirSync} from 'fs';
@@ -251,13 +252,30 @@ class OpenApiGenerator {
   }
 
   private extractResponseType(responses: any): string {
-    const successResponse = responses['200'] || responses['201'] || responses['204'];
-    if (!successResponse?.content) {return 'void';}
-
-    const content = successResponse.content['application/json'];
-    if (!content?.schema) {return 'void';}
-
-    return this.generateDtoFromSchema(content.schema, false);
+    // Try different response codes in order of preference
+    const responseCodes = ['200', '201', 'default', '204'];
+    
+    for (const code of responseCodes) {
+      const response = responses[code];
+      if (response?.content) {
+        const content = response.content['application/json'];
+        if (content?.schema) {
+          // For array types, return the array type directly
+          if (content.schema.type === 'array') {
+            const itemType = content.schema.items ? this.mapSchemaToType(content.schema.items) : 'any';
+            return `${itemType}[]`;
+          }
+          return this.generateDtoFromSchema(content.schema, false);
+        }
+      }
+    }
+    
+    // If no response has content, check for 204 (no content) and return void
+    if (responses['204'] || responses['201']) {
+      return 'void';
+    }
+    
+    return 'void';
   }
 
   private generateDtoFromSchema(schema: any, isRequest: boolean): string {
@@ -474,6 +492,19 @@ ${this.generatedDtos.map(dto => `  ${dto.name},`).join('\n')}
   }
 }
 
+  private isPrimitiveType(type: string): boolean {
+    // Check if type is a primitive type (string, number, boolean, etc.) or array of primitives
+    const primitiveTypes = ['string', 'number', 'boolean', 'any'];
+    
+    // Check for array of primitives (e.g., number[], string[])
+    if (type.endsWith('[]')) {
+      const baseType = type.slice(0, -2);
+      return primitiveTypes.includes(baseType);
+    }
+    
+    return primitiveTypes.includes(type);
+  }
+
   private generateServiceCode(service: GeneratedService): string {
     const imports = new Set<string>();
     imports.add('import {Injectable} from \'@nestjs/common\';');
@@ -486,7 +517,10 @@ ${this.generatedDtos.map(dto => `  ${dto.name},`).join('\n')}
         usedDtos.add(method.requestBody);
       }
       if (method.responseType !== 'void') {
-        usedDtos.add(method.responseType);
+        // Only add to imports if it's not a primitive type
+        if (!this.isPrimitiveType(method.responseType)) {
+          usedDtos.add(method.responseType);
+        }
       }
     }
 

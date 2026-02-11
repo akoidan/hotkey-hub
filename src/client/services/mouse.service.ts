@@ -10,7 +10,7 @@ import {MousePositionRRDto, MouseMoveHumanRequestDto, MouseClickRequestDto} from
 export class MouseService {
   constructor(private readonly client: FetchClient) {}
 
-  async getPosition(client: string): Promise<void> {
+  async getPosition(client: string): Promise<MousePositionRRDto> {
     return this.client.get(client, '/mouse/position');
   }
 
