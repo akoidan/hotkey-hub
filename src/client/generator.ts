@@ -294,7 +294,32 @@ export class OpenApiGenerator {
         const itemType = schema.items ? this.mapSchemaToType(schema.items) : 'any';
         return `${itemType}[]`;
       case 'object':
-        return schema.properties ? 'object' : 'Record<string, any>';
+        if (schema.properties) {
+          // Generate a nested interface for this object
+          const typeName = this.generateNestedTypeName();
+          const properties: PropertyInfo[] = [];
+          
+          for (const [propName, propSchema] of Object.entries(schema.properties)) {
+            const prop = propSchema as any;
+            properties.push({
+              name: propName,
+              type: this.mapSchemaToType(prop),
+              optional: !schema.required?.includes(propName),
+              description: prop.description,
+            });
+          }
+          
+          this.generatedDtos.push({
+            name: typeName,
+            properties,
+            isRequest: false,
+            isResponse: false,
+          });
+          
+          this.generatedTypes.add(typeName);
+          return typeName;
+        }
+        return 'Record<string, any>';
       default:
         return 'any';
     }
@@ -302,6 +327,20 @@ export class OpenApiGenerator {
 
   private extractTypeName(ref: string): string {
     return ref.split('/').pop() || 'any';
+  }
+
+  private generateNestedTypeName(): string {
+    let suffix = 'Bounds';
+    let counter = 1;
+    let typeName: string;
+
+    do {
+      typeName = `Generated${counter}${suffix}`;
+      counter++;
+    } while (this.generatedTypes.has(typeName));
+
+    this.generatedTypes.add(typeName);
+    return typeName;
   }
 
   private generateTypeName(): string {
