@@ -61,25 +61,16 @@ import {
 import {unknownCommandSchema} from '@/config/types/commands';
 import {
   getActiveWindowCommandSchema,
-  getActiveWindowIdCommandSchema,
-  getWindowBoundsCommandSchema,
   getWindowCommandsSchema,
-  getWindowOpacityCommandSchema,
-  getWindowOwnerCommandSchema,
   getWindowsIdByMultiplePidsCommandVariablesSchema,
   getWindowsIdByMutliplePidsCommandSchema,
   getWindowsIdByPidCommandSchema,
   getWindowsIdByPidCommandVariablesSchema,
-  getWindowTitleCommandSchema,
-  getWindowValidityCommandSchema,
-  getWindowVisibilityCommandSchema,
   windowIdVariablesCommandSchema,
 } from '@/config/types/get-commands/get-window-commands-schema';
 import {
   getMonitorCommandsSchema,
-  getMonitorFromWindowCommandSchema,
   getMonitorInfoCommandSchema,
-  getMonitorScaleFactorCommandSchema,
   getMonitorsCommandSchema,
   monitorVariablesCommandSchema,
 } from '@/config/types/get-commands/get-monitor-commands-schema';
@@ -94,7 +85,8 @@ import {getInfoCommandSchema, pingCommandSchema} from '@/config/types/get-comman
 import {
   macroArrayVariableTypeSchema,
   macroObjectVariableTypeSchema,
-  macroPrimitiveVariableTypeSchema, macroVariableTypeSchema,
+  macroPrimitiveVariableTypeSchema,
+  macroVariableTypeSchema,
 } from '@/config/types/local/macro-local-command';
 
 
@@ -192,17 +184,8 @@ export {
   getWindowsIdByPidCommandSchema,
   localCommandSchema,
   getActiveWindowCommandSchema,
-  getActiveWindowIdCommandSchema,
-  getWindowBoundsCommandSchema,
-  getWindowTitleCommandSchema,
-  getWindowOpacityCommandSchema,
-  getWindowOwnerCommandSchema,
-  getWindowValidityCommandSchema,
-  getWindowVisibilityCommandSchema,
   getMonitorsCommandSchema,
   getMonitorInfoCommandSchema,
-  getMonitorFromWindowCommandSchema,
-  getMonitorScaleFactorCommandSchema,
   getProcessInfoCommandSchema,
   getPidsByNameCommandSchema,
   rgbSchema,
