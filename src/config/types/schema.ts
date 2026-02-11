@@ -87,8 +87,8 @@ import {
   getPidsByNameCommandSchema,
   getPidsByNameCommandVariablesSchema,
   getProcessCommandsSchema,
-  getProcessMainWindowCommandSchema,
-  getProcessMainWindowCommandVariablesSchema,
+  getProcessInfoCommandSchema,
+  getProcessInfoCommandVariablesSchema,
 } from '@/config/types/get-commands/get-process-commands-schema';
 import {getInfoCommandSchema, pingCommandSchema} from '@/config/types/get-commands/get-commands';
 import {
@@ -175,7 +175,7 @@ export {
   getWindowsIdByMutliplePidsCommandSchema,
   getWindowsIdByMultiplePidsCommandVariablesSchema,
   getWindowsIdByPidCommandVariablesSchema,
-  getProcessMainWindowCommandVariablesSchema,
+  getProcessInfoCommandVariablesSchema,
   getPidsByNameCommandVariablesSchema,
   windowIdVariablesCommandSchema,
   keyPressRemoteCommandVariableSchema,
@@ -203,7 +203,7 @@ export {
   getMonitorInfoCommandSchema,
   getMonitorFromWindowCommandSchema,
   getMonitorScaleFactorCommandSchema,
-  getProcessMainWindowCommandSchema,
+  getProcessInfoCommandSchema,
   getPidsByNameCommandSchema,
   rgbSchema,
   configSchema,

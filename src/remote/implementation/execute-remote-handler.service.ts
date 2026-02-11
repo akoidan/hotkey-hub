@@ -19,7 +19,10 @@ export class ExecuteRemoteHandler extends CommandRemoteHandler {
   }
 
   async execute(destination: string, command: LaunchExeRemoteCommand): Promise<void> {
-    const response = await this.clientService.process.launchExe(destination, command.variables as LaunchExeRemoteVariable);
+    const response = await this.clientService.process.createProcess(
+        destination,
+        command.variables as LaunchExeRemoteVariable
+    );
 
     if (command.assignVariable) {
       this.configService.setVariable(command.assignVariable as string, response.pid);

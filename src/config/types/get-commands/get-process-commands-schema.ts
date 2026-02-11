@@ -14,38 +14,37 @@ const getPidsByNameCommandSchema = baseGetInfoCommandSchema.extend({
   variables: getPidsByNameCommandVariablesSchema,
 }).strict().describe('Gets list of process ids that match criteria');
 
-const getProcessMainWindowVariablesSchema = z.object({
+const getProcessInfoVariablesSchema = z.object({
   pid: z.number().int().positive('Process ID must be a positive integer'),
 }).strict();
 
-const getProcessMainWindowCommandVariablesSchema = makeVariableUnion(getProcessMainWindowVariablesSchema);
+const getProcessInfoCommandVariablesSchema = makeVariableUnion(getProcessInfoVariablesSchema);
 
-const getProcessMainWindowCommandSchema = baseGetInfoCommandSchema.extend({
-  get: z.literal('getProcessMainWindow'),
-  variables: getProcessMainWindowCommandVariablesSchema,
+const getProcessInfoCommandSchema = baseGetInfoCommandSchema.extend({
+  get: z.literal('getProcessInfo'),
+  variables: getProcessInfoCommandVariablesSchema,
 }).strict().describe('Get process\'s main window');
 
 type GetPidsByNameVariables = z.infer<typeof getPidsByNameVariablesSchema>;
-type GetProcessMainWindowVariables = z.infer<typeof getProcessMainWindowVariablesSchema>;
+type GetProcessMainWindowVariables = z.infer<typeof getProcessInfoVariablesSchema>;
 type GetPidsByNameCommand = z.infer<typeof getPidsByNameCommandSchema>;
-type GetProcessMainWindowCommand = z.infer<typeof getProcessMainWindowCommandSchema>;
+type GetProcessMainWindowCommand = z.infer<typeof getProcessInfoCommandSchema>;
 type GetPidsByNameCommandVariables = z.infer<typeof getPidsByNameVariablesSchema>;
 
 const getProcessCommandsSchema = z.union([
   getPidsByNameCommandSchema,
-  getProcessMainWindowCommandSchema,
+  getProcessInfoCommandSchema,
 ]).describe('Handles processes');
 
 // Export all schemas
 export {
   getProcessCommandsSchema,
   getPidsByNameCommandSchema,
-  baseGetInfoCommandSchema,
-  getProcessMainWindowCommandSchema,
+  getProcessInfoCommandSchema,
   getPidsByNameCommandVariablesSchema,
-  getProcessMainWindowCommandVariablesSchema,
+  getProcessInfoCommandVariablesSchema,
   getPidsByNameVariablesSchema,
-  getProcessMainWindowVariablesSchema,
+  getProcessInfoVariablesSchema,
 };
 
 // Export all types

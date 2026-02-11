@@ -11,6 +11,6 @@ export class KillNameRemoteHandler extends CommandRemoteHandler {
   }
 
   async execute(destination: string, command: KillExeByNameRemoteCommand): Promise<void> {
-    await this.clientService.process.killExeByName(destination, command.variables as KillExeByNameRemoteVariable);
+    await this.clientService.process.killExeByName(destination, (command.variables as KillExeByNameRemoteVariable).name);
   }
 }

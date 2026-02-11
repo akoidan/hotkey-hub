@@ -21,7 +21,94 @@ const keyPressRemoteVariableSchema = z.object({
     .describe('Modifier keys to hold (e.g., Alt for Alt+1, Ctrl+Shift for Ctrl+Shift+A). Can be a key or key array.'),
 });
 
+// copied from https://github.com/akoidan/http-remote-pc-control/blob/main/src/keyboard/keyboard-layout-dto.ts
+/* eslint-disable array-element-newline */
+const keyboardLayoutValueSchema = z.enum([
+  // Latin-based layouts
+  'us', 'en', 'gb', 'au', 'nz', 'ie', 'za',
+  'de', 'at', 'ch', 'li',
+  'fr', 'be', 'lu', 'mc',
+  'es', 'mx', 'cl', 've', 'pe', 'ec', 'uy', 'py', 'bo',
+  'it', 'sm', 'va',
+  'pt',
+  'nl', 'sr',
+  'no', 'dk', 'fi', 'is',
+  'pl', 'cz', 'sk', 'hu', 'hr', 'ba', 'rs', 'me', 'mk', 'bg',
+  'ro', 'md',
+  'ee', 'lv', 'lt',
+  'mt',
+  'tr', 'az',
+
+  // Cyrillic-based layouts
+  'ru', 'by', 'ua', 'kz', 'kg', 'tj', 'uz', 'tm', 'mn',
+
+  // Greek
+  'gr',
+
+  // Arabic-based layouts
+  'ar', 'ae', 'bh', 'dz', 'eg', 'iq', 'jo', 'kw', 'ly', 'ma', 'om', 'qa', 'sa', 'sy', 'tn', 'ye',
+  'fa', 'ir',
+  'ur', 'pk',
+
+  // Hebrew
+  'il', 'he',
+
+  // Asian layouts
+  'cn', 'zh', 'tw', 'hk', 'mo',
+  'jp', 'ja',
+  'kr', 'ko',
+  'th',
+  'vn', 'vi',
+  'kh', 'km',
+  'lo',
+  'my', 'ms',
+  'id',
+  'ph', 'tl',
+  'sg',
+  'bn', 'bd',
+  'hi', 'in', 'ta', 'te', 'ml', 'kn', 'gu', 'or', 'pa', 'as', 'ne',
+  'si', 'lk',
+  'mm',
+
+  // African layouts
+  'am', 'et',
+  'sw', 'ke', 'tz',
+  'zu', 'xh', 'af',
+  'ha', 'ng',
+  'sn', 'bf', 'ci', 'gn', 'td', 'cf', 'cm', 'cg', 'cd', 'mg', 'dj',
+
+  // Other layouts
+  'eo', // Esperanto
+  'la', // Latin
+  'eu', // Basque
+  'ca', // Catalan
+  'gl', // Galician
+  'cy', // Welsh
+  'ga', // Irish
+  'gd', // Scottish Gaelic
+  'br', // Breton
+  'oc', // Occitan
+  'co', // Corsican
+  'sc', // Sardinian
+  'fur', // Friulian
+  'rm', // Romansh
+  'lb', // Luxembourgish
+  'fo', // Faroese
+  'kl', // Greenlandic
+  'se', // Northern Sami
+  'smj', // Lule Sami
+  'sma', // Southern Sami
+  'smn', // Inari Sami
+  'sms', // Skolt Sami
+]).describe('Keyboard layout');
+/* eslint-enable array-element-newline */
+
+const keyboardLayoutVariableSchema = z.object({
+  layout: keyboardLayoutValueSchema,
+});
+
 const keyPressRemoteCommandVariableSchema = makeVariableUnion(keyPressRemoteVariableSchema);
+const keyboardLayoutCommandVariableSchema = makeVariableUnion(keyboardLayoutVariableSchema);
 
 const keyPressRemoteCommandSchema = baseRemoteCommandSchema.extend({
   performOnRemote: z.literal('keyPress'),
@@ -29,6 +116,13 @@ const keyPressRemoteCommandSchema = baseRemoteCommandSchema.extend({
 }).strict().describe('Simulates keyboard input on the remote PC by sending key press events. ' +
   'Supports single keys, key combinations, and modifier keys with customizable timing and randomness. ' +
   'Use this for automating keyboard input or triggering keyboard shortcuts.');
+
+const setKeyboardLayoutRemoteCommandSchema = baseRemoteCommandSchema.extend({
+  performOnRemote: z.literal('setKeyboardLayout'),
+  variables: keyboardLayoutCommandVariableSchema,
+}).strict().describe('Simulates keyboard input on the remote PC by sending key press events. ' +
+    'Supports single keys, key combinations, and modifier keys with customizable timing and randomness. ' +
+    'Use this for automating keyboard input or triggering keyboard shortcuts.');
 
 const typeTextRemoteVariableSchema = z.object({
   text: z.string()
@@ -54,17 +148,20 @@ const typeTextRemoteCommandSchema = baseRemoteCommandSchema.extend({
 const keyboardCommandsSchema = z.union([
   keyPressRemoteCommandSchema,
   typeTextRemoteCommandSchema,
+  setKeyboardLayoutRemoteCommandSchema,
 ]).describe('Keyboard-related remote commands');
 
 type TypeTextRemoteVariable = z.infer<typeof typeTextRemoteVariableSchema>
 type TypeTextRemoteCommand = z.infer<typeof typeTextRemoteCommandSchema>
 type KeyPressRemoteCommand = z.infer<typeof keyPressRemoteCommandSchema>
 type KeyPressRemoteVariable = z.infer<typeof keyPressRemoteVariableSchema>
+type SetKeyboardLayoutRemoteCommand = z.infer<typeof setKeyboardLayoutRemoteCommandSchema>
 
 
 type Key = z.infer<typeof keySchema>;
 
 export type {
+  SetKeyboardLayoutRemoteCommand,
   TypeTextRemoteVariable,
   KeyPressRemoteVariable,
   TypeTextRemoteCommand,
@@ -73,6 +170,8 @@ export type {
 };
 
 export {
+  setKeyboardLayoutRemoteCommandSchema,
+  keyboardLayoutCommandVariableSchema,
   keySchema,
   keyPressRemoteCommandVariableSchema,
   typeTextRemoteCommandVariableSchema,

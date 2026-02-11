@@ -9,11 +9,9 @@ const windowIdVariablesSchema = z.object({
 
 const windowIdVariablesCommandSchema = makeVariableUnion(windowIdVariablesSchema);
 
-
 const getActiveWindowCommandSchema = baseGetInfoCommandSchema.extend({
   get: z.literal('getActiveWindow'),
 }).strict().describe('Get information about current active window');
-
 
 const getWindowCommandSchema = baseGetInfoCommandSchema.extend({
   get: z.literal('getWindow'),
@@ -51,6 +49,7 @@ type GetWindowsIdByMultiplePidsVariables = z.infer<typeof getWindowsIdByMultiple
 type GetWindowCommand = z.infer<typeof getWindowCommandSchema>;
 
 const getWindowCommandsSchema = z.union([
+  getWindowCommandSchema,
   getWindowsIdByPidCommandSchema,
   getActiveWindowCommandSchema,
   getWindowsIdByMutliplePidsCommandSchema,
@@ -58,6 +57,7 @@ const getWindowCommandsSchema = z.union([
 
 // Export all schemas
 export {
+  getWindowsIdByMultiplePidsVariablesSchema,
   getWindowsIdByMultiplePidsCommandVariablesSchema,
   getWindowsIdByMutliplePidsCommandSchema,
   getWindowCommandsSchema,
@@ -67,6 +67,7 @@ export {
   getWindowsIdByPidCommandSchema,
   getWindowsIdByPidVariablesSchema,
   getActiveWindowCommandSchema,
+  getWindowCommandSchema,
 };
 
 // Export all types
