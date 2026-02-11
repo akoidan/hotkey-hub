@@ -23,7 +23,7 @@ export class FetchClient {
 
   // eslint-disable-next-line max-lines-per-function
   private async executeRequest(
-    method: 'GET' | 'POST',
+    method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH',
     client: string,
     url: string,
     payloadstr: string,
@@ -89,14 +89,12 @@ export class FetchClient {
   }
 
   private async makeRequest<T>(
-    method: 'GET' | 'POST',
+    method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH',
     client: string,
     url: string,
     payload?: unknown,
-    timeout: number = 6000,
-    withParse: boolean = false,
   ): Promise<T> {
-    const payloadstr: string = method === 'POST' && payload ? JSON.stringify(payload) : '';
+    const payloadstr: string = payload ? JSON.stringify(payload) : '';
 
     try {
       const controller = new AbortController();
@@ -105,15 +103,15 @@ export class FetchClient {
         new Promise<never>((_, reject) => {
           setTimeout(() => {
             controller.abort();
-            reject(Error(`Request timed out after ${timeout}m`));
-          }, timeout);
+            reject(Error(`Request timed out after ${6000}m`));
+          }, 6000);
         }),
       ]);
 
       this.logger.log(
         `${method}:${statusCode} ${clc.bold.green(client)} ${clc.yellow(url)} ${payloadstr ?? ''} ${clc.xterm(7)('==>>')} ${result}`
       );
-      if (withParse) {
+      if (statusCode !== 204 && result) {
         try {
           return JSON.parse(result) as T;
         } catch (error) {
@@ -132,11 +130,26 @@ export class FetchClient {
   }
 
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-  async post<T>(client: string, url: string, payload: any, timeout = 6000, withParse = false): Promise<T> {
-    return this.makeRequest<T>('POST', client, url, payload, timeout, withParse);
+  async post<T>(client: string, url: string, payload?: any): Promise<T> {
+    return this.makeRequest<T>('POST', client, url, payload);
   }
 
-  async get<T>(client: string, url: string, timeout = 6000, withParse = true): Promise<T> {
-    return this.makeRequest<T>('GET', client, url, undefined, timeout, withParse);
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  async patch<T>(client: string, url: string, payload?: any): Promise<T> {
+    return this.makeRequest<T>('PATCH', client, url, payload);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  async put<T>(client: string, url: string, payload?: any): Promise<T> {
+    return this.makeRequest<T>('PUT', client, url, payload);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  async delete<T>(client: string, url: string, payload?: any): Promise<T> {
+    return this.makeRequest<T>('DELETE', client, url, payload);
+  }
+
+  async get<T>(client: string, url: string): Promise<T> {
+    return this.makeRequest<T>('GET', client, url, undefined);
   }
 }

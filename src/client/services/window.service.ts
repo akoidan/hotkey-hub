@@ -1,4 +1,7 @@
-
+/** 
+ * This code was generated via yarn openapi-client
+ * Do not edit it manually
+ */
 import {Injectable} from '@nestjs/common';
 import {FetchClient} from '@/client/http-client';
 import {SetWindowPropertiesRequestDto} from '@/client/dtos';
@@ -7,19 +10,19 @@ import {SetWindowPropertiesRequestDto} from '@/client/dtos';
 export class WindowService {
   constructor(private readonly client: FetchClient) {}
 
-  async getWindow(client: string, wid: number): Promise<void> {
-    return this.client.get(client, `/window/${wid}`);
+  async byWid(client: string, wid: number): Promise<void> {
+    return this.client.get(client, `/window/by-wid/${wid}`);
   }
 
-  async setWindow(client: string, wid: number, request: SetWindowPropertiesRequestDto): Promise<void> {
-    return this.client.patch(client, `/window/${wid}`, request);
+  async byWidByWid(client: string, wid: number, request: SetWindowPropertiesRequestDto): Promise<void> {
+    return this.client.patch(client, `/window/by-wid/${wid}`, request);
   }
 
   async active(client: string): Promise<void> {
     return this.client.get(client, '/window/active');
   }
 
-  async focus(client: string, wid: number): Promise<void> {
-    return this.client.post(client, `/window/${wid}/focus`);
+  async byWidFocus(client: string, wid: number): Promise<void> {
+    return this.client.post(client, `/window/by-wid/${wid}/focus`);
   }
 }

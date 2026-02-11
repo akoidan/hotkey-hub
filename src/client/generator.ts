@@ -1,7 +1,8 @@
-import { parse } from '@apidevtools/swagger-parser';
-import type { OpenAPI3, OperationObject, PathItemObject, SchemaObject } from 'openapi-typescript';
-import { writeFileSync, mkdirSync } from 'fs';
-import { dirname, join } from 'path';
+/* eslint-disable */
+import {parse} from '@apidevtools/swagger-parser';
+import type {OpenAPI3, OperationObject, PathItemObject, SchemaObject} from 'openapi-typescript';
+import {writeFileSync, mkdirSync} from 'fs';
+import {dirname, join} from 'path';
 
 interface GeneratorConfig {
   openApiSpecPath: string;
@@ -46,12 +47,12 @@ interface PropertyInfo {
   description?: string;
 }
 
-export class OpenApiGenerator {
-  private config: GeneratorConfig;
+class OpenApiGenerator {
+  private readonly config: GeneratorConfig;
   private api: OpenAPI3;
-  private generatedTypes = new Set<string>();
-  private generatedServices: GeneratedService[] = [];
-  private generatedDtos: GeneratedDto[] = [];
+  private readonly generatedTypes = new Set<string>();
+  private readonly generatedServices: GeneratedService[] = [];
+  private readonly generatedDtos: GeneratedDto[] = [];
 
   constructor(config: GeneratorConfig) {
     this.config = config;
@@ -79,7 +80,7 @@ export class OpenApiGenerator {
     // /window/{wid}/focus -> focusWindow
     const segments = path.split('/').filter(Boolean);
     
-    if (segments.length === 0) return 'index';
+    if (segments.length === 0) {return 'index';}
     
     // Remove the first segment (module name) and filter out path parameters
     const methodSegments = segments.slice(1).filter(segment => !segment.startsWith('{') && !segment.endsWith('}'));
@@ -108,16 +109,16 @@ export class OpenApiGenerator {
   }
 
   private generateFromPaths(): void {
-    if (!this.api.paths) return;
+    if (!this.api.paths) {return;}
 
     // Group operations by module name first
-    const moduleOperations = new Map<string, Array<{ method: string; operation: OperationObject; path: string }>>();
+    const moduleOperations = new Map<string, { method: string; operation: OperationObject; path: string }[]>();
 
     for (const [path, pathItem] of Object.entries(this.api.paths)) {
-      if (!pathItem) continue;
+      if (!pathItem) {continue;}
 
       const operations = this.extractOperations(pathItem, path);
-      if (operations.length === 0) continue;
+      if (operations.length === 0) {continue;}
 
       const moduleName = this.extractModuleName(path);
       
@@ -135,14 +136,14 @@ export class OpenApiGenerator {
     }
   }
 
-  private extractOperations(pathItem: PathItemObject, path: string): Array<{ method: string; operation: OperationObject; path: string }> {
-    const operations: Array<{ method: string; operation: OperationObject; path: string }> = [];
+  private extractOperations(pathItem: PathItemObject, path: string): { method: string; operation: OperationObject; path: string }[] {
+    const operations: { method: string; operation: OperationObject; path: string }[] = [];
 
     const httpMethods = ['get', 'post', 'put', 'delete', 'patch'] as const;
     for (const method of httpMethods) {
       const operation = pathItem[method];
       if (operation) {
-        operations.push({ method: method.toUpperCase(), operation, path });
+        operations.push({method: method.toUpperCase(), operation, path});
       }
     }
 
@@ -155,12 +156,12 @@ export class OpenApiGenerator {
     return segments[0]?.replace(/{.*}/, '') || 'api';
   }
 
-  private generateService(moduleName: string, operations: Array<{ method: string; operation: OperationObject; path: string }>): GeneratedService {
+  private generateService(moduleName: string, operations: { method: string; operation: OperationObject; path: string }[]): GeneratedService {
     const methods: GeneratedMethod[] = [];
     const methodNames = new Set<string>();
 
-    for (const { method, operation, path } of operations) {
-      let generatedMethod = this.generateMethod(operation, method, path);
+    for (const {method, operation, path} of operations) {
+      const generatedMethod = this.generateMethod(operation, method, path);
       if (generatedMethod) {
         // Handle duplicate method names
         let methodName = generatedMethod.name;
@@ -224,21 +225,20 @@ export class OpenApiGenerator {
   }
 
   private extractRequestBody(requestBody: any): string | undefined {
-    if (!requestBody?.content) return undefined;
+    if (!requestBody?.content) {return undefined;}
 
     const content = requestBody.content['application/json'];
-    if (!content?.schema) return undefined;
+    if (!content?.schema) {return undefined;}
 
-    const typeName = this.generateDtoFromSchema(content.schema, true);
-    return typeName;
+    return this.generateDtoFromSchema(content.schema, true);
   }
 
   private extractResponseType(responses: any): string {
     const successResponse = responses['200'] || responses['201'] || responses['204'];
-    if (!successResponse?.content) return 'void';
+    if (!successResponse?.content) {return 'void';}
 
     const content = successResponse.content['application/json'];
-    if (!content?.schema) return 'void';
+    if (!content?.schema) {return 'void';}
 
     return this.generateDtoFromSchema(content.schema, false);
   }
@@ -276,7 +276,7 @@ export class OpenApiGenerator {
   }
 
   private mapSchemaToType(schema: any): string {
-    if (!schema) return 'any';
+    if (!schema) {return 'any';}
 
     if (schema.$ref) {
       return this.extractTypeName(schema.$ref);
@@ -330,7 +330,7 @@ export class OpenApiGenerator {
   }
 
   private generateNestedTypeName(): string {
-    let suffix = 'Bounds';
+    const suffix = 'Bounds';
     let counter = 1;
     let typeName: string;
 
@@ -344,7 +344,7 @@ export class OpenApiGenerator {
   }
 
   private generateTypeName(): string {
-    let suffix = 'Dto';
+    const suffix = 'Dto';
     let counter = 1;
     let typeName: string;
 
@@ -366,12 +366,12 @@ export class OpenApiGenerator {
   }
 
   private generateFromComponents(): void {
-    if (!this.api.components?.schemas) return;
+    if (!this.api.components?.schemas) {return;}
 
     for (const [schemaName, schema] of Object.entries(this.api.components.schemas)) {
       // Don't add "Dto" suffix if it already exists
       const typeName = schemaName.endsWith('Dto') ? schemaName : `${schemaName}Dto`;
-      if (this.generatedTypes.has(typeName)) continue;
+      if (this.generatedTypes.has(typeName)) {continue;}
 
       const properties = this.extractPropertiesFromSchema(schema as SchemaObject);
 
@@ -387,7 +387,7 @@ export class OpenApiGenerator {
   }
 
   private extractPropertiesFromSchema(schema: any): PropertyInfo[] {
-    if (!schema.properties) return [];
+    if (!schema.properties) {return [];}
 
     return Object.entries(schema.properties).map(([propName, propSchema]) => {
       const prop = propSchema as any;
@@ -404,7 +404,7 @@ export class OpenApiGenerator {
   const outputPath = join(this.config.outputDir, this.config.dtoFileName);
   
   // Ensure directory exists
-  mkdirSync(dirname(outputPath), { recursive: true });
+  mkdirSync(dirname(outputPath), {recursive: true});
 
   const interfaces: string[] = [];
   for (const dto of this.generatedDtos) {
@@ -412,7 +412,14 @@ export class OpenApiGenerator {
     interfaces.push(interfaceCode);
   }
 
-  const content = `${interfaces.join('\n\n')}
+  const content = `/* eslint-disable max-lines */
+/** 
+ * This code was generated via yarn openapi-client
+ * Do not edit it manually
+ */
+
+
+${interfaces.join('\n\n')}
 
 export type {
 ${this.generatedDtos.map(dto => `  ${dto.name},`).join('\n')}
@@ -438,7 +445,7 @@ ${this.generatedDtos.map(dto => `  ${dto.name},`).join('\n')}
   const servicesDir = join(this.config.outputDir, this.config.servicesDir);
   
   // Ensure services directory exists
-  mkdirSync(servicesDir, { recursive: true });
+  mkdirSync(servicesDir, {recursive: true});
 
   for (const service of this.generatedServices) {
     const serviceCode = this.generateServiceCode(service);
@@ -452,8 +459,8 @@ ${this.generatedDtos.map(dto => `  ${dto.name},`).join('\n')}
 
   private generateServiceCode(service: GeneratedService): string {
     const imports = new Set<string>();
-    imports.add("import {Injectable} from '@nestjs/common';");
-    imports.add("import {FetchClient} from '@/client/http-client';");
+    imports.add('import {Injectable} from \'@nestjs/common\';');
+    imports.add('import {FetchClient} from \'@/client/http-client\';');
 
     const usedDtos = new Set<string>();
 
@@ -472,7 +479,10 @@ ${this.generatedDtos.map(dto => `  ${dto.name},`).join('\n')}
 
     const methods = service.methods.map(method => this.generateMethodCode(method)).join('\n\n');
 
-    return `
+    return `/** 
+ * This code was generated via yarn openapi-client
+ * Do not edit it manually
+ */
 ${Array.from(imports).join('\n')}
 
 @Injectable()
@@ -550,15 +560,14 @@ ${methods}
 
     // Request body
     if (method.requestBody) {
-      return `, request`;
+      return ', request';
     }
 
     return '';
   }
 }
 
-// CLI execution
-async function main() {
+async function main(): Promise<void> {
   const args = process.argv.slice(2);
   if (args.length < 1) {
     console.error('Usage: ts-node src/client/generator.ts <openapi-spec-path>');

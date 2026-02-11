@@ -1,3 +1,10 @@
+/* eslint-disable max-lines */
+/** 
+ * This code was generated via yarn openapi-client
+ * Do not edit it manually
+ */
+
+
 /**
  * Ping status
  */
@@ -76,8 +83,8 @@ interface Generated1Bounds {
 interface GetWindowResponseDto {
   bounds: Generated1Bounds;
   wid: number;
-  pid: number;
-  path: string;
+  pid?: number;
+  path?: string;
   parentWid: number;
   opacity: number;
   title: string;
