@@ -347,7 +347,7 @@ class OpenApiGenerator {
         return 'boolean';
       case 'array':
         const itemType = schema.items ? this.mapSchemaToType(schema.items) : 'any';
-        return `${itemType}[]`;
+        return `(${itemType})[]`;
       case 'object':
         if (schema.properties) {
           // Generate a nested interface for this object
