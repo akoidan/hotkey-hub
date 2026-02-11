@@ -29,6 +29,7 @@ type GetPidsByNameVariables = z.infer<typeof getPidsByNameVariablesSchema>;
 type GetProcessMainWindowVariables = z.infer<typeof getProcessMainWindowVariablesSchema>;
 type GetPidsByNameCommand = z.infer<typeof getPidsByNameCommandSchema>;
 type GetProcessMainWindowCommand = z.infer<typeof getProcessMainWindowCommandSchema>;
+type GetPidsByNameCommandVariables = z.infer<typeof getPidsByNameVariablesSchema>;
 
 const getProcessCommandsSchema = z.union([
   getPidsByNameCommandSchema,
@@ -49,6 +50,7 @@ export {
 
 // Export all types
 export type {
+  GetPidsByNameCommandVariables,
   GetPidsByNameVariables,
   GetProcessMainWindowVariables,
   GetPidsByNameCommand,

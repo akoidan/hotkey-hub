@@ -3,7 +3,7 @@ import {Injectable} from '@nestjs/common';
 import {GetInfoRemoteCommand} from '@/config/types/get-commands/get-commands';
 import {GetMonitorInfoCommand, MonitorVariables} from '@/config/types/get-commands/get-monitor-commands-schema';
 import {GetInfoHandler} from '@/get-info/get-info-handler';
-import {MonitorInfo} from '@/client/dtos';
+import {MonitorInfoResponseDto} from '@/client/dtos';
 
 @Injectable()
 export class GetMonitorInfoHandler extends GetInfoHandler {
@@ -11,7 +11,7 @@ export class GetMonitorInfoHandler extends GetInfoHandler {
     return command.get === 'getMonitorInfo';
   }
 
-  protected async execute(destination: string, command: GetMonitorInfoCommand): Promise<MonitorInfo> {
+  protected async execute(destination: string, command: GetMonitorInfoCommand): Promise<MonitorInfoResponseDto> {
     return this.clientService.monitor.getMonitorInfo(destination, (command.variables as MonitorVariables).mid);
   }
 }
