@@ -106,7 +106,7 @@ export class FetchClient {
         new Promise<never>((_, reject) => {
           setTimeout(() => {
             controller.abort();
-            reject(Error(`Request timed out after ${6000}m`));
+            reject(Error('Request timed out after 6000m'));
           }, 6000);
         }),
       ]);
