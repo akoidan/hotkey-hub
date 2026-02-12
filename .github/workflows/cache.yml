@@ -32,7 +32,7 @@ jobs:
           node-version: 18
       - name: Install yarn deps
         if: steps.cache-node.outputs.cache-hit != 'true' || steps.cache-pkg.outputs.cache-hit != 'true'
-        run: yarn install --frozen-lockfile
+        run: yarn install --frozen-lockfile --ignore-engines
 
       - name: Upload node_modules cache
         if: steps.cache-node.outputs.cache-hit != 'true'
@@ -80,7 +80,7 @@ jobs:
           node-version: 18
       - name: Install yarn deps
         if: steps.cache-node.outputs.cache-hit != 'true' || steps.cache-pkg.outputs.cache-hit != 'true'
-        run: yarn install --frozen-lockfile
+        run: yarn install --frozen-lockfile --ignore-engines
 
       - name: Upload node_modules cache
         if: steps.cache-node.outputs.cache-hit != 'true'
