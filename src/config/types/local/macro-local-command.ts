@@ -200,12 +200,12 @@ export type {
 };
 
 export {
+  macroLocalCommandSchema,
   macroLocalCommandVariablesSchema,
   macroPrimitiveVariableTypeSchema,
   macroArrayVariableTypeSchema,
   macroObjectVariableTypeSchema,
   macroVariableTypeSchema,
-  macroLocalCommandSchema,
   macroVariableValueSchema,
   macroVariablesDescriptionSchema,
   macroDefinitionSchema,

@@ -62,9 +62,6 @@ type LocalCommand = z.infer<typeof localCommandSchema>;
 export {
   // Shared schemas
   expressionSchema,
-
-  // Command schemas
-  macroLocalCommandSchema,
   expressionLocalCommandSchema,
   transactionLocalCommandSchema,
   threadsLocalCommandSchema,
