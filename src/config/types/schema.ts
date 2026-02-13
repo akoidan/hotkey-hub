@@ -6,15 +6,17 @@ import {variablesSchema, variableValueSchema} from '@/config/types/variables';
 import {behaviourObjectSchema, shortcutSchema, shortcutsSchema} from '@/config/types/shortcut';
 import {globalDelaySchema} from '@/config/types/delays';
 import {
-  keyboardCommandsSchema,
+  keyboardCommandsSchema, keyboardLayoutCommandVariableSchema, keyboardLayoutValueSchema,
   keyPressRemoteCommandSchema,
   keyPressRemoteCommandVariableSchema,
   keySchema,
+  setKeyboardLayoutRemoteCommandSchema,
   typeTextRemoteCommandSchema,
   typeTextRemoteCommandVariableSchema,
 } from '@/config/types/remote/keyboard-commands-schema';
 import {
   leftMouseClickRemoteCommandSchema,
+  mouseClickRemoteCommandSchema, mouseClickRemoteCommandVariablesSchema,
   mouseCommandsSchema,
   mouseMoveClickRemoteCommandSchema,
   mouseMoveClickRemoteCommandVariableSchema,
@@ -60,7 +62,7 @@ import {
 } from '@/config/types/local/local-commands';
 import {unknownCommandSchema} from '@/config/types/commands';
 import {
-  getActiveWindowCommandSchema,
+  getActiveWindowCommandSchema, getWindowCommandSchema,
   getWindowCommandsSchema,
   getWindowsIdByMultiplePidsCommandVariablesSchema,
   getWindowsIdByMutliplePidsCommandSchema,
@@ -83,7 +85,7 @@ import {
 } from '@/config/types/get-commands/get-process-commands-schema';
 import {getInfoCommandSchema, pingCommandSchema} from '@/config/types/get-commands/get-commands';
 import {
-  macroArrayVariableTypeSchema,
+  macroArrayVariableTypeSchema, macroLocalCommandVariablesSchema,
   macroObjectVariableTypeSchema,
   macroPrimitiveVariableTypeSchema,
   macroVariableTypeSchema,
@@ -160,6 +162,13 @@ export type {
 };
 
 export {
+  keyboardLayoutValueSchema,
+  macroLocalCommandVariablesSchema,
+  keyboardLayoutCommandVariableSchema,
+  getWindowCommandSchema,
+  mouseClickRemoteCommandVariablesSchema,
+  mouseClickRemoteCommandSchema,
+  setKeyboardLayoutRemoteCommandSchema,
   macroPrimitiveVariableTypeSchema,
   macroArrayVariableTypeSchema,
   macroObjectVariableTypeSchema,

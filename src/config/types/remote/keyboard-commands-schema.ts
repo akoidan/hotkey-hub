@@ -175,6 +175,7 @@ export {
   setKeyboardLayoutRemoteCommandSchema,
   keyboardLayoutCommandVariableSchema,
   keySchema,
+  keyboardLayoutValueSchema,
   keyPressRemoteCommandVariableSchema,
   typeTextRemoteCommandVariableSchema,
   keyPressRemoteVariableSchema,

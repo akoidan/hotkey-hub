@@ -39,6 +39,15 @@ function validateType(val: any, type: VariableType): boolean {
   return true;
 }
 
+const macroLocalCommandVariablesSchema = z.record(
+  z.string(),
+  z.union([z.any(), variableValueSchema])
+).optional()
+  .describe(
+    'Variables to pass to the macro. Object where keys are variable names and values are their values. ' +
+    'Values can be strings or numbers and must match the types defined in the macro\'s variables section.'
+  )
+
 const macroLocalCommandSchema = z.object({
   macro: z.string().describe('Name of the macro to execute, which must match a key defined in the macros section. ' +
     'Macros help reduce configuration repetition by reusing command sequences.').superRefine((macroName, ctx) => {
@@ -52,12 +61,7 @@ const macroLocalCommandSchema = z.object({
       });
     }
   }),
-  variables: z.record(
-    z.string(),
-    z.union([z.any(), variableValueSchema])
-  ).optional()
-    .describe('Variables to pass to the macro. Object where keys are variable names and values are their values. ' +
-      'Values can be strings or numbers and must match the types defined in the macro\'s variables section.'),
+  variables: macroLocalCommandVariablesSchema,
 })
   .strict()
   .merge(delayCommandsSchema)
@@ -197,6 +201,7 @@ export type {
 };
 
 export {
+  macroLocalCommandVariablesSchema,
   macroPrimitiveVariableTypeSchema,
   macroArrayVariableTypeSchema,
   macroObjectVariableTypeSchema,
