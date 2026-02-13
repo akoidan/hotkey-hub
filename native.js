@@ -10,10 +10,14 @@ console.log('Injecting sea blob to node executable ...');
 let command;
 if (process.platform == 'linux') {
   command = `node ./node_modules/.bin/postject dist/native.exe NODE_SEA_BLOB dist/sea-prep.blob --sentinel-fuse ${sentinel}`;
+  execSync(command, {stdio: 'inherit'});
 } else {
-  command = `./node_modules/.bin/postject dist/native.exe NODE_SEA_BLOB dist/sea-prep.blob --sentinel-fuse ${sentinel}`;
+  execSync(
+    `cmd.exe /c .\\node_modules\\.bin\\postject.cmd dist\\native.exe NODE_SEA_BLOB dist\\sea-prep.blob --sentinel-fuse ${sentinel}`,
+    { stdio: 'inherit' }
+  );
 }
-execSync(command, {stdio: 'inherit'});
+
 console.log('Moving file to project directory ...');
 // Move/rename the executable
 const out = process.platform == 'win32' ? 'hotkey-hub.exe' : 'hotkey-hub';
