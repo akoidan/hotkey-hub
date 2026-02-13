@@ -1,4 +1,4 @@
-import {configSchema, macrosListSchema} from '@/config/types/schema';
+import {configSchema, macrosListSchema} from '@/config/types/root';
 import {promises as fs} from 'fs';
 import path from 'path';
 

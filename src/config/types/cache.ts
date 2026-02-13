@@ -1,4 +1,4 @@
-import type {ConfigData} from '@/config/types/schema';
+import type {ConfigData} from '@/config/types/root';
 
 export const schemaRootCache: {
   data: ConfigData,

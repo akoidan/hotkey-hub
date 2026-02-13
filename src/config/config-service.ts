@@ -1,4 +1,4 @@
-import {ConfigData, configSchema, IpsData, RgbData} from '@/config/types/schema';
+import {ConfigData, configSchema, IpsData, RgbData} from '@/config/types/root';
 import {parse} from 'jsonc-parser';
 import {Inject, Injectable, Logger} from '@nestjs/common';
 /* eslint-disable max-lines*/
