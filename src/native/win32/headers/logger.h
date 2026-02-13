@@ -14,6 +14,8 @@ inline void enableAnsiColors() {
     SetConsoleMode(hOut, dwMode);
 }
 
+static bool logDebug = true;
+
 // ANSI color codes matching cli-color
 namespace AnsiColor {
     const char* const Reset = "\x1b[0m";
@@ -37,14 +39,14 @@ namespace AnsiColor {
               << AnsiColor::Reset; \
 } while(0)
 
-#define LOG_MAIN(msg) do { \
+#define LOG_MAIN(msg) if (logDebug) { \
     LOG_TIME(); \
     std::cout << AnsiColor::Label << "cwin: " \
               << AnsiColor::Message << msg \
               << AnsiColor::Reset << std::endl; \
-} while(0)
+}
 
-#define LOG_THREAD(msg) do { \
+#define LOG_THREAD(msg) if (logDebug) { \
     LOG_TIME(); \
     std::cout << AnsiColor::Label << "twin: " \
               << AnsiColor::Message << msg \

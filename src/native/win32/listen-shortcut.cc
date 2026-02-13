@@ -330,6 +330,15 @@ Napi::Value CleanupHotkeys(const Napi::CallbackInfo& info) {
     return env.Undefined();
 }
 
+void SetLoggerLevel(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
+
+    if (info.Length() < 1 || !info[0].IsBoolean()) {
+        throw Napi::TypeError::New(info.Env(), "Argument 0 must be a bool");
+    }
+    logDebug = info[0].asBoolean();
+}
+
 // Initialize module
 Napi::Object hotkey_init(Napi::Env env, Napi::Object exports) {
     LOG_MAIN("Initializing Windows module...");
@@ -341,5 +350,6 @@ Napi::Object hotkey_init(Napi::Env env, Napi::Object exports) {
     exports.Set("registerHotkey", Napi::Function::New(env, RegisterHotkey));
     exports.Set("unregisterHotkey", Napi::Function::New(env, UnregisterHotkey));
     exports.Set("cleanupHotkeys", Napi::Function::New(env, CleanupHotkeys));
+    exports.Set("setLoggerLevel", Napi::Function::New(env, SetLoggerLevel));
     return exports;
 }
