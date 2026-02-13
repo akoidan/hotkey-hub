@@ -26,13 +26,14 @@ jobs:
           path: ~/.pkg-cache
           lookup-only: 'true'
           key: ${{ runner.os }}-pkg-18
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v6
         if: steps.cache-node.outputs.cache-hit != 'true' || steps.cache-pkg.outputs.cache-hit != 'true'
         with:
-          node-version: 18
+          package-manager-cache: false
+          node-version: 24
       - name: Install yarn deps
         if: steps.cache-node.outputs.cache-hit != 'true' || steps.cache-pkg.outputs.cache-hit != 'true'
-        run: yarn install --frozen-lockfile --ignore-engines
+        run: yarn install --frozen-lockfile
 
       - name: Upload node_modules cache
         if: steps.cache-node.outputs.cache-hit != 'true'
@@ -74,13 +75,14 @@ jobs:
           path: ~/.pkg-cache
           lookup-only: 'true'
           key: ${{ runner.os }}-pkg-18
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v6
         if: steps.cache-node.outputs.cache-hit != 'true' || steps.cache-pkg.outputs.cache-hit != 'true'
         with:
-          node-version: 18
+          package-manager-cache: false
+          node-version: 24
       - name: Install yarn deps
         if: steps.cache-node.outputs.cache-hit != 'true' || steps.cache-pkg.outputs.cache-hit != 'true'
-        run: yarn install --frozen-lockfile --ignore-engines
+        run: yarn install --frozen-lockfile
 
       - name: Upload node_modules cache
         if: steps.cache-node.outputs.cache-hit != 'true'
