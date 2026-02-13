@@ -10,7 +10,7 @@ import clc from 'cli-color';
       provide: Native,
       useFactory: (): INativeModule => {
         // eslint-disable-next-line
-        return bindings('server');
+        return bindings('native');
       },
     },
   ],
