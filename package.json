@@ -1,7 +1,6 @@
 {
   "name": "hotkey-hub",
   "version": "3.0.0-alpha.2",
-  "main": "src/index.js",
   "repository": "git@github.com:akoidan/hotkey-hub.git",
   "author": "akoidan <deathangel908@gmail.com>",
   "license": "MIT",
@@ -10,8 +9,7 @@
     "cmake": "cmake-js build",
     "cmake:debug": "cmake-js build --debug",
     "nest": "nest build",
-    "native": "pkg .",
-    "build": "npm-run-all -s cmake nest native",
+    "build": "npm-run-all -s clean cmake nest esbuild native",
     "test": "jest --coverage  --detectOpenHandles --testTimeout=10000",
     "openapi-client": "ts-node src/client/generator.ts openapi.json",
     "schema:json": "node -r tsconfig-paths/register -r ts-node/register src/config/generate-schema.ts",
@@ -19,7 +17,9 @@
     "rgb": "rm -rf ./dist/ && node -r tsconfig-paths/register -r ts-node/register src/rgb-test.ts",
     "clean": "rm -rf ./dist/ && rm -rf ./build",
     "lint": "eslint --ext .ts --max-warnings=0 src",
+    "esbuild": "node esbuild.config.js",
     "autoformat": "eslint --ext .ts --max-warnings=0 --fix src",
+    "native": "node native.js",
     "postinstall": "patch-package"
   },
   "devDependencies": {
@@ -33,6 +33,7 @@
     "@typescript-eslint/eslint-plugin": "^7.7.2",
     "@typescript-eslint/parser": "^7.7.2",
     "cmake-js": "^7.3.0",
+    "esbuild": "^0.27.0",
     "eslint": "^8.57.0",
     "eslint-find-rules": "^4.1.0",
     "eslint-plugin-babel": "^5.3.1",
@@ -50,25 +51,15 @@
     "pkg": "^5.8.1",
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
+    "postject": "^1.0.0-alpha.6",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.4.5",
     "zod2md": "0.2.5"
   },
   "engines": {
-    "node": ">=18.0.0 <19",
+    "node": ">=24.0.0 <25",
     "npm": "please-use-yarn",
     "yarn": ">= 1.17.3"
-  },
-  "pkg": {
-    "scripts": "dist/main.js",
-    "assets": [
-      "node_modules/thread-stream/lib/worker.js",
-      "build/Release/server.node",
-      "build/Debug/server.node"
-    ],
-    "targets": [
-      "host"
-    ]
   },
   "binary": {
     "napi_versions": [
