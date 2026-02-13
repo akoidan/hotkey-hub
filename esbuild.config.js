@@ -34,6 +34,15 @@ async function main() {
           });
         },
       },
+      {
+        name: 'jsonc-parser-esm',
+        setup(build) {
+          build.onResolve({filter: /^jsonc-parser$/}, (args) => {
+            // Redirect to the ESM version which bundles better
+            return {path: resolve(__dirname, 'node_modules/jsonc-parser/lib/esm/main.js')};
+          });
+        },
+      },
     ],
     logLevel: 'info'
   })
