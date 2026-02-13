@@ -1,7 +1,4 @@
 /* eslint-disable max-lines*/
-import {z} from 'zod';
-
-
 import {variablesSchema, variableValueSchema} from '@/config/types/variables';
 import {behaviourObjectSchema, shortcutSchema, shortcutsSchema} from '@/config/types/shortcut';
 import {globalDelaySchema} from '@/config/types/delays';

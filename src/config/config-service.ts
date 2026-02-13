@@ -1,7 +1,7 @@
+/* eslint-disable max-lines*/
 import {ConfigData, configSchema, IpsData, RgbData} from '@/config/types/root';
 import {parse} from 'jsonc-parser';
 import {Inject, Injectable, Logger} from '@nestjs/common';
-/* eslint-disable max-lines*/
 import {ZodError, ZodIssue, ZodSchema} from 'zod';
 import {schemaRootCache} from '@/config/types/cache';
 import {Variables, variablesSchema} from '@/config/types/variables';
