@@ -18,6 +18,7 @@ export class FetchClient {
     private readonly agent: Agent,
     private readonly protocol: string,
     private readonly semaphorService: SemaphorService,
+    private readonly timeout: number,
   ) {
   }
 
@@ -26,7 +27,7 @@ export class FetchClient {
     method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH',
     client: string,
     url: string,
-    payloadstr: string,
+    payloadstr: string|null,
     controller: AbortController
   ): Promise<[string, number]> {
     const ips = this.config.getIps();
@@ -64,14 +65,14 @@ export class FetchClient {
         res.on('error', (error: Error) => reject(error));
       });
 
-      if (method === 'POST' && payloadstr) {
+      if (payloadstr) {
         req.write(payloadstr);
       }
       req.end();
     });
   }
 
-  private getHeaders(payloadstr: string): Record<string, string|number> {
+  private getHeaders(payloadstr: string|null): Record<string, string|number> {
     let headers: Record<string, string | number> = {
       // eslint-disable-next-line @typescript-eslint/naming-convention
       'x-request-id': this.semaphorService.getCurrentOperationId(),
@@ -95,7 +96,7 @@ export class FetchClient {
     payload?: unknown,
     query?: Record<string, string>,
   ): Promise<T> {
-    const payloadstr: string = payload ? JSON.stringify(payload) : '';
+    const payloadstr: string|null = payload ? JSON.stringify(payload) : null;
     if (query) {
       url += `?${new URLSearchParams(query).toString()}`;
     }
@@ -106,8 +107,8 @@ export class FetchClient {
         new Promise<never>((_, reject) => {
           setTimeout(() => {
             controller.abort();
-            reject(Error('Request timed out after 6000m'));
-          }, 6000);
+            reject(Error(`Request timed out after ${this.timeout}ms`));
+          }, this.timeout);
         }),
       ]);
 

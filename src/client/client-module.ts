@@ -36,7 +36,14 @@ import {WindowService} from '@/client/services/window.service';
         config: ConfigService,
         semaphore: SemaphorService,
       ): Promise<FetchClient> {
-        return new FetchClient(logger, config, await cert.getHttpAgent(), 'https:', semaphore);
+        return new FetchClient(
+          logger,
+          config,
+          await cert.getHttpAgent(),
+          'https:',
+          semaphore,
+          6000
+        );
       },
       inject: [Logger, CertService, ConfigService, SemaphorService],
     },
