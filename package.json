@@ -22,7 +22,7 @@
     "native:prep": "node --experimental-sea-config sea-config.json",
     "native:copynode": "node -e \"require('fs').copyFileSync(process.execPath, 'dist/stream-alert.exe')\"",
     "native:postject": "postject dist/stream-alert.exe NODE_SEA_BLOB dist/sea-prep.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2",
-    "native": "native:prep && native:copynode && native:postject",
+    "native": "npm-run-all -s native:prep native:copynode native:postject",
     "postinstall": "patch-package"
   },
   "devDependencies": {
