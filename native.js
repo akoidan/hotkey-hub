@@ -7,7 +7,12 @@ execSync("node --experimental-sea-config sea-config.json", {stdio: 'inherit'});
 console.log('Copying node interpterer to dist/native.exe ...');
 require('fs').copyFileSync(process.execPath, 'dist/native.exe')
 console.log('Injecting sea blob to node executable ...');
-const command = `node ./node_modules/.bin/postject dist/native.exe NODE_SEA_BLOB dist/sea-prep.blob --sentinel-fuse ${sentinel}`;
+let command;
+if (process.platform == 'linux') {
+  command = `node ./node_modules/.bin/postject dist/native.exe NODE_SEA_BLOB dist/sea-prep.blob --sentinel-fuse ${sentinel}`;
+} else {
+  command = `./node_modules/.bin/postject dist/native.exe NODE_SEA_BLOB dist/sea-prep.blob --sentinel-fuse ${sentinel}`;
+}
 execSync(command, {stdio: 'inherit'});
 console.log('Moving file to project directory ...');
 // Move/rename the executable

@@ -98,13 +98,6 @@ jobs:
       - name: Install yarn deps
         if: steps.cache-node.outputs.cache-hit != 'true'
         run:  yarn install --frozen-lockfile
-      - name: Restore pkg cache
-        id: cache-pkg
-        # DO not create cache on release, only on master
-        uses: actions/cache/restore@v4
-        with:
-          path: ~/.pkg-cache
-          key: ${{ runner.os }}-pkg-18
       - name: Build
         run: yarn build
 
@@ -135,12 +128,5 @@ jobs:
       - name: Install yarn deps
         if: steps.cache-node.outputs.cache-hit != 'true'
         run:  yarn install --frozen-lockfile
-      - name: Restore pkg cache
-        id: cache-pkg
-        # DO not create cache on release, only on master
-        uses: actions/cache/restore@v4
-        with:
-          path: ~/.pkg-cache
-          key: ${{ runner.os }}-pkg-18
       - name: Build
         run: yarn build
