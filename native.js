@@ -1,0 +1,18 @@
+#!/usr/bin/env node
+
+const {execSync} = require('child_process');
+const sentinel = 'NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2';
+console.log('Creating sea applicaiton from js files ...');
+execSync("node --experimental-sea-config sea-config.json", {stdio: 'inherit'});
+console.log('Copying node interpterer to dist/native.exe ...');
+require('fs').copyFileSync(process.execPath, 'dist/native.exe')
+console.log('Injecting sea blob to node executable ...');
+const command = `node ./node_modules/.bin/postject dist/native.exe NODE_SEA_BLOB dist/sea-prep.blob --sentinel-fuse ${sentinel}`;
+execSync(command, {stdio: 'inherit'});
+console.log('Moving file to project directory ...');
+// Move/rename the executable
+const out = process.platform == 'win32' ? 'hotkey-hub.exe' : 'hotkey-hub';
+require('fs').renameSync('dist/native.exe', out);
+console.log(`✅ Created binary file: ${out}`);
+
+

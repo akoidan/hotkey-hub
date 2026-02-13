@@ -8,6 +8,7 @@ config.json
 yarn-error.log
 configs
 certs
+/hotkey-hub
 examples
 coverage
 build
