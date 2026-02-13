@@ -1,7 +1,7 @@
-import {z} from 'zod/index';
-import {shortcutsSchema} from '@/config/types/shortcut';
-import {globalDelaySchema} from '@/config/types/delays';
+import {z} from 'zod';
 import {macrosListSchema} from '@/config/types/local/macro-local-command';
+import {globalDelaySchema} from '@/config/types/delays';
+import {shortcutsSchema} from '@/config/types/shortcut';
 
 const ipsSchema = z.record(z.string(), z.string())
     .describe('Maps PC names to IP addresses or host names.' +
