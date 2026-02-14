@@ -7,6 +7,7 @@ import {SemaphorService} from '@/semaphor/semaphor-service';
 import type {ReloadRequest} from '@/app/app-model';
 import {isPortOpen, parseArgs, postLocalhost} from '@/app/utils';
 import type {LogLevel} from '@nestjs/common';
+import clc from 'cli-color';
 
 
 asyncLocalStorage.run(new Map<string, string>().set(SemaphorService.COMB_KEY, 'init'), () => {
@@ -21,14 +22,14 @@ asyncLocalStorage.run(new Map<string, string>().set(SemaphorService.COMB_KEY, 'i
       throw Error(`Hotkey is already running at port ${args.apiPort}`);
     }
     if (args.apiServer) {
-      customLogger.log(`Initializing hotkey-hub ${packageJson} ...`);
+      customLogger.log(`Started hotkey-hub ${clc.bold.green(packageJson)} initilaziation`);
       const app = await NestFactory.create(
         AppModule.forRoot(args),
         {
           logger: customLogger,
         }
       );
-      customLogger.log(`Starting hotkey-hub ${packageJson} at prt ${args.apiPort}`);
+      customLogger.log(`Starting hotkey-hub daemon api at port ${args.apiPort}`);
       await app.listen(args.apiPort, '127.0.0.1');
     } else if (portOpen) {
       const body: ReloadRequest = {};
@@ -44,7 +45,7 @@ asyncLocalStorage.run(new Map<string, string>().set(SemaphorService.COMB_KEY, 'i
       await postLocalhost(body, '/reload', args.apiPort);
       customLogger.log(`Applied new configuration ${JSON.stringify(body)} to already running hotkey-hub at port ${args.apiPort}`);
     } else {
-      customLogger.log(`Initializing hotkey-hub ${packageJson} ...`);
+      customLogger.log(`Started hotkey-hub v${clc.bold.green(packageJson)} initilaziation`);
       await NestFactory.createApplicationContext(
         AppModule.forRoot(args),
         {

@@ -176,13 +176,20 @@ void PrinterThread() {
 
 // Register hotkey
 Napi::Value RegisterHotkey(const Napi::CallbackInfo &info) {
+  Napi::Env env = info.Env();
   if (!g_threadRunning) {
     g_threadRunning = true;
     g_printerThread = new std::thread(PrinterThread);
   }
 
-  Napi::Env env = info.Env();
-  LOG_MAIN("RegisterHotkey called");
+  int waiter = 0;
+  while (!g_hwnd) {
+    waiter++;
+    if (waiter >= 300) {
+       throw Napi::TypeError::New(env, "Failed to create hotkey capturing window for over 3seconds");
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+  }
 
   if (info.Length() < 3) {
     Napi::TypeError::New(env, "Wrong number of arguments").ThrowAsJavaScriptException();
