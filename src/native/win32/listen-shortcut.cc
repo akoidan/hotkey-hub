@@ -6,6 +6,8 @@
 #include <atomic>
 #include <map>
 #include <condition_variable>
+
+#include "../linux/headers/validators.h"
 #include "./headers/modifier-names.h"
 #include "./headers/key-names.h"
 #include "./headers/logger.h"
@@ -177,6 +179,37 @@ void printerThread() {
 // Register hotkey
 Napi::Value registerHotkey(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
+  GET_STRING(info, 0, keyStr);
+  GET_ARRAY(info, 1, modArray);
+  GET_FUNCTION(info, 2, jsCallBack);
+
+  std::transform(keyStr.begin(), keyStr.end(), keyStr.begin(), ::tolower);
+
+  int vk = 0;
+  auto key_it = key_names.find(keyStr);
+  if (key_it != key_names.end()) {
+    vk = key_it->second;
+  }
+
+  if (vk == 0) {
+    throw Napi::Error::New(env, "Invalid key name: " + keyStr);
+  }
+
+
+  // Get modifiers
+  UINT modifiers = 0;
+
+  for (uint32_t i = 0; i < modArray.Length(); i++) {
+    Napi::Value mod = modArray[i];
+    if (!mod.IsString()) continue;
+
+    std::string modifierStr = mod.As<Napi::String>().Utf8Value();
+    auto mod_it = modifier_names.find(modifierStr);
+    if (mod_it != modifier_names.end()) {
+      modifiers |= mod_it->second;
+    }
+  }
+
   if (!gThreadRunning) {
     gThreadRunning = true;
     gPrinterThread = new std::thread(printerThread);
@@ -191,46 +224,11 @@ Napi::Value registerHotkey(const Napi::CallbackInfo &info) {
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
 
-  if (info.Length() < 3) {
-    throw Napi::TypeError::New(env, "Wrong number of arguments");
-  }
-
-  if (!info[0].IsString() || !info[1].IsArray() || !info[2].IsFunction()) {
-    throw Napi::TypeError::New(env, "Wrong arguments");
-  }
-
-  // Get key
-  std::string keyStr = info[0].As<Napi::String>().Utf8Value();
-  std::transform(keyStr.begin(), keyStr.end(), keyStr.begin(), ::tolower);
-
-  int vk = 0;
-  auto key_it = key_names.find(keyStr);
-  if (key_it != key_names.end()) {
-    vk = key_it->second;
-  }
-
-  if (vk == 0) {
-    throw Napi::Error::New(env, "Invalid key name: " + keyStr);
-  }
-
-  // Get modifiers
-  UINT modifiers = 0;
-  Napi::Array modArray = info[1].As<Napi::Array>();
-  for (uint32_t i = 0; i < modArray.Length(); i++) {
-    Napi::Value mod = modArray[i];
-    if (!mod.IsString()) continue;
-
-    std::string modifierStr = mod.As<Napi::String>().Utf8Value();
-    auto mod_it = modifier_names.find(modifierStr);
-    if (mod_it != modifier_names.end()) {
-      modifiers |= mod_it->second;
-    }
-  }
 
   // Create ThreadSafeFunction for this hotkey
   auto tsfn = Napi::ThreadSafeFunction::New(
     env,
-    info[2].As<Napi::Function>(),
+    jsCallBack,
     "Hotkey Thread",
     0,
     1
@@ -246,16 +244,14 @@ Napi::Value registerHotkey(const Napi::CallbackInfo &info) {
   request.success = false;
   request.hotkeyId = -1;
 
-  std::string errorMessage;
   // Send request to printer thread and wait for result
   {
     std::unique_lock<std::mutex> lock(gMutex);
 
     // Check if printer thread is running
     if (!gThreadRunning || !gHwnd) {
-      errorMessage = "Hotkey registration system is not initialized";
       request.callback.Release();
-      throw Napi::Error::New(env, errorMessage);
+      throw Napi::Error::New(env, "Hotkey registration system is not initialized");
     }
 
     gCurrentRequest = &request;
@@ -266,8 +262,7 @@ Napi::Value registerHotkey(const Napi::CallbackInfo &info) {
       // Timeout occurred
       gCurrentRequest = nullptr; // Clear the request
       request.callback.Release();
-      errorMessage = "Hotkey registration timed out";
-      throw Napi::Error::New(env, errorMessage);
+      throw Napi::Error::New(env, "Hotkey registration timed out");
     }
   }
 
@@ -281,7 +276,7 @@ Napi::Value registerHotkey(const Napi::CallbackInfo &info) {
 }
 
 // Unregister hotkey
-Napi::Value unregisterHotkey(const Napi::CallbackInfo &info) {
+void unregisterHotkey(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
   LOG_MAIN("UnregisterHotkey called");
 
@@ -289,7 +284,7 @@ Napi::Value unregisterHotkey(const Napi::CallbackInfo &info) {
     throw Napi::TypeError::New(env, "Wrong arguments");
   }
 
-  int hotkeyId = info[0].As<Napi::Number>().Int32Value();
+  GET_INT_32(info, 0, hotkeyId);
 
   std::unique_lock<std::mutex> lock(gMutex);
   auto it = gCallbacks.find(hotkeyId);
@@ -309,15 +304,15 @@ Napi::Value unregisterHotkey(const Napi::CallbackInfo &info) {
     // Wait for completion
     gMainCV.wait_for(lock, std::chrono::seconds(5));
     callback.Release();
+    return;
   }
 
-  return env.Undefined();
+  throw Napi::Error::New(env, "Hotkey not found");
 }
 
 // Cleanup
-Napi::Value cleanupHotkeys(const Napi::CallbackInfo &info) {
+void cleanupHotkeys(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
-  LOG_MAIN("CleanupHotkeys called");
 
   if (gPrinterThread) {
     gThreadRunning = false;
@@ -332,17 +327,11 @@ Napi::Value cleanupHotkeys(const Napi::CallbackInfo &info) {
     }
     gCallbacks.clear();
   }
-
-  return env.Undefined();
 }
 
 void setLoggerLevel(const Napi::CallbackInfo &info) {
-  Napi::Env env = info.Env();
-
-  if (info.Length() < 1 || !info[0].IsBoolean()) {
-    throw Napi::TypeError::New(env, "Argument 0 must be a bool");
-  }
-  logDebug = info[0].As<Napi::Boolean>().Value();
+  GET_BOOL(info, 0, localLog)
+  logDebug = localLog;
 }
 
 // Initialize module

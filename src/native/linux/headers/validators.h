@@ -5,11 +5,11 @@ throw Napi::TypeError::New(info.Env(), "Argument " #index " must be a number"); 
 type varName = static_cast<type>(info[index].ToNumber().Int64Value())
 
 
-#define GET_INT_32(info, index, varName, type) \
+#define GET_INT_32(info, index, varName) \
 if (info.Length() <= index || !info[index].IsNumber()) { \
 throw Napi::TypeError::New(info.Env(), "Argument " #index " must be a number"); \
 } \
-type varName = reinterpret_cast<type>(info[index].As<Napi::Number>().Int32Value())
+int varName = info[index].As<Napi::Number>().Int32Value()
 
 
 #define GET_INT_32_NC(info, index, varName, type) \
@@ -29,7 +29,7 @@ type varName = info[index].As<Napi::Number>().Uint32Value();
 if (info.Length() <= index || !info[index].IsString()) { \
 throw Napi::TypeError::New(info.Env(), "Argument " #index " must be a string"); \
 } \
-std::string varName = info[index].As<Napi::String>();
+std::string varName = info[index].As<Napi::String>().Utf8Value();
 
 #define GET_STRING_UTF8(info, index, varName) \
 if (info.Length() <= index || !info[index].IsString()) { \
@@ -56,6 +56,18 @@ double varName = info[index].As<Napi::Number>().DoubleValue();
 if (info.Length() <= index || !info[index].IsArray()) { \
 throw Napi::TypeError::New(info.Env(), "Argument " #index " must be an array"); \
 }
+
+#define GET_ARRAY(info, index, varName) \
+if (info.Length() <= index || !info[index].IsArray()) { \
+throw Napi::TypeError::New(info.Env(), "Argument " #index " must be a string"); \
+} \
+Napi::Array varName = info[index].As<Napi::Array>();
+
+#define GET_FUNCTION(info, index, varName) \
+if (info.Length() <= index || !info[index].IsArray()) { \
+throw Napi::TypeError::New(info.Env(), "Argument " #index " must be a string"); \
+} \
+Napi::Function varName = info[index].As<Napi::Function>();
 
 #define GET_OBJECT(info, index, varName) \
 if (info.Length() <= index || !info[index].IsObject()) { \
