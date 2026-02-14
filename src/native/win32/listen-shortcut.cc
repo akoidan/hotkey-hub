@@ -192,13 +192,11 @@ Napi::Value RegisterHotkey(const Napi::CallbackInfo &info) {
   }
 
   if (info.Length() < 3) {
-    Napi::TypeError::New(env, "Wrong number of arguments").ThrowAsJavaScriptException();
-    return env.Null();
+    throw Napi::TypeError::New(env, "Wrong number of arguments");
   }
 
   if (!info[0].IsString() || !info[1].IsArray() || !info[2].IsFunction()) {
-    Napi::TypeError::New(env, "Wrong arguments").ThrowAsJavaScriptException();
-    return env.Null();
+    throw Napi::TypeError::New(env, "Wrong arguments");
   }
 
   // Get key
@@ -212,8 +210,7 @@ Napi::Value RegisterHotkey(const Napi::CallbackInfo &info) {
   }
 
   if (vk == 0) {
-    Napi::Error::New(env, "Invalid key name: " + keyStr).ThrowAsJavaScriptException();
-    return env.Null();
+    throw Napi::Error::New(env, "Invalid key name: " + keyStr);
   }
 
   // Get modifiers
@@ -258,8 +255,7 @@ Napi::Value RegisterHotkey(const Napi::CallbackInfo &info) {
     if (!g_threadRunning || !g_hwnd) {
       errorMessage = "Hotkey registration system is not initialized";
       request.callback.Release();
-      Napi::Error::New(env, errorMessage).ThrowAsJavaScriptException();
-      return env.Null();
+      throw Napi::Error::New(env, errorMessage);
     }
 
     g_currentRequest = &request;
@@ -271,17 +267,14 @@ Napi::Value RegisterHotkey(const Napi::CallbackInfo &info) {
       g_currentRequest = nullptr; // Clear the request
       request.callback.Release();
       errorMessage = "Hotkey registration timed out";
-      Napi::Error::New(env, errorMessage).ThrowAsJavaScriptException();
-      return env.Null();
+      throw Napi::Error::New(env, errorMessage);
     }
   }
 
   // Return result
   if (!request.success) {
     request.callback.Release();
-    Napi::Error::New(env, request.errorMessage.empty() ? "Failed to register hotkey" : request.errorMessage)
-        .ThrowAsJavaScriptException();
-    return env.Null();
+    throw Napi::Error::New(env, request.errorMessage.empty() ? "Failed to register hotkey" : request.errorMessage);
   }
 
   return Napi::Number::New(env, request.hotkeyId);
@@ -293,8 +286,7 @@ Napi::Value UnregisterHotkey(const Napi::CallbackInfo &info) {
   LOG_MAIN("UnregisterHotkey called");
 
   if (info.Length() < 1 || !info[0].IsNumber()) {
-    Napi::TypeError::New(env, "Wrong arguments").ThrowAsJavaScriptException();
-    return env.Null();
+    throw Napi::TypeError::New(env, "Wrong arguments");
   }
 
   int hotkeyId = info[0].As<Napi::Number>().Int32Value();

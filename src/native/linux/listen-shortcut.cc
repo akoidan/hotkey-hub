@@ -75,33 +75,28 @@ Napi::Value RegisterHotkey(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
 
   if (info.Length() < 3) {
-    Napi::TypeError::New(env, "Wrong number of arguments").ThrowAsJavaScriptException();
-    return env.Null();
+    throw Napi::TypeError::New(env, "Wrong number of arguments");
   }
 
   // Get key string
   if (!info[0].IsString()) {
-    Napi::TypeError::New(env, "First argument must be a string (key)").ThrowAsJavaScriptException();
-    return env.Null();
+    throw Napi::TypeError::New(env, "First argument must be a string (key)");
   }
   std::string keyStr = info[0].As<Napi::String>().Utf8Value();
 
   // Get modifiers array
   if (!info[1].IsArray()) {
-    Napi::TypeError::New(env, "Second argument must be an array of modifiers").ThrowAsJavaScriptException();
-    return env.Null();
+    throw Napi::TypeError::New(env, "Second argument must be an array of modifiers");
   }
 
   // Get callback
   if (!info[2].IsFunction()) {
-    Napi::TypeError::New(env, "Third argument must be a callback function").ThrowAsJavaScriptException();
-    return env.Null();
+    throw Napi::TypeError::New(env, "Third argument must be a callback function");
   }
 
   Display *display = XOpenDisplay(NULL);
   if (!display) {
-    Napi::Error::New(env, "Failed to open X display").ThrowAsJavaScriptException();
-    return env.Null();
+    throw Napi::Error::New(env, "Failed to open X display");
   }
 
   // Convert key string to KeySym
@@ -123,8 +118,7 @@ Napi::Value RegisterHotkey(const Napi::CallbackInfo &info) {
 
   if (keysym == NoSymbol) {
     XCloseDisplay(display);
-    Napi::Error::New(env, "Invalid key name").ThrowAsJavaScriptException();
-    return env.Null();
+    throw Napi::Error::New(env, "Invalid key name");
   }
 
   // Convert modifiers array to mask
@@ -144,8 +138,7 @@ Napi::Value RegisterHotkey(const Napi::CallbackInfo &info) {
   KeyCode keycode = XKeysymToKeycode(display, keysym);
   if (keycode == 0) {
     XCloseDisplay(display);
-    Napi::Error::New(env, "Could not map key to keycode").ThrowAsJavaScriptException();
-    return env.Null();
+    throw Napi::Error::New(env, "Could not map key to keycode");
   }
 
   Window root = DefaultRootWindow(display);
@@ -179,8 +172,7 @@ Napi::Value UnregisterHotkey(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
 
   if (info.Length() < 1 || !info[0].IsNumber()) {
-    Napi::TypeError::New(env, "Wrong arguments").ThrowAsJavaScriptException();
-    return env.Null();
+    throw Napi::TypeError::New(env, "Wrong arguments");
   }
 
   int hotkeyId = info[0].As<Napi::Number>().Int32Value();
