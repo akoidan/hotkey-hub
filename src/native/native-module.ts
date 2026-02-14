@@ -43,7 +43,7 @@ export class NativeModule implements OnModuleInit {
   }
 
   onModuleInit(): any {
-    this.native.setLoggerLevel(this.logLevel !== 'log');
+    this.native.setLoggerLevel(['debug' , 'verbose'].includes(this.logLevel));
     this.logger.log(`Loaded native library from ${clc.bold.green(this.native.path)}`);
   }
 }
