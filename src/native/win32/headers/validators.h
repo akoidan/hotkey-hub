@@ -63,6 +63,11 @@ throw Napi::TypeError::New(info.Env(), "Argument " #index " must be an object");
 }\
 Napi::Object varName{info[index].As<Napi::Object>()};
 
+#define GET_FUNCTION(info, index, varName) \
+if (info.Length() <= index || !info[index].IsFunction()) { \
+throw Napi::TypeError::New(info.Env(), "Argument " #index " must be an array"); \
+} \
+Napi::Function varName = info[index].As<Napi::Function>();
 
 // #define ASSERT_ARRAY(info, index) \
 // if (info.Length() <= index || !info[index].IsArray()) { \
