@@ -1,6 +1,7 @@
 #include "./headers/listen-shortcut.h"
 #include "./headers/key-names.h"
 #include "./headers/modifier-names.h"
+#include "./headers/validators.h"
 #include <napi.h>
 #include <thread>
 #include <atomic>
@@ -74,25 +75,14 @@ void eventLoop(HotkeyContext *context) {
 Napi::Value registerHotkey(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
 
-  if (info.Length() < 3) {
-    throw Napi::TypeError::New(env, "Wrong number of arguments");
-  }
-
   // Get key string
-  if (!info[0].IsString()) {
-    throw Napi::TypeError::New(env, "First argument must be a string (key)");
-  }
-  std::string keyStr = info[0].As<Napi::String>().Utf8Value();
+  GET_STRING(info, 0, keyStr);
 
   // Get modifiers array
-  if (!info[1].IsArray()) {
-    throw Napi::TypeError::New(env, "Second argument must be an array of modifiers");
-  }
+  GET_ARRAY(info, 1, modArray);
 
   // Get callback
-  if (!info[2].IsFunction()) {
-    throw Napi::TypeError::New(env, "Third argument must be a callback function");
-  }
+  GET_FUNCTION(info, 2, jsCallBack);
 
   Display *display = XOpenDisplay(NULL);
   if (!display) {
@@ -122,7 +112,6 @@ Napi::Value registerHotkey(const Napi::CallbackInfo &info) {
   }
 
   // Convert modifiers array to mask
-  Napi::Array modArray = info[1].As<Napi::Array>();
   unsigned int modifiers = 0;
   for (uint32_t i = 0; i < modArray.Length(); i++) {
     Napi::Value mod = modArray[i];
@@ -153,7 +142,7 @@ Napi::Value registerHotkey(const Napi::CallbackInfo &info) {
   context->keycode = keycode;
   context->tsfn = Napi::ThreadSafeFunction::New(
     env,
-    info[2].As<Napi::Function>(),
+    jsCallBack,
     "Hotkey Callback",
     0,
     1
@@ -171,11 +160,7 @@ Napi::Value registerHotkey(const Napi::CallbackInfo &info) {
 Napi::Value unregisterHotkey(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
 
-  if (info.Length() < 1 || !info[0].IsNumber()) {
-    throw Napi::TypeError::New(env, "Wrong arguments");
-  }
-
-  int hotkeyId = info[0].As<Napi::Number>().Int32Value();
+  GET_INT_32(info, 0, hotkeyId);
   auto it = hotkeyContexts.find(hotkeyId);
 
   if (it != hotkeyContexts.end()) {
@@ -221,10 +206,8 @@ Napi::Value cleanupHotkeys(const Napi::CallbackInfo &info) {
 void setLoggerLevel(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
 
-  if (info.Length() < 1 || !info[0].IsBoolean()) {
-    throw Napi::TypeError::New(env, "Argument 0 must be a bool");
-  }
-  logDebug = info[0].As<Napi::Boolean>().Value();
+  GET_BOOL(info, 0, localLog);
+  logDebug = localLog;
 }
 
 Napi::Object initListenShortcut(Napi::Env env, Napi::Object exports) {
