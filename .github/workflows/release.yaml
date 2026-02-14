@@ -91,7 +91,7 @@ jobs:
         run: |
           mkdir docs
           sudo apt-get update
-          sudo apt-get install -y pandoc
+          sudo apt-get install -y --no-install-recommends pandoc
           pandoc CONFIG.md -s \
             -c https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.0/github-markdown.min.css \
             --self-contained \
@@ -111,7 +111,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install dependencies  # TODO cache
+      - name: Cache apt packages
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            /var/cache/apt/archives
+            /var/lib/apt/lists
+          key: ${{ runner.os }}-apt-1
+
+      - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends libx11-dev libxtst-dev libxcb-ewmh-dev libxcb1-dev cmake g++ make

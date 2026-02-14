@@ -19,12 +19,12 @@ jobs:
           lookup-only: true
           key: ${{ runner.os }}-node-modules-${{ hashFiles('yarn.lock') }}
       - uses: actions/setup-node@v6
-        if: steps.cache-node.outputs.cache-hit != 'true' || steps.cache-pkg.outputs.cache-hit != 'true'
+        if: steps.cache-node.outputs.cache-hit != 'true'
         with:
           package-manager-cache: false
           node-version: 24
       - name: Install yarn deps
-        if: steps.cache-node.outputs.cache-hit != 'true' || steps.cache-pkg.outputs.cache-hit != 'true'
+        if: steps.cache-node.outputs.cache-hit != 'true'
         run: yarn install --frozen-lockfile
 
       - name: Upload node_modules cache
@@ -35,9 +35,6 @@ jobs:
           path: |
             node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('yarn.lock') }}
-      - name: Install pkg-fetch
-        if: steps.cache-pkg.outputs.cache-hit != 'true'
-        run: yarn pkg-fetch
 
   linux:
     runs-on: ubuntu-22.04
@@ -52,12 +49,12 @@ jobs:
           lookup-only: true
           key: ${{ runner.os }}-node-modules-${{ hashFiles('yarn.lock') }}
       - uses: actions/setup-node@v6
-        if: steps.cache-node.outputs.cache-hit != 'true' || steps.cache-pkg.outputs.cache-hit != 'true'
+        if: steps.cache-node.outputs.cache-hit != 'true'
         with:
           package-manager-cache: false
           node-version: 24
       - name: Install yarn deps
-        if: steps.cache-node.outputs.cache-hit != 'true' || steps.cache-pkg.outputs.cache-hit != 'true'
+        if: steps.cache-node.outputs.cache-hit != 'true'
         run: yarn install --frozen-lockfile
 
       - name: Upload node_modules cache
@@ -68,7 +65,16 @@ jobs:
           path: |
             node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('yarn.lock') }}
-      - name: Install pkg-fetch
-        if: steps.cache-pkg.outputs.cache-hit != 'true'
-        run: yarn pkg-fetch
 
+      - name: Cache apt packages
+        id: ubuntu-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            /var/cache/apt/archives
+            /var/lib/apt/lists
+          key: ${{ runner.os }}-apt-1
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libx11-dev libxtst-dev libxcb-ewmh-dev libxcb1-dev cmake g++ make
