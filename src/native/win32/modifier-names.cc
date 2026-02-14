@@ -3,7 +3,7 @@
 #include <string>
 #include "./headers/modifier-names.h"
 
-std::map<std::string, int> modifier_names = {
+std::map<std::string, int> modifierNames = {
   {"alt", MOD_ALT},
   {"control", MOD_CONTROL},
   {"ctrl", MOD_CONTROL},

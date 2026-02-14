@@ -2,7 +2,7 @@
 #include <map>
 #include <X11/XF86keysym.h>
 
-KeyNames key_names[] = {
+KeyNames keyNames[] = {
   {"backspace", XK_BackSpace},
   {"delete", XK_Delete},
   {"return", XK_Return},

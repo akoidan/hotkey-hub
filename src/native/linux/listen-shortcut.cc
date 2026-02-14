@@ -91,9 +91,9 @@ Napi::Value registerHotkey(const Napi::CallbackInfo &info) {
 
   // Convert key string to KeySym
   KeySym keysym = NoSymbol;
-  for (int i = 0; key_names[i].name != NULL; i++) {
-    if (keyStr == key_names[i].name) {
-      keysym = key_names[i].key;
+  for (int i = 0; keyNames[i].name != NULL; i++) {
+    if (keyStr == keyNames[i].name) {
+      keysym = keyNames[i].key;
       break;
     }
   }
@@ -118,8 +118,8 @@ Napi::Value registerHotkey(const Napi::CallbackInfo &info) {
     if (!mod.IsString()) continue;
 
     std::string modStr = mod.As<Napi::String>().Utf8Value();
-    auto it = modifier_names.find(modStr);
-    if (it != modifier_names.end()) {
+    auto it = modifierNames.find(modStr);
+    if (it != modifierNames.end()) {
       modifiers |= it->second;
     }
   }

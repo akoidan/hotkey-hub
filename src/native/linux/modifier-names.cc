@@ -3,7 +3,7 @@
 #include "./headers/modifier-names.h"
 #include <X11/Xlib.h>
 
-std::map<std::string, int> modifier_names = {
+std::map<std::string, int> modifierNames = {
   {"alt", Mod1Mask},
   {"control", ControlMask},
   {"ctrl", ControlMask},

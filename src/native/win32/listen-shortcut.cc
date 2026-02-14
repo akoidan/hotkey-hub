@@ -12,8 +12,8 @@
 #include "./headers/key-names.h"
 #include "./headers/logger.h"
 
-extern std::map<std::string, int> modifier_names;
-extern std::map<std::string, int> key_names;
+extern std::map<std::string, int> modifierNames;
+extern std::map<std::string, int> keyNames;
 
 enum RequestType {
   Register,
@@ -186,8 +186,8 @@ Napi::Value registerHotkey(const Napi::CallbackInfo &info) {
   std::transform(keyStr.begin(), keyStr.end(), keyStr.begin(), ::tolower);
 
   int vk = 0;
-  auto key_it = key_names.find(keyStr);
-  if (key_it != key_names.end()) {
+  auto key_it = keyNames.find(keyStr);
+  if (key_it != keyNames.end()) {
     vk = key_it->second;
   }
 
@@ -204,8 +204,8 @@ Napi::Value registerHotkey(const Napi::CallbackInfo &info) {
     if (!mod.IsString()) continue;
 
     std::string modifierStr = mod.As<Napi::String>().Utf8Value();
-    auto mod_it = modifier_names.find(modifierStr);
-    if (mod_it != modifier_names.end()) {
+    auto mod_it = modifierNames.find(modifierStr);
+    if (mod_it != modifierNames.end()) {
       modifiers |= mod_it->second;
     }
   }

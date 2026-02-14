@@ -8,6 +8,6 @@ typedef struct {
   KeySym key;
 } KeyNames;
 
-extern KeyNames key_names[];
+extern KeyNames keyNames[];
 extern std::map<char, KeySym> xShiftRequiredMap;
 extern std::map<char, KeySym> xSpecialCharacterMap;

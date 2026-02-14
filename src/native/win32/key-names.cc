@@ -3,7 +3,7 @@
 #include <string>
 #include "./headers/key-names.h"
 
-std::map<std::string, int> key_names = {
+std::map<std::string, int> keyNames = {
   {"numpad_decimal", VK_DECIMAL},
   {"enter", VK_RETURN},
   {"clear", VK_CLEAR},
