@@ -26,12 +26,12 @@ KeySym keyCodeForChar(const char c) {
 
   code = XStringToKeysym(buf);
   if (code == NoSymbol) {
-    auto it = XSpecialCharacterMap.find(c);
-    if (it != XSpecialCharacterMap.end()) {
+    auto it = xSpecialCharacterMap.find(c);
+    if (it != xSpecialCharacterMap.end()) {
       code = it->second;
     } else {
-      auto shiftIt = XShiftRequiredMap.find(c);
-      if (shiftIt != XShiftRequiredMap.end()) {
+      auto shiftIt = xShiftRequiredMap.find(c);
+      if (shiftIt != xShiftRequiredMap.end()) {
         code = shiftIt->second;
       }
     }
@@ -43,7 +43,7 @@ KeySym keyCodeForChar(const char c) {
 static std::unordered_map<int, HotkeyContext *> hotkeyContexts;
 static int nextHotkeyId = 1;
 
-void EventLoop(HotkeyContext *context) {
+void eventLoop(HotkeyContext *context) {
   XEvent event;
 
   while (context->running) {
@@ -71,7 +71,7 @@ void EventLoop(HotkeyContext *context) {
   }
 }
 
-Napi::Value RegisterHotkey(const Napi::CallbackInfo &info) {
+Napi::Value registerHotkey(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
 
   if (info.Length() < 3) {
@@ -160,7 +160,7 @@ Napi::Value RegisterHotkey(const Napi::CallbackInfo &info) {
   );
 
   // Start event thread
-  context->eventThread = std::thread(EventLoop, context);
+  context->eventThread = std::thread(eventLoop, context);
 
   int hotkeyId = nextHotkeyId++;
   hotkeyContexts[hotkeyId] = context;
@@ -168,7 +168,7 @@ Napi::Value RegisterHotkey(const Napi::CallbackInfo &info) {
   return Napi::Number::New(env, hotkeyId);
 }
 
-Napi::Value UnregisterHotkey(const Napi::CallbackInfo &info) {
+Napi::Value unregisterHotkey(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
 
   if (info.Length() < 1 || !info[0].IsNumber()) {
@@ -197,7 +197,7 @@ Napi::Value UnregisterHotkey(const Napi::CallbackInfo &info) {
   return env.Undefined();
 }
 
-Napi::Value CleanupHotkeys(const Napi::CallbackInfo &info) {
+Napi::Value cleanupHotkeys(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
 
   for (auto &pair: hotkeyContexts) {
@@ -227,10 +227,10 @@ void SetLoggerLevel(const Napi::CallbackInfo &info) {
   logDebug = info[0].As<Napi::Boolean>().Value();
 }
 
-Napi::Object hotkey_init(Napi::Env env, Napi::Object exports) {
-  exports.Set("registerHotkey", Napi::Function::New(env, RegisterHotkey));
-  exports.Set("unregisterHotkey", Napi::Function::New(env, UnregisterHotkey));
-  exports.Set("cleanupHotkeys", Napi::Function::New(env, CleanupHotkeys));
+Napi::Object init(Napi::Env env, Napi::Object exports) {
+  exports.Set("registerHotkey", Napi::Function::New(env, registerHotkey));
+  exports.Set("unregisterHotkey", Napi::Function::New(env, unregisterHotkey));
+  exports.Set("cleanupHotkeys", Napi::Function::New(env, cleanupHotkeys));
   exports.Set("setLoggerLevel", Napi::Function::New(env, SetLoggerLevel));
   return exports;
 }

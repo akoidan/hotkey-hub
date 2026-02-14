@@ -6,7 +6,7 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
   // Enable ANSI colors for Windows console once at module load
   enableAnsiColors();
   // Initialize hotkey manager
-  hotkey_init(env, exports);
+  init(env, exports);
   return exports;
 }
 

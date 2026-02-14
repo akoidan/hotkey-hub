@@ -1,10 +1,10 @@
 #pragma once
 #include <napi.h>
 
-Napi::Value RegisterHotkey(const Napi::CallbackInfo &info);
+Napi::Value registerHotkey(const Napi::CallbackInfo &info);
 
-Napi::Value UnregisterHotkey(const Napi::CallbackInfo &info);
+Napi::Value unregisterHotkey(const Napi::CallbackInfo &info);
 
-Napi::Value CleanupHotkeys(const Napi::CallbackInfo &info);
+Napi::Value cleanupHotkeys(const Napi::CallbackInfo &info);
 
-Napi::Object hotkey_init(Napi::Env env, Napi::Object exports);
+Napi::Object init(Napi::Env env, Napi::Object exports);

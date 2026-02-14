@@ -9,5 +9,5 @@ typedef struct {
 } KeyNames;
 
 extern KeyNames key_names[];
-extern std::map<char, KeySym> XShiftRequiredMap;
-extern std::map<char, KeySym> XSpecialCharacterMap;
+extern std::map<char, KeySym> xShiftRequiredMap;
+extern std::map<char, KeySym> xSpecialCharacterMap;

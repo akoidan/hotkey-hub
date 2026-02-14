@@ -43,7 +43,7 @@ static std::condition_variable g_mainCV; // For main thread to wait for results
 static RegistrationRequest *g_currentRequest = nullptr;
 
 // Window procedure
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+LRESULT CALLBACK windowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
   if (uMsg == WM_HOTKEY) {
     LOG_THREAD("Hotkey pressed! ID: " + std::to_string(wParam));
     auto it = g_callbacks.find(wParam);
@@ -58,13 +58,13 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
   return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
-void PrinterThread() {
+void printerThread() {
   LOG_THREAD("Starting hotkey capturing N-API thread...");
 
   // Register window class
   const wchar_t CLASS_NAME[] = L"HotkeyTest";
   WNDCLASSW wc = {};
-  wc.lpfnWndProc = WindowProc;
+  wc.lpfnWndProc = windowProc;
   wc.hInstance = GetModuleHandle(NULL);
   wc.lpszClassName = CLASS_NAME;
 
@@ -175,11 +175,11 @@ void PrinterThread() {
 }
 
 // Register hotkey
-Napi::Value RegisterHotkey(const Napi::CallbackInfo &info) {
+Napi::Value registerHotkey(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
   if (!g_threadRunning) {
     g_threadRunning = true;
-    g_printerThread = new std::thread(PrinterThread);
+    g_printerThread = new std::thread(printerThread);
   }
 
   int waiter = 0;
@@ -281,7 +281,7 @@ Napi::Value RegisterHotkey(const Napi::CallbackInfo &info) {
 }
 
 // Unregister hotkey
-Napi::Value UnregisterHotkey(const Napi::CallbackInfo &info) {
+Napi::Value unregisterHotkey(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
   LOG_MAIN("UnregisterHotkey called");
 
@@ -315,7 +315,7 @@ Napi::Value UnregisterHotkey(const Napi::CallbackInfo &info) {
 }
 
 // Cleanup
-Napi::Value CleanupHotkeys(const Napi::CallbackInfo &info) {
+Napi::Value cleanupHotkeys(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
   LOG_MAIN("CleanupHotkeys called");
 
@@ -346,10 +346,10 @@ void SetLoggerLevel(const Napi::CallbackInfo &info) {
 }
 
 // Initialize module
-Napi::Object hotkey_init(Napi::Env env, Napi::Object exports) {
-  exports.Set("registerHotkey", Napi::Function::New(env, RegisterHotkey));
-  exports.Set("unregisterHotkey", Napi::Function::New(env, UnregisterHotkey));
-  exports.Set("cleanupHotkeys", Napi::Function::New(env, CleanupHotkeys));
+Napi::Object init(Napi::Env env, Napi::Object exports) {
+  exports.Set("registerHotkey", Napi::Function::New(env, registerHotkey));
+  exports.Set("unregisterHotkey", Napi::Function::New(env, unregisterHotkey));
+  exports.Set("cleanupHotkeys", Napi::Function::New(env, cleanupHotkeys));
   exports.Set("setLoggerLevel", Napi::Function::New(env, SetLoggerLevel));
   return exports;
 }

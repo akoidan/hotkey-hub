@@ -3,7 +3,7 @@
 
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
   // Initialize hotkey manager
-  hotkey_init(env, exports);
+  init(env, exports);
 
   return exports;
 }
