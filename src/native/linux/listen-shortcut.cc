@@ -2,6 +2,7 @@
 #include "./headers/key-names.h"
 #include "./headers/modifier-names.h"
 #include "./headers/validators.h"
+#include "./headers/logger.h"
 #include <napi.h>
 #include <thread>
 #include <atomic>

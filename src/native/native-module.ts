@@ -14,7 +14,7 @@ import {LOG_LEVEL} from '@/app/app-model';
     Logger,
     {
       provide: Native,
-      useFactory: async (): Promise<INativeModule> => {
+      useFactory: async(): Promise<INativeModule> => {
         if (isSea()) {
           const tmp = await mkdtemp(join(tmpdir(), 'sea-'));
           const pathOnDisk = join(tmp, 'native.node');
