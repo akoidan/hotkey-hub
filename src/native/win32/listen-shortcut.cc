@@ -176,6 +176,11 @@ void PrinterThread() {
 
 // Register hotkey
 Napi::Value RegisterHotkey(const Napi::CallbackInfo &info) {
+  if (!g_threadRunning) {
+    g_threadRunning = true;
+    g_printerThread = new std::thread(PrinterThread);
+  }
+
   Napi::Env env = info.Env();
   LOG_MAIN("RegisterHotkey called");
 
@@ -343,10 +348,6 @@ void SetLoggerLevel(const Napi::CallbackInfo &info) {
 
 // Initialize module
 Napi::Object hotkey_init(Napi::Env env, Napi::Object exports) {
-  // Start the thread
-  g_threadRunning = true;
-  g_printerThread = new std::thread(PrinterThread);
-
   exports.Set("registerHotkey", Napi::Function::New(env, RegisterHotkey));
   exports.Set("unregisterHotkey", Napi::Function::New(env, UnregisterHotkey));
   exports.Set("cleanupHotkeys", Napi::Function::New(env, CleanupHotkeys));

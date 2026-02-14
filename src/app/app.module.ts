@@ -28,7 +28,7 @@ export class AppModule implements OnModuleInit {
     return {
       module: AppModule,
       global: true,
-      exports: [CERT_DIR, VARIABLES_FILE, CONFIG_FILE],
+      exports: [CERT_DIR, VARIABLES_FILE, CONFIG_FILE, LOG_LEVEL],
       providers: [
         {provide: LOG_LEVEL, useValue: args.logLevel},
         {provide: CERT_DIR, useValue: args.certDir},
