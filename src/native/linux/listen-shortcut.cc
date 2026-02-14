@@ -158,7 +158,7 @@ Napi::Value registerHotkey(const Napi::CallbackInfo &info) {
   return Napi::Number::New(env, hotkeyId);
 }
 
-Napi::Value unregisterHotkey(const Napi::CallbackInfo &info) {
+void unregisterHotkey(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
 
   GET_INT_32(info, 0, hotkeyId);
@@ -179,11 +179,9 @@ Napi::Value unregisterHotkey(const Napi::CallbackInfo &info) {
 
     hotkeyContexts.erase(it);
   }
-
-  return env.Undefined();
 }
 
-Napi::Value cleanupHotkeys(const Napi::CallbackInfo &info) {
+void cleanupHotkeys(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
 
   for (auto &pair: hotkeyContexts) {
@@ -201,7 +199,6 @@ Napi::Value cleanupHotkeys(const Napi::CallbackInfo &info) {
   }
 
   hotkeyContexts.clear();
-  return env.Undefined();
 }
 
 void setLoggerLevel(const Napi::CallbackInfo &info) {
