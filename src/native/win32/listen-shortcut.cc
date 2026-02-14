@@ -30,24 +30,24 @@ struct RegistrationRequest {
   std::string errorMessage; // Added field for error message
 };
 
-static std::thread *g_printerThread = nullptr;
-static std::atomic<bool> g_threadRunning{false};
-static std::atomic<int> g_nextHotkeyId{1};
-static std::map<int, Napi::ThreadSafeFunction> g_callbacks;
-static HWND g_hwnd = NULL;
+static std::thread *gPrinterThread = nullptr;
+static std::atomic<bool> gThreadRunning{false};
+static std::atomic<int> gNextHotkeyId{1};
+static std::map<int, Napi::ThreadSafeFunction> gCallbacks;
+static HWND gHwnd = NULL;
 
 // Synchronization
-static std::mutex g_mutex;
-static std::condition_variable g_printerCV; // For printer thread to wait for requests
-static std::condition_variable g_mainCV; // For main thread to wait for results
-static RegistrationRequest *g_currentRequest = nullptr;
+static std::mutex gMutex;
+static std::condition_variable gPrinterCV; // For printer thread to wait for requests
+static std::condition_variable gMainCV; // For main thread to wait for results
+static RegistrationRequest *gCurrentRequest = nullptr;
 
 // Window procedure
 LRESULT CALLBACK windowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
   if (uMsg == WM_HOTKEY) {
     LOG_THREAD("Hotkey pressed! ID: " + std::to_string(wParam));
-    auto it = g_callbacks.find(wParam);
-    if (it != g_callbacks.end()) {
+    auto it = gCallbacks.find(wParam);
+    if (it != gCallbacks.end()) {
       auto callback = [wParam](Napi::Env env, Napi::Function jsCallback) {
         jsCallback.Call({Napi::Number::New(env, wParam)});
       };
@@ -91,16 +91,16 @@ void printerThread() {
     return;
   }
 
-  g_hwnd = hwnd;
+  gHwnd = hwnd;
   LOG_THREAD("Window created: " << std::hex << hwnd << std::dec);
 
   // Message loop with registration handling
   MSG msg = {};
-  while (g_threadRunning) {
+  while (gThreadRunning) {
     // Wait for registration request or messages
     {
-      std::unique_lock<std::mutex> lock(g_mutex);
-      while (!g_currentRequest && g_threadRunning) {
+      std::unique_lock<std::mutex> lock(gMutex);
+      while (!gCurrentRequest && gThreadRunning) {
         // Process any pending messages while waiting
         while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
           TranslateMessage(&msg);
@@ -108,82 +108,82 @@ void printerThread() {
         }
 
         // Wait with timeout to allow message processing
-        g_printerCV.wait_for(lock, std::chrono::milliseconds(100));
+        gPrinterCV.wait_for(lock, std::chrono::milliseconds(100));
       }
 
-      if (!g_threadRunning) break;
+      if (!gThreadRunning) break;
 
       // Process request
-      if (g_currentRequest) {
+      if (gCurrentRequest) {
         bool success = false;
-        if (g_currentRequest->type == Register) {
+        if (gCurrentRequest->type == Register) {
           LOG_THREAD("Processing registration - modifiers: 0x" << std::hex
-            << g_currentRequest->modifiers << ", vk: 0x" << g_currentRequest->vk
+            << gCurrentRequest->modifiers << ", vk: 0x" << gCurrentRequest->vk
             << std::dec);
 
-          int hotkeyId = g_nextHotkeyId++;
-          success = RegisterHotKey(hwnd, hotkeyId, g_currentRequest->modifiers, g_currentRequest->vk);
+          int hotkeyId = gNextHotkeyId++;
+          success = RegisterHotKey(hwnd, hotkeyId, gCurrentRequest->modifiers, gCurrentRequest->vk);
 
           if (!success) {
             DWORD error = GetLastError();
             if (error == ERROR_HOTKEY_ALREADY_REGISTERED) {
-              g_currentRequest->errorMessage = "Hotkey is already registered by another application";
+              gCurrentRequest->errorMessage = "Hotkey is already registered by another application";
             } else {
-              g_currentRequest->errorMessage =
+              gCurrentRequest->errorMessage =
                   "Failed to register hotkey. Error code: " + std::to_string(error);
             }
-            LOG_THREAD(g_currentRequest->errorMessage);
+            LOG_THREAD(gCurrentRequest->errorMessage);
           } else {
             LOG_THREAD("Hotkey " << hotkeyId << " registered successfully");
-            g_callbacks[hotkeyId] = std::move(g_currentRequest->callback);
-            g_currentRequest->hotkeyId = hotkeyId;
+            gCallbacks[hotkeyId] = std::move(gCurrentRequest->callback);
+            gCurrentRequest->hotkeyId = hotkeyId;
           }
-        } else if (g_currentRequest->type == Unregister) {
-          int hotkeyId = g_currentRequest->hotkeyId;
+        } else if (gCurrentRequest->type == Unregister) {
+          int hotkeyId = gCurrentRequest->hotkeyId;
           LOG_THREAD("Unregistering hotkey " << hotkeyId);
           success = UnregisterHotKey(hwnd, hotkeyId);
           if (!success) {
             DWORD error = GetLastError();
-            g_currentRequest->errorMessage =
+            gCurrentRequest->errorMessage =
                 "Failed to unregister hotkey. Error code: " + std::to_string(error);
-            LOG_THREAD(g_currentRequest->errorMessage);
+            LOG_THREAD(gCurrentRequest->errorMessage);
           } else {
             LOG_THREAD("Successfully unregistered hotkey " << hotkeyId);
           }
         }
 
         // Store result
-        g_currentRequest->success = success;
-        g_currentRequest->pending = false;
+        gCurrentRequest->success = success;
+        gCurrentRequest->pending = false;
 
         // Notify main thread
-        g_mainCV.notify_one();
+        gMainCV.notify_one();
 
         // Clear current request
-        g_currentRequest = nullptr;
+        gCurrentRequest = nullptr;
       }
     }
   }
 
   // Cleanup
-  for (const auto &pair: g_callbacks) {
+  for (const auto &pair: gCallbacks) {
     UnregisterHotKey(hwnd, pair.first);
   }
   DestroyWindow(hwnd);
   UnregisterClassW(CLASS_NAME, GetModuleHandle(NULL));
-  g_hwnd = NULL;
+  gHwnd = NULL;
 }
 
 // Register hotkey
 Napi::Value registerHotkey(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
-  if (!g_threadRunning) {
-    g_threadRunning = true;
-    g_printerThread = new std::thread(printerThread);
+  if (!gThreadRunning) {
+    gThreadRunning = true;
+    gPrinterThread = new std::thread(printerThread);
   }
 
   int waiter = 0;
-  while (!g_hwnd) {
+  while (!gHwnd) {
     waiter++;
     if (waiter >= 300) {
        throw Napi::TypeError::New(env, "Failed to create hotkey capturing window for over 3seconds");
@@ -249,22 +249,22 @@ Napi::Value registerHotkey(const Napi::CallbackInfo &info) {
   std::string errorMessage;
   // Send request to printer thread and wait for result
   {
-    std::unique_lock<std::mutex> lock(g_mutex);
+    std::unique_lock<std::mutex> lock(gMutex);
 
     // Check if printer thread is running
-    if (!g_threadRunning || !g_hwnd) {
+    if (!gThreadRunning || !gHwnd) {
       errorMessage = "Hotkey registration system is not initialized";
       request.callback.Release();
       throw Napi::Error::New(env, errorMessage);
     }
 
-    g_currentRequest = &request;
-    g_printerCV.notify_one();
+    gCurrentRequest = &request;
+    gPrinterCV.notify_one();
 
     // Wait for result with timeout
-    if (!g_mainCV.wait_for(lock, std::chrono::seconds(5), [&request]() { return !request.pending; })) {
+    if (!gMainCV.wait_for(lock, std::chrono::seconds(5), [&request]() { return !request.pending; })) {
       // Timeout occurred
-      g_currentRequest = nullptr; // Clear the request
+      gCurrentRequest = nullptr; // Clear the request
       request.callback.Release();
       errorMessage = "Hotkey registration timed out";
       throw Napi::Error::New(env, errorMessage);
@@ -291,23 +291,23 @@ Napi::Value unregisterHotkey(const Napi::CallbackInfo &info) {
 
   int hotkeyId = info[0].As<Napi::Number>().Int32Value();
 
-  std::unique_lock<std::mutex> lock(g_mutex);
-  auto it = g_callbacks.find(hotkeyId);
-  if (it != g_callbacks.end()) {
+  std::unique_lock<std::mutex> lock(gMutex);
+  auto it = gCallbacks.find(hotkeyId);
+  if (it != gCallbacks.end()) {
     // Move callback out first
     auto callback = std::move(it->second);
-    g_callbacks.erase(it);
+    gCallbacks.erase(it);
 
     // Send unregister request
     RegistrationRequest request;
     request.type = Unregister;
     request.hotkeyId = hotkeyId;
     request.pending = true;
-    g_currentRequest = &request;
-    g_printerCV.notify_one();
+    gCurrentRequest = &request;
+    gPrinterCV.notify_one();
 
     // Wait for completion
-    g_mainCV.wait_for(lock, std::chrono::seconds(5));
+    gMainCV.wait_for(lock, std::chrono::seconds(5));
     callback.Release();
   }
 
@@ -319,18 +319,18 @@ Napi::Value cleanupHotkeys(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
   LOG_MAIN("CleanupHotkeys called");
 
-  if (g_printerThread) {
-    g_threadRunning = false;
-    g_printerCV.notify_one(); // Wake up thread if it's waiting
-    g_printerThread->join();
-    delete g_printerThread;
-    g_printerThread = nullptr;
+  if (gPrinterThread) {
+    gThreadRunning = false;
+    gPrinterCV.notify_one(); // Wake up thread if it's waiting
+    gPrinterThread->join();
+    delete gPrinterThread;
+    gPrinterThread = nullptr;
 
     // Release all callbacks
-    for (auto &pair: g_callbacks) {
+    for (auto &pair: gCallbacks) {
       pair.second.Release();
     }
-    g_callbacks.clear();
+    gCallbacks.clear();
   }
 
   return env.Undefined();
