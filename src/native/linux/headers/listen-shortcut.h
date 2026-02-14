@@ -3,4 +3,4 @@
 #include <napi.h>
 
 // Initialize hotkey functionality and register Node.js functions
-Napi::Object init(Napi::Env env, Napi::Object exports);
+Napi::Object initListenShortcut(Napi::Env env, Napi::Object exports);

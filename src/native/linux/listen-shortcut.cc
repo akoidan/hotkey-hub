@@ -218,7 +218,7 @@ Napi::Value cleanupHotkeys(const Napi::CallbackInfo &info) {
   return env.Undefined();
 }
 
-void SetLoggerLevel(const Napi::CallbackInfo &info) {
+void setLoggerLevel(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
 
   if (info.Length() < 1 || !info[0].IsBoolean()) {
@@ -227,10 +227,10 @@ void SetLoggerLevel(const Napi::CallbackInfo &info) {
   logDebug = info[0].As<Napi::Boolean>().Value();
 }
 
-Napi::Object init(Napi::Env env, Napi::Object exports) {
+Napi::Object initListenShortcut(Napi::Env env, Napi::Object exports) {
   exports.Set("registerHotkey", Napi::Function::New(env, registerHotkey));
   exports.Set("unregisterHotkey", Napi::Function::New(env, unregisterHotkey));
   exports.Set("cleanupHotkeys", Napi::Function::New(env, cleanupHotkeys));
-  exports.Set("setLoggerLevel", Napi::Function::New(env, SetLoggerLevel));
+  exports.Set("setLoggerLevel", Napi::Function::New(env, setLoggerLevel));
   return exports;
 }
