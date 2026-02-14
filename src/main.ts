@@ -51,6 +51,7 @@ asyncLocalStorage.run(new Map<string, string>().set(SemaphorService.COMB_KEY, 'i
           logger: customLogger,
         }
       );
+      customLogger.log(`Init finised`);
     }
   })().catch((err: unknown) => {
     customLogger.fatal(err as (string | Error), (err as Error)?.stack);

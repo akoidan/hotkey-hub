@@ -19,6 +19,11 @@ interface HotkeyNativeModule {
    */
   cleanupHotkeys(): void;
 
+  /**
+   * Sets whether to print statements from C code
+   */
+  setLoggerLevel(showDebug: boolean): void;
+
   // loaded by nodejs
   path: string;
 }

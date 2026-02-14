@@ -1,4 +1,4 @@
-import {Inject, Logger, Module, OnModuleInit} from '@nestjs/common';
+import {Inject, Logger, LogLevel, Module, OnModuleInit} from '@nestjs/common';
 import {INativeModule, Native} from '@/native/native-model';
 import clc from 'cli-color';
 import {getAsset, isSea} from 'node:sea';
@@ -7,13 +7,14 @@ import {join} from 'node:path';
 
 import {createRequire} from 'node:module';
 import {writeFile, mkdtemp} from 'node:fs/promises';
+import {LOG_LEVEL} from '@/app/app-model';
 
 @Module({
   providers: [
     Logger,
     {
       provide: Native,
-      useFactory: async(): Promise<INativeModule> => {
+      useFactory: async (): Promise<INativeModule> => {
         if (isSea()) {
           const tmp = await mkdtemp(join(tmpdir(), 'sea-'));
           const pathOnDisk = join(tmp, 'native.node');
@@ -31,15 +32,18 @@ import {writeFile, mkdtemp} from 'node:fs/promises';
   ],
   exports: [Native],
 })
-export class NativeModule implements OnModuleInit{
+export class NativeModule implements OnModuleInit {
   constructor(
     private readonly logger: Logger,
     @Inject(Native)
-    private readonly native: INativeModule
+    private readonly native: INativeModule,
+    @Inject(LOG_LEVEL)
+    private readonly logLevel: LogLevel
   ) {
   }
 
   onModuleInit(): any {
+    this.native.setLoggerLevel(this.logLevel !== 'log');
     this.logger.log(`Loaded native library from ${clc.bold.green(this.native.path)}`);
   }
 }
