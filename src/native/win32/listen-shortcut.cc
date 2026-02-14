@@ -280,10 +280,6 @@ void unregisterHotkey(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
   LOG_MAIN("UnregisterHotkey called");
 
-  if (info.Length() < 1 || !info[0].IsNumber()) {
-    throw Napi::TypeError::New(env, "Wrong arguments");
-  }
-
   GET_INT_32(info, 0, hotkeyId);
 
   std::unique_lock<std::mutex> lock(gMutex);
