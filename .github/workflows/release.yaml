@@ -165,6 +165,7 @@ jobs:
           VERSION=$(jq -r '.version' package.json)
           if [[ "$VERSION" == *"-"* ]]; then
             echo "IS_RELEASE=false" >> $GITHUB_ENV
+            echo "Ommiting releasing beta/alpha version to AUR"
           else
             echo "IS_RELEASE=true" >> $GITHUB_ENV
           fi
