@@ -70,7 +70,10 @@ export class SemaphorService {
     return result.value;
   }
 
-  public finishTransaction(transactionGroup: string, transactionId: string): void {
+  public finishTransaction(transactionGroup: string, transactionId: string|null): void {
+    if (!transactionId) {
+      return;
+    }
     this.logger.debug(`Finishing transactions on ${transactionGroup}: ${transactionId}`);
     const currentState = this.transactionGroups[transactionGroup];
     if (currentState[0].transactionId !== transactionId) {
@@ -87,7 +90,10 @@ export class SemaphorService {
     return Math.random().toString(36).substring(2, 5);
   }
 
-  public async startTransaction(trasactionGroup: string, transactionId: string): Promise<void> {
+  public async startTransaction(trasactionGroup: string, transactionId: string |null): Promise<void> {
+    if (!transactionId) {
+      return;
+    }
     let currentState = this.transactionGroups[trasactionGroup];
     if (!currentState) {
       // eslint-disable-next-line no-multi-assign

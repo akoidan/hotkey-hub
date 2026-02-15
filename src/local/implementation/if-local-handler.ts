@@ -23,7 +23,7 @@ export class IfLocalHandler extends BaseLocalHandler {
   async* execute(
     cmd: IfLocalCommand, combDelayAfter: undefined | number,
     combDelayBefore: undefined | number,
-    tId: string | undefined,
+    tId: string | undefined |null,
   ): AsyncGenerator<void> {
     const ifResult = Boolean(this.evaluateService.evaluateExpression(cmd.if));
     const that = this;

@@ -37,7 +37,7 @@ export class VariableResolutionService {
   }
 
   private extractVariableName(variable: unknown): { varName: string|undefined, varExpress: string|undefined} {
-    if (typeof variable === 'object' && (variable as VariableValue).$ref) {
+    if (variable && (variable as VariableValue).$ref) {
       return this.extratVarNameInner((variable as VariableValue).$ref);
     }
     return  {varName: undefined, varExpress: undefined} ;

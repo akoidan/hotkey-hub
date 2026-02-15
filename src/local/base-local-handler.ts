@@ -18,14 +18,14 @@ export abstract class BaseLocalHandler {
     input: UnknownCommand,
     combDelayAfter: undefined | number,
     combDelayBefore: undefined | number,
-    tId: string | undefined,
+    tId: string | undefined |null,
   ): AsyncGenerator<void>
 
   public async *handle(
     input: UnknownCommand,
     combDelayAfter: undefined | number,
     combDelayBefore: undefined | number,
-    tId: string | undefined,
+    tId: string | undefined |null,
   ): AsyncGenerator<void> {
     if (this.canHandle(input)) {
       yield *this.execute(input, combDelayAfter, combDelayBefore, tId);

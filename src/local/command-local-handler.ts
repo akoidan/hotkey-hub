@@ -27,11 +27,11 @@ export class CommandLocalHandler extends BaseLocalHandler {
     input: RemoteCommand,
     combDelayAfter: undefined | number,
     combDelayBefore: undefined | number,
-    tId: string | undefined,
+    tId: string | undefined|null,
   ): AsyncGenerator<void> {
     const currRec: RemoteCommand = this.variableService.replaceVariables(input);
     this.logger.debug(`Running ${JSON.stringify(input)}`);
-    if (tId) {
+    if (tId !== undefined) { // eslint-disable-line no-negated-condition
       await this.delayService.awaitDelay(combDelayBefore, input.delayBefore as number | undefined, 'before', 'command');
       await this.comandHandler.handle(currRec.destination as string, currRec);
       await this.delayService.awaitDelay(combDelayAfter, input.delayAfter as number | undefined, 'after', 'command');

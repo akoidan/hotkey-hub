@@ -20,7 +20,12 @@ export class LoopLocalHandler extends BaseLocalHandler {
     return Boolean((command as LoopLocalCommand).loop);
   }
 
-  async* execute(comb: LoopLocalCommand): AsyncGenerator<void> {
+  async* execute(
+    comb: LoopLocalCommand,
+    combDelayAfter: undefined | number,
+    combDelayBefore: undefined | number,
+    tId: string | undefined |null,
+  ): AsyncGenerator<void> {
     let i = 0;
     const that = this;
     while (true) {
@@ -40,12 +45,13 @@ export class LoopLocalHandler extends BaseLocalHandler {
       } else {
         this.logger.debug(`Running ${clc.yellow(i + 1)} iteration`);
       }
-      const j = i;
+      let j = 0;
       yield* this.sempahoreService.spawnGeneratorChild(`l=${String(i)}`, async function* loopGenerator(): AsyncGenerator<void> {
         for (const command of comb.commands!) {
           yield* that.sempahoreService.spawnGeneratorChild(`c=${String(j)}`, async function* commandGenerator(): AsyncGenerator<void> {
-            yield* that.startChain.handle(command, undefined, undefined, undefined);
+            yield* that.startChain.handle(command, undefined, undefined, tId);
           });
+          j++;
         }
       });
       i++;

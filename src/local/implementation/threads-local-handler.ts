@@ -46,7 +46,7 @@ export class ThreadsLocalHandler extends BaseLocalHandler {
     comb: ThreadsLocalCommand,
     combDelayAfter: number | undefined,
     combDelayBefore: number | undefined,
-    transactionId: string | undefined,
+    tId: string | undefined |null,
   ): AsyncGenerator<void> {
     const that = this;
     yield* this.mergeAsyncGenerators(
@@ -56,7 +56,7 @@ export class ThreadsLocalHandler extends BaseLocalHandler {
           async function* threadGenerator(): AsyncGenerator<void> {
             for (let j = 0; j < receiver.commands.length; j++) {
               yield* that.semaphoreService.spawnGeneratorChild(`c=${String(j)}`, async function* loopGenerator(): AsyncGenerator<void> {
-                yield* that.startChain.handle(receiver.commands[j], undefined, undefined, transactionId);
+                yield* that.startChain.handle(receiver.commands[j], undefined, undefined, tId);
               });
             }
           }

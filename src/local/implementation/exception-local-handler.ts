@@ -21,7 +21,7 @@ export class ExceptionLocalHandler extends BaseLocalHandler {
     cmd: ExceptionLocalCommand,
     combDelayAfter: undefined | number,
     combDelayBefore: undefined | number,
-    tId: string | undefined,
+    tId: string | undefined |null,
   ): AsyncGenerator<void> {
     const that = this;
     try {

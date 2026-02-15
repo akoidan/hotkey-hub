@@ -42,7 +42,7 @@ export class ShuffleLocalHandler extends BaseLocalHandler {
     comb: ShuffleLocalCommand,
     combDelayAfter: undefined | number,
     combDelayBefore: undefined | number,
-    tId: string | undefined,
+    tId: string | undefined |null,
   ): AsyncGenerator<void> {
     let array = comb.commands;
     if (comb.shuffle === ShufflePolicy.random) {

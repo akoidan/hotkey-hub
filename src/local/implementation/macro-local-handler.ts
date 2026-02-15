@@ -27,7 +27,7 @@ export class MacroLocalHandler extends BaseLocalHandler {
     input: MacroLocalCommand,
     combDelayAfter: number | undefined,
     combDelayBefore: number | undefined,
-    tId: string | undefined,
+    tId: string | undefined |null,
   ): AsyncGenerator<void> {
     const executable = this.configService.getMacros()[input.macro];
     if (!executable) {
