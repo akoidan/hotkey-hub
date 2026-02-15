@@ -6,10 +6,10 @@ const exceptionLocalCommandSchema = z.lazy(() => z.object({
     .describe('Commands to execute if the condition is true'),
   catch: z.array(unknownCommandSchema)
     .optional()
-    .describe('Execute this commands on catch block. If catch is omited, commands in the first block will fail silently'),
+    .describe('Execute this commands on catch block. If catch is omited, commands in the try block will fail silently'),
   finally: z.array(unknownCommandSchema)
     .optional()
-    .describe('Execute this command after try fails or succeed'),
+    .describe('Execute this command after try block, whether it fails/succeed'),
 }).strict()).describe('Allows to execute statements in try block and fail silently' +
   ' by keeping next commands after this command executing') as any as ZodType<{
   try: UnknownCommand[],
