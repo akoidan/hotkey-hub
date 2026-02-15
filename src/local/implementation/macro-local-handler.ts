@@ -7,6 +7,7 @@ import {MacroLocalCommand} from '@/config/types/local/local-commands';
 import {UnknownCommand} from '@/config/types/commands';
 import {Delay} from '@/config/types/remote/base-remote-command';
 import {SemaphorService} from '@/semaphor/semaphor-service';
+import {QueueItem} from '@/generator/generator-model';
 
 @Injectable()
 export class MacroLocalHandler extends BaseLocalHandler {
@@ -28,7 +29,7 @@ export class MacroLocalHandler extends BaseLocalHandler {
     combDelayAfter: number | undefined,
     combDelayBefore: number | undefined,
     tId: string | undefined |null,
-  ): AsyncGenerator<number> {
+  ): AsyncGenerator<QueueItem> {
     const executable = this.configService.getMacros()[input.macro];
     if (!executable) {
       throw new Error(`Macro ${input.macro} not found.`);
@@ -36,14 +37,14 @@ export class MacroLocalHandler extends BaseLocalHandler {
     const that = this;
     yield* that.semaphoreService.spawnGeneratorChild(
       `m=${input.macro}`,
-      async function* macroGenerator(): AsyncGenerator<number> {
+      async function* macroGenerator(): AsyncGenerator<QueueItem> {
         if (typeof input.delayBefore === 'number') { // ignore if it's a variable or undefined
           // if it's a macro, delay in this macro won't be passed down
           // but would be await after any commands in this macro has run yet as expected, this is why on top we are not passing it
           yield *that.delayService.awaitDelay(input.delayBefore as number, undefined, 'before', 'macro');
         }
         for (let i = 0; i < executable.commands.length; i++) {
-          yield* that.semaphoreService.spawnGeneratorChild(`c=${String(i)}`, async function* loopGenerator(): AsyncGenerator<number> {
+          yield* that.semaphoreService.spawnGeneratorChild(`c=${String(i)}`, async function* loopGenerator(): AsyncGenerator<QueueItem> {
             const preparedCommand = that.variableService.replaceMacroVariables(
               executable.commands[i],
               input.variables,

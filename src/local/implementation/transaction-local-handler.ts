@@ -6,6 +6,7 @@ import {VariableResolutionService} from '@/local/variable-resolution.service';
 import {TransactionLocalCommand} from '@/config/types/local/local-commands';
 import {UnknownCommand} from '@/config/types/commands';
 import {Delay} from '@/config/types/remote/base-remote-command';
+import {QueueItem} from '@/generator/generator-model';
 
 @Injectable()
 export class TransactionLocalHandler extends BaseLocalHandler {
@@ -28,7 +29,7 @@ export class TransactionLocalHandler extends BaseLocalHandler {
     combDelayAfter: number | undefined,
     combDelayBefore: number | undefined,
     transactionId: string | undefined |null,
-  ): AsyncGenerator<number> {
+  ): AsyncGenerator<QueueItem> {
     const preparedInput = this.variableService.replaceVariables(input);
     if (preparedInput.transaction === null) {
       yield *this.runCommandsGenerator(preparedInput, null, combDelayBefore, combDelayAfter);
@@ -56,7 +57,7 @@ export class TransactionLocalHandler extends BaseLocalHandler {
     tId: string | undefined | null,
     combDelayAfter: number | undefined,
     combDelayBefore: number | undefined
-  ): AsyncGenerator<number> {
+  ): AsyncGenerator<QueueItem> {
     if (typeof (preparedInput as Delay).delayBefore === 'number') { // ignore if it's a variable or undefined
       // if it's a macro, delay in this macro won't be passed down
       // but would be await after any commands in this macro has run yet as expected, this is why on top we are not passing it
@@ -68,7 +69,7 @@ export class TransactionLocalHandler extends BaseLocalHandler {
       const delayB = ((preparedInput as Delay).delayBefore as number | undefined) ?? combDelayBefore;
       yield *this.semaphoreService.spawnGeneratorChild(
         `c=${String(i)}`,
-        async function* loopGenerator(): AsyncGenerator<number> { // we shouldn't unpack generator here, so transaction can be finished not paused in the middle to avoid deadlock
+        async function* loopGenerator(): AsyncGenerator<QueueItem> { // we shouldn't unpack generator here, so transaction can be finished not paused in the middle to avoid deadlock
           yield* that.startChain.handle(preparedInput.commands[i], delayA, delayB, tId);
         }
       );
@@ -86,7 +87,7 @@ export class TransactionLocalHandler extends BaseLocalHandler {
     tId: string | undefined | null,
     combDelayAfter: number | undefined,
     combDelayBefore: number | undefined
-  ): AsyncGenerator<number> {
+  ): AsyncGenerator<QueueItem> {
     if (typeof (preparedInput as Delay).delayBefore === 'number') { // ignore if it's a variable or undefined
       // if it's a macro, delay in this macro won't be passed down
       // but would be await after any commands in this macro has run yet as expected, this is why on top we are not passing it
@@ -98,7 +99,7 @@ export class TransactionLocalHandler extends BaseLocalHandler {
       const delayB = ((preparedInput as Delay).delayBefore as number | undefined) ?? combDelayBefore;
       const transactionGenerator = this.semaphoreService.spawnGeneratorChild(
         `c=${String(i)}`,
-        async function* loopGenerator(): AsyncGenerator<number> { // we shouldn't unpack generator here, so transaction can be finished not paused in the middle to avoid deadlock
+        async function* loopGenerator(): AsyncGenerator<QueueItem> { // we shouldn't unpack generator here, so transaction can be finished not paused in the middle to avoid deadlock
           yield* that.startChain.handle(preparedInput.commands[i], delayA, delayB, tId);
         }
       );

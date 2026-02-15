@@ -4,6 +4,7 @@ import {PrintLocalCommand} from '@/config/types/local/local-commands';
 import {UnknownCommand} from '@/config/types/commands';
 import {EvaluateService} from '@/local/evaluate-serivce';
 import clc from 'cli-color';
+import {QueueItem} from '@/generator/generator-model';
 
 @Injectable()
 export class PrintLocalHandler extends BaseLocalHandler {
@@ -19,7 +20,7 @@ export class PrintLocalHandler extends BaseLocalHandler {
   }
 
   // eslint-disable-next-line require-yield,@typescript-eslint/require-await
-  async* execute(comb: PrintLocalCommand): AsyncGenerator<number> {
+  async* execute(comb: PrintLocalCommand): AsyncGenerator<QueueItem> {
     const result: unknown = this.evaluateService.evaluateExpression(comb.print);
     this.logger.log(`${clc.yellow(comb.print)}=${clc.bold.green(result)}`);
     yield 0;

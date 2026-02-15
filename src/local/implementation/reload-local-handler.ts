@@ -4,6 +4,7 @@ import {ReloadConfigLocalCommand} from '@/config/types/local/local-commands';
 import {UnknownCommand} from '@/config/types/commands';
 import {ConfigPath, ConfigPathClass} from '@/config/types/config-path';
 import {KeybindingService} from '@/local/keybinding-service';
+import {QueueItem} from '@/generator/generator-model';
 
 @Injectable()
 export class ReloadLocalHandler extends BaseLocalHandler {
@@ -28,7 +29,7 @@ export class ReloadLocalHandler extends BaseLocalHandler {
 
   public async* execute(
     input: ReloadConfigLocalCommand,
-  ): AsyncGenerator<number> {
+  ): AsyncGenerator<QueueItem> {
     if (!this.keyBindingService) {
       throw Error('Module not loaded, keybinding service required');
     }

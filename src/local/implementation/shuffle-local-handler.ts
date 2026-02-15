@@ -3,6 +3,7 @@ import {BaseLocalHandler} from '@/local/base-local-handler';
 import {ShuffleLocalCommand, ShufflePolicy} from '@/config/types/local/local-commands';
 import {UnknownCommand} from '@/config/types/commands';
 import {SemaphorService} from '@/semaphor/semaphor-service';
+import {QueueItem} from '@/generator/generator-model';
 
 @Injectable()
 export class ShuffleLocalHandler extends BaseLocalHandler {
@@ -43,7 +44,7 @@ export class ShuffleLocalHandler extends BaseLocalHandler {
     combDelayAfter: undefined | number,
     combDelayBefore: undefined | number,
     tId: string | undefined |null,
-  ): AsyncGenerator<number> {
+  ): AsyncGenerator<QueueItem> {
     let array = comb.commands;
     if (comb.shuffle === ShufflePolicy.random) {
       array = this.shuffleArray(array);
@@ -59,7 +60,7 @@ export class ShuffleLocalHandler extends BaseLocalHandler {
       const index = comb.commands.indexOf(command);
       this.logger.debug(`Running ${index} iteration`);
       const that = this;
-      yield* this.sempahoreService.spawnGeneratorChild(`s=${String(index)}`, async function* loopGenerator(): AsyncGenerator<number> {
+      yield* this.sempahoreService.spawnGeneratorChild(`s=${String(index)}`, async function* loopGenerator(): AsyncGenerator<QueueItem> {
         yield* that.startChain.handle(command, undefined, undefined, tId);
       });
     }

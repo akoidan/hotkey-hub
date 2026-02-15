@@ -3,6 +3,7 @@ import {ASYNC_PROVIDER} from '@/asyncstore/async-storage-const';
 import {AsyncLocalStorage} from 'async_hooks';
 import {TransactionGroups} from '@/semaphor/semaphor-model';
 import clc from 'cli-color';
+import {QueueItem} from '@/generator/generator-model';
 
 @Injectable()
 export class SemaphorService {
@@ -37,7 +38,10 @@ export class SemaphorService {
     return this.asyncLocalStorage.getStore()!.get(SemaphorService.COMB_KEY) as string;
   }
 
-  public async* spawnGeneratorChild(i: string, cb: () => AsyncGenerator<number>, separator: string = '-'): AsyncGenerator<number> {
+  public async* spawnGeneratorChild(
+    i: string,
+    cb: () => AsyncGenerator<QueueItem>, separator: string = '-'
+  ): AsyncGenerator<QueueItem> {
     this.logger.debug('Spawning new req-id');
     const parentId = this.getCurrentOperationId();
     const newId = `${parentId}${separator}${i}`;
@@ -45,7 +49,7 @@ export class SemaphorService {
     newStorageMap.set(SemaphorService.COMB_KEY, newId);
 
     const gen = cb();
-    let result: IteratorResult<number, void>;
+    let result: IteratorResult<QueueItem, void>;
     do {
       // awaiting run here, so we would have asynlocalstorage context
       // otherwise e.g. with this yield *this.asyncLocalStorage.run(newStorageMap, cb)

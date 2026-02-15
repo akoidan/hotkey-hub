@@ -5,6 +5,7 @@ import {BaseLocalHandler} from '@/local/base-local-handler';
 import {GetInfoRemoteCommand} from '@/config/types/get-commands/get-commands';
 import {GetInfoHandler} from '@/get-info/get-info-handler';
 import {ConfigService} from '@/config/config-service';
+import {QueueItem} from '@/generator/generator-model';
 
 @Injectable()
 export class GetLocalHandler extends BaseLocalHandler {
@@ -21,7 +22,7 @@ export class GetLocalHandler extends BaseLocalHandler {
     return Boolean(command.get);
   }
 
-  public async* execute(input: GetInfoRemoteCommand): AsyncGenerator<number> {
+  public async* execute(input: GetInfoRemoteCommand): AsyncGenerator<QueueItem> {
     // ignore delays for Get commands, as they should not block/conflicts other commands like typeText
     const currRec: GetInfoRemoteCommand = this.variableService.replaceVariables(input);
     this.logger.debug(`Running ${JSON.stringify(currRec)}`);

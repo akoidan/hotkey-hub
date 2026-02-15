@@ -1,5 +1,6 @@
 import {Injectable} from '@nestjs/common';
 import {UnknownCommand} from '@/config/types/commands';
+import {QueueItem} from '@/generator/generator-model';
 
 @Injectable()
 export abstract class BaseLocalHandler {
@@ -19,14 +20,14 @@ export abstract class BaseLocalHandler {
     combDelayAfter: undefined | number,
     combDelayBefore: undefined | number,
     tId: string | undefined |null,
-  ): AsyncGenerator<number>
+  ): AsyncGenerator<QueueItem>
 
   public async *handle(
     input: UnknownCommand,
     combDelayAfter: undefined | number,
     combDelayBefore: undefined | number,
     tId: string | undefined |null,
-  ): AsyncGenerator<number> {
+  ): AsyncGenerator<QueueItem> {
     if (this.canHandle(input)) {
       yield *this.execute(input, combDelayAfter, combDelayBefore, tId);
     } else if (this.next) {

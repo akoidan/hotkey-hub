@@ -3,6 +3,7 @@ import {SemaphorService} from '@/semaphor/semaphor-service';
 import {BaseLocalHandler} from '@/local/base-local-handler';
 import {Thread, ThreadsLocalCommand} from '@/config/types/local/local-commands';
 import {UnknownCommand} from '@/config/types/commands';
+import {QueueItem} from '@/generator/generator-model';
 
 @Injectable()
 export class ThreadsLocalHandler extends BaseLocalHandler {
@@ -18,8 +19,8 @@ export class ThreadsLocalHandler extends BaseLocalHandler {
   }
 
 
-  async* mergeAsyncGenerators(gens: AsyncGenerator<number>[]): AsyncGenerator<number> {
-    const results = new Map<number, Promise<IteratorResult<number, void>>>();
+  async* mergeAsyncGenerators(gens: AsyncGenerator<QueueItem>[]): AsyncGenerator<QueueItem> {
+    const results = new Map<number, Promise<IteratorResult<QueueItem, void>>>();
 
     // Initialize all generators
     gens.forEach((gen, index) => {
@@ -29,14 +30,26 @@ export class ThreadsLocalHandler extends BaseLocalHandler {
     while (results.size > 0) {
       const [index, result] = await Promise.race(
         Array.from(results.entries()).map(
-          async([i, p]) => p.then(r => [i, r] as [number, IteratorResult<number, void>])
+          async([i, p]) => p.then(r => [i, r] as [number, IteratorResult<QueueItem, void>])
         )
       );
 
       if (result.done) {
         results.delete(index);
       } else {
-        yield result.value;
+        if (typeof result.value === 'number') {
+          yield {
+            sleep: result.value,
+            id: String(index),
+          };
+        } else if (result.value) {
+          yield {
+            sleep: result.value.sleep,
+            id: `${index}-${result.value.id}`,
+          };
+        } else {
+          throw Error('Unknown result value');
+        }
         results.set(index, gens[index].next());
       }
     }
@@ -46,18 +59,21 @@ export class ThreadsLocalHandler extends BaseLocalHandler {
     comb: ThreadsLocalCommand,
     combDelayAfter: number | undefined,
     combDelayBefore: number | undefined,
-    tId: string | undefined |null,
-  ): AsyncGenerator<number> {
+    tId: string | undefined | null,
+  ): AsyncGenerator<QueueItem> {
     const that = this;
     yield* this.mergeAsyncGenerators(
-      (comb.threads.map(async function* threadProcess(receiver: Thread, i: number): AsyncGenerator<number> {
+      (comb.threads.map(async function* threadProcess(receiver: Thread, i: number): AsyncGenerator<QueueItem> {
         yield* that.semaphoreService.spawnGeneratorChild(
-          `th=${receiver.name ??String(i)}`,
-          async function* threadGenerator(): AsyncGenerator<number> {
+          `th=${receiver.name ?? String(i)}`,
+          async function* threadGenerator(): AsyncGenerator<QueueItem> {
             for (let j = 0; j < receiver.commands.length; j++) {
-              yield* that.semaphoreService.spawnGeneratorChild(`c=${String(j)}`, async function* loopGenerator(): AsyncGenerator<number> {
-                yield* that.startChain.handle(receiver.commands[j], undefined, undefined, tId);
-              });
+              yield* that.semaphoreService.spawnGeneratorChild(
+                `c=${String(j)}`,
+                async function* loopGenerator(): AsyncGenerator<QueueItem> {
+                  yield* that.startChain.handle(receiver.commands[j], undefined, undefined, tId);
+                }
+              );
             }
           }
         );

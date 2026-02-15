@@ -5,6 +5,7 @@ import {BaseLocalHandler} from '@/local/base-local-handler';
 import {ExpressionLocalCommand} from '@/config/types/local/local-commands';
 import {UnknownCommand} from '@/config/types/commands';
 import {EvaluateService} from '@/local/evaluate-serivce';
+import {QueueItem} from '@/generator/generator-model';
 
 @Injectable()
 export class ExpressionLocalHandler extends BaseLocalHandler {
@@ -23,7 +24,7 @@ export class ExpressionLocalHandler extends BaseLocalHandler {
   /* eslint-disable */
   async* execute(
     command: ExpressionLocalCommand
-  ): AsyncGenerator<number> {
+  ): AsyncGenerator<QueueItem> {
     const result = this.evaluateService.evaluateExpression(command.expression);
     this.logger.debug(`Assigning ${result} to ${command.assignVariable} from evaluating ${command.expression}`);
     if (command.assignVariable.includes('.')) {

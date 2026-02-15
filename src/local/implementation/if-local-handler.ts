@@ -5,6 +5,7 @@ import {UnknownCommand} from '@/config/types/commands';
 import clc from 'cli-color';
 import {EvaluateService} from '@/local/evaluate-serivce';
 import {SemaphorService} from '@/semaphor/semaphor-service';
+import {QueueItem} from '@/generator/generator-model';
 
 @Injectable()
 export class IfLocalHandler extends BaseLocalHandler {
@@ -24,20 +25,20 @@ export class IfLocalHandler extends BaseLocalHandler {
     cmd: IfLocalCommand, combDelayAfter: undefined | number,
     combDelayBefore: undefined | number,
     tId: string | undefined |null,
-  ): AsyncGenerator<number> {
+  ): AsyncGenerator<QueueItem> {
     const ifResult = Boolean(this.evaluateService.evaluateExpression(cmd.if));
     const that = this;
     if (ifResult) {
       this.logger.debug(`If condition evaluated to: ${clc.yellow(String(ifResult))}. Executing if branch`);
       for (let i = 0; i < cmd.then.length; i++) {
-        yield* this.semaphoreService.spawnGeneratorChild(`i=${String(i)}`, async function* loopGenerator(): AsyncGenerator<number> {
+        yield* this.semaphoreService.spawnGeneratorChild(`i=${String(i)}`, async function* loopGenerator(): AsyncGenerator<QueueItem> {
           yield* that.startChain.handle(cmd.then[i], undefined, undefined, tId);
         });
       }
     } else if (cmd.else) {
       this.logger.debug(`If condition evaluated to: ${clc.yellow(String(ifResult))}. Executing else branch`);
       for (let i = 0; i < cmd.then.length; i++) {
-        yield* this.semaphoreService.spawnGeneratorChild(`e=${String(i)}`, async function* loopGenerator(): AsyncGenerator<number> {
+        yield* this.semaphoreService.spawnGeneratorChild(`e=${String(i)}`, async function* loopGenerator(): AsyncGenerator<QueueItem> {
           yield* that.startChain.handle(cmd.then[i], undefined, undefined, tId);
         });
       }

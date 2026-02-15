@@ -6,6 +6,7 @@ import {DelayService} from '@/local/delay.service';
 import {SemaphorService} from '@/semaphor/semaphor-service';
 import {BaseLocalHandler} from '@/local/base-local-handler';
 import {RemoteCommand} from '@/config/types/remote/remote-commands';
+import {QueueItem} from '@/generator/generator-model';
 
 @Injectable()
 export class CommandLocalHandler extends BaseLocalHandler {
@@ -28,7 +29,7 @@ export class CommandLocalHandler extends BaseLocalHandler {
     combDelayAfter: undefined | number,
     combDelayBefore: undefined | number,
     tId: string | undefined|null,
-  ): AsyncGenerator<number> {
+  ): AsyncGenerator<QueueItem> {
     const currRec: RemoteCommand = this.variableService.replaceVariables(input);
     this.logger.debug(`Running ${JSON.stringify(input)}`);
     // if transaction is null = disabled. If transaction is string = already created on parent stack
@@ -39,7 +40,7 @@ export class CommandLocalHandler extends BaseLocalHandler {
     } else {
       const newTransactionId = this.semaphoreService.getNewTransactionId();
       const that = this;
-      yield* this.semaphoreService.spawnGeneratorChild(`d=${newTransactionId}`, async function* loopGenerator(): AsyncGenerator<number> {
+      yield* this.semaphoreService.spawnGeneratorChild(`d=${newTransactionId}`, async function* loopGenerator(): AsyncGenerator<QueueItem> {
         try {
           await that.semaphoreService.startTransaction(currRec.destination as string, newTransactionId);
           yield *that.delayService.awaitDelay(combDelayBefore, input.delayBefore as number | undefined, 'before', 'command');

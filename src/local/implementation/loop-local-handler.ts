@@ -5,6 +5,7 @@ import {UnknownCommand} from '@/config/types/commands';
 import clc from 'cli-color';
 import {SemaphorService} from '@/semaphor/semaphor-service';
 import {EvaluateService} from '@/local/evaluate-serivce';
+import {QueueItem} from '@/generator/generator-model';
 
 @Injectable()
 export class LoopLocalHandler extends BaseLocalHandler {
@@ -25,7 +26,7 @@ export class LoopLocalHandler extends BaseLocalHandler {
     combDelayAfter: undefined | number,
     combDelayBefore: undefined | number,
     tId: string | undefined |null,
-  ): AsyncGenerator<number> {
+  ): AsyncGenerator<QueueItem> {
     let i = 0;
     const that = this;
     while (true) {
@@ -46,9 +47,9 @@ export class LoopLocalHandler extends BaseLocalHandler {
         this.logger.debug(`Running ${clc.yellow(i + 1)} iteration`);
       }
       let j = 0;
-      yield* this.sempahoreService.spawnGeneratorChild(`l=${String(i)}`, async function* loopGenerator(): AsyncGenerator<number> {
+      yield* this.sempahoreService.spawnGeneratorChild(`l=${String(i)}`, async function* loopGenerator(): AsyncGenerator<QueueItem> {
         for (const command of comb.commands!) {
-          yield* that.sempahoreService.spawnGeneratorChild(`c=${String(j)}`, async function* commandGenerator(): AsyncGenerator<number> {
+          yield* that.sempahoreService.spawnGeneratorChild(`c=${String(j)}`, async function* commandGenerator(): AsyncGenerator<QueueItem> {
             yield* that.startChain.handle(command, undefined, undefined, tId);
           });
           j++;

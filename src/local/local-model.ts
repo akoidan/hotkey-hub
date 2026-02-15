@@ -6,12 +6,18 @@ enum ProcessStatus {
   STOPPED = 'STOPPED',
 }
 
-export interface IterationDescription {
-  id: string;
-  status: ProcessStatus;
-  shortCut: Shortcut;
+interface IterationThread {
   sleepId: NodeJS.Timeout |null;
   resolve: ((a: unknown) => void)|null;
 }
+
+interface IterationDescription {
+  id: string;
+  status: ProcessStatus;
+  shortCut: Shortcut;
+  threads: Record<string, IterationThread>;
+}
+
+export type {IterationThread, IterationDescription};
 
 export {ProcessStatus};
