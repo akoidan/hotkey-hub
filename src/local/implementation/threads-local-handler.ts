@@ -36,7 +36,7 @@ export class ThreadsLocalHandler extends BaseLocalHandler {
       if (result.done) {
         results.delete(index);
       } else {
-        yield 0;
+        yield result.value;
         results.set(index, gens[index].next());
       }
     }
