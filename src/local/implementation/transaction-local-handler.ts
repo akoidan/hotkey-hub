@@ -6,7 +6,6 @@ import {VariableResolutionService} from '@/local/variable-resolution.service';
 import {TransactionLocalCommand} from '@/config/types/local/local-commands';
 import {UnknownCommand} from '@/config/types/commands';
 import {Delay} from '@/config/types/remote/base-remote-command';
-import yargs from 'yargs';
 
 @Injectable()
 export class TransactionLocalHandler extends BaseLocalHandler {
