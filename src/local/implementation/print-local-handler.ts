@@ -19,10 +19,10 @@ export class PrintLocalHandler extends BaseLocalHandler {
   }
 
   // eslint-disable-next-line require-yield,@typescript-eslint/require-await
-  async* execute(comb: PrintLocalCommand): AsyncGenerator<void> {
+  async* execute(comb: PrintLocalCommand): AsyncGenerator<number> {
     const result: unknown = this.evaluateService.evaluateExpression(comb.print);
     this.logger.log(`${clc.yellow(comb.print)}=${clc.bold.green(result)}`);
-    yield undefined;
+    yield 0;
   }
 }
 

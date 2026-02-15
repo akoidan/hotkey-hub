@@ -45,7 +45,7 @@ export class SemaphorService {
     this.logger.debug(`All actions for ${parentId} are completed`);
   }
 
-  public async* spawnGeneratorChild(i: string, cb: () => AsyncGenerator<void>, separator: string = '-'): AsyncGenerator<void> {
+  public async* spawnGeneratorChild(i: string, cb: () => AsyncGenerator<number>, separator: string = '-'): AsyncGenerator<number> {
     this.logger.debug('Spawning new req-id');
     const parentId = this.getCurrentOperationId();
     const newId = `${parentId}${separator}${i}`;
@@ -53,7 +53,7 @@ export class SemaphorService {
     newStorageMap.set(SemaphorService.COMB_KEY, newId);
 
     const gen = cb();
-    let result: IteratorResult<void, void>;
+    let result: IteratorResult<number, void>;
     do {
       // awaiting run here, so we would have asynlocalstorage context
       // otherwise e.g. with this yield *this.asyncLocalStorage.run(newStorageMap, cb)
@@ -62,7 +62,7 @@ export class SemaphorService {
         this.logger.debug('Calling gen.next() from semaphore');
         return gen.next();
       });
-      yield result.value;
+      yield result.value || 0;
       this.logger.debug('Yield from semaphor');
     } while (!result.done);
 

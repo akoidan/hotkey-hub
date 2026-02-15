@@ -28,7 +28,7 @@ export class MacroLocalHandler extends BaseLocalHandler {
     combDelayAfter: number | undefined,
     combDelayBefore: number | undefined,
     tId: string | undefined |null,
-  ): AsyncGenerator<void> {
+  ): AsyncGenerator<number> {
     const executable = this.configService.getMacros()[input.macro];
     if (!executable) {
       throw new Error(`Macro ${input.macro} not found.`);
@@ -36,14 +36,14 @@ export class MacroLocalHandler extends BaseLocalHandler {
     const that = this;
     yield* that.semaphoreService.spawnGeneratorChild(
       `m=${input.macro}`,
-      async function* macroGenerator(): AsyncGenerator<void> {
+      async function* macroGenerator(): AsyncGenerator<number> {
         if (typeof input.delayBefore === 'number') { // ignore if it's a variable or undefined
           // if it's a macro, delay in this macro won't be passed down
           // but would be await after any commands in this macro has run yet as expected, this is why on top we are not passing it
-          await that.delayService.awaitDelay(input.delayBefore as number, undefined, 'before', 'macro');
+          yield *that.delayService.awaitDelay(input.delayBefore as number, undefined, 'before', 'macro');
         }
         for (let i = 0; i < executable.commands.length; i++) {
-          yield* that.semaphoreService.spawnGeneratorChild(`c=${String(i)}`, async function* loopGenerator(): AsyncGenerator<void> {
+          yield* that.semaphoreService.spawnGeneratorChild(`c=${String(i)}`, async function* loopGenerator(): AsyncGenerator<number> {
             const preparedCommand = that.variableService.replaceMacroVariables(
               executable.commands[i],
               input.variables,
@@ -57,7 +57,7 @@ export class MacroLocalHandler extends BaseLocalHandler {
         // commands in this macro has been already ran in the loop
         // await delay before the next command after this macro runs
         if (typeof input.delayAfter === 'number') { // ignore if it's a variable or undefined
-          await that.delayService.awaitDelay(input.delayAfter as number, undefined, 'after', 'macro'); // if it's a macro, delay in this macro won't be passed down
+          yield *that.delayService.awaitDelay(input.delayAfter as number, undefined, 'after', 'macro'); // if it's a macro, delay in this macro won't be passed down
           // but would be await after all commands in this macro as expected, this is why on top we are not passing it
         }
       },

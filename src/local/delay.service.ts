@@ -13,12 +13,12 @@ export class DelayService {
 
   // Awaits delay if specified in global config or in local command data
   // Applies a hugeDelay from global config if chance is succeded
-  public async awaitDelay(
+  public *awaitDelay(
     combDelay: undefined | number,
     commandDelay: undefined | number,
     type: 'before' | 'after',
     name: string = '',
-  ): Promise<void> {
+  ): Generator<number> {
     const delays = this.configService.getDelays();
     if (commandDelay !== undefined) {
       combDelay = commandDelay;
@@ -37,9 +37,7 @@ export class DelayService {
     if (!combDelay) {
       return;
     }
-    this.logger.debug(`Sleeping ${type} ${name} for ${combDelay}ms`);
-    await new Promise(resolve => {
-      setTimeout(resolve, combDelay);
-    });
+    this.logger.debug(`Yielding sleep of ${type} ${name} for ${combDelay}ms`);
+    yield combDelay;
   }
 }

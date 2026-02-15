@@ -19,7 +19,7 @@ export class ShortcutProcessingService {
   }
 
   async runShortcut(comb: Shortcut): Promise<void> {
-    await this.semaphoreService.runOperation(comb.shortCut, async() => {
+    await this.semaphoreService.runOperation(comb.shortCut, async () => {
       const id = this.semaphoreService.getCurrentOperationId();
       const behaviour = typeof comb.behaviour === 'object' ? comb.behaviour.type : comb.behaviour;
       const groupWith = (comb.behaviour as BehaviourObject)?.groupWith ?? comb.shortCut;
@@ -55,7 +55,7 @@ export class ShortcutProcessingService {
     const running = this.iterationsInProgress[groupWith]
       .map(proc => proc.status)
       .filter(s => s === ProcessStatus.RUNNING);
-    if (running.length >0) {
+    if (running.length > 0) {
       this.logger.debug(`Stopping ${running.join(',')} instances of ${clc.bold.green(comb.name)}`);
       this.iterationsInProgress[groupWith]
         .filter(proc => proc.status === ProcessStatus.RUNNING)
@@ -93,10 +93,13 @@ export class ShortcutProcessingService {
     this.logger.log(`${clc.bold.green(comb.shortCut)} pressed. Running ${clc.bold.green(comb.name)}`);
     const that = this;
     let breakLoop = false;
-    for (let i =0 ; i< comb.commands.length; i++) {
-      const generator = this.semaphoreService.spawnGeneratorChild(`c=${String(i)}`,  async function* loopGenerator(): AsyncGenerator<void> {
-        yield *that.unknownCommandProcessor.handle(comb.commands[i], comb.delayAfter, comb.delayBefore, undefined);
-      });
+    for (let i = 0; i < comb.commands.length; i++) {
+      const generator = this.semaphoreService.spawnGeneratorChild(
+        `c=${String(i)}`,
+        async function* loopGenerator(): AsyncGenerator<number> {
+          yield* that.unknownCommandProcessor.handle(comb.commands[i], comb.delayAfter, comb.delayBefore, undefined);
+        }
+      );
       let done = false;
       while (!done) {
         if (this.iterationsInProgress[groupWith].find(proc => proc.id === id)!.status === ProcessStatus.TERMINATING) {
@@ -109,6 +112,11 @@ export class ShortcutProcessingService {
         }
         this.logger.debug('Calling next item from top.');
         const res = await generator.next();
+        if (res.value) {
+          // eslint-disable-next-line
+          this.logger.debug(`Sleeping for ${res.value}`)
+          await new Promise(r => setTimeout(r, res.value));
+        }
         done = res.done ?? false;
       }
       if (breakLoop) {

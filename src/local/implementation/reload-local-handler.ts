@@ -28,12 +28,12 @@ export class ReloadLocalHandler extends BaseLocalHandler {
 
   public async* execute(
     input: ReloadConfigLocalCommand,
-  ): AsyncGenerator<void> {
+  ): AsyncGenerator<number> {
     if (!this.keyBindingService) {
       throw Error('Module not loaded, keybinding service required');
     }
     this.configsPathService.setConfigPaths(input.reloadConfig, input.reloadVariables);
     await this.keyBindingService.reloadShortcuts();
-    yield undefined;
+    yield 0;
   }
 }

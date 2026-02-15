@@ -43,7 +43,7 @@ export class ShuffleLocalHandler extends BaseLocalHandler {
     combDelayAfter: undefined | number,
     combDelayBefore: undefined | number,
     tId: string | undefined |null,
-  ): AsyncGenerator<void> {
+  ): AsyncGenerator<number> {
     let array = comb.commands;
     if (comb.shuffle === ShufflePolicy.random) {
       array = this.shuffleArray(array);
@@ -59,7 +59,7 @@ export class ShuffleLocalHandler extends BaseLocalHandler {
       const index = comb.commands.indexOf(command);
       this.logger.debug(`Running ${index} iteration`);
       const that = this;
-      yield* this.sempahoreService.spawnGeneratorChild(`s=${String(index)}`, async function* loopGenerator(): AsyncGenerator<void> {
+      yield* this.sempahoreService.spawnGeneratorChild(`s=${String(index)}`, async function* loopGenerator(): AsyncGenerator<number> {
         yield* that.startChain.handle(command, undefined, undefined, tId);
       });
     }

@@ -18,8 +18,8 @@ export class ThreadsLocalHandler extends BaseLocalHandler {
   }
 
 
-  async* mergeAsyncGenerators(gens: AsyncGenerator<void>[]): AsyncGenerator<void> {
-    const results = new Map<number, Promise<IteratorResult<void, void>>>();
+  async* mergeAsyncGenerators(gens: AsyncGenerator<number>[]): AsyncGenerator<number> {
+    const results = new Map<number, Promise<IteratorResult<number, void>>>();
 
     // Initialize all generators
     gens.forEach((gen, index) => {
@@ -29,14 +29,14 @@ export class ThreadsLocalHandler extends BaseLocalHandler {
     while (results.size > 0) {
       const [index, result] = await Promise.race(
         Array.from(results.entries()).map(
-          async([i, p]) => p.then(r => [i, r] as [number, IteratorResult<void, void>])
+          async([i, p]) => p.then(r => [i, r] as [number, IteratorResult<number, void>])
         )
       );
 
       if (result.done) {
         results.delete(index);
       } else {
-        yield undefined;
+        yield 0;
         results.set(index, gens[index].next());
       }
     }
@@ -47,15 +47,15 @@ export class ThreadsLocalHandler extends BaseLocalHandler {
     combDelayAfter: number | undefined,
     combDelayBefore: number | undefined,
     tId: string | undefined |null,
-  ): AsyncGenerator<void> {
+  ): AsyncGenerator<number> {
     const that = this;
     yield* this.mergeAsyncGenerators(
-      (comb.threads.map(async function* threadProcess(receiver: Thread, i: number): AsyncGenerator<void> {
+      (comb.threads.map(async function* threadProcess(receiver: Thread, i: number): AsyncGenerator<number> {
         yield* that.semaphoreService.spawnGeneratorChild(
           `th=${receiver.name ??String(i)}`,
-          async function* threadGenerator(): AsyncGenerator<void> {
+          async function* threadGenerator(): AsyncGenerator<number> {
             for (let j = 0; j < receiver.commands.length; j++) {
-              yield* that.semaphoreService.spawnGeneratorChild(`c=${String(j)}`, async function* loopGenerator(): AsyncGenerator<void> {
+              yield* that.semaphoreService.spawnGeneratorChild(`c=${String(j)}`, async function* loopGenerator(): AsyncGenerator<number> {
                 yield* that.startChain.handle(receiver.commands[j], undefined, undefined, tId);
               });
             }
