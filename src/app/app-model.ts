@@ -19,6 +19,9 @@ interface ReloadRequest {
   apiPort: number;
 }
 
-export const LOG_LEVEL = 'LOG_LEVEL';
+const LOG_LEVEL = 'LOG_LEVEL';
+const VERSION_INJ = 'VERSION';
+
+export {LOG_LEVEL, VERSION_INJ};
 
 export type {ShortcutDescription, ReloadRequest, AppConfig};

@@ -6,12 +6,10 @@ enum ProcessStatus {
   STOPPED = 'STOPPED',
 }
 
-const VERSION_INJ = 'VERSION';
-
 export interface IterationDescription {
   id: string;
   status: ProcessStatus;
   shortCut: Shortcut;
 }
 
-export {VERSION_INJ, ProcessStatus};
+export {ProcessStatus};
