@@ -31,6 +31,7 @@ export class CommandLocalHandler extends BaseLocalHandler {
   ): AsyncGenerator<void> {
     const currRec: RemoteCommand = this.variableService.replaceVariables(input);
     this.logger.debug(`Running ${JSON.stringify(input)}`);
+    // if transaction is null = disabled. If transaction is string = already created on parent stack
     if (tId !== undefined) { // eslint-disable-line no-negated-condition
       await this.delayService.awaitDelay(combDelayBefore, input.delayBefore as number | undefined, 'before', 'command');
       await this.comandHandler.handle(currRec.destination as string, currRec);
