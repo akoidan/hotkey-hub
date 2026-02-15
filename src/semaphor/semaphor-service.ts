@@ -37,14 +37,6 @@ export class SemaphorService {
     return this.asyncLocalStorage.getStore()!.get(SemaphorService.COMB_KEY) as string;
   }
 
-  public async spawnPromiseChild(i: string, cb: () => Promise<void>, separator: string = '-'): Promise<void> {
-    const parentId = this.getCurrentOperationId();
-    const newId = `${parentId}${separator}${i}`;
-    const newStorageMap: Map<string, any> = new Map<string, any>().set(SemaphorService.COMB_KEY, newId);
-    await this.asyncLocalStorage.run(newStorageMap, cb);
-    this.logger.debug(`All actions for ${parentId} are completed`);
-  }
-
   public async* spawnGeneratorChild(i: string, cb: () => AsyncGenerator<number>, separator: string = '-'): AsyncGenerator<number> {
     this.logger.debug('Spawning new req-id');
     const parentId = this.getCurrentOperationId();
@@ -59,14 +51,14 @@ export class SemaphorService {
       // otherwise e.g. with this yield *this.asyncLocalStorage.run(newStorageMap, cb)
       // we will lose context
       result = await this.asyncLocalStorage.run(newStorageMap, async() => {
-        this.logger.debug('Calling gen.next() from semaphore');
+        this.logger.debug('Pushing item into execution queue');
         return gen.next();
       });
+      this.logger.debug(`Notifying executor to process next queue item ${i}`);
       yield result.value || 0;
-      this.logger.debug('Yield from semaphor');
     } while (!result.done);
 
-    this.logger.debug(`All actions for ${parentId} are completed`);
+    this.logger.debug('Current Queue is complete');
     return result.value;
   }
 

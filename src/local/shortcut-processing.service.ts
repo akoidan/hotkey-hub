@@ -132,7 +132,7 @@ export class ShortcutProcessingService {
           this.iterationsInProgress[groupWith].find(proc => proc.id === id)!.status = ProcessStatus.STOPPED;
           breakLoop = true; //while should finish in order to finish current transaction and release transaction group
         }
-        this.logger.debug('Calling next item from top.');
+        this.logger.debug('Executing item on the queue');
         const res = await generator.next();
         if (res.value) {
           this.logger.debug(`Sleeping for ${res.value}`);
