@@ -63,10 +63,15 @@ export class TransactionLocalHandler extends BaseLocalHandler {
       await this.delayService.awaitDelay((preparedInput as Delay).delayBefore as number, undefined, 'before', `transaction ${tId}`);
     }
     const that = this;
-    for (const command of preparedInput.commands) {
+    for (let i = 0; i < preparedInput.commands.length; i++) {
       const delayA = ((preparedInput as Delay).delayAfter as number | undefined) ?? combDelayAfter;
       const delayB = ((preparedInput as Delay).delayBefore as number | undefined) ?? combDelayBefore;
-      yield* that.startChain.handle(command, delayA, delayB, tId);
+      yield *this.semaphoreService.spawnGeneratorChild(
+        `c=${String(i)}`,
+        async function* loopGenerator(): AsyncGenerator<void> { // we shouldn't unpack generator here, so transaction can be finished not paused in the middle to avoid deadlock
+          yield* that.startChain.handle(preparedInput.commands[i], delayA, delayB, tId);
+        }
+      );
     }
     // commands in this macro has been already ran in the loop
     // await delay before the next command after this macro runs
