@@ -31,7 +31,7 @@ export class SemaphorService {
       const controller =  new AbortController();
       this.asyncLocalStorage.getStore()!.set(SemaphorService.COMB_KEY, randomValue);
       this.asyncLocalStorage.getStore()!.set(SemaphorService.COMB_KEYSTROKE, shortCut);
-      this.asyncLocalStorage.getStore()!.set(SemaphorService.ABORT_CONTROLLER, new AbortController());
+      this.asyncLocalStorage.getStore()!.set(SemaphorService.ABORT_CONTROLLER, controller);
       await cb(controller);
     });
   }
