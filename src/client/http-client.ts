@@ -5,7 +5,7 @@ import clc from 'cli-color';
 import {SemaphorService} from '@/semaphor/semaphor-service';
 import {ASYNC_PROVIDER} from '@/asyncstore/async-storage-const';
 import {AsyncLocalStorage} from 'async_hooks';
-import {CustomError, TIMEOUT} from '@/client/client-model';
+import {CustomError, RequestOptions, TIMEOUT} from '@/client/client-model';
 
 
 @Injectable()
@@ -102,12 +102,11 @@ export class FetchClient {
     method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH',
     client: string,
     url: string,
-    payload?: unknown,
-    query?: Record<string, string>,
+    options: RequestOptions = {},
   ): Promise<T> {
-    const payloadstr: string | null = payload ? JSON.stringify(payload) : null;
-    if (query) {
-      url += `?${new URLSearchParams(query).toString()}`;
+    const payloadstr: string | null = options.payload ? JSON.stringify(options.payload) : null;
+    if (options.query) {
+      url += `?${new URLSearchParams(options.query).toString()}`;
     }
     try {
       const httpController = new AbortController(); // otherwise it will fail all commands
@@ -131,7 +130,7 @@ export class FetchClient {
             controller.signal.removeEventListener('abort', eventListener);
             httpController.abort();
             innerReject(Error(`Request timed out after ${this.timeout}ms`));
-          }, this.timeout);
+          }, options.timeout ?? this.timeout);
           // eslint-disable-next-line
           this.logger.verbose(`Added timeout ${timeout}`);
           controller.signal.addEventListener('abort', eventListener);
@@ -167,26 +166,26 @@ export class FetchClient {
   }
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-  async post<T>(client: string, url: string, options: { query?: Record<string, string>, payload?: any } = {}): Promise<T> {
-    return this.makeRequest<T>('POST', client, url, options.payload, options.query);
+  async post<T>(client: string, url: string, options: RequestOptions = {}): Promise<T> {
+    return this.makeRequest<T>('POST', client, url, options);
   }
 
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-  async patch<T>(client: string, url: string, options: { query?: Record<string, string>, payload?: any } = {}): Promise<T> {
-    return this.makeRequest<T>('PATCH', client, url, options.payload, options.query);
+  async patch<T>(client: string, url: string, options: RequestOptions = {}): Promise<T> {
+    return this.makeRequest<T>('PATCH', client, url, options);
   }
 
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-  async put<T>(client: string, url: string, options: { query?: Record<string, string>, payload?: any } = {}): Promise<T> {
-    return this.makeRequest<T>('PUT', client, url, options.payload, options.query);
+  async put<T>(client: string, url: string, options: RequestOptions = {}): Promise<T> {
+    return this.makeRequest<T>('PUT', client, url, options);
   }
 
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-  async delete<T>(client: string, url: string, options: { query?: Record<string, string>, payload?: any } = {}): Promise<T> {
-    return this.makeRequest<T>('DELETE', client, url, options.payload, options.query);
+  async delete<T>(client: string, url: string, options: RequestOptions = {}): Promise<T> {
+    return this.makeRequest<T>('DELETE', client, url, options);
   }
 
-  async get<T>(client: string, url: string, options: { query?: Record<string, string>, payload?: any } = {}): Promise<T> {
-    return this.makeRequest<T>('GET', client, url, options.payload, options.query);
+  async get<T>(client: string, url: string, options: RequestOptions = {}): Promise<T> {
+    return this.makeRequest<T>('GET', client, url, options);
   }
 }
