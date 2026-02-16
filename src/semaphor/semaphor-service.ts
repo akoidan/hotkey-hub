@@ -3,6 +3,7 @@ import {ASYNC_PROVIDER} from '@/asyncstore/async-storage-const';
 import {AsyncLocalStorage} from 'async_hooks';
 import {TransactionGroups} from '@/semaphor/semaphor-model';
 import clc from 'cli-color';
+import {ConfigCombination} from '@/config/config-model';
 
 @Injectable()
 export class SemaphorService {
@@ -10,6 +11,8 @@ export class SemaphorService {
   public static readonly COMB_KEY = 'comb';
   // eslint-disable-next-line @typescript-eslint/naming-convention
   public static readonly COMB_KEYSTROKE = 'keystroke';
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  public static readonly COMB_SHORTCUT = 'shorcut';
   // eslint-disable-next-line @typescript-eslint/naming-convention
   public static readonly ABORT_CONTROLLER = 'abort-controller';
 
@@ -23,14 +26,15 @@ export class SemaphorService {
   ) {
   }
 
-  public async runOperation(shortCut: string, cb: (controller: AbortController) => Promise<void>): Promise<void> {
-    const parts = shortCut.split('+');
+  public async runOperation(shortCut: ConfigCombination, cb: (controller: AbortController) => Promise<void>): Promise<void> {
+    const parts = shortCut.shortCut.split('+');
     const randomValue = `${parts[parts.length - 1]}=${this.getNewTransactionId()}`;
     this.transactionGroups[randomValue] = [];
     await this.asyncLocalStorage.run(new Map(), async() => {
       const controller =  new AbortController();
       this.asyncLocalStorage.getStore()!.set(SemaphorService.COMB_KEY, randomValue);
-      this.asyncLocalStorage.getStore()!.set(SemaphorService.COMB_KEYSTROKE, shortCut);
+      this.asyncLocalStorage.getStore()!.set(SemaphorService.COMB_KEYSTROKE, shortCut.shortCut);
+      this.asyncLocalStorage.getStore()!.set(SemaphorService.COMB_SHORTCUT, shortCut);
       this.asyncLocalStorage.getStore()!.set(SemaphorService.ABORT_CONTROLLER, controller);
       await cb(controller);
     });

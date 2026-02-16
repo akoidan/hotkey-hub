@@ -19,7 +19,7 @@ export class ShortcutProcessingService {
   }
 
   async runShortcut(comb: Shortcut): Promise<void> {
-    await this.semaphoreService.runOperation(comb.shortCut, async(controller: AbortController) => {
+    await this.semaphoreService.runOperation(comb, async(controller: AbortController) => {
       const id = this.semaphoreService.getCurrentOperationId();
       const behaviour = typeof comb.behaviour === 'object' ? comb.behaviour.type : comb.behaviour;
       const groupWith = (comb.behaviour as BehaviourObject)?.groupWith ?? comb.shortCut;

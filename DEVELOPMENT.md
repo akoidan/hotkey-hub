@@ -85,15 +85,3 @@ You need to provide **two include directories**:
     - Example: `.../node_modules/node-addon-api`
     - Contains `napi.h` and related files.
 
-
-
-### Arhitetcure
-If you have worked with Redux Saga or Python Tornado or something form asyncio implementation, you'd notice this project follows the same principle. Commands are processed in a queue, and in order to notify about next atomic piece, they yield to the parent queue executor which is eventually a ShortcutProcessingService. ShortcutProcessingService.runShortcut is a async generator executor. It allows high level control over execution flow which can be fetched from multiple deeps down levels. Since some shortcuts can have a bevavior "pausable" or "restart", we need to have a way to pause or terminate each set of commands at any point of time. One of the solution could be a global flag and checking this flag everywhere in across all items, which would totally break DRY principle and lead to bugs eventually. This is why async generator approach was chosen.
-
-The generator follow some simple rules:
-
-- Each item should yield every atomic operation to the parent.
-- Items are allowed to have await operation as long as all operations in the item is considered a part of the transaction (atomic operations). Thus we dont want them to stop in the middle even if we terminate shortcut. In other words they have to finish.
-- Await delays should yield a number (which is a miliseconds delay) to parent executor in order to be able to terminate during sleep.
-- Complex operations like threads should properly handle children and reyield all operations to parent executor. 
-- Every nested command should have its own identifier which is reflected in logs. This is done via SemaphorService.spawnPromiseChild
