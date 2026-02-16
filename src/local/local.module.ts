@@ -25,7 +25,8 @@ import {ShuffleLocalHandler} from '@/local/implementation/shuffle-local-handler'
 import {PrintLocalHandler} from '@/local/implementation/print-local-handler';
 import {GetLocalHandler} from '@/local/get-local-handler';
 import {GetInfoModule} from '@/get-info/get-info-module';
-import {VERSION_INJ} from '@/local/local-model';
+import {ExceptionLocalHandler} from '@/local/implementation/exception-local-handler';
+import {AsyncStorageModule} from '@/asyncstore/async-storage.module';
 
 
 const localHandlers =[
@@ -39,6 +40,7 @@ const localHandlers =[
   ShuffleLocalHandler,
   PrintLocalHandler,
   GetLocalHandler,
+  ExceptionLocalHandler,
   CommandLocalHandler,
 ];
 
@@ -58,16 +60,21 @@ const localProviders: Provider[] = [
 ];
 
 @Module({
-  imports: [ConfigModule, ClientModule, RemoteHandlerModule, SemaphorModule, RandomModule, RgbModule, NativeModule, GetInfoModule],
+  imports: [
+    ConfigModule,
+    ClientModule,
+    RemoteHandlerModule,
+    SemaphorModule,
+    RandomModule,
+    RgbModule,
+    NativeModule,
+    GetInfoModule,
+    AsyncStorageModule,
+  ],
   providers: [
     Logger,
     DelayService,
     KeybindingService,
-    {
-      provide: VERSION_INJ,
-      // eslint-disable-next-line
-      useValue: require('../../package.json').version,
-    },
     ShortcutProcessingService,
     VariableResolutionService,
     EvaluateService,

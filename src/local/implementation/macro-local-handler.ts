@@ -1,4 +1,4 @@
-import {Injectable} from '@nestjs/common';
+import {Injectable, Logger} from '@nestjs/common';
 import {ConfigService} from '@/config/config-service';
 import {VariableResolutionService} from '@/local/variable-resolution.service';
 import {DelayService} from '@/local/delay.service';
@@ -15,6 +15,7 @@ export class MacroLocalHandler extends BaseLocalHandler {
     private readonly variableService: VariableResolutionService,
     private readonly semaphoreService: SemaphorService,
     private readonly delayService: DelayService,
+    protected readonly logger: Logger,
   ) {
     super();
   }
@@ -23,41 +24,43 @@ export class MacroLocalHandler extends BaseLocalHandler {
     return Boolean((command as MacroLocalCommand).macro);
   }
 
-  public async* execute(
+  public async execute(
     input: MacroLocalCommand,
     combDelayAfter: number | undefined,
     combDelayBefore: number | undefined,
-    tId: string | undefined,
-  ): AsyncGenerator<void> {
+    tId: string | undefined | null,
+  ): Promise<void> {
     const executable = this.configService.getMacros()[input.macro];
     if (!executable) {
       throw new Error(`Macro ${input.macro} not found.`);
     }
-    const that = this;
-    yield* that.semaphoreService.spawnGeneratorChild(
+        await this.semaphoreService.spawnPromiseChild(
       `m=${input.macro}`,
-      async function* macroGenerator(): AsyncGenerator<void> {
+      async() => {
         if (typeof input.delayBefore === 'number') { // ignore if it's a variable or undefined
           // if it's a macro, delay in this macro won't be passed down
           // but would be await after any commands in this macro has run yet as expected, this is why on top we are not passing it
-          await that.delayService.awaitDelay(input.delayBefore as number, undefined, 'before', 'macro');
+          await this.delayService.awaitDelay(input.delayBefore as number, undefined, 'before', 'macro');
         }
         for (let i = 0; i < executable.commands.length; i++) {
-          yield* that.semaphoreService.spawnGeneratorChild(`c=${String(i)}`, async function* loopGenerator(): AsyncGenerator<void> {
-            const preparedCommand = that.variableService.replaceMacroVariables(
-              executable.commands[i],
-              input.variables,
-              executable.variables
-            );
-            const delayA = ((preparedCommand as Delay).delayAfter as number | undefined) ?? combDelayAfter;
-            const delayB = ((preparedCommand as Delay).delayBefore as number | undefined) ?? combDelayBefore;
-            yield* that.startChain.handle(preparedCommand, delayA, delayB, tId);
-          });
+          await this.semaphoreService.spawnPromiseChild(
+            `c=${String(i)}`,
+            async() => {
+              const preparedCommand = this.variableService.replaceMacroVariables(
+                executable.commands[i],
+                input.variables,
+                executable.variables
+              );
+              const delayA = ((preparedCommand as Delay).delayAfter as number | undefined) ?? combDelayAfter;
+              const delayB = ((preparedCommand as Delay).delayBefore as number | undefined) ?? combDelayBefore;
+              await this.startChain.handle(preparedCommand, delayA, delayB, tId);
+            }
+          );
         }
         // commands in this macro has been already ran in the loop
         // await delay before the next command after this macro runs
         if (typeof input.delayAfter === 'number') { // ignore if it's a variable or undefined
-          await that.delayService.awaitDelay(input.delayAfter as number, undefined, 'after', 'macro'); // if it's a macro, delay in this macro won't be passed down
+          await this.delayService.awaitDelay(input.delayAfter as number, undefined, 'after', 'macro'); // if it's a macro, delay in this macro won't be passed down
           // but would be await after all commands in this macro as expected, this is why on top we are not passing it
         }
       },

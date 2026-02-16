@@ -1,9 +1,10 @@
-import {Injectable} from '@nestjs/common';
+import {Injectable, Logger} from '@nestjs/common';
 import {UnknownCommand} from '@/config/types/commands';
 
 @Injectable()
 export abstract class BaseLocalHandler {
   protected startChain: BaseLocalHandler;
+  protected abstract readonly logger: Logger;
   private next: BaseLocalHandler | null = null;
 
   setNext(handler: BaseLocalHandler, startChain: BaseLocalHandler): BaseLocalHandler {
@@ -18,19 +19,20 @@ export abstract class BaseLocalHandler {
     input: UnknownCommand,
     combDelayAfter: undefined | number,
     combDelayBefore: undefined | number,
-    tId: string | undefined,
-  ): AsyncGenerator<void>
+    tId: string | undefined | null,
+  ): Promise<void>
 
-  public async *handle(
+  public async handle(
     input: UnknownCommand,
     combDelayAfter: undefined | number,
     combDelayBefore: undefined | number,
-    tId: string | undefined,
-  ): AsyncGenerator<void> {
+    tId: string | undefined | null,
+  ): Promise<void> {
     if (this.canHandle(input)) {
-      yield *this.execute(input, combDelayAfter, combDelayBefore, tId);
+      this.logger.verbose(`Running ${JSON.stringify(input)}`);
+      await this.execute(input, combDelayAfter, combDelayBefore, tId);
     } else if (this.next) {
-      yield *this.next.handle(input, combDelayAfter, combDelayBefore, tId);
+      await this.next.handle(input, combDelayAfter, combDelayBefore, tId);
     } else {
       throw new Error(`No handler found for command type: ${JSON.stringify(input)}`);
     }

@@ -11,7 +11,15 @@ const mouseMoveClickRemoteVariableSchema = z.object({
     .describe('Pixels to move per iteration for smooth movement.'),
 }).strict();
 
+const mouseButton = z.enum(['LEFT', 'RIGHT', 'MIDDLE']).describe('Identifier of a mouse button');
+
+const mouseButtonVariableSchema = z.object({
+  button: mouseButton,
+}).strict();
+
+
 const mouseMoveClickRemoteCommandVariableSchema = makeVariableUnion(mouseMoveClickRemoteVariableSchema);
+const mouseClickRemoteCommandVariablesSchema = makeVariableUnion(mouseButtonVariableSchema);
 
 const mouseMoveClickRemoteCommandSchema = baseRemoteCommandSchema.extend({
   performOnRemote: z.literal('mouseMoveLeftClick'),
@@ -29,9 +37,17 @@ const leftMouseClickRemoteCommandSchema = baseRemoteCommandSchema.extend({
 }).strict()
   .describe('Performs a left mouse click at the current cursor position without moving the mouse. Use when cursor is already positioned.');
 
+
+const mouseClickRemoteCommandSchema = baseRemoteCommandSchema.extend({
+  performOnRemote: z.literal('mouseClick'),
+  variables: mouseClickRemoteCommandVariablesSchema,
+}).strict()
+  .describe('Performs a left mouse click at the current cursor position without moving the mouse. Use when cursor is already positioned.');
+
 const mouseCommandsSchema = z.union([
   mouseMoveClickRemoteCommandSchema,
   mouseMoveRemoteCommandSchema,
+  mouseClickRemoteCommandSchema,
   leftMouseClickRemoteCommandSchema,
 ]).describe('Mouse-related remote commands');
 
@@ -48,7 +64,10 @@ export type {
 };
 
 export {
+  mouseClickRemoteCommandSchema,
   mouseMoveRemoteCommandSchema,
+  mouseButton,
+  mouseClickRemoteCommandVariablesSchema,
   mouseMoveClickRemoteCommandSchema,
   leftMouseClickRemoteCommandSchema,
   mouseCommandsSchema,

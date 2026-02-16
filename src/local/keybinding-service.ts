@@ -3,10 +3,9 @@ import {ConfigService} from '@/config/config-service';
 import {ClientService} from '@/client/client-service';
 import clc from 'cli-color';
 import {INativeModule, ModifierKey, Native} from '@/native/native-model';
-import {ShortcutDescription} from '@/app/app-model';
+import {ShortcutDescription, VERSION_INJ} from '@/app/app-model';
 import {ShortcutProcessingService} from '@/local/shortcut-processing.service';
 import {Shortcut} from '@/config/types/shortcut';
-import {VERSION_INJ} from '@/local/local-model';
 
 
 export class KeybindingService {
@@ -40,7 +39,7 @@ export class KeybindingService {
   }
 
   private async verifyClientVersion(destination: string): Promise<void> {
-    const res = await this.clientService.app.ping(destination);
+    const res = await this.clientService.app.ping(destination, {timeout: 3000});
     const [major] = this.version.split('.');
     let clientVersion = '1.x.x';
     if (res.version) {
@@ -88,7 +87,9 @@ export class KeybindingService {
     } else {
       this.logger.debug(`Registering ${clc.bold.green(comb.shortCut)} shortcut`);
       const id = this.native.registerHotkey(key, modifiers, () => {
-        this.shortcutProcessingService.runShortcut(this.callbacks[name].shortcut).catch((err: unknown) => this.logger.error(err));
+        this.shortcutProcessingService.runShortcut(this.callbacks[name].shortcut).catch((err: unknown) => {
+          this.logger.error(err);
+        });
       });
       this.callbacks[name] = {
         id,

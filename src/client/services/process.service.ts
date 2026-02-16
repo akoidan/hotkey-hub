@@ -1,35 +1,33 @@
+/** 
+ * This code was generated via yarn openapi-client
+ * Do not edit it manually
+ */
 import {Injectable} from '@nestjs/common';
 import {FetchClient} from '@/client/http-client';
-import {
-  FindPidsByNameRequest,
-  KillExeByNameRequest,
-  KillExeByPidRequest,
-  LaunchExeRequest,
-  LaunchPidResponse,
-  WindowHandleResponseDto,
-} from '@/client/dtos';
+import {ApiOptions} from '@/client/client-model';
+import {ProcessResponseDto, LaunchExeRequestDto, CreateProcessResponseDto} from '@/client/dtos';
 
 @Injectable()
 export class ProcessService {
   constructor(private readonly client: FetchClient) {}
 
-  async launchExe(client: string, request: LaunchExeRequest): Promise<LaunchPidResponse> {
-    return this.client.post(client, '/process/launch-exe', request, 3000, true);
+  async getProcessInfo(client: string, pid: number, options: ApiOptions = {}): Promise<ProcessResponseDto> {
+    return this.client.get(client, `/process/${pid}`, {...options});
   }
 
-  async killExeByName(client: string, request: KillExeByNameRequest): Promise<void> {
-    return this.client.post(client, '/process/kill-exe-by-name', request);
+  async killExeByPid(client: string, pid: number, options: ApiOptions = {}): Promise<void> {
+    return this.client.delete(client, `/process/${pid}`, {...options});
   }
 
-  async findPidsByName(client: string, request: FindPidsByNameRequest): Promise<number[]> {
-    return this.client.post(client, '/process/find-pids-by-name', request, 6000, true);
+  async findPidByName(client: string, name: string, options: ApiOptions = {}): Promise<number[]> {
+    return this.client.get(client, '/process', {...options, query: {name}});
   }
 
-  async killExeById(client: string, request: KillExeByPidRequest): Promise<void> {
-    return this.client.post(client, '/process/kill-exe-by-pid', request);
+  async createProcess(client: string, payload: LaunchExeRequestDto, options: ApiOptions = {}): Promise<CreateProcessResponseDto> {
+    return this.client.post(client, '/process', {...options, payload});
   }
 
-  async getProcessMainWindow(client: string, pid: number): Promise<WindowHandleResponseDto> {
-    return this.client.get(client, `/process/${pid}/main-window`);
+  async killExeByName(client: string, name: string, options: ApiOptions = {}): Promise<void> {
+    return this.client.delete(client, '/process', {...options, query: {name}});
   }
 }

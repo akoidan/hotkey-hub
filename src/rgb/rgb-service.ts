@@ -3,7 +3,7 @@ import {Client} from 'openrgb-sdk';
 import ClientType from 'openrgb-sdk/types/client';
 import {ConfigService} from '@/config/config-service';
 import {RgbServiceI} from '@/rgb/rgb-model';
-import {RgbData} from '@/config/types/schema';
+import {RgbData} from '@/config/types/root';
 
 
 interface Color {
@@ -20,8 +20,8 @@ export class RgbService implements RgbServiceI {
   private deviceId: number | null = null;
 
   constructor(
-      private readonly configService: ConfigService,
-      private readonly logger: Logger,
+    private readonly configService: ConfigService,
+    private readonly logger: Logger,
   ) {
   }
 
@@ -31,7 +31,7 @@ export class RgbService implements RgbServiceI {
     }
     const keys = comb.split('+');
     const key = keys[keys.length - 1].toLowerCase();
-    if (typeof this.keyMap[key] === 'undefined') { // escape is 0
+    if (this.keyMap[key] === undefined) { // escape is 0
       this.logger.error(`key ${key} is not present in keymap ${JSON.stringify(this.keyMap)}`);
       return;
     }
@@ -61,9 +61,9 @@ export class RgbService implements RgbServiceI {
   }
 
   public async setLeds(rgb: NonNullable<RgbData>): Promise<void> {
-    this.logger.debug('Connecting to OpenRGB...');
+    this.logger.verbose('Connecting to OpenRGB...');
     await this.client!.connect();
-    this.logger.debug('Connected to OpenRGB...');
+    this.logger.verbose('Connected to OpenRGB...');
     const controllerData = await this.client!.getAllControllerData();
     const keyboard = controllerData.find(dev => dev.name === rgb.deviceName);
     const availableDevices = controllerData.map(dev => dev.name).join('", "');
@@ -84,6 +84,7 @@ export class RgbService implements RgbServiceI {
     if (process.platform === 'linux') {
       // bug of opoenrgb client, disconnect, should be async with await, but it's not, so we have to wait
       // somehow only reproducable on linux only
+      this.logger.verbose('Awating 1000ms to reconnect to openrg');
       // eslint-disable-next-line
       await new Promise(resolve => setTimeout(resolve, 1000));
     }

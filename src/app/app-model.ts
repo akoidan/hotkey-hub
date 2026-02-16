@@ -5,6 +5,7 @@ interface ShortcutDescription {
   shortcut: Shortcut;
 }
 
+
 interface ReloadRequest {
   configFile?: string;
   variablesFile?: string;
@@ -18,5 +19,10 @@ interface ReloadRequest {
   logLevel: string;
   apiPort: number;
 }
+
+const LOG_LEVEL = 'LOG_LEVEL';
+const VERSION_INJ = 'VERSION';
+
+export {LOG_LEVEL, VERSION_INJ};
 
 export type {ShortcutDescription, ReloadRequest, AppConfig};

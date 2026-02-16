@@ -9,7 +9,7 @@ export class ShuffleLocalHandler extends BaseLocalHandler {
   private orders: Record<string, boolean> = {};
 
   constructor(
-    private readonly logger: Logger,
+    protected readonly logger: Logger,
     private readonly sempahoreService: SemaphorService,
   ) {
     super();
@@ -38,12 +38,12 @@ export class ShuffleLocalHandler extends BaseLocalHandler {
     return hash >>> 0; // make it unsigned
   }
 
-  async* execute(
+  async execute(
     comb: ShuffleLocalCommand,
     combDelayAfter: undefined | number,
     combDelayBefore: undefined | number,
-    tId: string | undefined,
-  ): AsyncGenerator<void> {
+    tId: string | undefined |null,
+  ): Promise<void> {
     let array = comb.commands;
     if (comb.shuffle === ShufflePolicy.random) {
       array = this.shuffleArray(array);
@@ -58,9 +58,8 @@ export class ShuffleLocalHandler extends BaseLocalHandler {
     for (const command of array) {
       const index = comb.commands.indexOf(command);
       this.logger.debug(`Running ${index} iteration`);
-      const that = this;
-      yield* this.sempahoreService.spawnGeneratorChild(`s=${String(index)}`, async function* loopGenerator(): AsyncGenerator<void> {
-        yield* that.startChain.handle(command, undefined, undefined, tId);
+      await this.sempahoreService.spawnPromiseChild(`s=${String(index)}`, async() => {
+        await this.startChain.handle(command, undefined, undefined, tId);
       });
     }
   }

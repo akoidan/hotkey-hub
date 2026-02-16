@@ -11,7 +11,7 @@ export class GetLocalHandler extends BaseLocalHandler {
   constructor(
     private readonly variableService: VariableResolutionService,
     private readonly configService: ConfigService,
-    private readonly logger: Logger,
+    protected readonly logger: Logger,
     private readonly getInfoHandler: GetInfoHandler,
   ) {
     super();
@@ -21,7 +21,7 @@ export class GetLocalHandler extends BaseLocalHandler {
     return Boolean(command.get);
   }
 
-  public async* execute(input: GetInfoRemoteCommand): AsyncGenerator<void> {
+  public async execute(input: GetInfoRemoteCommand): Promise<void> {
     // ignore delays for Get commands, as they should not block/conflicts other commands like typeText
     const currRec: GetInfoRemoteCommand = this.variableService.replaceVariables(input);
     this.logger.debug(`Running ${JSON.stringify(currRec)}`);
@@ -41,6 +41,5 @@ export class GetLocalHandler extends BaseLocalHandler {
     } else {
       this.configService.setVariable(currRec.assignVariable, res);
     }
-    yield undefined;
   }
 }

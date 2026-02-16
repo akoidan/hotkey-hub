@@ -9,7 +9,7 @@ import {EvaluateService} from '@/local/evaluate-serivce';
 @Injectable()
 export class ExpressionLocalHandler extends BaseLocalHandler {
   constructor(
-    private readonly logger: Logger,
+    protected readonly logger: Logger,
     private readonly configService: ConfigService,
     private readonly evaluateService: EvaluateService,
   ) {
@@ -21,9 +21,9 @@ export class ExpressionLocalHandler extends BaseLocalHandler {
   }
 
   /* eslint-disable */
-  async* execute(
+  async execute(
     command: ExpressionLocalCommand
-  ): AsyncGenerator<void> {
+  ): Promise<void> {
     const result = this.evaluateService.evaluateExpression(command.expression);
     this.logger.debug(`Assigning ${result} to ${command.assignVariable} from evaluating ${command.expression}`);
     if (command.assignVariable.includes('.')) {
@@ -40,7 +40,6 @@ export class ExpressionLocalHandler extends BaseLocalHandler {
       this.configService.setVariable(command.assignVariable, result);
     }
     this.logger.debug(`${clc.bold.green(command.assignVariable)}=${clc.yellow(JSON.stringify(result))}`);
-    yield undefined;
   }
 
   /* eslint-enable */

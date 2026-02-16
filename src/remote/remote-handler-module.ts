@@ -14,13 +14,13 @@ import {RandomModule} from '@/random/random.module';
 import {FocusWindowRemoteHandler} from '@/remote/implementation/focus-window-remote-handler';
 import {CommandRemoteHandler} from '@/remote/command-remote-handler';
 import {SetWindowBoundsRemoteHandler} from '@/remote/implementation/set-window-bounds-remote-handler.service';
-import {FocusProcessWindowRemoteHandler} from '@/remote/implementation/focus-process-window-remote-handler';
 import {MouseMoveRemoteHandler} from '@/remote/implementation/mouse-move-remote-handler';
+import {SetKeyboardLayoutRemoteHandler} from '@/remote/implementation/set-keyboard-layout-remote-handler';
 
 
 const handlers =[
   KeyPressRemoteHandler,
-  FocusProcessWindowRemoteHandler,
+  SetKeyboardLayoutRemoteHandler,
   MouseMoveLeftClickRemoteHandler,
   MouseMoveRemoteHandler,
   ExecuteRemoteHandler,

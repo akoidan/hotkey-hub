@@ -3,6 +3,7 @@ import {ASYNC_PROVIDER} from '@/asyncstore/async-storage-const';
 import {AsyncLocalStorage} from 'async_hooks';
 import {TransactionGroups} from '@/semaphor/semaphor-model';
 import clc from 'cli-color';
+import {ConfigCombination} from '@/config/config-model';
 
 @Injectable()
 export class SemaphorService {
@@ -10,6 +11,10 @@ export class SemaphorService {
   public static readonly COMB_KEY = 'comb';
   // eslint-disable-next-line @typescript-eslint/naming-convention
   public static readonly COMB_KEYSTROKE = 'keystroke';
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  public static readonly COMB_SHORTCUT = 'shorcut';
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  public static readonly ABORT_CONTROLLER = 'abort-controller';
 
   private readonly transactionGroups: TransactionGroups = {};
 
@@ -21,14 +26,17 @@ export class SemaphorService {
   ) {
   }
 
-  public async runOperation(shortCut: string, cb: () => Promise<void>): Promise<void> {
-    const parts = shortCut.split('+');
+  public async runOperation(shortCut: ConfigCombination, cb: (controller: AbortController) => Promise<void>): Promise<void> {
+    const parts = shortCut.shortCut.split('+');
     const randomValue = `${parts[parts.length - 1]}=${this.getNewTransactionId()}`;
     this.transactionGroups[randomValue] = [];
     await this.asyncLocalStorage.run(new Map(), async() => {
+      const controller =  new AbortController();
       this.asyncLocalStorage.getStore()!.set(SemaphorService.COMB_KEY, randomValue);
-      this.asyncLocalStorage.getStore()!.set(SemaphorService.COMB_KEYSTROKE, shortCut);
-      await cb();
+      this.asyncLocalStorage.getStore()!.set(SemaphorService.COMB_KEYSTROKE, shortCut.shortCut);
+      this.asyncLocalStorage.getStore()!.set(SemaphorService.COMB_SHORTCUT, shortCut);
+      this.asyncLocalStorage.getStore()!.set(SemaphorService.ABORT_CONTROLLER, controller);
+      await cb(controller);
     });
   }
 
@@ -37,48 +45,59 @@ export class SemaphorService {
     return this.asyncLocalStorage.getStore()!.get(SemaphorService.COMB_KEY) as string;
   }
 
+  public getAbortController(): AbortController {
+    return this.asyncLocalStorage.getStore()!.get(SemaphorService.ABORT_CONTROLLER) as AbortController;
+  }
+
   public async spawnPromiseChild(i: string, cb: () => Promise<void>, separator: string = '-'): Promise<void> {
+    const controller = this.getAbortController();
     const parentId = this.getCurrentOperationId();
     const newId = `${parentId}${separator}${i}`;
-    const newStorageMap: Map<string, any> = new Map<string, any>().set(SemaphorService.COMB_KEY, newId);
+    const newStorageMap: Map<string, any> = new Map<string, any>()
+      .set(SemaphorService.COMB_KEY, newId)
+      .set(SemaphorService.COMB_KEYSTROKE, parentId)
+      .set(SemaphorService.ABORT_CONTROLLER, controller);
     await this.asyncLocalStorage.run(newStorageMap, cb);
-    this.logger.debug(`All actions for ${parentId} are completed`);
+    this.logger.verbose(`All actions for ${parentId} are completed`);
   }
 
-  public async* spawnGeneratorChild(i: string, cb: () => AsyncGenerator<void>, separator: string = '-'): AsyncGenerator<void> {
-    this.logger.debug('Spawning new req-id');
-    const parentId = this.getCurrentOperationId();
-    const newId = `${parentId}${separator}${i}`;
-    const newStorageMap = new Map<string, any>(this.asyncLocalStorage.getStore());
-    newStorageMap.set(SemaphorService.COMB_KEY, newId);
-
-    const gen = cb();
-    let result: IteratorResult<void, void>;
-    do {
-      // awaiting run here, so we would have asynlocalstorage context
-      // otherwise e.g. with this yield *this.asyncLocalStorage.run(newStorageMap, cb)
-      // we will lose context
-      result = await this.asyncLocalStorage.run(newStorageMap, async() => {
-        this.logger.debug('Calling gen.next() from semaphore');
-        return gen.next();
-      });
-      yield result.value;
-      this.logger.debug('Yield from semaphor');
-    } while (!result.done);
-
-    this.logger.debug(`All actions for ${parentId} are completed`);
-    return result.value;
-  }
+  // public async* spawnGeneratorChild(
+  //   i: string,
+  //   cb: () => Promise<void>, separator: string = '-'
+  // ): Promise<void> {
+  //   this.logger.debug('Spawning new req-id');
+  //   const parentId = this.getCurrentOperationId();
+  //   const newId = `${parentId}${separator}${i}`;
+  //   const newStorageMap = new Map<string, any>(this.asyncLocalStorage.getStore());
+  //   newStorageMap.set(SemaphorService.COMB_KEY, newId);
+  //
+  //   const gen = cb();
+  //   let result: IteratorResult<QueueItem, void>;
+  //   do {
+  //     // awaiting run here, so we would have asynlocalstorage context
+  //     // otherwise e.g. with this yield *this.asyncLocalStorage.run(newStorageMap, cb)
+  //     // we will lose context
+  //     result = await this.asyncLocalStorage.run(newStorageMap, async() => {
+  //       this.logger.debug('Pushing item into execution queue');
+  //       return gen.next();
+  //     });
+  //     this.logger.debug(`Notifying executor to process next queue item ${i}`);
+  //     yield result.value || 0;
+  //   } while (!result.done);
+  //
+  //   this.logger.debug('Current Queue is complete');
+  //   return result.value;
+  // }
 
   public finishTransaction(transactionGroup: string, transactionId: string): void {
-    this.logger.debug(`Finishing transactions on ${transactionGroup}: ${transactionId}`);
+    this.logger.verbose(`Finishing transactions on ${transactionGroup}: ${transactionId}`);
     const currentState = this.transactionGroups[transactionGroup];
     if (currentState[0].transactionId !== transactionId) {
       throw Error(`Invalid state for current id of queue[0] = ${currentState[0].transactionId}`);
     }
     const elements = currentState.shift();
     if (elements!.resolve) {
-      this.logger.debug(`Releaseing ${elements!.resolveFrom}`);
+      this.logger.verbose(`Releaseing ${elements!.resolveFrom}`);
       elements!.resolve();
     }
   }
@@ -95,7 +114,7 @@ export class SemaphorService {
     }
     if (currentState.length > 0) {
       if (currentState[0].transactionId === transactionId) {
-        this.logger.debug(`Continuing inside transaction ${transactionId}`);
+        this.logger.verbose(`Continuing inside transaction ${transactionId}`);
         return;
       }
 
@@ -106,9 +125,9 @@ export class SemaphorService {
         currentState[currentState.length - 1].resolveFrom = transactionId;
         currentState.push({transactionId, resolve: null, resolveFrom: null}); // push to queue this new transaction so others won't come before this one
       });
-      this.logger.debug(`Lock released. Starting new transaction ${transactionId}`);
+      this.logger.verbose(`Lock released. Starting new transaction ${transactionId}`);
     } else {
-      this.logger.debug(`Starting new transaction ${transactionId} in ${trasactionGroup}`);
+      this.logger.verbose(`Starting new transaction ${transactionId} in ${trasactionGroup}`);
       currentState.push({transactionId, resolve: null, resolveFrom: null});
     }
   }

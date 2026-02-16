@@ -1,17 +1,15 @@
 import {Injectable} from '@nestjs/common';
-
-import {GetInfoRemoteCommand} from '@/config/types/get-commands/get-commands';
-import {GetActiveWindowIdCommand} from '@/config/types/get-commands/get-window-commands-schema';
-import {GetActiveWindowInfoResponse} from '@/client/dtos';
 import {GetInfoHandler} from '@/get-info/get-info-handler';
+import {GetWindowResponseDto} from '@/client/dtos';
+import {GetActiveWindowCommand} from '@/config/types/get-commands/get-window-commands-schema';
 
 @Injectable()
 export class GetActiveWindowInfoHandler extends GetInfoHandler {
-  canHandle(command: GetInfoRemoteCommand): command is GetActiveWindowIdCommand {
-    return command.get === 'getActiveWindowId';
+  canHandle(command: GetActiveWindowCommand): command is GetActiveWindowCommand {
+    return command.get === 'getActiveWindow';
   }
 
-  protected async execute(destination: string): Promise<GetActiveWindowInfoResponse> {
+  protected async execute(destination: string): Promise<GetWindowResponseDto> {
     return this.clientService.window.getActiveWindowInfo(destination);
   }
 }

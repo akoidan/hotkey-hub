@@ -21,6 +21,9 @@ export class GetWindowsIdByMultiplePidsHandler extends GetInfoHandler {
         ` since  ${JSON.stringify(command.assignVariable)} cannot be assigned to a` +
         `different number of variables: ${JSON.stringify(pids)}`);
     }
-    return Promise.all(pids.map(async(id) => this.clientService.window.getProcessWindows(destination, id)));
+    const windowsInfos = await Promise.all(
+        pids.map(async(id) => this.clientService.process.getProcessInfo(destination, id))
+    );
+    return windowsInfos.map(p => p.wids);
   }
 }

@@ -8,6 +8,6 @@ export class LeftMouseClickRemoteHandler extends CommandRemoteHandler {
   }
 
   async execute(destination: string): Promise<void> {
-    await this.clientService.mouse.leftMouseClick(destination);
+    await this.clientService.mouse.click(destination, {button: 'LEFT'});
   }
 }

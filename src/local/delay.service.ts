@@ -1,6 +1,9 @@
-import {Injectable, Logger} from '@nestjs/common';
+import {Inject, Injectable, Logger} from '@nestjs/common';
 import {ConfigService} from '@/config/config-service';
 import {RandomService} from '@/random/random-service';
+import {ASYNC_PROVIDER} from '@/asyncstore/async-storage-const';
+import {AsyncLocalStorage} from 'async_hooks';
+import {SemaphorService} from '@/semaphor/semaphor-service';
 
 @Injectable()
 export class DelayService {
@@ -8,6 +11,8 @@ export class DelayService {
     private readonly configService: ConfigService,
     private readonly randomService: RandomService,
     private readonly logger: Logger,
+    @Inject(ASYNC_PROVIDER)
+    private readonly asyncLocalStorage: AsyncLocalStorage<Map<string, any>>,
   ) {
   }
 
@@ -37,9 +42,27 @@ export class DelayService {
     if (!combDelay) {
       return;
     }
+    const controller: AbortController = this.asyncLocalStorage.getStore()!.get(SemaphorService.ABORT_CONTROLLER) as AbortController;
+    const combKey  = this.asyncLocalStorage.getStore()!.get(SemaphorService.COMB_KEY) as string;
     this.logger.debug(`Sleeping ${type} ${name} for ${combDelay}ms`);
-    await new Promise(resolve => {
-      setTimeout(resolve, combDelay);
+    return new Promise<void>((resolve, reject) => {
+      const id = setTimeout(() => {
+        this.logger.verbose(`Sleep ${combDelay}ms done`);
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        controller.signal.removeEventListener('abort', abortHandler);
+        resolve();
+      }, combDelay);
+      // eslint-disable-next-line
+      this.logger.verbose(`Added delay sleep timeout #${id} for ${combDelay}ms`);
+
+      const abortHandler = (): void => {
+        clearTimeout(id);
+        this.logger.debug(`Aborting current operation ${combKey}`);
+        // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
+        reject(Error(controller.signal.reason as string));
+      };
+
+      controller.signal.addEventListener('abort', abortHandler, {once: true});
     });
   }
 }

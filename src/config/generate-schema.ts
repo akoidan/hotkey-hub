@@ -1,6 +1,7 @@
-import {configSchema, macrosListSchema} from '@/config/types/schema';
+import {configSchema} from '@/config/types/root';
 import {promises as fs} from 'fs';
 import path from 'path';
+import {macrosListSchema} from '@/config/types/local/macro-local-command';
 
 async function main(): Promise<void> {
   const rootSchema = configSchema.toJSONSchema();

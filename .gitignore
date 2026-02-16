@@ -1,4 +1,5 @@
 node_modules
+openapi.json
 .idea
 swagger.json
 dist
@@ -7,7 +8,9 @@ config.json
 yarn-error.log
 configs
 certs
+/hotkey-hub
 examples
+hotkey-hub.exe
 coverage
 build
 cmake-build-debug
