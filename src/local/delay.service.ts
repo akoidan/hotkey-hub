@@ -47,18 +47,19 @@ export class DelayService {
     return new Promise<void>((resolve, reject) => {
       const id = setTimeout(() => {
         this.logger.debug(`Sleep ${combDelay}ms done`);
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        controller.signal.removeEventListener('abort', abortHandler);
         resolve();
       }, combDelay);
 
-      controller.signal.addEventListener(
-        'abort',
-        () => {
-          clearTimeout(id);
-          // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
-          reject(controller.signal.reason ?? new Error('aborted'));
-        },
-        {once: true}
-      );
+      const abortHandler = (): void => {
+        clearTimeout(id);
+        this.logger.debug('Aborting current operation');
+        // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
+        reject(controller.signal.reason ?? new Error('aborted'));
+      };
+
+      controller.signal.addEventListener('abort', abortHandler, {once: true});
     });
   }
 }

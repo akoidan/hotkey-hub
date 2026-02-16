@@ -30,7 +30,7 @@ import {AsyncStorageModule} from '@/asyncstore/async-storage.module';
     ProcessService,
     {
       provide: TIMEOUT,
-      useValue: 6000,
+      useValue: 30000,
     },
     {
       provide: Agent,

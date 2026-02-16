@@ -96,6 +96,7 @@ export class FetchClient {
     return headers;
   }
 
+  // eslint-disable-next-line max-lines-per-function
   private async makeRequest<T>(
     method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH',
     client: string,
@@ -108,21 +109,39 @@ export class FetchClient {
       url += `?${new URLSearchParams(query).toString()}`;
     }
     try {
+      const httpController = new AbortController(); // otherwise it will fail all commands
+      let timeout: NodeJS.Timeout | null = null;
+      let reject: ((error: Error) => void) |null = null ;
       const controller = this.asyncLocalStorage.getStore()?.get(SemaphorService.ABORT_CONTROLLER) as AbortController;
+      const eventListener = (): void =>  {
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+        this.logger.debug(`Aborting request, and clearing timeout ${timeout}`);
+        clearTimeout(timeout!);
+        httpController.abort();
+        reject!(Error('Request is aborted by user'));
+      };
       const [result, statusCode] = await Promise.race([
-        this.executeRequest(method, client, url, payloadstr, controller),
-        new Promise<never>((_, reject) => {
-          setTimeout(() => {
-            controller.abort();
-            reject(Error(`Request timed out after ${this.timeout}ms`));
+        this.executeRequest(method, client, url, payloadstr, httpController),
+        new Promise<never>((_, innerReject) => {
+          reject = innerReject;
+          timeout = setTimeout(() => {
+            this.logger.debug(`Request timed out after ${this.timeout}ms`);
+            controller.signal.removeEventListener('abort', eventListener);
+            httpController.abort();
+            innerReject(Error(`Request timed out after ${this.timeout}ms`));
           }, this.timeout);
+          // eslint-disable-next-line
+          this.logger.debug(`Added timeout ${timeout}`);
+          controller.signal.addEventListener('abort', eventListener);
         }),
       ]);
+      controller.signal.removeEventListener('abort', eventListener);
+      clearTimeout(timeout!);
 
       this.logger.log(
         `${method}:${statusCode} ${clc.bold.green(client)} ${clc.yellow(url)} ${payloadstr ?? ''} ${clc.xterm(7)('==>>')} ${result}`
       );
-      if (statusCode !== 204 && result) {
+      if ((statusCode as unknown as number) !== 204 && result) {
         try {
           return JSON.parse(result) as T;
         } catch (error) {
@@ -144,7 +163,7 @@ export class FetchClient {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   async post<T>(client: string, url: string, options: { query?: Record<string, string>, payload?: any } = {}): Promise<T> {
     return this.makeRequest<T>('POST', client, url, options.payload, options.query);
   }
