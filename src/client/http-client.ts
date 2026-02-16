@@ -121,18 +121,19 @@ export class FetchClient {
         httpController.abort();
         reject!(Error(controller.signal.reason as string));
       };
+      const realTimeout = options.timeout ?? this.timeout;
       const [result, statusCode] = await Promise.race([
         this.executeRequest(method, client, url, payloadstr, httpController),
         new Promise<never>((_, innerReject) => {
           reject = innerReject;
           timeout = setTimeout(() => {
-            this.logger.debug(`Request timed out after ${this.timeout}ms`);
+            this.logger.debug(`Request timed out after ${realTimeout}ms`);
             controller.signal.removeEventListener('abort', eventListener);
             httpController.abort();
-            innerReject(Error(`Request timed out after ${this.timeout}ms`));
-          }, options.timeout ?? this.timeout);
+            innerReject(Error(`Request timed out after ${realTimeout}ms`));
+          }, realTimeout);
           // eslint-disable-next-line
-          this.logger.verbose(`Added timeout #${timeout} for ${options.timeout ?? this.timeout}ms`);
+          this.logger.verbose(`Added timeout #${timeout} for ${realTimeout}ms`);
           controller.signal.addEventListener('abort', eventListener);
         }),
       ]);
