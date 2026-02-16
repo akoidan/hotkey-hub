@@ -444,6 +444,7 @@ describe('Logic service', () => {
           variables: {
             arguments: ['/s', '/t', '0'],
             path: 'C:\\Windows\\System32\\shutdown.exe',
+            waitTimeout: 1000,
           },
         },
       ],
@@ -453,8 +454,9 @@ describe('Logic service', () => {
 
     expect(spyLaucnhExe).toHaveBeenCalledWith('this', {
       arguments: ['/s', '/t', '0'],
+      waitTimeout: 1000,
       path: 'C:\\Windows\\System32\\shutdown.exe'
-    });
+    }, {timeout: 2000});
   });
 
   it('should call macro exe client call', async () => {
