@@ -177,8 +177,16 @@ interface ProcessResponseDto {
  */
 interface LaunchExeRequestDto {
   path: string;
-  arguments: (string)[];
-  waitTillFinish: boolean;
+  arguments?: (string)[];
+  waitTillFinish?: boolean;
+  waitTimeout?: number;
+}
+
+/**
+ * Process ID
+ */
+interface CreateProcessResponseDto {
+  pid: number;
 }
 
 export type {
@@ -200,4 +208,5 @@ export type {
   Generated6Bounds,
   ProcessResponseDto,
   LaunchExeRequestDto,
+  CreateProcessResponseDto,
 };

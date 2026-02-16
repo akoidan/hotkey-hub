@@ -1,12 +1,12 @@
 import {BadRequestException, Body, Controller, Logger, Post} from '@nestjs/common';
 import {ReloadRequest} from '@/app/app-model';
-import {AppService} from '@/app/app.service';
+import {StartService} from '@/app/start.service';
 
 
 @Controller()
 export class AppController {
   constructor(
-    private readonly appService: AppService,
+    private readonly appService: StartService,
     private readonly logger: Logger,
   ) {
   }

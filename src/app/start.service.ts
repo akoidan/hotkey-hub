@@ -6,7 +6,7 @@ import {ReloadRequest} from '@/app/app-model';
 import {ConfigPath, ConfigPathClass} from '@/config/types/config-path';
 
 @Injectable()
-export class AppService {
+export class StartService {
   constructor(
       private readonly logger: Logger,
       private readonly keybindingService: KeybindingService,

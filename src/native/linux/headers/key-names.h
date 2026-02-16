@@ -4,10 +4,10 @@
 #include <map>
 
 typedef struct {
-    const char* name;
-    KeySym key;
+  const char *name;
+  KeySym key;
 } KeyNames;
 
-extern KeyNames key_names[];
-extern std::map<char, KeySym> XShiftRequiredMap;
-extern std::map<char, KeySym> XSpecialCharacterMap;
+extern KeyNames keyNames[];
+extern std::map<char, KeySym> xShiftRequiredMap;
+extern std::map<char, KeySym> xSpecialCharacterMap;

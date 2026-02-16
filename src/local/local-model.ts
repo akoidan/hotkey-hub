@@ -6,12 +6,18 @@ enum ProcessStatus {
   STOPPED = 'STOPPED',
 }
 
-const VERSION_INJ = 'VERSION';
+interface IterationThread {
+  sleepId: NodeJS.Timeout |null;
+  resolve: ((a: unknown) => void)|null;
+}
 
-export interface IterationDescription {
+interface IterationDescription {
   id: string;
   status: ProcessStatus;
   shortCut: Shortcut;
+  controller: AbortController;
 }
 
-export {VERSION_INJ, ProcessStatus};
+export type {IterationThread, IterationDescription};
+
+export {ProcessStatus};

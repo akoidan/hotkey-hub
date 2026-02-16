@@ -4,9 +4,10 @@ import {globalDelaySchema} from '@/config/types/delays';
 import {shortcutsSchema} from '@/config/types/shortcut';
 
 const ipsSchema = z.record(z.string(), z.string())
-    .describe('Maps PC names to IP addresses or host names.' +
-        ' Each key identifies a remote PC, value is its IP/Domain. The address must be accessible from this PC. ' +
-        'For internet access, use VPN or tunneling (e.g. ngrok.com).');
+  .describe('Maps PC names to IP addresses or host names. If port is omited default is used' +
+    'Example value: {"PC1": "192.168.1.100", "PC2": "domain.name", "PC3: "domain.or.ip:5000"} ' +
+    'Each key identifies a remote PC, value is its IP/Domain. The address must be accessible from this PC. ' +
+    'For internet access, use VPN or tunneling (e.g. ngrok.com).');
 
 const rgbSchema = z.object({
   deviceName: z.string().describe('Device name of the keyboard. ' +

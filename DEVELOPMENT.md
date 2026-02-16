@@ -84,3 +84,4 @@ You need to provide **two include directories**:
 - **N-API headers**
     - Example: `.../node_modules/node-addon-api`
     - Contains `napi.h` and related files.
+

@@ -31,7 +31,7 @@ export class ConfigService implements ConfigProvider {
     @Inject(SAVE_TIMEOUT)
     private readonly saveTimeout: number,
   ) {
-    this.logger.debug(`Created new instance of config service from ${configReader.getId()}`);
+    this.logger.verbose(`Created new instance of config service from ${configReader.getId()}`);
   }
 
 
@@ -165,7 +165,9 @@ export class ConfigService implements ConfigProvider {
     this.variables = variables;
     this.setVariable('delays', configData.delays);
     if (this.configData.name) {
-      this.logger.log(`Loaded config ${clc.bold.green(this.configData.name)}`);
+      this.logger.log(`Loaded config ${clc.bold.green(this.configData.name)} from ${this.configReader.getId()}`);
+    } else {
+      this.logger.log(`Loaded config from ${this.configReader.getId()}`);
     }
   }
 
@@ -212,7 +214,6 @@ export class ConfigService implements ConfigProvider {
       this.variablesSaveTimeoutId = null;
       try {
         await this.configReader.saveVariablesConfigString(this.variables);
-        this.logger.debug(`Saved variables files from ${clc.green(name)}=${JSON.stringify(value)}`);
       } catch(e) {
         this.logger.error(`Unable to save variables because ${e?.message || e}`, e.stack);
       }
@@ -220,6 +221,8 @@ export class ConfigService implements ConfigProvider {
     // so we dont save while other process is saving
     // also prevents multiple async spam for variables backup
     // we can sacrifice 1s of old variable
+    // eslint-disable-next-line
+    this.logger.verbose(`Added timeout #${timeoutId} for ${this.saveTimeout}ms`);
     this.variablesSaveTimeoutId = timeoutId;
   }
 

@@ -9,7 +9,7 @@ import {SemaphorService} from '@/semaphor/semaphor-service';
 @Injectable()
 export class IfLocalHandler extends BaseLocalHandler {
   constructor(
-    private readonly logger: Logger,
+    protected readonly logger: Logger,
     private readonly evaluateService: EvaluateService,
     private readonly semaphoreService: SemaphorService,
   ) {
@@ -20,25 +20,24 @@ export class IfLocalHandler extends BaseLocalHandler {
     return (command as IfLocalCommand).if !== undefined;
   }
 
-  async* execute(
+  async execute(
     cmd: IfLocalCommand, combDelayAfter: undefined | number,
     combDelayBefore: undefined | number,
-    tId: string | undefined,
-  ): AsyncGenerator<void> {
+    tId: string | undefined |null,
+  ): Promise<void> {
     const ifResult = Boolean(this.evaluateService.evaluateExpression(cmd.if));
-    const that = this;
     if (ifResult) {
       this.logger.debug(`If condition evaluated to: ${clc.yellow(String(ifResult))}. Executing if branch`);
       for (let i = 0; i < cmd.then.length; i++) {
-        yield* this.semaphoreService.spawnGeneratorChild(`i=${String(i)}`, async function* loopGenerator(): AsyncGenerator<void> {
-          yield* that.startChain.handle(cmd.then[i], undefined, undefined, tId);
+        await this.semaphoreService.spawnPromiseChild(`i=${String(i)}`, async() => {
+          await this.startChain.handle(cmd.then[i], undefined, undefined, tId);
         });
       }
     } else if (cmd.else) {
       this.logger.debug(`If condition evaluated to: ${clc.yellow(String(ifResult))}. Executing else branch`);
-      for (let i = 0; i < cmd.then.length; i++) {
-        yield* this.semaphoreService.spawnGeneratorChild(`e=${String(i)}`, async function* loopGenerator(): AsyncGenerator<void> {
-          yield* that.startChain.handle(cmd.then[i], undefined, undefined, tId);
+      for (let i = 0; i < cmd.else!.length; i++) {
+        await this.semaphoreService.spawnPromiseChild(`e=${String(i)}`, async() => {
+          await this.startChain.handle(cmd.else![i], undefined, undefined, tId);
         });
       }
     } else {

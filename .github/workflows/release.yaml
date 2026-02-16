@@ -91,7 +91,7 @@ jobs:
         run: |
           mkdir docs
           sudo apt-get update
-          sudo apt-get install -y pandoc
+          sudo apt-get install -y --no-install-recommends pandoc
           pandoc CONFIG.md -s \
             -c https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.0/github-markdown.min.css \
             --self-contained \
@@ -111,10 +111,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install dependencies  # TODO cache
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends libx11-dev libxtst-dev libxcb-ewmh-dev libxcb1-dev cmake g++ make
+      - uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: libx11-dev libxtst-dev libxcb-ewmh-dev libxcb1-dev cmake g++ make
+          version: 1.0
 
       - uses: actions/setup-node@v6
         with:
@@ -155,10 +155,17 @@ jobs:
         run: |
           TAG=${{ github.event.release.tag_name }}
           VERSION=$(jq -r '.version' package.json)
+          if [[ "$VERSION" == *"-"* ]]; then
+            echo "IS_RELEASE=false" >> $GITHUB_ENV
+            echo "Ommiting releasing beta/alpha version to AUR"
+          else
+            echo "IS_RELEASE=true" >> $GITHUB_ENV
+          fi
           sed -i "s/^pkgver=.*/pkgver=${VERSION}/" ./packages/arch/PKGBUILD
           sed -i "s/^tag=.*/tag=${TAG}/" ./packages/arch/PKGBUILD
 
       - name: Publish to AUR
+        if: env.IS_RELEASE == 'true'
         uses: KSXGitHub/github-actions-deploy-aur@v4.1.1
         with:
           pkgname: hotkey-hub

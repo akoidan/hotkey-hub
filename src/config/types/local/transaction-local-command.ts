@@ -5,8 +5,9 @@ import {type UnknownCommand, unknownCommandSchema} from '@/config/types/commands
 const transactionLocalCommandSchema = z.lazy(() => z.object({
   commands: z.array(unknownCommandSchema)
     .describe('Commands to execute atomically in this transaction. All commands either succeed or fail together.'),
-  transaction: z.union([variableValueSchema, z.string()])
-    .describe('Unique name for the transaction. Helps with logging and debugging transaction execution.'),
+  transaction: z.union([variableValueSchema, z.string(), z.null()])
+    .describe('Unique name for the transaction. Helps with logging and debugging transaction execution.' +
+      'If transaction is null, all commands in this block would run despite other commands on the destination pc'),
 }).strict()).describe('Run commands in a transaction.' +
   ' Prevents concurrent transactions with same name.' +
   ' Uses PC name for remote commands. Ensures atomic execution.') as any as ZodType<{ commands: UnknownCommand[], transaction: string }>;

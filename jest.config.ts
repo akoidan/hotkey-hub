@@ -5,6 +5,11 @@ const config: Config.InitialOptions = {
   testEnvironment: 'node',
   roots: ['<rootDir>/tests'],
   modulePaths: ['.'],
+  collectCoverage: true,
+  coverageReporters: ["lcov", "text-summary"],
+  collectCoverageFrom: [
+    'src/**/*.ts',
+  ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },

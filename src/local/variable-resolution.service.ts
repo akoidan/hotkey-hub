@@ -37,7 +37,7 @@ export class VariableResolutionService {
   }
 
   private extractVariableName(variable: unknown): { varName: string|undefined, varExpress: string|undefined} {
-    if (typeof variable === 'object' && (variable as VariableValue).$ref) {
+    if (variable && (variable as VariableValue).$ref) {
       return this.extratVarNameInner((variable as VariableValue).$ref);
     }
     return  {varName: undefined, varExpress: undefined} ;
@@ -69,7 +69,7 @@ export class VariableResolutionService {
       return command;
     }
     if (Object.hasOwn(values, varName)) {
-      this.logger.debug(`Replaced variable ${varName} to ${JSON.stringify(values[varName])} for ${JSON.stringify(command)}`);
+      this.logger.verbose(`Replaced variable ${varName} to ${JSON.stringify(values[varName])} for ${JSON.stringify(command)}`);
       const res =  this.evaluateService.evaluateVariable(varName, varExpress!, values[varName]);
       if (exactValue && typeof res === 'string') {
         return `"${res}"` as T;
@@ -78,10 +78,10 @@ export class VariableResolutionService {
     }
     if (definition[varName]!.optional) {
       if (definition[varName]!.default) {
-        this.logger.debug(`Putting default ${varName}=${definition[varName]!.default} from ${JSON.stringify(command)}`);
+        this.logger.verbose(`Putting default ${varName}=${definition[varName]!.default} from ${JSON.stringify(command)}`);
         return definition[varName]!.default as T;
       }
-      this.logger.debug(`Omitting variable ${varName} from ${JSON.stringify(command)} since it's optional`);
+      this.logger.verbose(`Omitting variable ${varName} from ${JSON.stringify(command)} since it's optional`);
       return command;
     }
     throw Error(`Unable to resolve macros variable ${varName} when running ${JSON.stringify(command)}`);
