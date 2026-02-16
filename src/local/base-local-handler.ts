@@ -4,7 +4,7 @@ import {UnknownCommand} from '@/config/types/commands';
 @Injectable()
 export abstract class BaseLocalHandler {
   protected startChain: BaseLocalHandler;
-  protected abstract logger: Logger;
+  protected abstract readonly logger: Logger;
   private next: BaseLocalHandler | null = null;
 
   setNext(handler: BaseLocalHandler, startChain: BaseLocalHandler): BaseLocalHandler {
