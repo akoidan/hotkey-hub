@@ -26,6 +26,7 @@ import {PrintLocalHandler} from '@/local/implementation/print-local-handler';
 import {GetLocalHandler} from '@/local/get-local-handler';
 import {GetInfoModule} from '@/get-info/get-info-module';
 import {ExceptionLocalHandler} from '@/local/implementation/exception-local-handler';
+import {AsyncStorageModule} from '@/asyncstore/async-storage.module';
 
 
 const localHandlers =[
@@ -59,7 +60,17 @@ const localProviders: Provider[] = [
 ];
 
 @Module({
-  imports: [ConfigModule, ClientModule, RemoteHandlerModule, SemaphorModule, RandomModule, RgbModule, NativeModule, GetInfoModule],
+  imports: [
+    ConfigModule,
+    ClientModule,
+    RemoteHandlerModule,
+    SemaphorModule,
+    RandomModule,
+    RgbModule,
+    NativeModule,
+    GetInfoModule,
+    AsyncStorageModule,
+  ],
   providers: [
     Logger,
     DelayService,

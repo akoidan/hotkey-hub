@@ -23,12 +23,11 @@ export class ExceptionLocalHandler extends BaseLocalHandler {
     combDelayBefore: undefined | number,
     tId: string | undefined |null,
   ): Promise<void> {
-    const that = this;
-    try {
+        try {
       this.logger.debug('Spawing try block ');
       for (let i = 0; i < cmd.try.length; i++) {
-        await this.semaphoreService.spawnPromiseChild(`try=${String(i)}`, async function loopGenerator(): Promise<void> {
-          await that.startChain.handle(cmd.try[i], undefined, undefined, tId);
+        await this.semaphoreService.spawnPromiseChild(`try=${String(i)}`, async() => {
+          await this.startChain.handle(cmd.try[i], undefined, undefined, tId);
         });
       }
     } catch (e) {
@@ -36,8 +35,8 @@ export class ExceptionLocalHandler extends BaseLocalHandler {
       if (cmd.catch) {
         this.logger.debug('Spawing catch block ');
         for (let i = 0; i < cmd.catch.length; i++) {
-          await this.semaphoreService.spawnPromiseChild(`catch=${String(i)}`, async function loopGenerator(): Promise<void> {
-            await that.startChain.handle(cmd.catch![i], undefined, undefined, tId);
+          await this.semaphoreService.spawnPromiseChild(`catch=${String(i)}`, async() => {
+            await this.startChain.handle(cmd.catch![i], undefined, undefined, tId);
           });
         }
       }
@@ -45,8 +44,8 @@ export class ExceptionLocalHandler extends BaseLocalHandler {
       if (cmd.finally) {
         this.logger.debug('Spawing finally block ');
         for (let i = 0; i < cmd.finally.length; i++) {
-          await this.semaphoreService.spawnPromiseChild(`finally=${String(i)}`, async function loopGenerator(): Promise<void> {
-            await that.startChain.handle(cmd.finally![i], undefined, undefined, tId);
+          await this.semaphoreService.spawnPromiseChild(`finally=${String(i)}`, async() => {
+            await this.startChain.handle(cmd.finally![i], undefined, undefined, tId);
           });
         }
       }

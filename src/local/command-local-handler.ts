@@ -6,7 +6,6 @@ import {DelayService} from '@/local/delay.service';
 import {SemaphorService} from '@/semaphor/semaphor-service';
 import {BaseLocalHandler} from '@/local/base-local-handler';
 import {RemoteCommand} from '@/config/types/remote/remote-commands';
-import {QueueItem} from '@/generator/generator-model';
 
 @Injectable()
 export class CommandLocalHandler extends BaseLocalHandler {

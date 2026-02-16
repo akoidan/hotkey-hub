@@ -5,7 +5,6 @@ import {BaseLocalHandler} from '@/local/base-local-handler';
 import {GetInfoRemoteCommand} from '@/config/types/get-commands/get-commands';
 import {GetInfoHandler} from '@/get-info/get-info-handler';
 import {ConfigService} from '@/config/config-service';
-import {QueueItem} from '@/generator/generator-model';
 
 @Injectable()
 export class GetLocalHandler extends BaseLocalHandler {
@@ -42,6 +41,5 @@ export class GetLocalHandler extends BaseLocalHandler {
     } else {
       this.configService.setVariable(currRec.assignVariable, res);
     }
-    yield 0;
   }
 }

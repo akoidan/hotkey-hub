@@ -17,37 +17,27 @@ export class ThreadsLocalHandler extends BaseLocalHandler {
     return Boolean((command as ThreadsLocalCommand).threads);
   }
 
-
-  async mergeAsyncGenerators(gens: Promise<void>[]): Promise<void> {
-    // Since we're converting from generators to async functions,
-    // we just need to await all promises in parallel
-    await Promise.all(gens);
-  }
-
   async execute(
     comb: ThreadsLocalCommand,
     combDelayAfter: number | undefined,
     combDelayBefore: number | undefined,
     tId: string | undefined | null,
   ): Promise<void> {
-    const that = this;
-    await this.mergeAsyncGenerators(
-      (comb.threads.map(async function threadProcess(receiver: Thread, i: number): Promise<void> {
-        await that.semaphoreService.spawnPromiseChild(
-          `th=${receiver.name ?? String(i)}`,
-          async function threadGenerator(): Promise<void> {
-            for (let j = 0; j < receiver.commands.length; j++) {
-              await that.semaphoreService.spawnPromiseChild(
-                `c=${String(j)}`,
-                async function loopGenerator(): Promise<void> {
-                  await that.startChain.handle(receiver.commands[j], undefined, undefined, tId);
-                }
-              );
-            }
+    await Promise.all(comb.threads.map(async(receiver: Thread, i: number): Promise<void> => {
+      await this.semaphoreService.spawnPromiseChild(
+        `th=${receiver.name ?? String(i)}`,
+        async() => {
+          for (let j = 0; j < receiver.commands.length; j++) {
+            await this.semaphoreService.spawnPromiseChild(
+              `c=${String(j)}`,
+              async() => {
+                await this.startChain.handle(receiver.commands[j], undefined, undefined, tId);
+              }
+            );
           }
-        );
-      }))
-    );
+        }
+      );
+    }));
   }
 }
 

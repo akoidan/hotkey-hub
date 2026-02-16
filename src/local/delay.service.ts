@@ -1,7 +1,6 @@
 import {Inject, Injectable, Logger} from '@nestjs/common';
 import {ConfigService} from '@/config/config-service';
 import {RandomService} from '@/random/random-service';
-import {QueueGroupItem} from '@/generator/generator-model';
 import {ASYNC_PROVIDER} from '@/asyncstore/async-storage-const';
 import {AsyncLocalStorage} from 'async_hooks';
 import {SemaphorService} from '@/semaphor/semaphor-service';

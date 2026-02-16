@@ -26,19 +26,18 @@ export class IfLocalHandler extends BaseLocalHandler {
     tId: string | undefined |null,
   ): Promise<void> {
     const ifResult = Boolean(this.evaluateService.evaluateExpression(cmd.if));
-    const that = this;
-    if (ifResult) {
+        if (ifResult) {
       this.logger.debug(`If condition evaluated to: ${clc.yellow(String(ifResult))}. Executing if branch`);
       for (let i = 0; i < cmd.then.length; i++) {
-        await this.semaphoreService.spawnPromiseChild(`i=${String(i)}`, async function loopGenerator(): Promise<void> {
-          await that.startChain.handle(cmd.then[i], undefined, undefined, tId);
+        await this.semaphoreService.spawnPromiseChild(`i=${String(i)}`, async() => {
+          await this.startChain.handle(cmd.then[i], undefined, undefined, tId);
         });
       }
     } else if (cmd.else) {
       this.logger.debug(`If condition evaluated to: ${clc.yellow(String(ifResult))}. Executing else branch`);
-      for (let i = 0; i < cmd.else.length; i++) {
-        await this.semaphoreService.spawnPromiseChild(`e=${String(i)}`, async function loopGenerator(): Promise<void> {
-          await that.startChain.handle(cmd.else[i], undefined, undefined, tId);
+      for (let i = 0; i < cmd.else!.length; i++) {
+        await this.semaphoreService.spawnPromiseChild(`e=${String(i)}`, async() => {
+          await this.startChain.handle(cmd.else![i], undefined, undefined, tId);
         });
       }
     } else {

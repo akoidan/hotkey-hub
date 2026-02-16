@@ -10,6 +10,7 @@ export class SemaphorService {
   public static readonly COMB_KEY = 'comb';
   // eslint-disable-next-line @typescript-eslint/naming-convention
   public static readonly COMB_KEYSTROKE = 'keystroke';
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   public static readonly ABORT_CONTROLLER = 'abort-controller';
 
   private readonly transactionGroups: TransactionGroups = {};

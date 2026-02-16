@@ -1,13 +1,11 @@
-import {Injectable, Logger} from '@nestjs/common';
+import {Inject, Injectable, Logger} from '@nestjs/common';
 import {Agent, request} from 'https';
 import {ConfigService} from '@/config/config-service';
 import clc from 'cli-color';
 import {SemaphorService} from '@/semaphor/semaphor-service';
-
-interface CustomError extends Error {
-  statusCode?: number;
-  response?: string;
-}
+import {ASYNC_PROVIDER} from '@/asyncstore/async-storage-const';
+import {AsyncLocalStorage} from 'async_hooks';
+import {CustomError, TIMEOUT} from '@/client/client-model';
 
 
 @Injectable()
@@ -16,9 +14,11 @@ export class FetchClient {
     private readonly logger: Logger,
     private readonly config: ConfigService,
     private readonly agent: Agent,
-    private readonly protocol: string,
     private readonly semaphorService: SemaphorService,
+    @Inject(TIMEOUT)
     private readonly timeout: number,
+    @Inject(ASYNC_PROVIDER)
+    private readonly asyncLocalStorage: AsyncLocalStorage<Map<string, any>>,
   ) {
   }
 
@@ -27,11 +27,18 @@ export class FetchClient {
     method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH',
     client: string,
     url: string,
-    payloadstr: string|null,
+    payloadstr: string | null,
     controller: AbortController
   ): Promise<[string, number]> {
     const ips = this.config.getIps();
-    const host = ips[client];
+    let host = ips[client];
+    let port: number;
+    if (host.includes(':')) {
+      [host] = host.split(':');
+      port = parseInt(host.split(':')[1], 10);
+    } else {
+      port = this.config.getClientPort();
+    }
     if (!host) {
       const error = Error();
       (error as CustomError).statusCode = 1;
@@ -42,10 +49,10 @@ export class FetchClient {
       const headers = this.getHeaders(payloadstr);
       const req = request({
         agent: this.agent,
-        port: this.config.getClientPort(),
+        port,
         host,
         signal: controller.signal,
-        protocol: this.protocol,
+        protocol: 'https:',
         path: url,
         method,
         headers,
@@ -72,7 +79,7 @@ export class FetchClient {
     });
   }
 
-  private getHeaders(payloadstr: string|null): Record<string, string|number> {
+  private getHeaders(payloadstr: string | null): Record<string, string | number> {
     let headers: Record<string, string | number> = {
       // eslint-disable-next-line @typescript-eslint/naming-convention
       'x-request-id': this.semaphorService.getCurrentOperationId(),
@@ -96,12 +103,12 @@ export class FetchClient {
     payload?: unknown,
     query?: Record<string, string>,
   ): Promise<T> {
-    const payloadstr: string|null = payload ? JSON.stringify(payload) : null;
+    const payloadstr: string | null = payload ? JSON.stringify(payload) : null;
     if (query) {
       url += `?${new URLSearchParams(query).toString()}`;
     }
     try {
-      const controller = new AbortController();
+      const controller = this.asyncLocalStorage.getStore()?.get(SemaphorService.ABORT_CONTROLLER) as AbortController;
       const [result, statusCode] = await Promise.race([
         this.executeRequest(method, client, url, payloadstr, controller),
         new Promise<never>((_, reject) => {
@@ -125,35 +132,39 @@ export class FetchClient {
       return null as T;
     } catch (error: unknown) {
       const status: number | 'FAIL' = (error as CustomError).statusCode ?? 'FAIL';
-      const fullUrl: string = `${this.protocol}//${this.config.getIps()[client]}:${this.config.getClientPort()}${url}`;
+      let hostname = this.config.getIps()[client];
+      if (!hostname.includes(':')) {
+        hostname = `${hostname}:${this.config.getClientPort()}`;
+      }
+      const fullUrl: string = `https://${hostname}${url}`;
       throw new Error(
         `${method}:${client}:${status} ${fullUrl} ${(error as Error).message}`
-        +` ${payloadstr ?? ''} ${clc.xterm(2)('==>>')} ${(error as CustomError).response ?? ''}`
+        + ` ${payloadstr ?? ''} ${clc.xterm(2)('==>>')} ${(error as CustomError).response ?? ''}`
       );
     }
   }
 
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-  async post<T>(client: string, url: string, options: {query?: Record<string, string>, payload?: any} = {}): Promise<T> {
+  async post<T>(client: string, url: string, options: { query?: Record<string, string>, payload?: any } = {}): Promise<T> {
     return this.makeRequest<T>('POST', client, url, options.payload, options.query);
   }
 
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-  async patch<T>(client: string, url: string, options: {query?: Record<string, string>, payload?: any} = {}): Promise<T> {
+  async patch<T>(client: string, url: string, options: { query?: Record<string, string>, payload?: any } = {}): Promise<T> {
     return this.makeRequest<T>('PATCH', client, url, options.payload, options.query);
   }
 
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-  async put<T>(client: string, url: string, options: {query?: Record<string, string>, payload?: any} = {}): Promise<T> {
+  async put<T>(client: string, url: string, options: { query?: Record<string, string>, payload?: any } = {}): Promise<T> {
     return this.makeRequest<T>('PUT', client, url, options.payload, options.query);
   }
 
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-  async delete<T>(client: string, url: string,  options: {query?: Record<string, string>, payload?: any} = {}): Promise<T> {
+  async delete<T>(client: string, url: string, options: { query?: Record<string, string>, payload?: any } = {}): Promise<T> {
     return this.makeRequest<T>('DELETE', client, url, options.payload, options.query);
   }
 
-  async get<T>(client: string, url: string, options: {query?: Record<string, string>, payload?: any} = {}): Promise<T> {
+  async get<T>(client: string, url: string, options: { query?: Record<string, string>, payload?: any } = {}): Promise<T> {
     return this.makeRequest<T>('GET', client, url, options.payload, options.query);
   }
 }

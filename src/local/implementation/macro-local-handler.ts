@@ -33,34 +33,33 @@ export class MacroLocalHandler extends BaseLocalHandler {
     if (!executable) {
       throw new Error(`Macro ${input.macro} not found.`);
     }
-    const that = this;
-    await that.semaphoreService.spawnPromiseChild(
+        await this.semaphoreService.spawnPromiseChild(
       `m=${input.macro}`,
-      async function macroGenerator(): Promise<void> {
+      async() => {
         if (typeof input.delayBefore === 'number') { // ignore if it's a variable or undefined
           // if it's a macro, delay in this macro won't be passed down
           // but would be await after any commands in this macro has run yet as expected, this is why on top we are not passing it
-          await that.delayService.awaitDelay(input.delayBefore as number, undefined, 'before', 'macro');
+          await this.delayService.awaitDelay(input.delayBefore as number, undefined, 'before', 'macro');
         }
         for (let i = 0; i < executable.commands.length; i++) {
-          await that.semaphoreService.spawnPromiseChild(
+          await this.semaphoreService.spawnPromiseChild(
             `c=${String(i)}`,
-            async function loopGenerator(): Promise<void> {
-              const preparedCommand = that.variableService.replaceMacroVariables(
+            async() => {
+              const preparedCommand = this.variableService.replaceMacroVariables(
                 executable.commands[i],
                 input.variables,
                 executable.variables
               );
               const delayA = ((preparedCommand as Delay).delayAfter as number | undefined) ?? combDelayAfter;
               const delayB = ((preparedCommand as Delay).delayBefore as number | undefined) ?? combDelayBefore;
-              await that.startChain.handle(preparedCommand, delayA, delayB, tId);
+              await this.startChain.handle(preparedCommand, delayA, delayB, tId);
             }
           );
         }
         // commands in this macro has been already ran in the loop
         // await delay before the next command after this macro runs
         if (typeof input.delayAfter === 'number') { // ignore if it's a variable or undefined
-          await that.delayService.awaitDelay(input.delayAfter as number, undefined, 'after', 'macro'); // if it's a macro, delay in this macro won't be passed down
+          await this.delayService.awaitDelay(input.delayAfter as number, undefined, 'after', 'macro'); // if it's a macro, delay in this macro won't be passed down
           // but would be await after all commands in this macro as expected, this is why on top we are not passing it
         }
       },

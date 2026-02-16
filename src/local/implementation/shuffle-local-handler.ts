@@ -3,7 +3,6 @@ import {BaseLocalHandler} from '@/local/base-local-handler';
 import {ShuffleLocalCommand, ShufflePolicy} from '@/config/types/local/local-commands';
 import {UnknownCommand} from '@/config/types/commands';
 import {SemaphorService} from '@/semaphor/semaphor-service';
-import {QueueItem} from '@/generator/generator-model';
 
 @Injectable()
 export class ShuffleLocalHandler extends BaseLocalHandler {
@@ -39,7 +38,7 @@ export class ShuffleLocalHandler extends BaseLocalHandler {
     return hash >>> 0; // make it unsigned
   }
 
-  async* execute(
+  async execute(
     comb: ShuffleLocalCommand,
     combDelayAfter: undefined | number,
     combDelayBefore: undefined | number,
@@ -59,9 +58,8 @@ export class ShuffleLocalHandler extends BaseLocalHandler {
     for (const command of array) {
       const index = comb.commands.indexOf(command);
       this.logger.debug(`Running ${index} iteration`);
-      const that = this;
-      yield* this.sempahoreService.spawnPromiseChild(`s=${String(index)}`, async function* loopGenerator(): Promise<void> {
-        yield* that.startChain.handle(command, undefined, undefined, tId);
+      await this.sempahoreService.spawnPromiseChild(`s=${String(index)}`, async() => {
+        await this.startChain.handle(command, undefined, undefined, tId);
       });
     }
   }
