@@ -3,6 +3,7 @@ name: cache
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:  # This enables manual triggering
 
 jobs:
   win32:
@@ -46,10 +47,8 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: node_modules
-          lookup-only: true
           key: ${{ runner.os }}-node-modules-${{ hashFiles('yarn.lock') }}
       - uses: actions/setup-node@v6
-        if: steps.cache-node.outputs.cache-hit != 'true'
         with:
           package-manager-cache: false
           node-version: 24
@@ -78,3 +77,12 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends libx11-dev libxtst-dev libxcb-ewmh-dev libxcb1-dev cmake g++ make
+      - name: Build
+        run: yarn build
+      - name: Tests
+        run: yarn test
+      - name: Upload coverage to Coveralls
+        uses: coverallsapp/github-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: coverage/lcov.info
