@@ -7,7 +7,7 @@ import {ExceptionLocalCommand} from '@/config/types/local/exception-local-comman
 @Injectable()
 export class ExceptionLocalHandler extends BaseLocalHandler {
   constructor(
-    private readonly logger: Logger,
+    protected readonly logger: Logger,
     private readonly semaphoreService: SemaphorService,
   ) {
     super();

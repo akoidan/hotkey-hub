@@ -9,7 +9,7 @@ import {SemaphorService} from '@/semaphor/semaphor-service';
 @Injectable()
 export class IfLocalHandler extends BaseLocalHandler {
   constructor(
-    private readonly logger: Logger,
+    protected readonly logger: Logger,
     private readonly evaluateService: EvaluateService,
     private readonly semaphoreService: SemaphorService,
   ) {
@@ -26,7 +26,7 @@ export class IfLocalHandler extends BaseLocalHandler {
     tId: string | undefined |null,
   ): Promise<void> {
     const ifResult = Boolean(this.evaluateService.evaluateExpression(cmd.if));
-        if (ifResult) {
+    if (ifResult) {
       this.logger.debug(`If condition evaluated to: ${clc.yellow(String(ifResult))}. Executing if branch`);
       for (let i = 0; i < cmd.then.length; i++) {
         await this.semaphoreService.spawnPromiseChild(`i=${String(i)}`, async() => {

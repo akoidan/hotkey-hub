@@ -90,7 +90,7 @@ export class SemaphorService {
   // }
 
   public finishTransaction(transactionGroup: string, transactionId: string): void {
-    this.logger.debug(`Finishing transactions on ${transactionGroup}: ${transactionId}`);
+    this.logger.verbose(`Finishing transactions on ${transactionGroup}: ${transactionId}`);
     const currentState = this.transactionGroups[transactionGroup];
     if (currentState[0].transactionId !== transactionId) {
       throw Error(`Invalid state for current id of queue[0] = ${currentState[0].transactionId}`);

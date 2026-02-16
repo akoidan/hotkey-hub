@@ -9,7 +9,7 @@ import {EvaluateService} from '@/local/evaluate-serivce';
 @Injectable()
 export class LoopLocalHandler extends BaseLocalHandler {
   constructor(
-    private readonly logger: Logger,
+    protected readonly logger: Logger,
     private readonly evaluateService: EvaluateService,
     private readonly sempahoreService: SemaphorService,
   ) {

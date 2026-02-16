@@ -11,7 +11,7 @@ export class GetLocalHandler extends BaseLocalHandler {
   constructor(
     private readonly variableService: VariableResolutionService,
     private readonly configService: ConfigService,
-    private readonly logger: Logger,
+    protected readonly logger: Logger,
     private readonly getInfoHandler: GetInfoHandler,
   ) {
     super();

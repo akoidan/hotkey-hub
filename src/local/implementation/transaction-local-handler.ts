@@ -13,7 +13,7 @@ export class TransactionLocalHandler extends BaseLocalHandler {
     private readonly semaphoreService: SemaphorService,
     private readonly delayService: DelayService,
     private readonly variableService: VariableResolutionService,
-    private readonly logger: Logger,
+    protected readonly logger: Logger,
   ) {
     super();
   }

@@ -8,7 +8,7 @@ import {UnknownCommand} from '@/config/types/commands';
 export class ThreadsLocalHandler extends BaseLocalHandler {
   constructor(
     private readonly semaphoreService: SemaphorService,
-    private readonly logger: Logger,
+    protected readonly logger: Logger,
   ) {
     super();
   }

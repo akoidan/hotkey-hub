@@ -10,7 +10,7 @@ export class ReloadLocalHandler extends BaseLocalHandler {
   private keyBindingService: KeybindingService|null = null!;
 
   constructor(
-    private readonly logger: Logger,
+    protected readonly logger: Logger,
     @Inject(ConfigPathClass)
     private readonly configsPathService: ConfigPath,
   ) {

@@ -9,7 +9,7 @@ export class ShuffleLocalHandler extends BaseLocalHandler {
   private orders: Record<string, boolean> = {};
 
   constructor(
-    private readonly logger: Logger,
+    protected readonly logger: Logger,
     private readonly sempahoreService: SemaphorService,
   ) {
     super();

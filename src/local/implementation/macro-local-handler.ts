@@ -1,4 +1,4 @@
-import {Injectable} from '@nestjs/common';
+import {Injectable, Logger} from '@nestjs/common';
 import {ConfigService} from '@/config/config-service';
 import {VariableResolutionService} from '@/local/variable-resolution.service';
 import {DelayService} from '@/local/delay.service';
@@ -15,6 +15,7 @@ export class MacroLocalHandler extends BaseLocalHandler {
     private readonly variableService: VariableResolutionService,
     private readonly semaphoreService: SemaphorService,
     private readonly delayService: DelayService,
+    protected readonly logger: Logger,
   ) {
     super();
   }

@@ -8,7 +8,7 @@ import clc from 'cli-color';
 @Injectable()
 export class PrintLocalHandler extends BaseLocalHandler {
   constructor(
-    private readonly logger: Logger,
+    protected readonly logger: Logger,
     private readonly evaluateService: EvaluateService,
   ) {
     super();

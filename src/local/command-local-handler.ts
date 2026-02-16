@@ -11,7 +11,7 @@ import {RemoteCommand} from '@/config/types/remote/remote-commands';
 export class CommandLocalHandler extends BaseLocalHandler {
   constructor(
     private readonly variableService: VariableResolutionService,
-    private readonly logger: Logger,
+    protected readonly logger: Logger,
     private readonly comandHandler: CommandRemoteHandler,
     private readonly semaphoreService: SemaphorService,
     private readonly delayService: DelayService,
@@ -30,7 +30,6 @@ export class CommandLocalHandler extends BaseLocalHandler {
     tId: string | undefined | null,
   ): Promise<void> {
     const currRec: RemoteCommand = this.variableService.replaceVariables(input);
-    this.logger.debug(`Running ${JSON.stringify(input)}`);
     // if transaction is null = disabled. If transaction is string = already created on parent stack
     if (tId !== undefined) { // eslint-disable-line no-negated-condition
       await this.delayService.awaitDelay(combDelayBefore, input.delayBefore as number | undefined, 'before', 'command');
