@@ -52,6 +52,8 @@ export class DelayService {
         controller.signal.removeEventListener('abort', abortHandler);
         resolve();
       }, combDelay);
+      // eslint-disable-next-line
+      this.logger.verbose(`Added delay sleep timeout #${id} for ${combDelay}ms`);
 
       const abortHandler = (): void => {
         clearTimeout(id);

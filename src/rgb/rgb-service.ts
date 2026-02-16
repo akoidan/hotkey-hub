@@ -20,8 +20,8 @@ export class RgbService implements RgbServiceI {
   private deviceId: number | null = null;
 
   constructor(
-      private readonly configService: ConfigService,
-      private readonly logger: Logger,
+    private readonly configService: ConfigService,
+    private readonly logger: Logger,
   ) {
   }
 
@@ -84,6 +84,7 @@ export class RgbService implements RgbServiceI {
     if (process.platform === 'linux') {
       // bug of opoenrgb client, disconnect, should be async with await, but it's not, so we have to wait
       // somehow only reproducable on linux only
+      this.logger.verbose('Awating 1000ms to reconnect to openrg');
       // eslint-disable-next-line
       await new Promise(resolve => setTimeout(resolve, 1000));
     }

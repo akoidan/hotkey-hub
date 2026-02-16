@@ -529,6 +529,7 @@ ${this.generatedDtos.map(dto => `  ${dto.name},`).join('\n')}
     const imports = new Set<string>();
     imports.add('import {Injectable} from \'@nestjs/common\';');
     imports.add('import {FetchClient} from \'@/client/http-client\';');
+    imports.add('import {ApiOptions} from \'@/client/client-model\';');
 
     const usedDtos = new Set<string>();
 
@@ -620,6 +621,9 @@ ${methods}
       params.push(`payload: ${method.requestBody}`);
     }
 
+    // Add options parameter
+    params.push('options: ApiOptions = {}');
+
     return params.join(', ');
   }
 
@@ -630,7 +634,9 @@ ${methods}
     const queryParams = method.parameters.filter(p => p.in === 'query');
     if (queryParams.length > 0) {
       const queryProps = queryParams.map(p => `${p.name}`).join(', ');
-      options.push(`query: {${queryProps}}`);
+      options.push(`...options, query: {${queryProps}}`);
+    } else {
+      options.push('...options');
     }
     
     // Handle request body

@@ -222,6 +222,8 @@ export class ConfigService implements ConfigProvider {
     // so we dont save while other process is saving
     // also prevents multiple async spam for variables backup
     // we can sacrifice 1s of old variable
+    // eslint-disable-next-line
+    this.logger.verbose(`Added timeout #${timeoutId} for ${this.saveTimeout}ms`);
     this.variablesSaveTimeoutId = timeoutId;
   }
 

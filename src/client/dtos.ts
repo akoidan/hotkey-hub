@@ -181,6 +181,13 @@ interface LaunchExeRequestDto {
   waitTillFinish: boolean;
 }
 
+/**
+ * Process ID
+ */
+interface CreateProcessResponseDto {
+  pid: number;
+}
+
 export type {
   PingResponseDto,
   KeyPressRequestDto,
@@ -200,4 +207,5 @@ export type {
   Generated6Bounds,
   ProcessResponseDto,
   LaunchExeRequestDto,
+  CreateProcessResponseDto,
 };
