@@ -77,7 +77,7 @@ export class ShortcutProcessingService {
       // eslint-disable-next-line max-len
       this.logger.log(`${clc.bold.green(comb.shortCut)} pressed. Waiting previous to finish exe ${clc.bold.green(comb.name)}`);
     } else if (statuses.includes(ProcessStatus.RUNNING)) {
-      this.logger.log(`${clc.bold.green(comb.shortCut)} pressed. Terminating ${clc.bold.green(comb.name)}`);
+      this.logger.debug(`${clc.bold.green(comb.shortCut)} pressed. Terminating ${clc.bold.green(comb.name)}`);
       this.terminateProcess(groupWith);
     } else {
       await this.runLoop(comb, id, groupWith, controller);
@@ -104,8 +104,8 @@ export class ShortcutProcessingService {
         );
       }
     } catch (e) {
-      if (e instanceof AbortError) {
-        this.logger.log(`Operation ${comb} is terminated`);
+      if (e.name === 'AbortError') {
+        this.logger.log(`${clc.bold.green(comb.shortCut)} pressed. Operation ${clc.bold.green(comb.name)} is terminated`);
       } else {
        throw e;
       }
