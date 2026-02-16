@@ -61,9 +61,9 @@ export class RgbService implements RgbServiceI {
   }
 
   public async setLeds(rgb: NonNullable<RgbData>): Promise<void> {
-    this.logger.debug('Connecting to OpenRGB...');
+    this.logger.verbose('Connecting to OpenRGB...');
     await this.client!.connect();
-    this.logger.debug('Connected to OpenRGB...');
+    this.logger.verbose('Connected to OpenRGB...');
     const controllerData = await this.client!.getAllControllerData();
     const keyboard = controllerData.find(dev => dev.name === rgb.deviceName);
     const availableDevices = controllerData.map(dev => dev.name).join('", "');

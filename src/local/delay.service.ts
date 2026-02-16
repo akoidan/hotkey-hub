@@ -47,7 +47,7 @@ export class DelayService {
     this.logger.debug(`Sleeping ${type} ${name} for ${combDelay}ms`);
     return new Promise<void>((resolve, reject) => {
       const id = setTimeout(() => {
-        this.logger.debug(`Sleep ${combDelay}ms done`);
+        this.logger.verbose(`Sleep ${combDelay}ms done`);
         // eslint-disable-next-line @typescript-eslint/no-use-before-define
         controller.signal.removeEventListener('abort', abortHandler);
         resolve();

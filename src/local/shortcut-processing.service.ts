@@ -42,7 +42,7 @@ export class ShortcutProcessingService {
           // if pausable, it won't start at all, so there's a possibility it's not running
           this.iterationsInProgress[groupWith].splice(index, 1);
         } else {
-          this.logger.debug(`Operation ${id} was used for termination, thus deletion from all iterationsInProgress is omited`);
+          this.logger.verbose(`Operation ${id} was used for termination, thus deletion from all iterationsInProgress is omited`);
         }
         if (this.iterationsInProgress[groupWith].filter(proc => proc.shortCut.shortCut === comb.shortCut).length === 0) {
           await this.rgbService.updateColors(comb.shortCut, false);

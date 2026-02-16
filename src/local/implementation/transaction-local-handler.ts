@@ -114,7 +114,7 @@ export class TransactionLocalHandler extends BaseLocalHandler {
         }
       );
       await transactionPromise;
-      this.logger.debug('Calling next item from transaction');
+      this.logger.verbose('Calling next item from transaction');
     }
     // commands in this macro has been already ran in the loop
     // await delay before the next command after this macro runs

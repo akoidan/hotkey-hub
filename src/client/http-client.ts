@@ -133,7 +133,7 @@ export class FetchClient {
             innerReject(Error(`Request timed out after ${this.timeout}ms`));
           }, this.timeout);
           // eslint-disable-next-line
-          this.logger.debug(`Added timeout ${timeout}`);
+          this.logger.verbose(`Added timeout ${timeout}`);
           controller.signal.addEventListener('abort', eventListener);
         }),
       ]);

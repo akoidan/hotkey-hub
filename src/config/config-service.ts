@@ -31,7 +31,7 @@ export class ConfigService implements ConfigProvider {
     @Inject(SAVE_TIMEOUT)
     private readonly saveTimeout: number,
   ) {
-    this.logger.debug(`Created new instance of config service from ${configReader.getId()}`);
+    this.logger.verbose(`Created new instance of config service from ${configReader.getId()}`);
   }
 
 

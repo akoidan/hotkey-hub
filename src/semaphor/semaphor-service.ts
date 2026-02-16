@@ -58,7 +58,7 @@ export class SemaphorService {
       .set(SemaphorService.COMB_KEYSTROKE, parentId)
       .set(SemaphorService.ABORT_CONTROLLER, controller);
     await this.asyncLocalStorage.run(newStorageMap, cb);
-    this.logger.debug(`All actions for ${parentId} are completed`);
+    this.logger.verbose(`All actions for ${parentId} are completed`);
   }
 
   // public async* spawnGeneratorChild(
@@ -97,7 +97,7 @@ export class SemaphorService {
     }
     const elements = currentState.shift();
     if (elements!.resolve) {
-      this.logger.debug(`Releaseing ${elements!.resolveFrom}`);
+      this.logger.verbose(`Releaseing ${elements!.resolveFrom}`);
       elements!.resolve();
     }
   }
@@ -114,7 +114,7 @@ export class SemaphorService {
     }
     if (currentState.length > 0) {
       if (currentState[0].transactionId === transactionId) {
-        this.logger.debug(`Continuing inside transaction ${transactionId}`);
+        this.logger.verbose(`Continuing inside transaction ${transactionId}`);
         return;
       }
 
@@ -125,9 +125,9 @@ export class SemaphorService {
         currentState[currentState.length - 1].resolveFrom = transactionId;
         currentState.push({transactionId, resolve: null, resolveFrom: null}); // push to queue this new transaction so others won't come before this one
       });
-      this.logger.debug(`Lock released. Starting new transaction ${transactionId}`);
+      this.logger.verbose(`Lock released. Starting new transaction ${transactionId}`);
     } else {
-      this.logger.debug(`Starting new transaction ${transactionId} in ${trasactionGroup}`);
+      this.logger.verbose(`Starting new transaction ${transactionId} in ${trasactionGroup}`);
       currentState.push({transactionId, resolve: null, resolveFrom: null});
     }
   }
