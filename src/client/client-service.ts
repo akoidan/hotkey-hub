@@ -1,5 +1,5 @@
 import {Injectable} from '@nestjs/common';
-import {PingService} from '@/client/services/ping.service';
+import {AppService} from '@/client/services/app.service';
 import {KeyboardService} from '@/client/services/keyboard.service';
 import {MonitorService} from '@/client/services/monitor.service';
 import {ProcessService} from '@/client/services/process.service';
@@ -10,7 +10,7 @@ import {MouseService} from '@/client/services/mouse.service';
 @Injectable()
 export class ClientService {
   constructor(
-    public readonly app: PingService,
+    public readonly app: AppService,
     public readonly keyboard: KeyboardService,
     public readonly monitor: MonitorService,
     public readonly mouse: MouseService,

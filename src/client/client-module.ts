@@ -4,7 +4,6 @@ import {ClientService} from '@/client/client-service';
 import {CertService} from '@/client/cert-service';
 import {ConfigModule} from '@/config/config-module';
 import {SemaphorModule} from '@/semaphor/semaphor.module';
-import {PingService} from '@/client/services/ping.service';
 import {KeyboardService} from '@/client/services/keyboard.service';
 import {MonitorService} from '@/client/services/monitor.service';
 import {MouseService} from '@/client/services/mouse.service';
@@ -13,6 +12,7 @@ import {WindowService} from '@/client/services/window.service';
 import {TIMEOUT} from '@/client/client-model';
 import {Agent} from 'https';
 import {AsyncStorageModule} from '@/asyncstore/async-storage.module';
+import {AppService} from '@/client/services/app.service';
 
 
 @Module({
@@ -23,7 +23,7 @@ import {AsyncStorageModule} from '@/asyncstore/async-storage.module';
   ],
   providers: [
     Logger,
-    PingService,
+    AppService,
     KeyboardService,
     MonitorService,
     MouseService,

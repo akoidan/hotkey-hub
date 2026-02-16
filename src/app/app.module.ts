@@ -5,18 +5,18 @@ import {LocalModule} from '@/local/local.module';
 import {CERT_DIR} from '@/client/client-model';
 import {CONFIG_FILE, VARIABLES_FILE} from '@/config/config-model';
 import {AppConfig, LOG_LEVEL, VERSION_INJ} from '@/app/app-model';
-import {AppService} from '@/app/app.service';
+import {StartService} from '@/app/start.service';
 import {AppController} from '@/app/app.controller';
 
 @Module({
   imports: [ConfigModule, ClientModule, LocalModule],
-  providers: [Logger, AppService],
+  providers: [Logger, StartService],
   controllers: [AppController],
   exports: [],
 })
 export class AppModule implements OnModuleInit {
   constructor(
-      private readonly appService: AppService,
+    private readonly appService: StartService,
   ) {
   }
 

@@ -39,7 +39,7 @@ export class KeybindingService {
   }
 
   private async verifyClientVersion(destination: string): Promise<void> {
-    const res = await this.clientService.app.ping(destination);
+    const res = await this.clientService.app.ping(destination, {timeout: 3000});
     const [major] = this.version.split('.');
     let clientVersion = '1.x.x';
     if (res.version) {
