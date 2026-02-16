@@ -22,7 +22,7 @@ export class GetLocalHandler extends BaseLocalHandler {
     return Boolean(command.get);
   }
 
-  public async* execute(input: GetInfoRemoteCommand): AsyncGenerator<QueueItem> {
+  public async execute(input: GetInfoRemoteCommand): Promise<void> {
     // ignore delays for Get commands, as they should not block/conflicts other commands like typeText
     const currRec: GetInfoRemoteCommand = this.variableService.replaceVariables(input);
     this.logger.debug(`Running ${JSON.stringify(currRec)}`);

@@ -96,4 +96,4 @@ The generator follow some simple rules:
 - Items are allowed to have await operation as long as all operations in the item is considered a part of the transaction (atomic operations). Thus we dont want them to stop in the middle even if we terminate shortcut. In other words they have to finish.
 - Await delays should yield a number (which is a miliseconds delay) to parent executor in order to be able to terminate during sleep.
 - Complex operations like threads should properly handle children and reyield all operations to parent executor. 
-- Every nested command should have its own identifier which is reflected in logs. This is done via SemaphorService.spawnGeneratorChild
+- Every nested command should have its own identifier which is reflected in logs. This is done via SemaphorService.spawnPromiseChild

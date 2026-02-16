@@ -27,9 +27,9 @@ export class ReloadLocalHandler extends BaseLocalHandler {
     return cc.reloadConfig !== undefined || cc.reloadVariables !== undefined;
   }
 
-  public async* execute(
+  public async execute(
     input: ReloadConfigLocalCommand,
-  ): AsyncGenerator<QueueItem> {
+  ): Promise<void> {
     if (!this.keyBindingService) {
       throw Error('Module not loaded, keybinding service required');
     }

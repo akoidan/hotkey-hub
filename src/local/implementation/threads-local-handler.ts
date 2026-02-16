@@ -19,7 +19,7 @@ export class ThreadsLocalHandler extends BaseLocalHandler {
   }
 
 
-  async* mergeAsyncGenerators(gens: AsyncGenerator<QueueItem>[]): AsyncGenerator<QueueItem> {
+  async* mergeAsyncGenerators(gens: Promise<void>[]): Promise<void> {
     const results = new Map<number, Promise<IteratorResult<QueueItem, void>>>();
 
     // Initialize all generators
@@ -60,17 +60,17 @@ export class ThreadsLocalHandler extends BaseLocalHandler {
     combDelayAfter: number | undefined,
     combDelayBefore: number | undefined,
     tId: string | undefined | null,
-  ): AsyncGenerator<QueueItem> {
+  ): Promise<void> {
     const that = this;
     yield* this.mergeAsyncGenerators(
-      (comb.threads.map(async function* threadProcess(receiver: Thread, i: number): AsyncGenerator<QueueItem> {
-        yield* that.semaphoreService.spawnGeneratorChild(
+      (comb.threads.map(async function* threadProcess(receiver: Thread, i: number): Promise<void> {
+        yield* that.semaphoreService.spawnPromiseChild(
           `th=${receiver.name ?? String(i)}`,
-          async function* threadGenerator(): AsyncGenerator<QueueItem> {
+          async function* threadGenerator(): Promise<void> {
             for (let j = 0; j < receiver.commands.length; j++) {
-              yield* that.semaphoreService.spawnGeneratorChild(
+              yield* that.semaphoreService.spawnPromiseChild(
                 `c=${String(j)}`,
-                async function* loopGenerator(): AsyncGenerator<QueueItem> {
+                async function* loopGenerator(): Promise<void> {
                   yield* that.startChain.handle(receiver.commands[j], undefined, undefined, tId);
                 }
               );

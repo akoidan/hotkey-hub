@@ -24,7 +24,7 @@ export class ExpressionLocalHandler extends BaseLocalHandler {
   /* eslint-disable */
   async* execute(
     command: ExpressionLocalCommand
-  ): AsyncGenerator<QueueItem> {
+  ): Promise<void> {
     const result = this.evaluateService.evaluateExpression(command.expression);
     this.logger.debug(`Assigning ${result} to ${command.assignVariable} from evaluating ${command.expression}`);
     if (command.assignVariable.includes('.')) {

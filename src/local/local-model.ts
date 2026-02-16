@@ -15,7 +15,7 @@ interface IterationDescription {
   id: string;
   status: ProcessStatus;
   shortCut: Shortcut;
-  threads: Record<string, IterationThread>;
+  controller: AbortController;
 }
 
 export type {IterationThread, IterationDescription};

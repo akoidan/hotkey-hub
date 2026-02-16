@@ -1,6 +1,10 @@
-import {Injectable, Logger} from '@nestjs/common';
+import {Inject, Injectable, Logger} from '@nestjs/common';
 import {ConfigService} from '@/config/config-service';
 import {RandomService} from '@/random/random-service';
+import {QueueGroupItem} from '@/generator/generator-model';
+import {ASYNC_PROVIDER} from '@/asyncstore/async-storage-const';
+import {AsyncLocalStorage} from 'async_hooks';
+import {SemaphorService} from '@/semaphor/semaphor-service';
 
 @Injectable()
 export class DelayService {
@@ -8,17 +12,19 @@ export class DelayService {
     private readonly configService: ConfigService,
     private readonly randomService: RandomService,
     private readonly logger: Logger,
+    @Inject(ASYNC_PROVIDER)
+    private readonly asyncLocalStorage: AsyncLocalStorage<Map<string, any>>,
   ) {
   }
 
   // Awaits delay if specified in global config or in local command data
   // Applies a hugeDelay from global config if chance is succeded
-  public *awaitDelay(
+  public async awaitDelay(
     combDelay: undefined | number,
     commandDelay: undefined | number,
     type: 'before' | 'after',
     name: string = '',
-  ): Generator<number> {
+  ): Promise<void> {
     const delays = this.configService.getDelays();
     if (commandDelay !== undefined) {
       combDelay = commandDelay;
@@ -37,7 +43,23 @@ export class DelayService {
     if (!combDelay) {
       return;
     }
-    this.logger.debug(`Yielding sleep of ${type} ${name} for ${combDelay}ms`);
-    yield combDelay;
+    const controller: AbortController = this.asyncLocalStorage.getStore()!.get(SemaphorService.ABORT_CONTROLLER) as AbortController;
+    this.logger.debug(`Sleeping ${type} ${name} for ${combDelay}ms`);
+    return new Promise<void>((resolve, reject) => {
+      const id = setTimeout(() => {
+        this.logger.debug(`Sleep ${combDelay}ms done`);
+        resolve();
+      }, combDelay);
+
+      controller.signal.addEventListener(
+        'abort',
+        () => {
+          clearTimeout(id);
+          // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
+          reject(controller.signal.reason ?? new Error('aborted'));
+        },
+        {once: true}
+      );
+    });
   }
 }

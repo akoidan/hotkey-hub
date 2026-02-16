@@ -25,20 +25,20 @@ export class IfLocalHandler extends BaseLocalHandler {
     cmd: IfLocalCommand, combDelayAfter: undefined | number,
     combDelayBefore: undefined | number,
     tId: string | undefined |null,
-  ): AsyncGenerator<QueueItem> {
+  ): Promise<void> {
     const ifResult = Boolean(this.evaluateService.evaluateExpression(cmd.if));
     const that = this;
     if (ifResult) {
       this.logger.debug(`If condition evaluated to: ${clc.yellow(String(ifResult))}. Executing if branch`);
       for (let i = 0; i < cmd.then.length; i++) {
-        yield* this.semaphoreService.spawnGeneratorChild(`i=${String(i)}`, async function* loopGenerator(): AsyncGenerator<QueueItem> {
+        yield* this.semaphoreService.spawnPromiseChild(`i=${String(i)}`, async function* loopGenerator(): Promise<void> {
           yield* that.startChain.handle(cmd.then[i], undefined, undefined, tId);
         });
       }
     } else if (cmd.else) {
       this.logger.debug(`If condition evaluated to: ${clc.yellow(String(ifResult))}. Executing else branch`);
       for (let i = 0; i < cmd.then.length; i++) {
-        yield* this.semaphoreService.spawnGeneratorChild(`e=${String(i)}`, async function* loopGenerator(): AsyncGenerator<QueueItem> {
+        yield* this.semaphoreService.spawnPromiseChild(`e=${String(i)}`, async function* loopGenerator(): Promise<void> {
           yield* that.startChain.handle(cmd.then[i], undefined, undefined, tId);
         });
       }

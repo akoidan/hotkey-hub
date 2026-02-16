@@ -20,7 +20,7 @@ export class ShortcutProcessingService {
   }
 
   async runShortcut(comb: Shortcut): Promise<void> {
-    await this.semaphoreService.runOperation(comb.shortCut, async() => {
+    await this.semaphoreService.runOperation(comb.shortCut, async(controller: AbortController) => {
       const id = this.semaphoreService.getCurrentOperationId();
       const behaviour = typeof comb.behaviour === 'object' ? comb.behaviour.type : comb.behaviour;
       const groupWith = (comb.behaviour as BehaviourObject)?.groupWith ?? comb.shortCut;
@@ -30,11 +30,11 @@ export class ShortcutProcessingService {
           this.iterationsInProgress[groupWith] = [];
         }
         if (behaviour === BehaviourEnum.pausable) {
-          await this.runPausableProcess(comb, id, groupWith);
+          await this.runPausableProcess(comb, id, groupWith, controller);
         } else if (behaviour === BehaviourEnum.restart) {
           await this.runRestartableProcess(comb, id, groupWith);
         } else { // comb.behaviour === 'stackable'
-          await this.runGeneratorLoop(comb, id, groupWith);
+          await this.runGeneratorLoop(comb, id, groupWith, controller);
         }
       } finally {
         const index = this.iterationsInProgress[groupWith].findIndex(proc => proc.id === id);
@@ -51,37 +51,27 @@ export class ShortcutProcessingService {
     });
   }
 
-  private terminateProcess(groupWith: string): void {
+  private terminateProcess(groupWith: string, controller: AbortController): void {
     this.iterationsInProgress[groupWith]
       .filter(proc => proc.status === ProcessStatus.RUNNING)
       .forEach(proc => {
         proc.status = ProcessStatus.TERMINATING;
-        Object.keys(proc.threads).forEach(key => {
-          if (proc.threads[key].sleepId) {
-            clearTimeout(proc.threads[key].sleepId);
-            proc.threads[key].sleepId = null;
-          }
-          if (proc.threads[key].resolve) {
-            const c = proc.threads[key].resolve;
-            proc.threads[key].resolve = null;
-            c(0);
-          }
-        });
+        controller.abort();
       });
   }
 
-  private async runRestartableProcess(comb: Shortcut, id: string, groupWith: string): Promise<void> {
+  private async runRestartableProcess(comb: Shortcut, id: string, groupWith: string, controller: AbortController): Promise<void> {
     const running = this.iterationsInProgress[groupWith]
       .map(proc => proc.status)
       .filter(s => s === ProcessStatus.RUNNING);
     if (running.length > 0) {
       this.logger.debug(`Stopping ${running.join(',')} instances of ${clc.bold.green(comb.name)}`);
-      this.terminateProcess(groupWith);
+      this.terminateProcess(groupWith, controller);
     }
-    await this.runGeneratorLoop(comb, id, groupWith);
+    await this.runGeneratorLoop(comb, id, groupWith, controller);
   }
 
-  private async runPausableProcess(comb: Shortcut, id: string, groupWith: string): Promise<void> {
+  private async runPausableProcess(comb: Shortcut, id: string, groupWith: string, controller: AbortController): Promise<void> {
     const statuses = this.iterationsInProgress[groupWith].map(proc => proc.status);
     if (statuses.includes(ProcessStatus.TERMINATING)) {
       // eslint-disable-next-line max-len
@@ -89,32 +79,27 @@ export class ShortcutProcessingService {
     } else if (statuses.includes(ProcessStatus.RUNNING)) {
       this.logger.log(`${clc.bold.green(comb.shortCut)} pressed. Terminating ${clc.bold.green(comb.name)}`);
       this.logger.debug('Waiting for remaining queue to finish their exectuion.');
-      this.terminateProcess(groupWith);
+      this.terminateProcess(groupWith, controller);
     } else {
-      await this.runGeneratorLoop(comb, id, groupWith);
+      await this.runGeneratorLoop(comb, id, groupWith, controller);
     }
   }
 
   // eslint-disable-next-line
-  async runGeneratorLoop(comb: Shortcut, id: string, groupWith: string): Promise<void> {
+  async runGeneratorLoop(comb: Shortcut, id: string, groupWith: string, controller: AbortController): Promise<void> {
     this.iterationsInProgress[groupWith].push({
       id,
       status: ProcessStatus.RUNNING,
       shortCut: comb,
-      threads: {
-        default: {
-          sleepId: null,
-          resolve: null,
-        },
-      },
+      controller,
     });
     this.logger.log(`${clc.bold.green(comb.shortCut)} pressed. Running ${clc.bold.green(comb.name)}`);
     const that = this;
     let breakLoop = false;
     for (let i = 0; i < comb.commands.length; i++) {
-      const generator = this.semaphoreService.spawnGeneratorChild(
+      const generator = this.semaphoreService.spawnPromiseChild(
         `c=${String(i)}`,
-        async function* loopGenerator(): AsyncGenerator<QueueItem> {
+        async function* loopGenerator(): Promise<void> {
           yield* that.unknownCommandProcessor.handle(comb.commands[i], comb.delayAfter, comb.delayBefore, undefined);
         }
       );
@@ -131,20 +116,6 @@ export class ShortcutProcessingService {
         }
         this.logger.debug('Executing item on the queue');
         const res = await generator.next();
-        if (res.value) {
-          this.logger.debug(`Sleeping for ${res.value}`);
-          // eslint-disable-next-line
-          await new Promise(r => {
-            const d = this.iterationsInProgress[groupWith]!.find(proc => proc.id === id)!;
-            d!.resolve = r;
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-            d!.sleepId = setTimeout(r, res.value);
-          });
-          const b = this.iterationsInProgress[groupWith]!.find(proc => proc.id === id)!;
-          b.resolve = null;
-          b.sleepId = null;
-        }
-        done = res.done ?? false;
       }
       if (breakLoop) {
         break;
