@@ -83,25 +83,23 @@ There are 3 types of commands:
     - windows information getters with e.g.  `get: "activeWindow"`
     - ...
 
-- `main` branch documentation is available at [github-pages](https://akoidan.github.io/hotkey-hub) 
-- Documentation per specific version is available in [releases](https://github.com/akoidan/hotkey-hub/releases) at `CONFIG.md` file
-- You can more examples in fixtures, e.g. [config-fixture.jsonc](./tests/fixtures/config-fixture.jsonc)
-- Uses JSON with comments (JSONC) format
-- Schema is defined in `json-schema.json`, available in [releases](https://github.com/akoidan/hotkey-hub/releases)
-- Documentation is defined at `CONFIG.md`, available in [releases](https://github.com/akoidan/hotkey-hub/releases)
-- Can reference macros and variables from optional configuration files`
+#### JSON Schema Support
+You can validate your configuration using any JSON schema validator (e.g., [jsonschemavalidator.net](https://www.jsonschemavalidator.net/)):
+1. Get the schema files from the [releases page](https://github.com/akoidan/hotkey-hub/releases)
+2. Paste the schema into the validator's schema panel
+3. Write/validate your configuration in the data panel
+
+#### How to build config
+- For the latest`main` branch documentation is available at [github-pages](https://akoidan.github.io/hotkey-hub) 
+- Documentation per specific version is available in [releases](https://github.com/akoidan/hotkey-hub/releases) at `CONFIG.md` alog with `jsonc-schema.json`
+- There are more examples in fixtures, e.g. [config-fixture.jsonc](./tests/fixtures/config-fixture.jsonc)
+- You can use comments in jsonc file, but if you use online json schema validator it would complain about it.
 
 ### Variables (Optional)
 Create `configs/variables.json` to define custom variables:
 - Can have any valid JSON structure with a root object
 - To reference a variable use object with `$ref` keyword.  E.g. `"destination": "{"$ref": "varName"}`
 - Variables can be referenced in `config.jsonc`
-
-### JSON Schema Support
-You can validate your configuration using any JSON schema validator (e.g., [jsonschemavalidator.net](https://www.jsonschemavalidator.net/)):
-1. Get the schema files from the [releases page](https://github.com/akoidan/hotkey-hub/releases)
-2. Paste the schema into the validator's schema panel
-3. Write/validate your configuration in the data panel
 
 ### Install the app
 
@@ -159,7 +157,7 @@ The app generates detailed logs to help understand complex command sequences.
 Every log line has its own request id (same for hotkey-hub and http-remote-pc-control), which allow to track complex structures.
 Let's review log line:
 ```txt
-[20:40:28.045] 2=mr7-c=0-th=tyrs-c=1=m=tyr-c=2=d=2hn: POST:201 lenovo /keyboard/key-press {"keys":["3"],"holdKeys":[]} ==>
+[20:40:28.045] 2=mr7-c=0-th=tyrs-c=1=m=tyr-c=2=d=2hn: POST:201 lenovo /keyboard/key-press {"keys":["3"],"holdKeys":[]} ==> void
 ```
 Every loop of commands is separated by `-`. `=` means that this is the meaning of this command.
 - `[20:40:28.045]` - time and milliseconds
@@ -173,5 +171,5 @@ Every loop of commands is separated by `-`. `=` means that this is the meaning o
 - `{"keys":["3"],"holdKeys":[]}` json payload of POST request
 - `=>>>` response body which is empty. Nothing after `=>>>` is printed
 
-## Develop locally
+## Development documentation
 Check [DEVELOPMENT.md](DEVELOPMENT.md)
