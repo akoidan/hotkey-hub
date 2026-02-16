@@ -1,6 +1,5 @@
 import {Injectable} from '@nestjs/common';
 import {UnknownCommand} from '@/config/types/commands';
-import {QueueItem} from '@/generator/generator-model';
 
 @Injectable()
 export abstract class BaseLocalHandler {
@@ -22,16 +21,16 @@ export abstract class BaseLocalHandler {
     tId: string | undefined |null,
   ): Promise<void>
 
-  public async *handle(
+  public async handle(
     input: UnknownCommand,
     combDelayAfter: undefined | number,
     combDelayBefore: undefined | number,
     tId: string | undefined |null,
   ): Promise<void> {
     if (this.canHandle(input)) {
-      yield *this.execute(input, combDelayAfter, combDelayBefore, tId);
+      await this.execute(input, combDelayAfter, combDelayBefore, tId);
     } else if (this.next) {
-      yield *this.next.handle(input, combDelayAfter, combDelayBefore, tId);
+      await this.next.handle(input, combDelayAfter, combDelayBefore, tId);
     } else {
       throw new Error(`No handler found for command type: ${JSON.stringify(input)}`);
     }

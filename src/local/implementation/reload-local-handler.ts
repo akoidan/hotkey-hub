@@ -4,7 +4,6 @@ import {ReloadConfigLocalCommand} from '@/config/types/local/local-commands';
 import {UnknownCommand} from '@/config/types/commands';
 import {ConfigPath, ConfigPathClass} from '@/config/types/config-path';
 import {KeybindingService} from '@/local/keybinding-service';
-import {QueueItem} from '@/generator/generator-model';
 
 @Injectable()
 export class ReloadLocalHandler extends BaseLocalHandler {
@@ -35,6 +34,5 @@ export class ReloadLocalHandler extends BaseLocalHandler {
     }
     this.configsPathService.setConfigPaths(input.reloadConfig, input.reloadVariables);
     await this.keyBindingService.reloadShortcuts();
-    yield 0;
   }
 }

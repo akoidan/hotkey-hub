@@ -5,7 +5,6 @@ import {UnknownCommand} from '@/config/types/commands';
 import clc from 'cli-color';
 import {EvaluateService} from '@/local/evaluate-serivce';
 import {SemaphorService} from '@/semaphor/semaphor-service';
-import {QueueItem} from '@/generator/generator-model';
 
 @Injectable()
 export class IfLocalHandler extends BaseLocalHandler {
@@ -21,7 +20,7 @@ export class IfLocalHandler extends BaseLocalHandler {
     return (command as IfLocalCommand).if !== undefined;
   }
 
-  async* execute(
+  async execute(
     cmd: IfLocalCommand, combDelayAfter: undefined | number,
     combDelayBefore: undefined | number,
     tId: string | undefined |null,
@@ -31,15 +30,15 @@ export class IfLocalHandler extends BaseLocalHandler {
     if (ifResult) {
       this.logger.debug(`If condition evaluated to: ${clc.yellow(String(ifResult))}. Executing if branch`);
       for (let i = 0; i < cmd.then.length; i++) {
-        yield* this.semaphoreService.spawnPromiseChild(`i=${String(i)}`, async function* loopGenerator(): Promise<void> {
-          yield* that.startChain.handle(cmd.then[i], undefined, undefined, tId);
+        await this.semaphoreService.spawnPromiseChild(`i=${String(i)}`, async function loopGenerator(): Promise<void> {
+          await that.startChain.handle(cmd.then[i], undefined, undefined, tId);
         });
       }
     } else if (cmd.else) {
       this.logger.debug(`If condition evaluated to: ${clc.yellow(String(ifResult))}. Executing else branch`);
-      for (let i = 0; i < cmd.then.length; i++) {
-        yield* this.semaphoreService.spawnPromiseChild(`e=${String(i)}`, async function* loopGenerator(): Promise<void> {
-          yield* that.startChain.handle(cmd.then[i], undefined, undefined, tId);
+      for (let i = 0; i < cmd.else.length; i++) {
+        await this.semaphoreService.spawnPromiseChild(`e=${String(i)}`, async function loopGenerator(): Promise<void> {
+          await that.startChain.handle(cmd.else[i], undefined, undefined, tId);
         });
       }
     } else {

@@ -3,7 +3,6 @@ import {BaseLocalHandler} from '@/local/base-local-handler';
 import {UnknownCommand} from '@/config/types/commands';
 import {SemaphorService} from '@/semaphor/semaphor-service';
 import {ExceptionLocalCommand} from '@/config/types/local/exception-local-command';
-import {QueueItem} from '@/generator/generator-model';
 
 @Injectable()
 export class ExceptionLocalHandler extends BaseLocalHandler {
@@ -18,7 +17,7 @@ export class ExceptionLocalHandler extends BaseLocalHandler {
     return (command as ExceptionLocalCommand).try !== undefined;
   }
 
-  async* execute(
+  async execute(
     cmd: ExceptionLocalCommand,
     combDelayAfter: undefined | number,
     combDelayBefore: undefined | number,
@@ -28,8 +27,8 @@ export class ExceptionLocalHandler extends BaseLocalHandler {
     try {
       this.logger.debug('Spawing try block ');
       for (let i = 0; i < cmd.try.length; i++) {
-        yield* this.semaphoreService.spawnPromiseChild(`try=${String(i)}`, async function* loopGenerator(): Promise<void> {
-          yield* that.startChain.handle(cmd.try[i], undefined, undefined, tId);
+        await this.semaphoreService.spawnPromiseChild(`try=${String(i)}`, async function loopGenerator(): Promise<void> {
+          await that.startChain.handle(cmd.try[i], undefined, undefined, tId);
         });
       }
     } catch (e) {
@@ -37,8 +36,8 @@ export class ExceptionLocalHandler extends BaseLocalHandler {
       if (cmd.catch) {
         this.logger.debug('Spawing catch block ');
         for (let i = 0; i < cmd.catch.length; i++) {
-          yield* this.semaphoreService.spawnPromiseChild(`catch=${String(i)}`, async function* loopGenerator(): Promise<void> {
-            yield* that.startChain.handle(cmd.catch![i], undefined, undefined, tId);
+          await this.semaphoreService.spawnPromiseChild(`catch=${String(i)}`, async function loopGenerator(): Promise<void> {
+            await that.startChain.handle(cmd.catch![i], undefined, undefined, tId);
           });
         }
       }
@@ -46,8 +45,8 @@ export class ExceptionLocalHandler extends BaseLocalHandler {
       if (cmd.finally) {
         this.logger.debug('Spawing finally block ');
         for (let i = 0; i < cmd.finally.length; i++) {
-          yield* this.semaphoreService.spawnPromiseChild(`finally=${String(i)}`, async function* loopGenerator(): Promise<void> {
-            yield* that.startChain.handle(cmd.finally![i], undefined, undefined, tId);
+          await this.semaphoreService.spawnPromiseChild(`finally=${String(i)}`, async function loopGenerator(): Promise<void> {
+            await that.startChain.handle(cmd.finally![i], undefined, undefined, tId);
           });
         }
       }

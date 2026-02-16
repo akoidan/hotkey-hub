@@ -3,7 +3,6 @@ import {ASYNC_PROVIDER} from '@/asyncstore/async-storage-const';
 import {AsyncLocalStorage} from 'async_hooks';
 import {TransactionGroups} from '@/semaphor/semaphor-model';
 import clc from 'cli-color';
-import {QueueItem} from '@/generator/generator-model';
 
 @Injectable()
 export class SemaphorService {

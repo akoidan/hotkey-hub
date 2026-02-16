@@ -32,7 +32,7 @@ export class ShortcutProcessingService {
         if (behaviour === BehaviourEnum.pausable) {
           await this.runPausableProcess(comb, id, groupWith, controller);
         } else if (behaviour === BehaviourEnum.restart) {
-          await this.runRestartableProcess(comb, id, groupWith);
+          await this.runRestartableProcess(comb, id, groupWith, controller);
         } else { // comb.behaviour === 'stackable'
           await this.runGeneratorLoop(comb, id, groupWith, controller);
         }
@@ -97,10 +97,10 @@ export class ShortcutProcessingService {
     const that = this;
     let breakLoop = false;
     for (let i = 0; i < comb.commands.length; i++) {
-      const generator = this.semaphoreService.spawnPromiseChild(
+      const promise = this.semaphoreService.spawnPromiseChild(
         `c=${String(i)}`,
-        async function* loopGenerator(): Promise<void> {
-          yield* that.unknownCommandProcessor.handle(comb.commands[i], comb.delayAfter, comb.delayBefore, undefined);
+        async function loopGenerator(): Promise<void> {
+          await that.unknownCommandProcessor.handle(comb.commands[i], comb.delayAfter, comb.delayBefore, undefined);
         }
       );
       let done = false;
@@ -110,12 +110,14 @@ export class ShortcutProcessingService {
           this.logger.debug(`Terminating ${clc.bold.green(comb.name)}.`);
           // await return is not required, we just skip calling next
           // also return is not technicaly correct cause we are mearing multiple generators in one manually in thread-local-handler
-          await generator.return(undefined);
+          // No longer needed since we converted to async function
           this.iterationsInProgress[groupWith].find(proc => proc.id === id)!.status = ProcessStatus.STOPPED;
           breakLoop = true; //while should finish in order to finish current transaction and release transaction group
+          done = true; // Exit the while loop
         }
         this.logger.debug('Executing item on the queue');
-        const res = await generator.next();
+        await promise;
+        done = true; // Exit after executing once
       }
       if (breakLoop) {
         break;
