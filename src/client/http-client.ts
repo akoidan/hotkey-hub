@@ -97,7 +97,7 @@ export class FetchClient {
     return headers;
   }
 
-  // eslint-disable-next-line max-lines-per-function
+  // eslint-disable-next-line
   private async makeRequest<T>(
     method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH',
     client: string,
