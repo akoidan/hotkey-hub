@@ -92,7 +92,9 @@ export class KeybindingService {
     } else {
       this.logger.debug(`Registering ${clc.bold.green(comb.shortCut)} shortcut`);
       const id = this.native.registerHotkey(key, modifiers, () => {
-        this.shortcutProcessingService.runShortcut(this.callbacks[name].shortcut).catch((err: unknown) => this.logger.error(err));
+        this.shortcutProcessingService.runShortcut(this.callbacks[name].shortcut).catch((err: unknown) => {
+          this.logger.error(err);
+        });
       });
       this.callbacks[name] = {
         id,

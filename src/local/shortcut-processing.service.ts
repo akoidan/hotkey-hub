@@ -93,14 +93,22 @@ export class ShortcutProcessingService {
       controller,
     });
     this.logger.log(`${clc.bold.green(comb.shortCut)} pressed. Running ${clc.bold.green(comb.name)}`);
-    for (let i = 0; i < comb.commands.length; i++) {
-      this.logger.debug('Executing item on the queue');
-      await this.semaphoreService.spawnPromiseChild(
-        `c=${String(i)}`,
-        async() => {
-          await this.unknownCommandProcessor.handle(comb.commands[i], comb.delayAfter, comb.delayBefore, undefined);
-        }
-      );
+    try {
+      for (let i = 0; i < comb.commands.length; i++) {
+        this.logger.debug('Executing item on the queue');
+        await this.semaphoreService.spawnPromiseChild(
+          `c=${String(i)}`,
+          async() => {
+            await this.unknownCommandProcessor.handle(comb.commands[i], comb.delayAfter, comb.delayBefore, undefined);
+          }
+        );
+      }
+    } catch (e) {
+      if (e instanceof AbortError) {
+        this.logger.log(`Operation ${comb} is terminated`);
+      } else {
+       throw e;
+      }
     }
   }
 }
