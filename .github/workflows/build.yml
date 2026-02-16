@@ -1,4 +1,4 @@
-name: cache
+name: build
 
 on:
   push:
@@ -65,18 +65,11 @@ jobs:
             node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('yarn.lock') }}
 
-      - name: Cache apt packages
-        id: ubuntu-cache
-        uses: actions/cache@v4
+      - uses: awalsh128/cache-apt-pkgs-action@latest
         with:
-          path: |
-            /var/cache/apt/archives
-            /var/lib/apt/lists
-          key: ${{ runner.os }}-apt-1
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends libx11-dev libxtst-dev libxcb-ewmh-dev libxcb1-dev cmake g++ make
+          packages: libx11-dev libxtst-dev libxcb-ewmh-dev libxcb1-dev cmake g++ make
+          version: 1.0
+
       - name: Build
         run: yarn build
       - name: Tests
