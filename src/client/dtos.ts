@@ -177,8 +177,9 @@ interface ProcessResponseDto {
  */
 interface LaunchExeRequestDto {
   path: string;
-  arguments: (string)[];
-  waitTillFinish: boolean;
+  arguments?: (string)[];
+  waitTillFinish?: boolean;
+  waitTimeout?: number;
 }
 
 /**

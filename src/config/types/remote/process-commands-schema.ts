@@ -33,8 +33,11 @@ const launchExeRemoteVariableSchema = z.object({
   arguments: z.array(z.string()).default([]).optional()
     .describe('Command-line arguments to pass to the executable. Each array element is a separate argument.'),
   waitTillFinish: z.boolean().default(false).optional()
-    .describe('If true, waits for the launched program to complete before executing the next command. ' +
-      'If false (default), continues with next command immediately after launch.'),
+    .describe('Blocks current execution context until this timeout passes or process is finished, whichever comes first.'),
+  waitTimeout: z.number().default(300).optional()
+    .describe('Awaits this timeout to pass to get processs id. ' +
+      'If waitTillFinish is true, awaits maxium of this timeout. ' +
+      'If process failed to finish before it, throws error.'),
 }).strict();
 
 const launchExeRemoteCommandVariableSchema = makeVariableUnion(launchExeRemoteVariableSchema);
