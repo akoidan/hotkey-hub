@@ -43,6 +43,7 @@ export class DelayService {
       return;
     }
     const controller: AbortController = this.asyncLocalStorage.getStore()!.get(SemaphorService.ABORT_CONTROLLER) as AbortController;
+    const combKey  = this.asyncLocalStorage.getStore()!.get(SemaphorService.COMB_KEY) as string;
     this.logger.debug(`Sleeping ${type} ${name} for ${combDelay}ms`);
     return new Promise<void>((resolve, reject) => {
       const id = setTimeout(() => {
@@ -54,7 +55,7 @@ export class DelayService {
 
       const abortHandler = (): void => {
         clearTimeout(id);
-        this.logger.debug('Aborting current operation');
+        this.logger.debug(`Aborting current operation ${combKey}`);
         // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
         reject(controller.signal.reason ?? new Error('aborted'));
       };

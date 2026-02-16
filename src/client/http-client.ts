@@ -113,9 +113,10 @@ export class FetchClient {
       let timeout: NodeJS.Timeout | null = null;
       let reject: ((error: Error) => void) |null = null ;
       const controller = this.asyncLocalStorage.getStore()?.get(SemaphorService.ABORT_CONTROLLER) as AbortController;
+      const combKey  = this.asyncLocalStorage.getStore()!.get(SemaphorService.COMB_KEY) as string;
       const eventListener = (): void =>  {
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        this.logger.debug(`Aborting request, and clearing timeout ${timeout}`);
+        this.logger.debug(`Aborting request ${combKey}, and clearing timeout ${timeout}`);
         clearTimeout(timeout!);
         httpController.abort();
         reject!(Error('Request is aborted by user'));
