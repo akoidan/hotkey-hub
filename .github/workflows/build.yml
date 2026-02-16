@@ -4,7 +4,9 @@ on:
   push:
     branches: [ main ]
   workflow_dispatch:  # This enables manual triggering
-
+    branches:
+      - main
+      - develop
 jobs:
   win32:
     runs-on: windows-2022
