@@ -61,4 +61,5 @@ asyncLocalStorage.run(
       customLogger.fatal(err as (string | Error), (err as Error)?.stack);
       process.exit(1);
     });
-  });
+  }
+);

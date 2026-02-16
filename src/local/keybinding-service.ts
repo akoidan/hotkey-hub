@@ -6,9 +6,6 @@ import {INativeModule, ModifierKey, Native} from '@/native/native-model';
 import {ShortcutDescription, VERSION_INJ} from '@/app/app-model';
 import {ShortcutProcessingService} from '@/local/shortcut-processing.service';
 import {Shortcut} from '@/config/types/shortcut';
-import {SemaphorService} from '@/semaphor/semaphor-service';
-import {ASYNC_PROVIDER} from '@/asyncstore/async-storage-const';
-import {AsyncLocalStorage} from 'async_hooks';
 
 
 export class KeybindingService {
@@ -20,8 +17,6 @@ export class KeybindingService {
     private readonly version: string,
     private readonly configService: ConfigService,
     private readonly clientService: ClientService,
-    @Inject(ASYNC_PROVIDER)
-    private readonly asyncLocalStorage: AsyncLocalStorage<Map<string, any>>,
     private readonly shortcutProcessingService: ShortcutProcessingService,
     @Inject(Native)
     private readonly native: INativeModule
