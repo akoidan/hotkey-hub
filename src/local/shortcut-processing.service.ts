@@ -5,6 +5,7 @@ import {BehaviourEnum, BehaviourObject, Shortcut} from '@/config/types/shortcut'
 import {SemaphorService} from '@/semaphor/semaphor-service';
 import {RgbService} from '@/rgb/rgb-service';
 import {IterationDescription, ProcessStatus} from '@/local/local-model';
+import {ABORTED_BY_USER} from '@/client/client-model';
 
 @Injectable()
 export class ShortcutProcessingService {
@@ -56,7 +57,7 @@ export class ShortcutProcessingService {
       .forEach(proc => {
         this.logger.debug(`Terminating ${proc.id}`);
         proc.status = ProcessStatus.TERMINATING;
-        proc.controller.abort();
+        proc.controller.abort(ABORTED_BY_USER);
       });
   }
 
@@ -93,14 +94,23 @@ export class ShortcutProcessingService {
       controller,
     });
     this.logger.log(`${clc.bold.green(comb.shortCut)} pressed. Running ${clc.bold.green(comb.name)}`);
-    for (let i = 0; i < comb.commands.length; i++) {
-      this.logger.debug('Executing item on the queue');
-      await this.semaphoreService.spawnPromiseChild(
-        `c=${String(i)}`,
-        async() => {
-          await this.unknownCommandProcessor.handle(comb.commands[i], comb.delayAfter, comb.delayBefore, undefined);
-        }
-      );
+    try {
+      for (let i = 0; i < comb.commands.length; i++) {
+        this.logger.debug('Executing item on the queue');
+        await this.semaphoreService.spawnPromiseChild(
+          `c=${String(i)}`,
+          async() => {
+            await this.unknownCommandProcessor.handle(comb.commands[i], comb.delayAfter, comb.delayBefore, undefined);
+          }
+        );
+      }
+    } catch (e) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      if (e.message?.includes(ABORTED_BY_USER)) {
+        this.logger.log(`${clc.bold.green(comb.shortCut)} pressed. Stopped current executin for ${clc.bold.green(comb.name)}`);
+      } else {
+        throw e;
+      }
     }
   }
 }

@@ -75,6 +75,7 @@ export class FetchClient {
       if (payloadstr) {
         req.write(payloadstr);
       }
+      this.logger.debug(`Executing ${method} https://${host}:${port}${url} ${payloadstr ?? ''}`);
       req.end();
     });
   }
@@ -119,7 +120,7 @@ export class FetchClient {
         this.logger.debug(`Aborting request ${combKey}, and clearing timeout ${timeout}`);
         clearTimeout(timeout!);
         httpController.abort();
-        reject!(Error('Request is aborted by user'));
+        reject!(Error(controller.signal.reason as string));
       };
       const [result, statusCode] = await Promise.race([
         this.executeRequest(method, client, url, payloadstr, httpController),
@@ -140,7 +141,8 @@ export class FetchClient {
       clearTimeout(timeout!);
 
       this.logger.log(
-        `${method}:${statusCode} ${clc.bold.green(client)} ${clc.yellow(url)} ${payloadstr ?? ''} ${clc.xterm(7)('==>>')} ${result}`
+        `${method}:${statusCode} ${clc.bold.green(client)} ${clc.yellow(url)} ` +
+        `${payloadstr ?? ''} ${clc.xterm(7)('==>>')} ${result || 'void'}`
       );
       if ((statusCode as unknown as number) !== 204 && result) {
         try {
@@ -159,7 +161,7 @@ export class FetchClient {
       const fullUrl: string = `https://${hostname}${url}`;
       throw new Error(
         `${method}:${client}:${status} ${fullUrl} ${(error as Error).message}`
-        + ` ${payloadstr ?? ''} ${clc.xterm(2)('==>>')} ${(error as CustomError).response ?? ''}`
+        + ` ${payloadstr ?? ''} ${clc.xterm(2)('==>>')} ${(error as CustomError).response ?? 'void'}`
       );
     }
   }

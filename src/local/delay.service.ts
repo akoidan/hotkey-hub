@@ -57,7 +57,7 @@ export class DelayService {
         clearTimeout(id);
         this.logger.debug(`Aborting current operation ${combKey}`);
         // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
-        reject(controller.signal.reason ?? new Error('aborted'));
+        reject(Error(controller.signal.reason as string));
       };
 
       controller.signal.addEventListener('abort', abortHandler, {once: true});

@@ -6,6 +6,7 @@ interface CustomError extends Error {
   response?: string;
 }
 
+const ABORTED_BY_USER = 'Request is aborted by user';
 
 export type {CustomError};
-export {CERT_DIR, TIMEOUT};
+export {CERT_DIR, TIMEOUT, ABORTED_BY_USER};
