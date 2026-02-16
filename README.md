@@ -1,4 +1,4 @@
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/akoidan/hotkey-hub/blob/main/LICENSE) [![Coverage](https://coveralls.io/repos/github/akoidan/hotkey-hub/badge.svg?branch=main)](https://coveralls.io/github/akoidan/hotkey-hub?branch=main) [![Build Status](https://github.com/akoidan/hotkey-hub/actions/workflows/release.yaml/badge.svg?branch=main)](https://github.com/akoidan/hotkey-hub/actions/workflows/release.yaml)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/akoidan/hotkey-hub/blob/main/LICENSE) [![Coverage](https://coveralls.io/repos/github/akoidan/hotkey-hub/badge.svg?branch=main)](https://coveralls.io/github/akoidan/hotkey-hub?branch=main) [![Build Status](https://github.com/akoidan/hotkey-hub/actions/workflows/release.yaml/badge.svg)](https://github.com/akoidan/hotkey-hub/actions/workflows/release.yaml)
 
 # Hotkey Hub
 
