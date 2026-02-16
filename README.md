@@ -13,7 +13,7 @@ Hotkey Hub is a powerful remote PC control tool that lets you bind hotkeys on on
 
 ## Project Structure
 
-The project requires several files for configuration and security:
+The project needs these configuration and security files to work:
 
 ### Required Files
 - `configs/config.jsonc`: Main configuration file that defines your hotkey bindings and actions. Schema is defined in `json-schema.json`. Check [github-pages](https://akoidan.github.io/hotkey-hub/) or `CONFIG.md` in releases for detailed documentation.
@@ -29,15 +29,15 @@ The project requires several files for configuration and security:
 ### Remote
 Install [http-remote-pc-control](https://github.com/akoidan/http-remote-pc-control) on a remote PC which you want to control.
 
-### Certificates (Requied)
-The client server app both use [mutual TLS authentication](https://www.cloudflare.com/learning/access-management/what-is-mutual-tls/).
+### Certificates (Required)
+The client and server use [mutual TLS authentication](https://www.cloudflare.com/learning/access-management/what-is-mutual-tls/).
 Generates them based on [Certificates](https://github.com/akoidan/http-remote-pc-control?tab=readme-ov-file#certificates) section.
-You gonna have to use following certificates in the future. (Described later)
+You'll need these certificate files (details below):
 - `./gencert/client/key.pem`
 - `./gencert/client/cert.pem`
 - `./gencert/client/ca-cert.pem`
 
-**If client and server certificates are different you'll get an exception on startup that server is unable to connnect to the client**
+**If client and server certificates are different, you'll get an exception on startup indicating that the server is unable to connect to the client**
 
 ### Define Main Configuration (Required)
 
@@ -53,7 +53,7 @@ Example of `configs/config.jsonc`:
         {
           "performOnRemote": "typeText",
           "variables": {
-            "text": "Hello wolrd", // will literally type this text (press key by key)
+            "text": "Hello world", // will literally type this text (press key by key)
           },
           "destination": "this",
         },
@@ -126,7 +126,7 @@ You can validate your configuration using any JSON schema validator (e.g., [json
 #### Other Linux distro
 - You need X11 server with some of the dependencies (libgcc libsm libXext)
 - Download `hotkey-hub.elf` from [releases](https://github.com/akoidan/hotkey-hub/releases).
-- Ensure directory with the executalbe, or project direcotry contains `certs` directory with certificates
+- Ensure directory with the executable, or project directory contains `certs` directory with certificates
 - run `chmod +x hotkey-hub.elf`
 - Put certificates in `./certs`
 - Put configs in `./configs/config.jsonc`
@@ -136,7 +136,7 @@ You can validate your configuration using any JSON schema validator (e.g., [json
 
 #### Windows
 - Download `hotkey-hub.exe` from [releases](https://github.com/akoidan/hotkey-hub/releases).
-- Put ceritifates into `./certs` directory where `hotkey-hub.exe` is.
+- Put certificates into `./certs` directory where `hotkey-hub.exe` is.
 - Put configs into `./configs` directory where `hotkey-hub.exe` is
 - Open the terminal from a regular user and run  `hotkey-hub.exe`. 
 - You can also run it by double clicking the .exe file like you normally do, but in case of error it will exit promptly.
@@ -148,25 +148,25 @@ hotkey-hub --config-file=~/my-config.jsonc
 ```
 
 ### Help
- - The app will ping client from the start in order to check connection. If one/more clients in config.jsonc `ips` section is not reachable, the app will `exit 1`
+ - The app pings clients at startup to verify connections. If one/more clients in config.jsonc `ips` section is not reachable, the app will `exit 1`
  - If the certificats are incorrect you will get connection errors in the output and app will exit, e.g. unable to ping the client.
  - If if there are no active shorcuts in `combinations` of `config.jsonc`, the app will `exit 0`
  - If the shortcut already taken you the app won't start as well with a corresponding error.
  - You can check cli arguments with `hotkey-hub --help`
 
 ## Log example
-App provides a lot of log to understand what happens in the complex commands combinations. 
+The app generates detailed logs to help understand complex command sequences. 
 Every log line has its own request id (same for hotkey-hub and http-remote-pc-control), which allow to track complex structures.
 Let's review log line:
 ```txt
 [20:40:28.045] 2=mr7-c=0-th=tyrs-c=1=m=tyr-c=2=d=2hn: POST:201 lenovo /keyboard/key-press {"keys":["3"],"holdKeys":[]} ==>
 ```
 Every loop of commands is separated by `-`. `=` means that this is the meaning of this command.
-- `[20:40:28.045]` - time and .milliseconds
-- `2=mr7` - alt+2 or similar keypres where 2 is a modyfying key, and `mr7` - id of this keypress
+- `[20:40:28.045]` - time and milliseconds
+- `2=mr7` - alt+2 or similar keypress where 2 is a modifying key, and `mr7` is the id of this keypress
 - `c=0` - command (`c`) number 0, of this shortcut keypress alt+2
 - `th=tyrs` - thread (`th`) with name `tyrs`, which means that `c=0` of top is a threads command,
-- `c=1=m=tyr` - first command (`c`) of this thread tyrs, which is a macro (`m`) with name name `tyr`,
+- `c=1=m=tyr` - first command (`c`) of this thread tyrs, which is a macro (`m`) with name `tyr`,
 - `c=2=d=2hn`- 2nd command (`c`) which is a remote command (`d`= destination) that has and id `2hn`
 - `POST:201 lenovo` Means a post request to destination `lenovo` is finished with HTTP status 201, where `lenovo` is a name from `ips` section in config.
 - `/keyboard/key-press` url which is post request was made to
