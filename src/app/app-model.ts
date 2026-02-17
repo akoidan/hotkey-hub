@@ -18,6 +18,7 @@ interface ReloadRequest {
   apiServer: boolean;
   logLevel: string;
   apiPort: number;
+  cli: boolean;
 }
 
 const LOG_LEVEL = 'LOG_LEVEL';
