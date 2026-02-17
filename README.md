@@ -32,10 +32,11 @@ Install [http-remote-pc-control](https://github.com/akoidan/http-remote-pc-contr
 ### Certificates (Required)
 The client and server use [mutual TLS authentication](https://www.cloudflare.com/learning/access-management/what-is-mutual-tls/).
 Generates them based on [Certificates](https://github.com/akoidan/http-remote-pc-control?tab=readme-ov-file#certificates) section.
-You'll need these certificate files (details below):
-- `./certs/client/key.pem`
-- `./certs/client/cert.pem`
-- `./certs/client/ca-cert.pem`
+You need to have following files which you can copy from `./certs/client/` when generating with `http-remote-pc-control`:
+- `./certs/key.pem`
+- `./certs/cert.pem`
+- `./certs/ca-cert.pem`
+
 
 **If client and server certificates are different, you'll get an exception on startup indicating that the server is unable to connect to the client**
 
