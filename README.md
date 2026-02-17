@@ -172,4 +172,4 @@ Every loop of commands is separated by `-`. `=` means that this is the meaning o
 - `=>>>` response body which is empty. Nothing after `=>>>` is printed
 
 ## Development documentation
-Check [DEVELOPMENT.md](DEVELOPMENT.md)
+Check [CONTRIBUTING.md](CONTRIBUTING.md)
