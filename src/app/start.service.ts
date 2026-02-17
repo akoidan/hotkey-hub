@@ -20,6 +20,9 @@ export class StartService {
     this.logger.debug('Initializing app...');
     await this.keybindingService.registerShortcuts();
     const shortcuts = this.configService.getCombinations().map(a => a.shortCut);
+    if (shortcuts.length === 0) {
+      throw Error('No shortcuts found. App will exist due to no listener');
+    }
     this.logger.log(`App has successfully started with following shortcuts: ${clc.bold.green(shortcuts.join(' '))}`);
   }
 

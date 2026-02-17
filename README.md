@@ -148,7 +148,6 @@ hotkey-hub --config-file=~/my-config.jsonc
 ### Help
  - The app pings clients at startup to verify connections. If one/more clients in config.jsonc `ips` section is not reachable, the app will `exit 1`
  - If the certificats are incorrect you will get connection errors in the output and app will exit, e.g. unable to ping the client.
- - If if there are no active shorcuts in `combinations` of `config.jsonc`, the app will `exit 0`
  - If the shortcut already taken you the app won't start as well with a corresponding error.
  - You can check cli arguments with `hotkey-hub --help`
 
