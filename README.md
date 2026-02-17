@@ -32,10 +32,11 @@ Install [http-remote-pc-control](https://github.com/akoidan/http-remote-pc-contr
 ### Certificates (Required)
 The client and server use [mutual TLS authentication](https://www.cloudflare.com/learning/access-management/what-is-mutual-tls/).
 Generates them based on [Certificates](https://github.com/akoidan/http-remote-pc-control?tab=readme-ov-file#certificates) section.
-You'll need these certificate files (details below):
-- `./gencert/client/key.pem`
-- `./gencert/client/cert.pem`
-- `./gencert/client/ca-cert.pem`
+You need to have following files which you can copy from `./certs/client/` when generating with `http-remote-pc-control`:
+- `./certs/key.pem`
+- `./certs/cert.pem`
+- `./certs/ca-cert.pem`
+
 
 **If client and server certificates are different, you'll get an exception on startup indicating that the server is unable to connect to the client**
 
@@ -148,7 +149,6 @@ hotkey-hub --config-file=~/my-config.jsonc
 ### Help
  - The app pings clients at startup to verify connections. If one/more clients in config.jsonc `ips` section is not reachable, the app will `exit 1`
  - If the certificats are incorrect you will get connection errors in the output and app will exit, e.g. unable to ping the client.
- - If if there are no active shorcuts in `combinations` of `config.jsonc`, the app will `exit 0`
  - If the shortcut already taken you the app won't start as well with a corresponding error.
  - You can check cli arguments with `hotkey-hub --help`
 

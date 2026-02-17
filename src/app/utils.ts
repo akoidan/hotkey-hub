@@ -36,9 +36,9 @@ async function parseArgs(): Promise<AppConfig> {
       .option('api-port', {
         type: 'number',
         default: 6000,
+        implies: 'api-server',
         description: 'if enable-api activates, exposes api on this port',
       })
-      .implies('api-port', 'api-server')
       .option('cert-dir', {
         type: 'string',
         default: path.join(commonDir, 'certs'),
