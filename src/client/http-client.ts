@@ -69,13 +69,19 @@ export class FetchClient {
             reject(error);
           }
         });
-        res.on('error', (error: Error) => reject(error));
       });
 
       if (payloadstr) {
         req.write(payloadstr);
       }
       this.logger.debug(`Executing ${method} https://${host}:${port}${url} ${payloadstr ?? ''}`);
+      req.on('error', (error: Error) => {
+        if (error?.message?.includes('self-signed certificate in certificate chain')) {
+          reject(Error('Sever MTLS certificate missmatch'));
+        } else {
+          reject(error);
+        }
+      });
       req.end();
     });
   }
