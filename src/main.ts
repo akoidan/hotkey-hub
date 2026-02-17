@@ -17,7 +17,6 @@ asyncLocalStorage.run(
     // eslint-disable-next-line max-lines-per-function
   () => {
     const logger = new ConsoleLogger(asyncLocalStorage);
-    let cliCache = false;
 
     async function sendCommandToPort(args: AppConfig): Promise<void> {
       const body: ReloadRequest = {};
@@ -36,9 +35,7 @@ asyncLocalStorage.run(
 
     function procesError(err: unknown): void {
       logger.fatal(err as (string | Error), (err as Error)?.stack);
-      if (cliCache) {
-        process.exit(1);
-      } else {
+      if (process.platform === 'win32') {
         // Wait for user input before exiting
         process.stdin.setRawMode(true);
         process.stdin.resume();
@@ -47,6 +44,8 @@ asyncLocalStorage.run(
         process.stdin.once('data', () => {
           process.exit(1);
         });
+      } else {
+        process.exit(1);
       }
     }
 
@@ -54,7 +53,6 @@ asyncLocalStorage.run(
       // eslint-disable-next-line
       const packageJson: string = require('../package.json').version;
       const args = await parseArgs();
-      cliCache = args.cli;
       logger.setLogLevel(args.logLevel as LogLevel);
       const portOpen = await isPortOpen(args.apiPort);
       if (args.apiServer && portOpen) {

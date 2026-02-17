@@ -33,17 +33,12 @@ async function parseArgs(): Promise<AppConfig> {
         default: false,
         description: 'Runs http server on localhost that allows reload config or variables via http api',
       })
-      .option('cli', {
-        type: 'boolean',
-        default: false,
-        description: 'If set to false (by default) the application on fail will await for user input. Otherwise it just fails instantly',
-      })
       .option('api-port', {
         type: 'number',
         default: 6000,
+        implies: 'api-server',
         description: 'if enable-api activates, exposes api on this port',
       })
-      .implies('api-port', 'api-server')
       .option('cert-dir', {
         type: 'string',
         default: path.join(commonDir, 'certs'),
