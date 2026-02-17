@@ -85,3 +85,8 @@ You need to provide **two include directories**:
     - Example: `.../node_modules/node-addon-api`
     - Contains `napi.h` and related files.
 
+## Test
+There are nodejs tests only in this project.
+```bash
+yarn test
+```
