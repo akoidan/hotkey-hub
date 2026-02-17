@@ -6,8 +6,7 @@ import http from 'http';
 import type {LogLevel} from '@nestjs/common';
 
 async function parseArgs(): Promise<AppConfig> {
-  const isNodeJs = process.execPath.endsWith('node') || process.execPath.endsWith('node.exe');
-  const commonDir = isNodeJs ? process.cwd() : path.dirname(process.execPath);
+  const commonDir = process.cwd();
   const logLevel: LogLevel[] = ['log' , 'error' , 'warn' , 'debug' , 'verbose' , 'fatal'] as LogLevel[];
   return yargs(process.argv.slice(2))
       .strict()
