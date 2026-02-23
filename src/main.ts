@@ -19,10 +19,10 @@ asyncLocalStorage.run(
 
     async function sendCommandToPort(args: AppConfig): Promise<void> {
       const body: ReloadRequest = {};
-      if (process.argv.some(arg => arg === '--config-file' || arg.startsWith('--config-file='))) {
+      if (args.configProvided) {
         body.configFile = args.configFile;
       }
-      if (process.argv.some(arg => arg === '--variables-file' || arg.startsWith('--variables-file='))) {
+      if (args.variablesFile) {
         body.variablesFile = args.variablesFile;
       }
       if (Object.keys(body).length === 0) {

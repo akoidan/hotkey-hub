@@ -13,7 +13,7 @@ import {DelayData} from '@/config/types/delays';
 import {ConfigCombination, SAVE_TIMEOUT} from '@/config/config-model';
 import {MacroList} from '@/config/types/local/local-commands';
 import {ENV, ZodErrorCollected} from '@/config/types/config-path';
-import prompts, {Choice, PromptObject, PromptType} from 'prompts';
+import prompts from 'prompts';
 import {basename} from 'path';
 
 @Injectable()

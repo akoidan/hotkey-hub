@@ -59,7 +59,8 @@ async function parseArgs(): Promise<AppConfig> {
       .parse();
 
   const configProvided: boolean = appArgs.includes('config-file') || appArgs.includes('--config-file');
-  return {...res, configProvided};
+  const variablesProvided: boolean = appArgs.includes('variables-file') || appArgs.includes('--variables-file');
+  return {...res, configProvided, variablesProvided};
 }
 
 async function isPortOpen(port: number, timeout = 2000): Promise<boolean> {
