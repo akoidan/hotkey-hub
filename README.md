@@ -16,17 +16,15 @@ Hotkey Hub is a powerful remote PC control tool that lets you bind hotkeys on on
 The project needs these configuration and security files to work:
 
 ### Required Files
-- `$APP_DATA/hotkey-hub/config.jsonc`: Main configuration file that defines your hotkey bindings and actions. Schema is defined in `json-schema.json`. Check [github-pages](https://akoidan.github.io/hotkey-hub/) or `CONFIG.md` in releases for detailed documentation.
-- `$APP_DATA/hotkey-hub/certs/cert.pem`: Client certificate for mutual TLS authentication
-- `$APP_DATA/hotkey-hub/certs/key.pem`: Client private key
-- `$APP_DATA/hotkey-hub/certs/ca-cert.pem`: CA certificate
+- `%APPDATA%/hotkey-hub/config.jsonc`: Main configuration file that defines your hotkey bindings and actions. Schema is defined in `json-schema.json`. Check [github-pages](https://akoidan.github.io/hotkey-hub/) or `CONFIG.md` in releases for detailed documentation.
+- `%APPDATA%/hotkey-hub/certs/cert.pem`: Client certificate for mutual TLS authentication
+- `%APPDATA%/hotkey-hub/certs/key.pem`: Client private key
+- `%APPDATA%/hotkey-hub/certs/ca-cert.pem`: CA certificate
 
-where `$APP_DATA` is `~/.config` on linux and `C:\Users\<username>\AppData\Roaming` on Windows:
+where `APPDATA` is `~/.config` on linux and `C:\Users\<username>\AppData\Roaming` on Windows:
 
 ### Optional Files
-- `$APP_DATA/hotkey-hub/variables.json`: Custom variables file (any valid JSON with a root object) that can be referenced in your configurations
-
-where `$APP_DATA` is `~/.config` on linux and `C:\Users\<username>\AppData\Roaming` on Windows:
+- `%APPDATA%/hotkey-hub/variables.json`: Custom variables file (any valid JSON with a root object) that can be referenced in your configurations
 
 ## Get started
 
@@ -36,18 +34,18 @@ Install [http-remote-pc-control](https://github.com/akoidan/http-remote-pc-contr
 ### Certificates (Required)
 The client and server use [mutual TLS authentication](https://www.cloudflare.com/learning/access-management/what-is-mutual-tls/).
 Generates them based on [Certificates](https://github.com/akoidan/http-remote-pc-control?tab=readme-ov-file#certificates) section.
-You need to have following files which you can copy from `$APP_DATA/http-remote-pc-control/certs/client/` when generating with `http-remote-pc-control`:
-- `$APP_DATA/hotkey-hub/key.pem`
-- `$APP_DATA/hotkey-hub/cert.pem`
-- `$APP_DATA/hotkey-hub/ca-cert.pem`
+You need to have following files which you can copy from `%APPDATA%/http-remote-pc-control/certs/client/` when generating with `http-remote-pc-control`:
+- `%APPDATA%/hotkey-hub/key.pem`
+- `%APPDATA%/hotkey-hub/cert.pem`
+- `%APPDATA%/hotkey-hub/ca-cert.pem`
 
-where `$APP_DATA` is `~/.config` on linux and `C:\Users\<username>\AppData\Roaming` on Windows:
+where `APPDATA` is `~/.config` on linux and `C:\Users\<username>\AppData\Roaming` on Windows:
 
 **If client and server certificates are different, you'll get an exception on startup indicating that the server is unable to connect to the client**
 
 ### Define Main Configuration (Required)
 
-Example of `$APP_DATA/hotkey-hub/config.jsonc`:
+Example of `%APPDATA%/hotkey-hub/config.jsonc`:
 ```json
 {
   "ips": {
@@ -102,12 +100,10 @@ You can validate your configuration using any JSON schema validator (e.g., [json
 - You can use comments in jsonc file, but if you use online json schema validator it would complain about it.
 
 ### Variables (Optional)
-Create `$APP_DATA/hotkey-hub/variables.json` to define custom variables:
+Create `%APPDATA%/hotkey-hub/variables.json` to define custom variables:
 - Can have any valid JSON structure with a root object
 - To reference a variable use object with `$ref` keyword.  E.g. `"destination": "{"$ref": "varName"}`
 - Variables can be referenced in `config.jsonc`
-
-where `$APP_DATA` is `~/.config` on linux and `C:\Users\<username>\AppData\Roaming` on Windows:
 
 ### Install the app
 
