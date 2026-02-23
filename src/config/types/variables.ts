@@ -1,5 +1,5 @@
 import {z, type ZodObject, type ZodTypeAny} from 'zod';
-import {DelayData} from "@/config/types/delays";
+import type {DelayData} from '@/config/types/delays';
 
 const variablesSchema = z.record(z.string(), z.any())
   .describe('Variable definitions for configuration.' +
