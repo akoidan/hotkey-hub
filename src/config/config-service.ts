@@ -158,7 +158,7 @@ export class ConfigService implements ConfigProvider {
     this.logger.debug('parsing config');
     const variables = await this.validateVariableConf();
     this.logger.debug('Validating global config');
-    if (!this.configReader.getConfigProvided() && variables.configPath?.length > 1) {
+    if (!this.configReader.getConfigProvided() && Array.isArray(variables.configPath) && variables.configPath?.length > 1) {
       this.logger.log('--config-file option was not provided, adding select options');
       const response = await prompts({
         type: 'select',
@@ -180,7 +180,7 @@ export class ConfigService implements ConfigProvider {
       variables.configPath = [];
     }
     const configPath = this.configReader.getConfigPath();
-    if (!variables.configPath.includes(configPath)) {
+    if (Array.isArray(variables.configPath) && !variables.configPath.includes(configPath)) {
       variables.configPath.push(configPath);
     }
     this.setVariable('configPath', variables.configPath);
