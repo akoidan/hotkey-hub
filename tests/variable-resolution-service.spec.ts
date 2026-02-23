@@ -33,6 +33,7 @@ async function getTestModule(configFilePath: string): Promise<TestingModule> {
         useFactory: (logger: Logger) => new ConfigService(logger, process.env, new ConfigReaderService(logger, {
           configFilePath: path.join(__dirname, 'fixtures', configFilePath),
           variablesFilePath: path.join(__dirname, 'fixtures', 'variables.jsonc'),
+          configProvided: true,
           setConfigPaths(config?: string, macro?: string, variable?: string) {
           },
         },), -1),

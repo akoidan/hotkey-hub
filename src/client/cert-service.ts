@@ -3,6 +3,7 @@ import {access, readFile} from 'fs/promises';
 import * as path from 'path';
 import {Agent} from 'https';
 import {CERT_DIR} from '@/client/client-model';
+import clc from 'cli-color';
 
 @Injectable()
 export class CertService {
@@ -60,6 +61,17 @@ export class CertService {
 
   public async getCaCert(): Promise<string> {
     this.logger.debug(`Loading CA certificate from ${this.caCertificatePath}`);
-    return readFile(this.caCertificatePath, 'utf8');
+    const data = await readFile(this.caCertificatePath, 'utf8');
+    const lines = data.trim().split('\n');
+    // Find the last line that's not the END CERTIFICATE line
+    let lastContentLine = '';
+    for (let i = lines.length - 1; i >= 0; i--) {
+      if (!lines[i].includes('-----END CERTIFICATE-----')) {
+        lastContentLine = lines[i].trim().slice(-4);
+        break;
+      }
+    }
+    this.logger.log(`CA cert loaded from ${clc.yellow(this.caCertificatePath)} endswith ${clc.yellow(String(lastContentLine))}`);
+    return data;
   }
 }

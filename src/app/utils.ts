@@ -4,24 +4,38 @@ import yargs from 'yargs';
 import net from 'net';
 import http from 'http';
 import type {LogLevel} from '@nestjs/common';
+import process from 'node:process';
+import {homedir} from 'os';
 
+// eslint-disable-next-line max-lines-per-function
 async function parseArgs(): Promise<AppConfig> {
-  const commonDir = process.cwd();
+  let commonDir;
+  if (process.platform === 'win32') {
+    commonDir = process.env.APPDATA ?? path.join(homedir(), 'AppData', 'Roaming');
+  } else if (process.platform === 'linux') {
+    commonDir = process.env.XDG_CONFIG_HOME ?? path.join(homedir(), '.config');
+  } else {
+    throw new Error(`Unsupported platform: ${process.platform}`);
+  }
+  commonDir = path.join(commonDir, 'hotkey-hub');
   const logLevel: LogLevel[] = ['log' , 'error' , 'warn' , 'debug' , 'verbose' , 'fatal'] as LogLevel[];
-  return yargs(process.argv.slice(2))
+  const appArgs = process.argv.slice(2);
+  const res = await yargs(appArgs)
       .strict()
       .scriptName('hotkey-hub')
       .epilog('Reffer https://github.com/akoidan/hotkey-hub for more documentation')
       .usage('Allows to control remote pc using OS hotkeys')
       .option('config-file', {
         type: 'string',
-        default: path.join(commonDir, 'configs', 'config.jsonc'),
+        default: path.join(commonDir, 'config.jsonc'),
         description: 'Configs that describes hotkey bindins',
+        coerce: (input: string) => path.isAbsolute(input) ? input : path.resolve(process.cwd(), input),
       })
       .option('variables-file', {
         type: 'string',
-        default: path.join(commonDir, 'configs', 'variables.jsonc'),
+        default: path.join(commonDir, 'variables.jsonc'),
         description: 'File that used to store permanent variables across restarts',
+        coerce: (input: string) => path.isAbsolute(input) ? input : path.resolve(process.cwd(), input),
       })
       .option('log-level', {
         choices: logLevel,
@@ -45,6 +59,10 @@ async function parseArgs(): Promise<AppConfig> {
         description: 'Directory that contains key.pem, cert.pem, ca-cert.pem for MTLS',
       })
       .parse();
+
+  const configProvided: boolean = appArgs.includes('config-file') || appArgs.includes('--config-file');
+  const variablesProvided: boolean = appArgs.includes('variables-file') || appArgs.includes('--variables-file');
+  return {...res, configProvided, variablesProvided};
 }
 
 async function isPortOpen(port: number, timeout = 2000): Promise<boolean> {

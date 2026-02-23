@@ -1,6 +1,6 @@
 {
   "name": "hotkey-hub",
-  "version": "3.0.2",
+  "version": "3.1.1",
   "repository": "git@github.com:akoidan/hotkey-hub.git",
   "author": "akoidan <deathangel908@gmail.com>",
   "license": "MIT",
@@ -30,6 +30,7 @@
     "@types/cli-color": "^2.0.6",
     "@types/jest": "^29.5.14",
     "@types/node": "24",
+    "@types/prompts": "^2.4.9",
     "@types/yargs": "^17.0.35",
     "@typescript-eslint/eslint-plugin": "^7.7.2",
     "@typescript-eslint/parser": "^7.7.2",
@@ -76,6 +77,7 @@
     "cli-color": "^2.0.4",
     "jsonc-parser": "^3.3.1",
     "openrgb-sdk": "^0.5.2",
+    "prompts": "^2.4.2",
     "reflect-metadata": "^0.2.2",
     "rxjs": "7.1.0",
     "yargs": "^17.7.2",

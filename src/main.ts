@@ -9,7 +9,6 @@ import {isPortOpen, parseArgs, postLocalhost} from '@/app/utils';
 import type {LogLevel} from '@nestjs/common';
 import clc from 'cli-color';
 
-
 asyncLocalStorage.run(
   new Map<string, any>()
     .set(SemaphorService.COMB_KEY, 'init')
@@ -20,10 +19,10 @@ asyncLocalStorage.run(
 
     async function sendCommandToPort(args: AppConfig): Promise<void> {
       const body: ReloadRequest = {};
-      if (process.argv.some(arg => arg === '--config-file' || arg.startsWith('--config-file='))) {
+      if (args.configProvided) {
         body.configFile = args.configFile;
       }
-      if (process.argv.some(arg => arg === '--variables-file' || arg.startsWith('--variables-file='))) {
+      if (args.variablesFile) {
         body.variablesFile = args.variablesFile;
       }
       if (Object.keys(body).length === 0) {
@@ -57,7 +56,9 @@ asyncLocalStorage.run(
       const portOpen = await isPortOpen(args.apiPort);
       if (args.apiServer && portOpen) {
         throw Error(`Hotkey is already running at port ${args.apiPort}`);
-      } else if (args.apiServer) {
+      }
+
+      if (args.apiServer) {
         logger.log(`Started hotkey-hub ${clc.bold.green(packageJson)} initilaziation`);
         const app = await NestFactory.create(AppModule.forRoot(args), {logger});
         logger.log(`Starting hotkey-hub daemon api at port ${args.apiPort}`);

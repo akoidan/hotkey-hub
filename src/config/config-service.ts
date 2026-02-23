@@ -13,12 +13,14 @@ import {DelayData} from '@/config/types/delays';
 import {ConfigCombination, SAVE_TIMEOUT} from '@/config/config-model';
 import {MacroList} from '@/config/types/local/local-commands';
 import {ENV, ZodErrorCollected} from '@/config/types/config-path';
+import prompts from 'prompts';
+import {basename} from 'path';
 
 @Injectable()
 export class ConfigService implements ConfigProvider {
   private configData: ConfigData | null = null;
 
-  private variables: Variables = {};
+  private variables: Variables = {} as Variables;
 
   private variablesSaveTimeoutId: NodeJS.Timeout | null = null;
 
@@ -31,7 +33,7 @@ export class ConfigService implements ConfigProvider {
     @Inject(SAVE_TIMEOUT)
     private readonly saveTimeout: number,
   ) {
-    this.logger.verbose(`Created new instance of config service from ${configReader.getId()}`);
+    this.logger.verbose(`Created new instance of config service from ${configReader.getConfigPath()}`);
   }
 
 
@@ -124,7 +126,7 @@ export class ConfigService implements ConfigProvider {
     }
   }
 
-  public async validateVariableConf(): Promise<Record<string, any>> {
+  public async validateVariableConf(): Promise<Variables> {
     this.logger.debug('Validating variables config');
     const variablesConfigString = await this.configReader.loadVariablesConfigString();
     const variables = variablesConfigString ? parse(variablesConfigString) as Variables : {};
@@ -156,6 +158,7 @@ export class ConfigService implements ConfigProvider {
     this.logger.debug('parsing config');
     const variables = await this.validateVariableConf();
     this.logger.debug('Validating global config');
+    await this.initConfigFilePath(variables);
     const configString = await this.configReader.loadConfigString();
     const parsedNoDefault = parse(configString) as ConfigData;
     schemaRootCache.data = parsedNoDefault;
@@ -164,10 +167,37 @@ export class ConfigService implements ConfigProvider {
     this.configData = configData;
     this.variables = variables;
     this.setVariable('delays', configData.delays);
+    if (!variables.configPath) {
+      variables.configPath = [];
+    }
+    const configPath = this.configReader.getConfigPath();
+    if (Array.isArray(variables.configPath) && !variables.configPath.includes(configPath)) {
+      variables.configPath.push(configPath);
+    }
+    this.setVariable('configPath', variables.configPath);
     if (this.configData.name) {
-      this.logger.log(`Loaded config ${clc.bold.green(this.configData.name)} from ${this.configReader.getId()}`);
+      this.logger.log(`Loaded config ${clc.bold.green(this.configData.name)} from ${configPath}`);
     } else {
-      this.logger.log(`Loaded config from ${this.configReader.getId()}`);
+      this.logger.log(`Loaded config from ${configPath}`);
+    }
+  }
+
+  private async initConfigFilePath(variables: Variables): Promise<void> {
+    if (!this.configReader.getConfigProvided() && Array.isArray(variables.configPath) && variables.configPath?.length > 1) {
+      this.logger.log('--config-file option was not provided, adding select options');
+      const response = await prompts({
+        type: 'select',
+        // eslint-disable-next-line sonarjs/no-duplicate-string
+        name: 'config-file',
+        message: 'Select config file',
+        choices: variables.configPath.map(a => ({title: basename(a), value: a})),
+      });
+      // if ctrl+c is presssed it returns empty object
+      if (!response['config-file']) {
+        this.logger.error('Config file selection was cancelled');
+        throw new Error('Config file selection was cancelled');
+      }
+      this.configReader.setConfigFile(response['config-file'] as string);
     }
   }
 
