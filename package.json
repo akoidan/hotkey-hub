@@ -72,6 +72,8 @@
     "@nestjs/common": "^10.4.15",
     "@nestjs/core": "^10.4.15",
     "@nestjs/platform-express": "^11.1.13",
+    "@nodegui/nodegui": "^0.74.0",
+    "@nodegui/qode": "24.12.0-rc18",
     "bindings": "^1.5.0",
     "cli-color": "^2.0.4",
     "jsonc-parser": "^3.3.1",

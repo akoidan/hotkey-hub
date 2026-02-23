@@ -1,7 +1,7 @@
 # Develop locally
 
 ## Requirements:
-You need cmake, yarn, node version 24 or nvm, and a proper C/C++ compiler toolchain of the given platform
+You need cmake, yarn, vcpkg, node version 24 or nvm, and a proper C/C++ compiler toolchain of the given platform
 
 ## Windows
 - [Visual C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/). If you installed nodejs with the installer, you can install these when prompted.
@@ -11,6 +11,7 @@ You need cmake, yarn, node version 24 or nvm, and a proper C/C++ compiler toolch
 - Node version 24 or [nvm](https://github.com/nvm-sh/nvm)
 - [yarn](https://yarnpkg.com/).
 ## Unix/Posix
+- vcpkg (`yay -S vcpkg-git` or `snap install vcpkg --classic` or `git clone https://github.com/Microsoft/vcpkg.git && ./bootstrap-vcpkg.sh` )
 - Clang or GCC
 - Ninja or Make (Ninja will be picked if both present)
 - Node version 24 or [nvm](https://github.com/nvm-sh/nvm)

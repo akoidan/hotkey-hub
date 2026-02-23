@@ -2,6 +2,12 @@ cmake_minimum_required(VERSION 3.15)
 cmake_policy(SET CMP0091 NEW)
 cmake_policy(SET CMP0042 NEW)
 
+#set(CMAKE_CXX_STANDARD 20)
+#set(CMAKE_AUTOMOC ON)
+#set(CMAKE_AUTORCC ON)
+#set(CMAKE_AUTOUIC ON)
+
+
 project (native)
 
 add_definitions(-DNAPI_VERSION=4)
@@ -41,9 +47,19 @@ set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")
 
 if(WIN32)
     target_link_libraries(${PROJECT_NAME} ${CMAKE_JS_LIB})
-elseif(UNIX)
+elseif(UNIX  AND NOT APPLE)
     target_link_libraries(${PROJECT_NAME} ${CMAKE_JS_LIB} ${X11_LIBRARIES})
+elseif(UNIX AND APPLE)
+    message(FATAL_ERROR "Unsupported OS")
 endif()
+
+find_package(Qt6 COMPONENTS Core Gui Widgets REQUIRED)
+target_link_libraries(${PROJECT_NAME}
+        Qt6::CoreStatic
+        Qt6::GuiStatic
+        Qt6::WidgetsStatic
+)
+target_compile_definitions(${PROJECT_NAME} PRIVATE QT_STATIC_BUILD)
 
 if(MSVC AND CMAKE_JS_NODELIB_DEF AND CMAKE_JS_NODELIB_TARGET)
   # Generate node.lib
