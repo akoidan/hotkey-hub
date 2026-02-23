@@ -29,11 +29,13 @@ async function parseArgs(): Promise<AppConfig> {
         type: 'string',
         default: path.join(commonDir, 'config.jsonc'),
         description: 'Configs that describes hotkey bindins',
+        coerce: (input: string) => path.isAbsolute(input) ? input : path.resolve(process.cwd(), input),
       })
       .option('variables-file', {
         type: 'string',
         default: path.join(commonDir, 'variables.jsonc'),
         description: 'File that used to store permanent variables across restarts',
+        coerce: (input: string) => path.isAbsolute(input) ? input : path.resolve(process.cwd(), input),
       })
       .option('log-level', {
         choices: logLevel,
