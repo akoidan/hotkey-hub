@@ -57,7 +57,9 @@ asyncLocalStorage.run(
       const portOpen = await isPortOpen(args.apiPort);
       if (args.apiServer && portOpen) {
         throw Error(`Hotkey is already running at port ${args.apiPort}`);
-      } else if (args.apiServer) {
+      }
+
+      if (args.apiServer) {
         logger.log(`Started hotkey-hub ${clc.bold.green(packageJson)} initilaziation`);
         const app = await NestFactory.create(AppModule.forRoot(args), {logger});
         logger.log(`Starting hotkey-hub daemon api at port ${args.apiPort}`);

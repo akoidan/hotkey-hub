@@ -16,13 +16,17 @@ Hotkey Hub is a powerful remote PC control tool that lets you bind hotkeys on on
 The project needs these configuration and security files to work:
 
 ### Required Files
-- `configs/config.jsonc`: Main configuration file that defines your hotkey bindings and actions. Schema is defined in `json-schema.json`. Check [github-pages](https://akoidan.github.io/hotkey-hub/) or `CONFIG.md` in releases for detailed documentation.
-- `certs/cert.pem`: Client certificate for mutual TLS authentication
-- `certs/key.pem`: Client private key
-- `certs/ca-cert.pem`: CA certificate
+- `$APP_DATA/hotkey-hub/config.jsonc`: Main configuration file that defines your hotkey bindings and actions. Schema is defined in `json-schema.json`. Check [github-pages](https://akoidan.github.io/hotkey-hub/) or `CONFIG.md` in releases for detailed documentation.
+- `$APP_DATA/hotkey-hub/certs/cert.pem`: Client certificate for mutual TLS authentication
+- `$APP_DATA/hotkey-hub/certs/key.pem`: Client private key
+- `$APP_DATA/hotkey-hub/certs/ca-cert.pem`: CA certificate
+
+where `$APP_DATA` is `~/.config` on linux and `C:\Users\<username>\AppData\Roaming` on Windows:
 
 ### Optional Files
-- `configs/variables.json`: Custom variables file (any valid JSON with a root object) that can be referenced in your configurations
+- `$APP_DATA/hotkey-hub/variables.json`: Custom variables file (any valid JSON with a root object) that can be referenced in your configurations
+
+where `$APP_DATA` is `~/.config` on linux and `C:\Users\<username>\AppData\Roaming` on Windows:
 
 ## Get started
 
@@ -32,17 +36,18 @@ Install [http-remote-pc-control](https://github.com/akoidan/http-remote-pc-contr
 ### Certificates (Required)
 The client and server use [mutual TLS authentication](https://www.cloudflare.com/learning/access-management/what-is-mutual-tls/).
 Generates them based on [Certificates](https://github.com/akoidan/http-remote-pc-control?tab=readme-ov-file#certificates) section.
-You need to have following files which you can copy from `./certs/client/` when generating with `http-remote-pc-control`:
-- `./certs/key.pem`
-- `./certs/cert.pem`
-- `./certs/ca-cert.pem`
+You need to have following files which you can copy from `$APP_DATA/http-remote-pc-control/certs/client/` when generating with `http-remote-pc-control`:
+- `$APP_DATA/hotkey-hub/key.pem`
+- `$APP_DATA/hotkey-hub/cert.pem`
+- `$APP_DATA/hotkey-hub/ca-cert.pem`
 
+where `$APP_DATA` is `~/.config` on linux and `C:\Users\<username>\AppData\Roaming` on Windows:
 
 **If client and server certificates are different, you'll get an exception on startup indicating that the server is unable to connect to the client**
 
 ### Define Main Configuration (Required)
 
-Example of `configs/config.jsonc`:
+Example of `$APP_DATA/hotkey-hub/config.jsonc`:
 ```json
 {
   "ips": {
@@ -91,16 +96,18 @@ You can validate your configuration using any JSON schema validator (e.g., [json
 3. Write/validate your configuration in the data panel
 
 #### How to build config
-- For the latest`main` branch documentation is available at [github-pages](https://akoidan.github.io/hotkey-hub) 
+- For the latest `main` branch documentation is available at [github-pages](https://akoidan.github.io/hotkey-hub) 
 - Documentation per specific version is available in [releases](https://github.com/akoidan/hotkey-hub/releases) at `CONFIG.md` alog with `jsonc-schema.json`
 - There are more examples in fixtures, e.g. [config-fixture.jsonc](./tests/fixtures/config-fixture.jsonc)
 - You can use comments in jsonc file, but if you use online json schema validator it would complain about it.
 
 ### Variables (Optional)
-Create `configs/variables.json` to define custom variables:
+Create `$APP_DATA/hotkey-hub/variables.json` to define custom variables:
 - Can have any valid JSON structure with a root object
 - To reference a variable use object with `$ref` keyword.  E.g. `"destination": "{"$ref": "varName"}`
 - Variables can be referenced in `config.jsonc`
+
+where `$APP_DATA` is `~/.config` on linux and `C:\Users\<username>\AppData\Roaming` on Windows:
 
 ### Install the app
 
@@ -108,17 +115,17 @@ Create `configs/variables.json` to define custom variables:
 - Install dependencies `sudo apt-get install libgcc-s1 libsm6 libxext6` if you dont have them yet.
 - Download `hotkey-hub.deb` from [releases](https://github.com/akoidan/hotkey-hub/releases).
 - Install the package `sudo dpkg -i hotkey-hub.deb`
-- Put certificates in `~/.local/share/hotkey-hub/certs`
-- Put configs in `~/.local/share/hotkey-hub/configs/config.jsonc`
-- Put variables in `~/.local/share/hotkey-hub/configs/variables.jsonc`
+- Put certificates in `~/.config/hotkey-hub/certs`
+- Put configs in `~/.config/hotkey-hub/config.jsonc`
+- Put variables in `~/.config/hotkey-hub/variables.jsonc`
 - Start the service as a normal user: `systemctl --user start hotkey-hub` should be the same user as logged in X
 - To view logs check `journalctl --user -o cat -u hotkey-hub -f`
 
 #### Archlinux
 - Install the package with `yay` or `paru` from AUR `yay -S hotkey-hub`
-- Put certificates in `~/.local/share/hotkey-hub/certs`
-- Put configs in `~/.local/share/hotkey-hub/configs/config.jsonc`
-- Put variables in `~/.local/share/hotkey-hub/configs/variables.jsonc`
+- Put certificates in `~/.config/hotkey-hub/certs`
+- Put configs in `~/.config/hotkey-hub/config.jsonc`
+- Put variables in `~/.config/hotkey-hub/variables.jsonc`
 - Start the service as a normal user: `systemctl --user start hotkey-hub` should be the same user as logged in X
 - To view logs check `journalctl --user -o cat -u hotkey-hub -f`
 
@@ -127,18 +134,17 @@ Create `configs/variables.json` to define custom variables:
 - Download `hotkey-hub.elf` from [releases](https://github.com/akoidan/hotkey-hub/releases).
 - Ensure directory with the executable, or project directory contains `certs` directory with certificates
 - run `chmod +x hotkey-hub.elf`
-- Put certificates in `./certs`
-- Put configs in `./configs/config.jsonc`
-- Put variables in `./configs/variables.jsonc`
+- Put certificates in `~/.config/hotkey-hub/certs/`
+- Put configs in `~/.config/hotkey-hub/config.jsonc`
+- Put variables in `~/.config/hotkey-hub/variables.jsonc`
 - Start the service from the non-root X user `./hotkey-hub.elf`
 - If you need systemd unit, check [hotkey-hub.service](./packages/hotkey-hub.service)
 
 #### Windows
 - Download `hotkey-hub.exe` from [releases](https://github.com/akoidan/hotkey-hub/releases).
-- Put certificates into `./certs` directory where `hotkey-hub.exe` is.
-- Put configs into `./configs` directory where `hotkey-hub.exe` is
-- Open the terminal from a regular user and run  `hotkey-hub.exe`. 
-- You can also run it by double clicking the .exe file like you normally do, but in case of error it will exit promptly.
+- Put certificates into `C:\Users\<username>\AppData\Roaming\hotkey-hub\certs`
+- Put config file into `C:\Users\<username>\AppData\Roaming\hotkey-hub\config.jsonc`
+- Run `hotkey-hub.exe`.
 
 ### Apply new config
 If server is started under linux using systemd or with flag `--api-server`, running `hotkey-hub` with `--config-file` or `--variables-file` parameter will apply new configuration to existing server via http api, instead of creating a new process. E.g. after initial start of `systemctl --user start hotkey-hub`, use:
