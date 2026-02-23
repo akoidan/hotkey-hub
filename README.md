@@ -43,6 +43,12 @@ where `APPDATA` is `~/.config` on linux and `C:\Users\<username>\AppData\Roaming
 
 **If client and server certificates are different, you'll get an exception on startup indicating that the server is unable to connect to the client**
 
+Server and client print log: 
+```txt
+CA cert loaded from /home/andrew/.config/hotkey-hub/certs/ca-cert.pem endswith NDTS
+```
+the ending identifier should be same on both.
+
 ### Define Main Configuration (Required)
 
 Example of `%APPDATA%/hotkey-hub/config.jsonc`:
