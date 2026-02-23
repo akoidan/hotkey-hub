@@ -158,16 +158,7 @@ export class ConfigService implements ConfigProvider {
     this.logger.debug('parsing config');
     const variables = await this.validateVariableConf();
     this.logger.debug('Validating global config');
-    if (!this.configReader.getConfigProvided() && Array.isArray(variables.configPath) && variables.configPath?.length > 1) {
-      this.logger.log('--config-file option was not provided, adding select options');
-      const response = await prompts({
-        type: 'select',
-        name: 'config-file',
-        message: 'Select config file',
-        choices: variables.configPath.map(a => ({title: basename(a), value: a})),
-      });
-      this.configReader.setConfigFile(response['config-file'] as string);
-    }
+    await this.initConfigFilePath(variables);
     const configString = await this.configReader.loadConfigString();
     const parsedNoDefault = parse(configString) as ConfigData;
     schemaRootCache.data = parsedNoDefault;
@@ -188,6 +179,24 @@ export class ConfigService implements ConfigProvider {
       this.logger.log(`Loaded config ${clc.bold.green(this.configData.name)} from ${configPath}`);
     } else {
       this.logger.log(`Loaded config from ${configPath}`);
+    }
+  }
+
+  private async initConfigFilePath(variables: Variables): Promise<void> {
+    if (!this.configReader.getConfigProvided() && Array.isArray(variables.configPath) && variables.configPath?.length > 1) {
+      this.logger.log('--config-file option was not provided, adding select options');
+      const response = await prompts({
+        type: 'select',
+        // eslint-disable-next-line sonarjs/no-duplicate-string
+        name: 'config-file',
+        message: 'Select config file',
+        choices: variables.configPath.map(a => ({title: basename(a), value: a})),
+      });
+      if (!response['config-file']) {
+        this.logger.error('Config file selection was cancelled');
+        throw new Error('Config file selection was cancelled');
+      }
+      this.configReader.setConfigFile(response['config-file'] as string);
     }
   }
 
