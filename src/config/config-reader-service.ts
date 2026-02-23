@@ -13,7 +13,7 @@ export class ConfigReaderService {
   ) {
   }
 
-  public getId(): string {
+  public getConfigPath(): string {
     return this.configsPathService.configFilePath;
   }
 

@@ -1,4 +1,5 @@
 import {z, type ZodObject, type ZodTypeAny} from 'zod';
+import {DelayData} from "@/config/types/delays";
 
 const variablesSchema = z.record(z.string(), z.any())
   .describe('Variable definitions for configuration.' +
@@ -65,7 +66,7 @@ const variableValueSchema = z.object({
     '2. A matching environment variable\n' +
     '3. A variable created during execution (e.g., from assignId or expression commands)');
 
-type Variables = z.infer<typeof variablesSchema>
+type Variables =  {delays: DelayData, configPath: string[]} & z.infer<typeof variablesSchema>;
 type VariableValue = z.infer<typeof variableValueSchema>
 
 export {variablesSchema, variableValueSchema, variableRegex, makeVariableUnion};

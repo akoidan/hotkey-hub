@@ -18,7 +18,7 @@ import {ENV, ZodErrorCollected} from '@/config/types/config-path';
 export class ConfigService implements ConfigProvider {
   private configData: ConfigData | null = null;
 
-  private variables: Variables = {};
+  private variables: Variables = {} as Variables;
 
   private variablesSaveTimeoutId: NodeJS.Timeout | null = null;
 
@@ -31,7 +31,7 @@ export class ConfigService implements ConfigProvider {
     @Inject(SAVE_TIMEOUT)
     private readonly saveTimeout: number,
   ) {
-    this.logger.verbose(`Created new instance of config service from ${configReader.getId()}`);
+    this.logger.verbose(`Created new instance of config service from ${configReader.getConfigPath()}`);
   }
 
 
@@ -124,7 +124,7 @@ export class ConfigService implements ConfigProvider {
     }
   }
 
-  public async validateVariableConf(): Promise<Record<string, any>> {
+  public async validateVariableConf(): Promise<Variables> {
     this.logger.debug('Validating variables config');
     const variablesConfigString = await this.configReader.loadVariablesConfigString();
     const variables = variablesConfigString ? parse(variablesConfigString) as Variables : {};
@@ -164,10 +164,18 @@ export class ConfigService implements ConfigProvider {
     this.configData = configData;
     this.variables = variables;
     this.setVariable('delays', configData.delays);
+    if (!variables.configPath) {
+      variables.configPath = [];
+    }
+    const configPath = this.configReader.getConfigPath();
+    if (!variables.configPath.includes(configPath)) {
+      variables.configPath.push(configPath);
+    }
+    this.setVariable('configPath', configPath);
     if (this.configData.name) {
-      this.logger.log(`Loaded config ${clc.bold.green(this.configData.name)} from ${this.configReader.getId()}`);
+      this.logger.log(`Loaded config ${clc.bold.green(this.configData.name)} from ${configPath}`);
     } else {
-      this.logger.log(`Loaded config from ${this.configReader.getId()}`);
+      this.logger.log(`Loaded config from ${configPath}`);
     }
   }
 
