@@ -13,6 +13,8 @@ import {DelayData} from '@/config/types/delays';
 import {ConfigCombination, SAVE_TIMEOUT} from '@/config/config-model';
 import {MacroList} from '@/config/types/local/local-commands';
 import {ENV, ZodErrorCollected} from '@/config/types/config-path';
+import prompts, {Choice, PromptObject, PromptType} from 'prompts';
+import {basename} from 'path';
 
 @Injectable()
 export class ConfigService implements ConfigProvider {
@@ -156,6 +158,16 @@ export class ConfigService implements ConfigProvider {
     this.logger.debug('parsing config');
     const variables = await this.validateVariableConf();
     this.logger.debug('Validating global config');
+    if (!this.configReader.getConfigProvided() && variables.configPath?.length > 1) {
+      this.logger.log('--config-file option was not provided, adding select options');
+      const response = await prompts({
+        type: 'select',
+        name: 'config-file',
+        message: 'Select config file',
+        choices: variables.configPath.map(a => ({title: basename(a), value: a})),
+      });
+      this.configReader.setConfigFile(response['config-file'] as string);
+    }
     const configString = await this.configReader.loadConfigString();
     const parsedNoDefault = parse(configString) as ConfigData;
     schemaRootCache.data = parsedNoDefault;
@@ -171,7 +183,7 @@ export class ConfigService implements ConfigProvider {
     if (!variables.configPath.includes(configPath)) {
       variables.configPath.push(configPath);
     }
-    this.setVariable('configPath', configPath);
+    this.setVariable('configPath', variables.configPath);
     if (this.configData.name) {
       this.logger.log(`Loaded config ${clc.bold.green(this.configData.name)} from ${configPath}`);
     } else {

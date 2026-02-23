@@ -9,7 +9,6 @@ import {isPortOpen, parseArgs, postLocalhost} from '@/app/utils';
 import type {LogLevel} from '@nestjs/common';
 import clc from 'cli-color';
 
-
 asyncLocalStorage.run(
   new Map<string, any>()
     .set(SemaphorService.COMB_KEY, 'init')

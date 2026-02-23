@@ -3,6 +3,7 @@ openapi.json
 .idea
 dist
 /config.jsonc
+/variables.jsonc
 yarn-error.log
 certs
 /hotkey-hub
@@ -10,7 +11,6 @@ examples
 /hotkey-hub.exe
 coverage
 build
-/configs
 cmake-build-debug
 json-schema.json
 CONFIG.md

@@ -13,6 +13,7 @@ interface ReloadRequest {
 
  interface AppConfig {
   configFile: string;
+  configProvided: boolean;
   variablesFile: string;
   certDir: string;
   apiServer: boolean;

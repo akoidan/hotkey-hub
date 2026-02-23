@@ -17,10 +17,18 @@ export class ConfigReaderService {
     return this.configsPathService.configFilePath;
   }
 
+  public setConfigFile(newPath: string): void {
+    this.configsPathService.configFilePath = newPath;
+  }
+
+  public getConfigProvided(): boolean {
+    return this.configsPathService.configProvided;
+  }
+
   public async loadConfigString(): Promise<string> {
     this.logger.debug(`Loading config from ${this.configsPathService.configFilePath}`);
     return fs.readFile(this.configsPathService.configFilePath, 'utf8').catch((err: unknown) => {
-      throw new Error(`Unable to open file ${this.configsPathService.configFilePath}, because ${(err as Error).message}`);
+      throw new Error(`Unable to open file, because ${(err as Error).message}`);
     });
   }
 
@@ -31,7 +39,7 @@ export class ConfigReaderService {
       return await fs.readFile(this.configsPathService.variablesFilePath, 'utf8');
     } catch (error) {
       // eslint-disable-next-line max-len
-      this.logger.warn(`Unable to load variables from ${this.configsPathService.variablesFilePath} because of ${error?.message ?? error}`);
+      this.logger.warn(`Unable to load variables because of ${error?.message ?? error}`);
       return null;
     }
   }

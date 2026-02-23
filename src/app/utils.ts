@@ -4,9 +4,10 @@ import yargs from 'yargs';
 import net from 'net';
 import http from 'http';
 import type {LogLevel} from '@nestjs/common';
-import process from "node:process";
-import {homedir} from "os";
+import process from 'node:process';
+import {homedir} from 'os';
 
+// eslint-disable-next-line max-lines-per-function
 async function parseArgs(): Promise<AppConfig> {
   let commonDir;
   if (process.platform === 'win32') {
@@ -18,7 +19,8 @@ async function parseArgs(): Promise<AppConfig> {
   }
   commonDir = path.join(commonDir, 'hotkey-hub');
   const logLevel: LogLevel[] = ['log' , 'error' , 'warn' , 'debug' , 'verbose' , 'fatal'] as LogLevel[];
-  return yargs(process.argv.slice(2))
+  const appArgs = process.argv.slice(2);
+  const res = await yargs(appArgs)
       .strict()
       .scriptName('hotkey-hub')
       .epilog('Reffer https://github.com/akoidan/hotkey-hub for more documentation')
@@ -55,6 +57,9 @@ async function parseArgs(): Promise<AppConfig> {
         description: 'Directory that contains key.pem, cert.pem, ca-cert.pem for MTLS',
       })
       .parse();
+
+  const configProvided: boolean = appArgs.includes('config-file') || appArgs.includes('--config-file');
+  return {...res, configProvided};
 }
 
 async function isPortOpen(port: number, timeout = 2000): Promise<boolean> {
