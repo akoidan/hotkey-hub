@@ -192,6 +192,7 @@ export class ConfigService implements ConfigProvider {
         message: 'Select config file',
         choices: variables.configPath.map(a => ({title: basename(a), value: a})),
       });
+      // if ctrl+c is presssed it returns empty object
       if (!response['config-file']) {
         this.logger.error('Config file selection was cancelled');
         throw new Error('Config file selection was cancelled');
