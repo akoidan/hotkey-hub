@@ -22,7 +22,7 @@ asyncLocalStorage.run(
       if (args.configProvided) {
         body.configFile = args.configFile;
       }
-      if (args.variablesFile) {
+      if (args.variablesProvided) {
         body.variablesFile = args.variablesFile;
       }
       if (Object.keys(body).length === 0) {
