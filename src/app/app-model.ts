@@ -11,10 +11,8 @@ interface ReloadRequest {
   variablesFile?: string;
 }
 
- interface AppConfig {
+interface YargsConfig {
   configFile: string;
-  configProvided: boolean;
-  variablesProvided: boolean;
   variablesFile: string;
   certDir: string;
   apiServer: boolean;
@@ -22,9 +20,14 @@ interface ReloadRequest {
   apiPort: number;
 }
 
+interface AppConfig extends YargsConfig {
+  configProvided: boolean;
+  variablesProvided: boolean;
+}
+
 const LOG_LEVEL = 'LOG_LEVEL';
 const VERSION_INJ = 'VERSION';
 
 export {LOG_LEVEL, VERSION_INJ};
 
-export type {ShortcutDescription, ReloadRequest, AppConfig};
+export type {ShortcutDescription, ReloadRequest, AppConfig, YargsConfig};

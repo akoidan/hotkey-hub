@@ -51,7 +51,7 @@ asyncLocalStorage.run(
     (async function startApp(): Promise<void> {
       // eslint-disable-next-line
       const packageJson: string = require('../package.json').version;
-      const args = await parseArgs();
+      const args = await parseArgs(logger);
       logger.setLogLevel(args.logLevel as LogLevel);
       const portOpen = await isPortOpen(args.apiPort);
       if (args.apiServer && portOpen) {

@@ -1,14 +1,19 @@
-import type {AppConfig} from '@/app/app-model';
-import path from 'path';
+import type {AppConfig, YargsConfig} from '@/app/app-model';
+import path, {basename} from 'path';
 import yargs from 'yargs';
 import net from 'net';
 import http from 'http';
 import type {LogLevel} from '@nestjs/common';
 import process from 'node:process';
 import {homedir} from 'os';
+import type {Variables} from '@/config/types/variables';
+import prompts from 'prompts';
+import {promises as fs} from 'fs';
+import {parse} from 'jsonc-parser';
+import type {ConsoleLogger} from '@/app/console-logger.service';
 
-// eslint-disable-next-line max-lines-per-function
-async function parseArgs(): Promise<AppConfig> {
+
+function getTopDir(): string {
   let commonDir;
   if (process.platform === 'win32') {
     commonDir = process.env.APPDATA ?? path.join(homedir(), 'AppData', 'Roaming');
@@ -17,10 +22,48 @@ async function parseArgs(): Promise<AppConfig> {
   } else {
     throw new Error(`Unsupported platform: ${process.platform}`);
   }
-  commonDir = path.join(commonDir, 'hotkey-hub');
+  return path.join(commonDir, 'hotkey-hub');
+}
+
+async function promtConfigIfMissing(appArgs: string[], logger: ConsoleLogger, res: YargsConfig):Promise<AppConfig> {
+  // eslint-disable-next-line sonarjs/no-duplicate-string
+  let configProvided: boolean = appArgs.includes('config-file') || appArgs.some(f => f.startsWith('--config-file'));
+  const variablesProvided: boolean = appArgs.includes('variables-file') || appArgs.some(f => f.startsWith('--variables-file'));
+  if (!configProvided) {
+    let varFile: string;
+    try {
+      varFile = await fs.readFile(res.variablesFile, 'utf8');
+    } catch (e) {
+      logger.warn(`Unable to parse variables file because of ${e?.message || e}`);
+      return {...res, configProvided, variablesProvided};
+    }
+    const varFileContent: Variables = parse(varFile) as Variables;
+    if (Array.isArray(varFileContent.configPath) && varFileContent.configPath.length > 1) {
+      logger.log('--config-file option was not provided, adding select options');
+      const response = await prompts({
+        type: 'select',
+        // eslint-disable-next-line sonarjs/no-duplicate-string
+        name: 'config-file',
+        message: 'Select config file',
+        choices: varFileContent.configPath.map(a => ({title: basename(a), value: a})),
+      });
+      // if ctrl+c is presssed it returns empty object
+      if (!response['config-file']) {
+        throw new Error('Config file selection was cancelled');
+      }
+      // eslint-disable-next-line
+      res.configFile = response['config-file'];
+      configProvided = true;
+    }
+  }
+  return {...res, configProvided, variablesProvided};
+}
+
+async function parseArgs(logger: ConsoleLogger): Promise<AppConfig> {
+  const commonDir = getTopDir();
   const logLevel: LogLevel[] = ['log' , 'error' , 'warn' , 'debug' , 'verbose' , 'fatal'] as LogLevel[];
   const appArgs = process.argv.slice(2);
-  const res = await yargs(appArgs)
+  const res: YargsConfig = await yargs(appArgs)
       .strict()
       .scriptName('hotkey-hub')
       .epilog('Reffer https://github.com/akoidan/hotkey-hub for more documentation')
@@ -59,10 +102,7 @@ async function parseArgs(): Promise<AppConfig> {
         description: 'Directory that contains key.pem, cert.pem, ca-cert.pem for MTLS',
       })
       .parse();
-
-  const configProvided: boolean = appArgs.includes('config-file') || appArgs.some(f => f.startsWith('--config-file'));
-  const variablesProvided: boolean = appArgs.includes('variables-file') || appArgs.some(f => f.startsWith('--variables-file'));
-  return {...res, configProvided, variablesProvided};
+  return promtConfigIfMissing(appArgs, logger, res);
 }
 
 async function isPortOpen(port: number, timeout = 2000): Promise<boolean> {
