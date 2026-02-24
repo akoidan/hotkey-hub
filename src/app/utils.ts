@@ -60,8 +60,8 @@ async function parseArgs(): Promise<AppConfig> {
       })
       .parse();
 
-  const configProvided: boolean = appArgs.includes('config-file') || appArgs.includes('--config-file');
-  const variablesProvided: boolean = appArgs.includes('variables-file') || appArgs.includes('--variables-file');
+  const configProvided: boolean = appArgs.includes('config-file') || appArgs.some(f => f.startsWith('--config-file'));
+  const variablesProvided: boolean = appArgs.includes('variables-file') || appArgs.some(f => f.startsWith('--variables-file'));
   return {...res, configProvided, variablesProvided};
 }
 
