@@ -330,11 +330,17 @@ void setLoggerLevel(const Napi::CallbackInfo &info) {
   logDebug = localLog;
 }
 
+void setWindowTitle(const Napi::CallbackInfo &info) {
+  GET_STRING(info, 0, title);
+  SetConsoleTitleA(title.c_str());
+}
+
 // Initialize module
 Napi::Object initListenShortcut(Napi::Env env, Napi::Object exports) {
   exports.Set("registerHotkey", Napi::Function::New(env, registerHotkey));
   exports.Set("unregisterHotkey", Napi::Function::New(env, unregisterHotkey));
   exports.Set("cleanupHotkeys", Napi::Function::New(env, cleanupHotkeys));
   exports.Set("setLoggerLevel", Napi::Function::New(env, setLoggerLevel));
+  exports.Set("setWindowTitle", Napi::Function::New(env, setWindowTitle));
   return exports;
 }

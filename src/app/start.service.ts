@@ -4,6 +4,7 @@ import clc from 'cli-color';
 import {ConfigService} from '@/config/config-service';
 import {ReloadRequest} from '@/app/app-model';
 import {ConfigPath, ConfigPathClass} from '@/config/types/config-path';
+import {INativeModule, Native} from '@/native/native-model';
 
 @Injectable()
 export class StartService {
@@ -13,6 +14,8 @@ export class StartService {
       private readonly configService: ConfigService,
       @Inject(ConfigPathClass)
       private readonly configsPathService: ConfigPath,
+      @Inject(Native)
+      private readonly native: INativeModule
   ) {
   }
 
@@ -23,6 +26,7 @@ export class StartService {
     if (shortcuts.length === 0) {
       throw Error('No shortcuts found. App will exist due to no listener');
     }
+    this.native.setWindowTitle(this.configService.getName());
     this.logger.log(`App has successfully started with following shortcuts: ${clc.bold.green(shortcuts.join(' '))}`);
   }
 
@@ -30,6 +34,7 @@ export class StartService {
     this.logger.debug(`Reloading config hotkey config from ${JSON.stringify(reload)}...`);
     this.configsPathService.setConfigPaths(reload.configFile, reload.variablesFile);
     await this.keybindingService.reloadShortcuts();
+    this.native.setWindowTitle(this.configService.getName());
     this.logger.log(`Loaded new config from ${JSON.stringify(reload)}`);
   }
 }

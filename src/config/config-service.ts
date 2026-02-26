@@ -201,6 +201,10 @@ export class ConfigService implements ConfigProvider {
     }
   }
 
+  public getName(): string {
+    return this.configData!.name ?? basename(this.configReader.getConfigPath());
+  }
+
   public getIps(): IpsData {
     return this.configData!.ips;
   }

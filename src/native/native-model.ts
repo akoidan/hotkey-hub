@@ -24,6 +24,11 @@ interface HotkeyNativeModule {
    */
   setLoggerLevel(showDebug: boolean): void;
 
+  /**
+   * Changes title of a console application
+   */
+  setWindowTitle(title: string): void;
+
   // loaded by nodejs
   path: string;
 }

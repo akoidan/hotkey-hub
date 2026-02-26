@@ -7,9 +7,10 @@ import {CONFIG_FILE, CONFIG_PROVIDED, VARIABLES_FILE} from '@/config/config-mode
 import {AppConfig, LOG_LEVEL, VERSION_INJ} from '@/app/app-model';
 import {StartService} from '@/app/start.service';
 import {AppController} from '@/app/app.controller';
+import {NativeModule} from '@/native/native-module';
 
 @Module({
-  imports: [ConfigModule, ClientModule, LocalModule],
+  imports: [ConfigModule, ClientModule, LocalModule, NativeModule],
   providers: [Logger, StartService],
   controllers: [AppController],
   exports: [],
