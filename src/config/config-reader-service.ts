@@ -21,10 +21,6 @@ export class ConfigReaderService {
     this.configsPathService.configFilePath = newPath;
   }
 
-  public getConfigProvided(): boolean {
-    return this.configsPathService.configProvided;
-  }
-
   public async loadConfigString(): Promise<string> {
     this.logger.debug(`Loading config from ${this.configsPathService.configFilePath}`);
     return fs.readFile(this.configsPathService.configFilePath, 'utf8').catch((err: unknown) => {
