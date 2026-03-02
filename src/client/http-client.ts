@@ -32,6 +32,9 @@ export class FetchClient {
   ): Promise<[string, number]> {
     const ips = this.config.getIps();
     let host = ips[client];
+    if (!host) {
+      throw Error(`Can't execute ${url}, unknown host ${client}`);
+    }
     let port: number;
     if (host.includes(':')) {
       [host] = host.split(':');
