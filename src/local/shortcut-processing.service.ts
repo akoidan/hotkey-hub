@@ -25,7 +25,7 @@ export class ShortcutProcessingService {
       const behaviour = typeof comb.behaviour === 'object' ? comb.behaviour.type : comb.behaviour;
       const groupWith = (comb.behaviour as BehaviourObject)?.groupWith ?? comb.shortCut;
       try {
-        await this.rgbService.updateColors(comb.shortCut, true);
+        this.rgbService.updateColors(comb.shortCut, true);
         if (!this.iterationsInProgress[groupWith]) {
           this.iterationsInProgress[groupWith] = [];
         }
@@ -45,7 +45,7 @@ export class ShortcutProcessingService {
           this.logger.verbose(`Operation ${id} was used for termination, thus deletion from all iterationsInProgress is omited`);
         }
         if (this.iterationsInProgress[groupWith].filter(proc => proc.shortCut.shortCut === comb.shortCut).length === 0) {
-          await this.rgbService.updateColors(comb.shortCut, false);
+          this.rgbService.updateColors(comb.shortCut, false);
         }
       }
     });
