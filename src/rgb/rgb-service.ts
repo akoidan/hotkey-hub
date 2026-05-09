@@ -1,20 +1,8 @@
 import {Inject, Injectable, Logger} from '@nestjs/common';
 import {ConfigService} from '@/config/config-service';
-import {RgbServiceI} from '@/rgb/rgb-model';
-import {INativeModule, Native, OpenRgbNativeModule, RgbColor} from '@/native/native-model';
+import {ConnectionState, LedState, RgbServiceI} from '@/rgb/rgb-model';
+import {Native, OpenRgbNativeModule, RgbColor} from '@/native/native-model';
 
-interface LedState {
-  ledIndex: number;
-  color: RgbColor;
-  refCount: number;
-}
-
-enum ConnectionState {
-  INITING = 'INITING',
-  CONNECTING = 'CONNECTING',
-  CONNECTED = 'CONNECTED',
-  NOT_AVAILABLE = 'NOT_AVAILABLE',
-}
 
 @Injectable()
 export class RgbService implements RgbServiceI {
@@ -68,12 +56,12 @@ export class RgbService implements RgbServiceI {
   }
 
   // eslint-disable-next-line max-statements
-  public async setup(): Promise<void> {
+  public async setup(): Promise<boolean> {
     const rgb = this.configService.getOpenRgb();
     if (!rgb) {
       this.state = ConnectionState.NOT_AVAILABLE;
       this.logger.debug('OpenRGB not configured, skipping');
-      return;
+      return false;
     }
     try {
       this.logger.verbose('Connecting to OpenRGB...');
@@ -83,7 +71,7 @@ export class RgbService implements RgbServiceI {
       } catch (e) {
         this.logger.error(`Unable to connect to openRGB, because ${e}, reconnecting in ${this.RECONNECT_TIMEOUT}ms`);
         setTimeout(() => void this.setup(), this.RECONNECT_TIMEOUT);
-        return;
+        return false;
       }
       const devices = await this.native.rgbGetDevices();
       const keyboard = devices.find(dev => dev.name === rgb.deviceName);
@@ -100,9 +88,11 @@ export class RgbService implements RgbServiceI {
       this.native.rgbSetCustomMode(this.deviceId!);
       this.native.rgbUpdateAllLeds(this.deviceId!, this.colorsArray);
       this.state = ConnectionState.CONNECTED;
+      return true;
     } catch (error) {
       this.state = ConnectionState.NOT_AVAILABLE;
       this.logger.error(`Unable to init keyboard: ${error?.message ?? error}`, error.stack);
+      return false;
     }
   }
 

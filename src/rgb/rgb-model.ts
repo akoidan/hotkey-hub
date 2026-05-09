@@ -1,4 +1,26 @@
-export interface RgbServiceI {
+import type {RgbColor} from '@/native/native-model';
+
+interface RgbServiceI {
   updateColors(comb: string, hl: boolean): void;
-  setup(): Promise<void>;
+  setup(): Promise<boolean>;
 }
+
+interface LedState {
+  ledIndex: number;
+  color: RgbColor;
+  refCount: number;
+}
+
+enum ConnectionState {
+  INITING = 'INITING',
+  CONNECTING = 'CONNECTING',
+  CONNECTED = 'CONNECTED',
+  NOT_AVAILABLE = 'NOT_AVAILABLE',
+}
+
+export type {
+  RgbServiceI,
+  LedState,
+};
+
+export {ConnectionState};
