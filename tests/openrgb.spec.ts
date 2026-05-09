@@ -21,11 +21,12 @@ describe('RgbService integration', () => {
     expect(dev).toBeDefined();
     service.rgbSetCustomMode(dev.deviceId);
     await service.rgbUpdateSingleLed(dev.deviceId, 0, {red: 255, green: 0, blue: 0})
-    await new Promise(r => setTimeout(r, 3000));
+    await new Promise(r => setTimeout(r, 300));
     const off = Array<{red: number; green: number; blue: number}>(dev.leds.length).fill({red: 0, green: 0, blue: 0});
     service.rgbUpdateAllLeds(dev.deviceId, off);
-    await new Promise(r => setTimeout(r, 3000));
+    await new Promise(r => setTimeout(r, 300));
     await service.rgbUpdateSingleLed(dev.deviceId, 0, {red: 0, green: 255, blue: 0})
-    await new Promise(r => setTimeout(r, 3000));
-  });
+    await new Promise(r => setTimeout(r, 300));
+    service.rgbDisconnect()
+  }, 15000);
 });

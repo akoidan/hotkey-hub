@@ -48,6 +48,8 @@ struct RgbDevice {
 
 static SOCKET   gSocket = INVALID_SOCKET;
 static uint32_t gProto  = 0;
+static std::atomic<uint64_t> gMonitorGen{0};
+static std::atomic<bool>     gExpectingDisconnect{false};
 
 // ── Wire utilities ─────────────────────────────────────────────────────────────
 //
@@ -249,10 +251,64 @@ static RgbDevice parseDevice(const std::vector<uint8_t>& body, uint32_t proto,
   return dev;
 }
 
+// ── Disconnect detection ───────────────────────────────────────────────────────
+//
+// Polls the socket from a background thread; fires the JS callback when the
+// server closes the connection unexpectedly. Uses a generation counter so that
+// a new call to registerDCEvent (or a normal rgbDisconnect) invalidates any
+// running monitor without needing an explicit stop signal.
+
+static void rgbRegisterDCEvent(const Napi::CallbackInfo& info) {
+  Napi::Env env = info.Env();
+  if (info.Length() < 1 || !info[0].IsFunction())
+    throw Napi::TypeError::New(env, "Expected callback function");
+  if (gSocket == INVALID_SOCKET)
+    throw Napi::Error::New(env, "not connected");
+
+  SOCKET   sock  = gSocket;
+  uint64_t myGen = ++gMonitorGen;
+
+  auto tsfn = Napi::ThreadSafeFunction::New(
+    env, info[0].As<Napi::Function>(), "RgbDcEvent", 0, 1);
+
+  std::thread([tsfn, myGen]() mutable {
+    while (gMonitorGen == myGen) {
+      SOCKET sock = gSocket;
+      if (sock == INVALID_SOCKET) {
+        Sleep(200);
+        continue;
+      }
+      fd_set rfds;
+      FD_ZERO(&rfds);
+      FD_SET(sock, &rfds);
+      timeval tv{0, 200000};  // 200 ms poll
+      select(0, &rfds, nullptr, nullptr, &tv);
+      if (gMonitorGen != myGen) break;
+      if (gSocket != sock) continue;  // reconnect replaced the socket mid-poll
+      if (!FD_ISSET(sock, &rfds)) continue;
+      char buf[1];
+      int n = ::recv(sock, buf, 1, MSG_PEEK);
+      if (n == 0 || n == SOCKET_ERROR) {
+        if (!gExpectingDisconnect && gMonitorGen == myGen) {
+          tsfn.BlockingCall([](Napi::Env e, Napi::Function fn) {
+            fn.Call(e.Undefined(), {});
+          });
+        }
+        // Wait for reconnect to swap in a new socket, then resume monitoring it
+        while (gMonitorGen == myGen && (gSocket == sock || gSocket == INVALID_SOCKET)) {
+          Sleep(100);
+        }
+      }
+    }
+    tsfn.Release();
+  }).detach();
+}
+
 // ── Async: connect → Promise<void> ────────────────────────────────────────────
 
 static void doConnect(const std::string& host, uint32_t port,
                       const std::string& clientName) {
+  gExpectingDisconnect = false;
   if (gSocket != INVALID_SOCKET) {
     closesocket(gSocket);
     gSocket = INVALID_SOCKET;
@@ -487,9 +543,11 @@ static void rgbUpdateSingleLed(const Napi::CallbackInfo& info) {
 // rgbDisconnect(): void
 static void rgbDisconnect(const Napi::CallbackInfo&) {
   if (gSocket != INVALID_SOCKET) {
-    shutdown(gSocket, SD_SEND);  // send FIN; server reads EOF instead of getting RST
+    gExpectingDisconnect = true;
+    ++gMonitorGen;  // invalidate any running monitor so it doesn't fire the callback
+    shutdown(gSocket, SD_SEND);
     char drain[256];
-    while (::recv(gSocket, drain, sizeof(drain), 0) > 0) {}  // drain any pending server data
+    while (::recv(gSocket, drain, sizeof(drain), 0) > 0) {}
     closesocket(gSocket);
     gSocket = INVALID_SOCKET;
   }
@@ -506,5 +564,6 @@ Napi::Object initOpenRgb(Napi::Env env, Napi::Object exports) {
   exports.Set("rgbUpdateAllLeds",   Napi::Function::New(env, rgbUpdateAllLeds));
   exports.Set("rgbUpdateSingleLed", Napi::Function::New(env, rgbUpdateSingleLed));
   exports.Set("rgbDisconnect",      Napi::Function::New(env, rgbDisconnect));
+  exports.Set("rgbRegisterDCEvent", Napi::Function::New(env, rgbRegisterDCEvent));
   return exports;
 }

@@ -32,25 +32,14 @@ export class RgbService implements RgbServiceI {
       this.logger.error(`key "${key}" not in keymap`);
       return;
     }
-    const stateBefore = state.refCount;
-    if (hl) {
-      state.refCount++;
-    } else {
-      state.refCount--;
-    }
-    if (state.refCount < 0) {
-      throw Error('Bug in stateCount per led');
-    }
-    state.color = state.refCount > 0 ? this.ON : this.OFF;
+    state.color = hl ? this.ON : this.OFF;
 
-    // if before was 0, we definitely change state
-    // if it become 0, this means before it was 1
-    if ((stateBefore === 0 || state.refCount === 0) && this.state === ConnectionState.CONNECTED) {
+    if (this.state === ConnectionState.CONNECTED) {
       try {
         this.native.rgbUpdateSingleLed(this.deviceId!, state.ledIndex, state.color);
       } catch (error) {
         this.logger.error(`Error while setting led ${error}`);
-        void this.reconnect();
+        this.state = ConnectionState.CONNECTING;  // block further sends; DC event triggers reconnect
       }
     }
   }
@@ -66,13 +55,8 @@ export class RgbService implements RgbServiceI {
     try {
       this.logger.verbose('Connecting to OpenRGB...');
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      try {
-        await this.native.rgbConnect(rgb.serverAddr!, rgb.serverPort!, rgb.clientName!);
-      } catch (e) {
-        this.logger.error(`Unable to connect to openRGB, because ${e}, reconnecting in ${this.RECONNECT_TIMEOUT}ms`);
-        setTimeout(() => void this.setup(), this.RECONNECT_TIMEOUT);
-        return false;
-      }
+      await this.native.rgbConnect(rgb.serverAddr!, rgb.serverPort!, rgb.clientName!);
+
       const devices = await this.native.rgbGetDevices();
       const keyboard = devices.find(dev => dev.name === rgb.deviceName);
       this.logger.debug(`RGB devices: ${devices.map(d => d.name).join(', ')}. Using: ${keyboard?.name ?? 'none'}`);
@@ -82,16 +66,17 @@ export class RgbService implements RgbServiceI {
       this.deviceId = keyboard.deviceId;
       this.leds.clear();
       keyboard.leds.forEach((led, i) => {
-        this.leds.set(this.encodeKey(led.name), {ledIndex: i, color: this.OFF, refCount: 0});
+        this.leds.set(this.encodeKey(led.name), {ledIndex: i, color: this.OFF});
       });
-      this.state = ConnectionState.CONNECTING;
+      this.native.rgbRegisterDCEvent(() =>  void this.onRgbDisconnect());
       this.native.rgbSetCustomMode(this.deviceId!);
       this.native.rgbUpdateAllLeds(this.deviceId!, this.colorsArray);
       this.state = ConnectionState.CONNECTED;
       return true;
     } catch (error) {
+      this.logger.error(`Unable to init keyboard: ${error?.message ?? error}. Retriny in ${this.RECONNECT_TIMEOUT}ms`, error.stack);
       this.state = ConnectionState.NOT_AVAILABLE;
-      this.logger.error(`Unable to init keyboard: ${error?.message ?? error}`, error.stack);
+      setTimeout(() => void this.setup(), this.RECONNECT_TIMEOUT);
       return false;
     }
   }
@@ -104,19 +89,26 @@ export class RgbService implements RgbServiceI {
     return colors;
   }
 
-  private async reconnect(): Promise<void> {
+
+  private async onRgbDisconnect(): Promise<void> {
     try {
+      this.logger.error('Lost connection to openRGB');
+      await await new Promise(r => {
+        setTimeout(r, this.RECONNECT_TIMEOUT);
+      });
+      this.logger.debug('Reconnecting to OpenRGB');
       this.state = ConnectionState.CONNECTING;
       const rgb = this.configService.getOpenRgb()!;
+      // will triggger onDC which will call this function
       await this.native.rgbConnect(rgb.serverAddr!, rgb.serverPort!, rgb.clientName!);
       this.native.rgbSetCustomMode(this.deviceId!);
       this.native.rgbUpdateAllLeds(this.deviceId!, this.colorsArray);
       this.state = ConnectionState.CONNECTED;
     } catch (e) {
-      this.logger.error(`Unable to reconnect: ${e}, retrying in ${this.RECONNECT_TIMEOUT}`);
-      setTimeout(() => void this.reconnect(), this.RECONNECT_TIMEOUT);
+      this.logger.error(`Unable to reconnect to OpenRGB: ${e}, retrying in ${this.RECONNECT_TIMEOUT}`);
     }
   }
+
 
   private encodeKey(ledName: string): string {
     const {keyMapFn} = this.configService.getOpenRgb()!;

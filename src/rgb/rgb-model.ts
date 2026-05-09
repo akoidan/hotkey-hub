@@ -8,7 +8,6 @@ interface RgbServiceI {
 interface LedState {
   ledIndex: number;
   color: RgbColor;
-  refCount: number;
 }
 
 enum ConnectionState {

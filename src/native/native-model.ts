@@ -53,6 +53,7 @@ interface OpenRgbNativeModule {
   rgbUpdateAllLeds(deviceId: number, colors: RgbColor[]): void;
   rgbUpdateSingleLed(deviceId: number, ledId: number, color: RgbColor): void;
   rgbDisconnect(): void;
+  rgbRegisterDCEvent(callback: () => void): void;
 }
 
 type INativeModule = HotkeyNativeModule & OpenRgbNativeModule
