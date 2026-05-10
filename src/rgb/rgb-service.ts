@@ -8,7 +8,7 @@ import {Native, OpenRgbNativeModule, RgbColor} from '@/native/native-model';
 export class RgbService implements RgbServiceI {
   private readonly leds = new Map<string, LedState>();
   private deviceId: number | null = null;
-  private state: ConnectionState = ConnectionState.INITING;
+  private __state: ConnectionState = ConnectionState.INITING;
   private readonly RECONNECT_TIMEOUT = 5000;
   private readonly OFF: RgbColor = {red: 0, green: 0, blue: 0};
   private readonly ON: RgbColor = {red: 255, green: 0, blue: 0};
@@ -23,6 +23,7 @@ export class RgbService implements RgbServiceI {
 
   public updateColors(comb: string, hl: boolean): void {
     if (this.state === ConnectionState.NOT_AVAILABLE) {
+      this.logger.verbose('Skipping led settings, cause it\'s off');
       return;
     }
 
@@ -39,7 +40,7 @@ export class RgbService implements RgbServiceI {
         this.native.rgbUpdateSingleLed(this.deviceId!, state.ledIndex, state.color);
       } catch (error) {
         this.logger.error(`Error while setting led ${error}`);
-        this.state = ConnectionState.CONNECTING;  // block further sends; DC event triggers reconnect
+        this.state = ConnectionState.NOT_AVAILABLE;  // block further sends; DC event triggers reconnect
       }
     }
   }
@@ -68,6 +69,7 @@ export class RgbService implements RgbServiceI {
       keyboard.leds.forEach((led, i) => {
         this.leds.set(this.encodeKey(led.name), {ledIndex: i, color: this.OFF});
       });
+      this.logger.debug(`Subscribed to disconnect event`);
       this.native.rgbRegisterDCEvent(() =>  void this.onRgbDisconnect());
       this.native.rgbSetCustomMode(this.deviceId!);
       this.native.rgbUpdateAllLeds(this.deviceId!, this.colorsArray);
@@ -89,15 +91,28 @@ export class RgbService implements RgbServiceI {
     return colors;
   }
 
+  get state(): ConnectionState {
+    return this.__state;
+  }
+
+  set state(state: ConnectionState) {
+    if (state === ConnectionState.CONNECTING) {
+      this.logger.error('Lost connection to openRGB');
+    } else if (state === ConnectionState.CONNECTED) {
+      this.logger.debug('Connected to OpenRGB');
+    } else if (this.state == ConnectionState.NOT_AVAILABLE) {
+      this.logger.debug('Stopping openRGB service');
+    }
+    this.__state = state;
+  }
 
   private async onRgbDisconnect(): Promise<void> {
     try {
-      this.logger.error('Lost connection to openRGB');
+      this.state = ConnectionState.CONNECTING;
       await await new Promise(r => {
         setTimeout(r, this.RECONNECT_TIMEOUT);
       });
-      this.logger.debug('Reconnecting to OpenRGB');
-      this.state = ConnectionState.CONNECTING;
+      this.logger.debug('Trying to reconnect to OpenRGB');
       const rgb = this.configService.getOpenRgb()!;
       // will triggger onDC which will call this function
       await this.native.rgbConnect(rgb.serverAddr!, rgb.serverPort!, rgb.clientName!);
