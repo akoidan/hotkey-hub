@@ -22,6 +22,8 @@ import {ReloadLocalHandler} from '../src/local/implementation/reload-local-handl
 import {EvaluateService} from '../src/local/evaluate-serivce';
 import {getInfoProviders} from '../src/get-info/get-info-module';
 import {SAVE_TIMEOUT} from "../src/config/config-model";
+import {SemaphorService} from '../src/semaphor/semaphor-service';
+import {BehaviourEnum} from '../src/config/types/shortcut';
 
 const globalEnv = {};
 
@@ -782,6 +784,52 @@ describe('Logic service', () => {
         height: 600
       }
     });
+  });
+
+  it('should not execute command when pause fires while blocked on destination mutex', async () => {
+    const testModule = await getTestModule('config-fixture.jsonc');
+    const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
+    const configService = testModule.get<ConfigService>(ConfigService);
+    const clientService = testModule.get<ClientService>(ClientService);
+    const semaphoreService = testModule.get<SemaphorService>(SemaphorService);
+
+    clientService.keyboard.keyPress = jest.fn().mockResolvedValue(undefined);
+    const spyKeyPress = jest.spyOn(clientService.keyboard, 'keyPress');
+    await configService.parseConfig();
+
+    // Hold the mutex for destination 'this' so the first press blocks before executing
+    const blockerId = 'test-blocker';
+    await semaphoreService.startTransaction('this', blockerId);
+
+    const shortcut = {
+      commands: [{
+        destination: 'this',
+        performOnRemote: 'keyPress' as const,
+        variables: {key: 'a'},
+      }],
+      behaviour: BehaviourEnum.pausable,
+      name: 'pausable-mutex-test',
+      shortCut: 'Alt+P',
+    };
+
+    // First press: starts and immediately blocks inside startTransaction waiting for 'this' mutex
+    const firstPressPromise = shortCutService.runShortcut(shortcut);
+
+    // Let all microtasks advance so the first press reaches and blocks at startTransaction
+    await new Promise(resolve => setTimeout(resolve, 10));
+
+    // Second press (pause): aborts the first press via controller.abort()
+    await shortCutService.runShortcut(shortcut);
+
+    // Release the blocker — startTransaction unblocks, but the abort signal already fired.
+    // Bug: startTransaction does not race against abort, so the command executes anyway.
+    semaphoreService.finishTransaction('this', blockerId);
+
+    await firstPressPromise;
+
+    // Proves the bug: keyPress is called despite the abort, because startTransaction
+    // ignores controller.signal and unblocks only when the mutex is released.
+    expect(spyKeyPress).not.toHaveBeenCalled();
   });
 
 });
