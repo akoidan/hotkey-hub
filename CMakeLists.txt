@@ -40,7 +40,7 @@ add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES} ${CMAKE_JS_SRC})
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")
 
 if(WIN32)
-    target_link_libraries(${PROJECT_NAME} ${CMAKE_JS_LIB})
+    target_link_libraries(${PROJECT_NAME} ${CMAKE_JS_LIB} ws2_32)
 elseif(UNIX)
     target_link_libraries(${PROJECT_NAME} ${CMAKE_JS_LIB} ${X11_LIBRARIES})
 endif()

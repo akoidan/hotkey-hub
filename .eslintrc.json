@@ -90,7 +90,7 @@
     "@typescript-eslint/method-signature-style": [1, "method"],
     "@typescript-eslint/init-declarations": 0, // let a ; try {a = funct()} catch (e) throw e; if a.sdfsd . In this example we can't have instant init
     "@typescript-eslint/prefer-readonly-parameter-types": 0, // too many issues, we can't mofidy arguments, we can' use type like number[], because rule @typescript-eslint/array-type
-    "@typescript-eslint/naming-convention": [1, {"selector": "property", "format": ["PascalCase", "camelCase"],  "filter": {"regex": "update:\\w+", "match": false}}],
+    "@typescript-eslint/naming-convention": [1, {"selector": "property", "format": ["PascalCase", "camelCase"],  "filter": {"regex": "update:\\w+", "match": false}}, {"selector": "classProperty", "modifiers": ["readonly"], "format": ["camelCase", "PascalCase", "UPPER_CASE"]}, {"selector": "variable", "modifiers": ["const"], "format": ["camelCase", "PascalCase", "UPPER_CASE"]}],
     "babel/object-curly-spacing": 1,
     "@typescript-eslint/max-params": [1, {"max": 4}],
     "babel/quotes": 0,

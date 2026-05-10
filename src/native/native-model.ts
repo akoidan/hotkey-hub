@@ -33,7 +33,30 @@ interface HotkeyNativeModule {
   path: string;
 }
 
-type INativeModule = HotkeyNativeModule
+interface RgbColor {
+  red: number;
+  green: number;
+  blue: number;
+}
+
+interface RgbDevice {
+  deviceId: number;
+  name: string;
+  leds: { name: string }[];
+  colorCount: number;
+}
+
+interface OpenRgbNativeModule {
+  rgbConnect(host: string, port: number, clientName: string): Promise<void>;
+  rgbGetDevices(): Promise<RgbDevice[]>;
+  rgbSetCustomMode(deviceId: number): void;
+  rgbUpdateAllLeds(deviceId: number, colors: RgbColor[]): void;
+  rgbUpdateSingleLed(deviceId: number, ledId: number, color: RgbColor): void;
+  rgbDisconnect(): void;
+  rgbRegisterDCEvent(callback: () => void): void;
+}
+
+type INativeModule = HotkeyNativeModule & OpenRgbNativeModule
 
 type ModifierKey = 'alt' | 'ctrl' | 'shift' | 'super' | 'win';
 
@@ -41,5 +64,8 @@ export const Native = 'Native';
 
 export type {
   INativeModule,
+  OpenRgbNativeModule,
   ModifierKey,
+  RgbColor,
+  RgbDevice,
 };

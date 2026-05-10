@@ -1,9 +1,10 @@
 import {Logger, Module, OnModuleInit} from '@nestjs/common';
 import {ConfigModule} from '@/config/config-module';
 import {RgbService} from '@/rgb/rgb-service';
+import {NativeModule} from '@/native/native-module';
 
 @Module({
-  imports: [ConfigModule],
+  imports: [ConfigModule, NativeModule],
   providers: [
     Logger,
     RgbService,
@@ -17,7 +18,8 @@ export class RgbModule implements OnModuleInit {
   ) {
   }
 
-  public async onModuleInit(): Promise<void> {
-    await this.rgbService.setup();
+  public onModuleInit(): void {
+    // this should not throw, and process asyncrhoously
+    void this.rgbService.setup();
   }
 }

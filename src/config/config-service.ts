@@ -1,5 +1,5 @@
 /* eslint-disable max-lines*/
-import {ConfigData, configSchema, IpsData, RgbData} from '@/config/types/root';
+import {ConfigData, configSchema, IpsData} from '@/config/types/root';
 import {parse} from 'jsonc-parser';
 import {Inject, Injectable, Logger} from '@nestjs/common';
 import {ZodError, ZodIssue, ZodSchema} from 'zod';
@@ -14,6 +14,7 @@ import {ConfigCombination, SAVE_TIMEOUT} from '@/config/config-model';
 import {MacroList} from '@/config/types/local/local-commands';
 import {ENV, ZodErrorCollected} from '@/config/types/config-path';
 import {basename} from 'path';
+import {RgbData} from '@/config/types/rgb';
 
 @Injectable()
 export class ConfigService implements ConfigProvider {
