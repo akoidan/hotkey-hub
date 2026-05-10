@@ -10,12 +10,6 @@ interface LedState {
   color: RgbColor;
 }
 
-enum LedColors {
-  ON = 'ON',
-  OFF = 'OFF',
-  ERR = 'ERR',
-}
-
 enum ConnectionState {
   INITING = 'INITING',
   CONNECTING = 'CONNECTING',
@@ -28,4 +22,4 @@ export type {
   LedState,
 };
 
-export {ConnectionState, LedColors};
+export {ConnectionState};
