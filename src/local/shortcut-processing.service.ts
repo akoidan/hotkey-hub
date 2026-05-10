@@ -6,7 +6,7 @@ import {SemaphorService} from '@/semaphor/semaphor-service';
 import {RgbService} from '@/rgb/rgb-service';
 import {IterationDescription, ProcessStatus} from '@/local/local-model';
 import {ABORTED_BY_USER} from '@/client/client-model';
-import {ConfigService} from '@/config/config-service';
+import {KeyState} from '@/rgb/rgb-model';
 
 @Injectable()
 export class ShortcutProcessingService {
@@ -14,7 +14,6 @@ export class ShortcutProcessingService {
 
   constructor(
     private readonly unknownCommandProcessor: BaseLocalHandler,
-    private readonly configService: ConfigService,
     private readonly semaphoreService: SemaphorService,
     private readonly rgbService: RgbService,
     private readonly logger: Logger,
@@ -23,13 +22,12 @@ export class ShortcutProcessingService {
 
   async runShortcut(comb: Shortcut): Promise<void> {
     await this.semaphoreService.runOperation(comb, async(controller: AbortController) => {
-      const {onLed, offLed, errorLed} = this.configService.getOpenRgb()!;
       const id = this.semaphoreService.getCurrentOperationId();
       const behaviour = typeof comb.behaviour === 'object' ? comb.behaviour.type : comb.behaviour;
       const groupWith = (comb.behaviour as BehaviourObject)?.groupWith ?? comb.shortCut;
-      let finalLedColor = offLed!;
+      let finalLedColor = KeyState.OFF;
       try {
-        this.rgbService.updateColor(comb.shortCut, onLed!);
+        this.rgbService.updateColor(comb.shortCut, KeyState.ON);
         if (!this.iterationsInProgress[groupWith]) {
           this.iterationsInProgress[groupWith] = [];
         }
@@ -41,7 +39,7 @@ export class ShortcutProcessingService {
           await this.runLoop(comb, id, groupWith, controller);
         }
       } catch (e) {
-        finalLedColor = errorLed!;
+        finalLedColor = KeyState.ERROR!;
         throw e;
       } finally {
         const index = this.iterationsInProgress[groupWith].findIndex(proc => proc.id === id);
@@ -54,7 +52,7 @@ export class ShortcutProcessingService {
         const currentOps = this.iterationsInProgress[groupWith].filter(proc => proc.shortCut.shortCut === comb.shortCut);
         // do not turn off led if there are still operations in progres
         // unless current operation is errored
-        if (currentOps.length === 0 || finalLedColor === errorLed) {
+        if (currentOps.length === 0 || finalLedColor === KeyState.ERROR) {
           this.rgbService.updateColor(comb.shortCut, finalLedColor);
         }
       }

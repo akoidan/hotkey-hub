@@ -1,6 +1,6 @@
 import {Inject, Injectable, Logger} from '@nestjs/common';
 import {ConfigService} from '@/config/config-service';
-import {ConnectionState, LedState, RgbServiceI} from '@/rgb/rgb-model';
+import {ConnectionState, KeyState, LedState, RgbServiceI} from '@/rgb/rgb-model';
 import {Native, OpenRgbNativeModule, RgbColor} from '@/native/native-model';
 
 
@@ -19,7 +19,7 @@ export class RgbService implements RgbServiceI {
   }
 
 
-  public updateColor(comb: string, color: RgbColor): void {
+  public updateColor(comb: string, keyState: KeyState): void {
     if (this.state === ConnectionState.NOT_AVAILABLE) {
       this.logger.verbose('Skipping led settings, cause it\'s off');
       return;
@@ -28,14 +28,20 @@ export class RgbService implements RgbServiceI {
       this.logger.warn('Skipping setting led key since its still initing');
       return;
     }
-
+    const {offLed, errorLed, onLed} = this.configService.getOpenRgb()!;
     const key = comb.split('+').at(-1)!.toLowerCase();
     const state = this.leds.get(key);
     if (!state) {
       this.logger.error(`key "${key}" not in keymap`);
       return;
     }
-    state.color = color;
+    const mapKS: Record<KeyState, RgbColor> = {
+      [KeyState.ERROR]: errorLed!,
+      [KeyState.ON]: onLed!,
+      [KeyState.OFF]: offLed!,
+    }!;
+
+    state.color = mapKS[keyState];
 
     if (this.state === ConnectionState.CONNECTED) {
       try {

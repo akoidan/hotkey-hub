@@ -15,7 +15,7 @@ import {SemaphorModule} from '../src/semaphor/semaphor.module';
 import {DelayService} from '../src/local/delay.service';
 import {localProviders} from '../src/local/local.module';
 import {RgbService} from '../src/rgb/rgb-service';
-import {RgbServiceI} from '../src/rgb/rgb-model';
+import {KeyState, RgbServiceI} from '../src/rgb/rgb-model';
 import {ConfigPathClass, ENV} from '../src/config/types/config-path';
 import process from 'node:process';
 import {ReloadLocalHandler} from '../src/local/implementation/reload-local-handler';
@@ -27,10 +27,11 @@ const globalEnv = {};
 
 async function getTestModule(configFilePath: string): Promise<TestingModule> {
   const rgbStub: RgbServiceI = new class {
-    public async updateColors(comb: string, hl: boolean): Promise<void> {
+    public updateColor(comb: string, hl: KeyState): void {
     }
 
-    public async setup(): Promise<void> {
+    public async setup(): Promise<boolean> {
+      return false
     }
   }
   const testModule = await Test.createTestingModule({

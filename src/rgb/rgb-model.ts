@@ -1,7 +1,7 @@
 import type {RgbColor} from '@/native/native-model';
 
 interface RgbServiceI {
-  updateColor(comb: string, color: RgbColor): void;
+  updateColor(comb: string, state: KeyState): void;
   setup(): Promise<boolean>;
 }
 
@@ -17,9 +17,15 @@ enum ConnectionState {
   NOT_AVAILABLE = 'NOT_AVAILABLE',
 }
 
+enum KeyState {
+  ON = 'ON',
+  OFF = 'OFF',
+  ERROR = 'ERROR',
+}
+
 export type {
   RgbServiceI,
   LedState,
 };
 
-export {ConnectionState};
+export {ConnectionState, KeyState};
