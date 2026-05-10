@@ -18,7 +18,6 @@ export class RgbService implements RgbServiceI {
   ) {
   }
 
-
   public updateColor(comb: string, keyState: KeyState): void {
     if (this.state === ConnectionState.NOT_AVAILABLE) {
       this.logger.verbose('Skipping led settings, cause it\'s off');
@@ -28,20 +27,15 @@ export class RgbService implements RgbServiceI {
       this.logger.warn('Skipping setting led key since its still initing');
       return;
     }
-    const {offLed, errorLed, onLed} = this.configService.getOpenRgb()!;
+
     const key = comb.split('+').at(-1)!.toLowerCase();
     const state = this.leds.get(key);
     if (!state) {
       this.logger.error(`key "${key}" not in keymap`);
       return;
     }
-    const mapKS: Record<KeyState, RgbColor> = {
-      [KeyState.ERROR]: errorLed!,
-      [KeyState.ON]: onLed!,
-      [KeyState.OFF]: offLed!,
-    }!;
 
-    state.color = mapKS[keyState];
+    state.color = this.getColor(keyState);
 
     if (this.state === ConnectionState.CONNECTED) {
       try {
@@ -73,10 +67,10 @@ export class RgbService implements RgbServiceI {
         throw new Error(`Device "${rgb.deviceName}" not found`);
       }
       this.deviceId = keyboard.deviceId;
-      this.leds.clear();
-      const {offLed} = this.configService.getOpenRgb()!;
+      this.leds.clear();;
+      const offColor = this.getColor(KeyState.OFF);
       keyboard.leds.forEach((led, i) => {
-        this.leds.set(this.encodeKey(led.name), {ledIndex: i, color: offLed!});
+        this.leds.set(this.encodeKey(led.name), {ledIndex: i, color: offColor});
       });
       this.logger.debug('Subscribed to disconnect event');
       this.native.rgbRegisterDCEvent(() =>  void this.onRgbDisconnect());
@@ -93,9 +87,27 @@ export class RgbService implements RgbServiceI {
     }
   }
 
+  private getColor(keyState: KeyState): RgbColor {
+    const {offLed, onLed, errorLed} = this.configService.getOpenRgb()!;
+    const map: Record<KeyState, string | RgbColor> = {
+      [KeyState.OFF]: offLed!,
+      [KeyState.ON]: onLed!,
+      [KeyState.ERROR]: errorLed!,
+    };
+    const color = map[keyState];
+    if (typeof color !== 'string') {
+      return color;
+    }
+    const hex = color.replace('#', '');
+    return {
+      red: parseInt(hex.slice(0, 2), 16),
+      green: parseInt(hex.slice(2, 4), 16),
+      blue: parseInt(hex.slice(4, 6), 16),
+    };
+  }
+
   private get colorsArray(): RgbColor[] {
-    const {offLed} = this.configService.getOpenRgb()!;
-    const colors = Array<RgbColor>(this.leds.size).fill(offLed!);
+    const colors = Array<RgbColor>(this.leds.size).fill(this.getColor(KeyState.OFF));
     for (const state of this.leds.values()) {
       colors[state.ledIndex] = state.color;
     }

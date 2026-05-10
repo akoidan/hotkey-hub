@@ -1,22 +1,27 @@
 import {z} from 'zod';
 
-const rgbColorSchema = z.object({
+
+const hexColorSchema = z.string()
+  .regex(/^#?(?:[0-9A-Fa-f]{6})$/u, 'Invalid hex color')
+  .describe('Hex color representation of a Led. E.g. #FF0000');
+
+const rgbColorSchema = z.union([z.object({
   red: z.number().gte(0).lte(255),
   green: z.number().gte(0).lte(255),
   blue: z.number().gte(0).lte(255),
-});
+}), hexColorSchema]);
 
 const rgbColorOnSchema = rgbColorSchema
   .describe('RGB color for the keyboard Key when this shorcut is run')
-  .default({red: 0, green: 255, blue: 0}).optional();
+  .default('#00FF00').optional();
 
 const rgbColorOffSchema = rgbColorSchema
   .describe('RGB color for the keyboard Key when this shorcut is not running')
-  .default({red: 0, green: 0, blue: 0}).optional();
+  .default('#000000').optional();
 
 const rgbColorErrorSchema = rgbColorSchema
   .describe('RGB color for the keyboard Key when the shortcut has finished running but was resulted with error')
-  .default({red: 255, green: 0, blue: 0}).optional();
+  .default('#FF0000').optional();
 
 const rgbSchema = z.object({
   deviceName: z.string().describe('Device name of the keyboard. ' +
@@ -28,7 +33,7 @@ const rgbSchema = z.object({
     .optional(),
   onLed: rgbColorOnSchema,
   offLed: rgbColorOffSchema,
-  errorLed: rgbColorOffSchema,
+  errorLed: rgbColorErrorSchema,
   serverPort: z.number()
     .default(6742)
     .describe('Port of the openrgb server')
@@ -63,6 +68,7 @@ export type {
 };
 
 export {
+  hexColorSchema,
   rgbColorOnSchema,
   rgbColorOffSchema,
   rgbColorErrorSchema,
