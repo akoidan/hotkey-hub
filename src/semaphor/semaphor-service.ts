@@ -14,13 +14,8 @@ export class SemaphorService {
 
 
   /**
-   * Queue entries store the resolve of the transaction waiting AFTER them, not their own.
-   *
-   * so lets say we have #1 transaction (T1) in progress. The one we added to this transactionGroups.
-   * T1 will not wait on startTrasaction, but T2 will wait until T1 resolves
-   * When we call finishTransaction on T1, it will resolve T2.
-   * Since T1 will have Pointer to T2 resolve
-   * Consider Value =a LinkedList (or a Queue). Only head can be resolved first, every other transaction would be blocked
+   * Per-destination mutex queue. Head runs; all others block in startTransaction.
+   * Each entry stores the resolve of the next waiter. FinishTransaction on the head unblocks the next one in line.
    */
   private readonly transactionGroupsQueue: TransactionGroups = {};
 

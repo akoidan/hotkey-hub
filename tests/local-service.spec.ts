@@ -22,7 +22,6 @@ import {ReloadLocalHandler} from '../src/local/implementation/reload-local-handl
 import {EvaluateService} from '../src/local/evaluate-serivce';
 import {getInfoProviders} from '../src/get-info/get-info-module';
 import {SAVE_TIMEOUT} from "../src/config/config-model";
-import {SemaphorService} from '../src/semaphor/semaphor-service';
 import {BehaviourEnum} from '../src/config/types/shortcut';
 
 const globalEnv = {};
@@ -787,49 +786,63 @@ describe('Logic service', () => {
   });
 
   it('should not execute command when pause fires while blocked on destination mutex', async () => {
+    // vibe coded tests to checkk if pausable command that has infinitive loop
+    // can be bugged when other commands stack on top of this one and we press unpause
+    // but the infinitive loop can be still ran, when abortController is not handled properly
     const testModule = await getTestModule('config-fixture.jsonc');
     const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
     const configService = testModule.get<ConfigService>(ConfigService);
     const clientService = testModule.get<ClientService>(ClientService);
-    const semaphoreService = testModule.get<SemaphorService>(SemaphorService);
-
-    clientService.keyboard.keyPress = jest.fn().mockResolvedValue(undefined);
-    const spyKeyPress = jest.spyOn(clientService.keyboard, 'keyPress');
     await configService.parseConfig();
 
-    // Hold the mutex for destination 'this' so the first press blocks before executing
-    const blockerId = 'test-blocker';
-    await semaphoreService.startTransaction('this', blockerId);
+    // First call holds the mutex (blocker shortcut); any further call would be the bug
+    let releaseMutex!: () => void;
+    clientService.keyboard.keyPress = jest.fn()
+      .mockImplementationOnce(() => new Promise<void>(resolve => { releaseMutex = resolve; }))
+      .mockResolvedValue(undefined);
+    const spyKeyPress = jest.spyOn(clientService.keyboard, 'keyPress');
 
-    const shortcut = {
+    const pausableShortcut = {
       commands: [{
         destination: 'this',
         performOnRemote: 'keyPress' as const,
         variables: {key: 'a'},
       }],
       behaviour: BehaviourEnum.pausable,
+      delayAfter: 0,
+      delayBefore: 0,
       name: 'pausable-mutex-test',
       shortCut: 'Alt+P',
     };
 
-    // First press: starts and immediately blocks inside startTransaction waiting for 'this' mutex
-    const firstPressPromise = shortCutService.runShortcut(shortcut);
+    // Run a separate stacking shortcut first — it acquires the mutex and holds it
+    // because its keyPress mock blocks until we call releaseMutex()
+    const blockerPromise = shortCutService.runShortcut({
+      commands: [{destination: 'this', performOnRemote: 'keyPress' as const, variables: {key: 'b'}}],
+      delayAfter: 0,
+      delayBefore: 0,
+      name: 'blocker',
+      shortCut: 'Alt+B',
+    });
 
-    // Let all microtasks advance so the first press reaches and blocks at startTransaction
+    // Wait for the blocker to enter keyPress and hold the mutex
     await new Promise(resolve => setTimeout(resolve, 10));
 
-    // Second press (pause): aborts the first press via controller.abort()
-    await shortCutService.runShortcut(shortcut);
+    // First press of pausable shortcut — blocks at startTransaction waiting for the mutex
+    const pausablePromise = shortCutService.runShortcut(pausableShortcut);
 
-    // Release the blocker — startTransaction unblocks, but the abort signal already fired.
-    // Bug: startTransaction does not race against abort, so the command executes anyway.
-    semaphoreService.finishTransaction('this', blockerId);
+    // Wait for it to reach and block inside startTransaction
+    await new Promise(resolve => setTimeout(resolve, 10));
 
-    await firstPressPromise;
+    // Second press (pause) — fires abort on the pausable shortcut
+    await shortCutService.runShortcut(pausableShortcut);
 
-    // Proves the bug: keyPress is called despite the abort, because startTransaction
-    // ignores controller.signal and unblocks only when the mutex is released.
-    expect(spyKeyPress).not.toHaveBeenCalled();
+    // Release the blocker mutex — bug: pausable shortcut proceeds to keyPress despite abort
+    releaseMutex();
+    await Promise.all([blockerPromise, pausablePromise]);
+
+    // keyPress should be called exactly once (by the blocker), not by the aborted pausable
+    expect(spyKeyPress).toHaveBeenCalledTimes(1);
   });
 
 });
