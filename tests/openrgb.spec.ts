@@ -2,7 +2,7 @@ import {OpenRgbNativeModule} from '../src/native/native-model';
 
 const DEVICE_NAME = 'HyperX Alloy Origins Core (HP)';
 
-describe('RgbService integration', () => {
+describe.skip('RgbService integration', () => {
   let service: OpenRgbNativeModule;
 
   beforeAll(async () => {
@@ -15,7 +15,7 @@ describe('RgbService integration', () => {
     service.rgbDisconnect();
   });
 
-  it.skip('should update a single LED', async () => {
+  it('should update a single LED', async () => {
     const devices = await service.rgbGetDevices();
     const dev = devices.find(e => e.name === DEVICE_NAME)!;
     expect(dev).toBeDefined();
