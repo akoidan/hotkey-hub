@@ -270,6 +270,7 @@ static void rgbRegisterDCEvent(const Napi::CallbackInfo& info) {
       char buf[1];
       ssize_t n = ::recv(sock, buf, 1, MSG_PEEK);
       if (n == 0 || n < 0) {
+        gConnected = false;  // mark disconnected before waiting / firing callback
         if (!gExpectingDisconnect && gMonitorGen == myGen) {
           tsfn.BlockingCall([](Napi::Env e, Napi::Function fn) {
             fn.Call(e.Undefined(), {});
