@@ -6,6 +6,7 @@ import {SemaphorService} from '@/semaphor/semaphor-service';
 import {RgbService} from '@/rgb/rgb-service';
 import {IterationDescription, ProcessStatus} from '@/local/local-model';
 import {ABORTED_BY_USER} from '@/client/client-model';
+import {ConfigService} from '@/config/config-service';
 
 @Injectable()
 export class ShortcutProcessingService {
@@ -13,6 +14,7 @@ export class ShortcutProcessingService {
 
   constructor(
     private readonly unknownCommandProcessor: BaseLocalHandler,
+    private readonly configService: ConfigService,
     private readonly semaphoreService: SemaphorService,
     private readonly rgbService: RgbService,
     private readonly logger: Logger,
@@ -21,11 +23,13 @@ export class ShortcutProcessingService {
 
   async runShortcut(comb: Shortcut): Promise<void> {
     await this.semaphoreService.runOperation(comb, async(controller: AbortController) => {
+      const {onLed, offLed, errorLed} = this.configService.getOpenRgb()!;
       const id = this.semaphoreService.getCurrentOperationId();
       const behaviour = typeof comb.behaviour === 'object' ? comb.behaviour.type : comb.behaviour;
       const groupWith = (comb.behaviour as BehaviourObject)?.groupWith ?? comb.shortCut;
+      let finalLedColor = offLed!;
       try {
-        this.rgbService.updateColors(comb.shortCut, true);
+        this.rgbService.updateColor(comb.shortCut, onLed!);
         if (!this.iterationsInProgress[groupWith]) {
           this.iterationsInProgress[groupWith] = [];
         }
@@ -36,6 +40,9 @@ export class ShortcutProcessingService {
         } else { // comb.behaviour === 'stackable'
           await this.runLoop(comb, id, groupWith, controller);
         }
+      } catch (e) {
+        finalLedColor = errorLed!;
+        throw e;
       } finally {
         const index = this.iterationsInProgress[groupWith].findIndex(proc => proc.id === id);
         if (index >= 0) {
@@ -44,8 +51,11 @@ export class ShortcutProcessingService {
         } else {
           this.logger.verbose(`Operation ${id} was used for termination, thus deletion from all iterationsInProgress is omited`);
         }
-        if (this.iterationsInProgress[groupWith].filter(proc => proc.shortCut.shortCut === comb.shortCut).length === 0) {
-          this.rgbService.updateColors(comb.shortCut, false);
+        const currentOps = this.iterationsInProgress[groupWith].filter(proc => proc.shortCut.shortCut === comb.shortCut);
+        // do not turn off led if there are still operations in progres
+        // unless current operation is errored
+        if (currentOps.length === 0 || finalLedColor === errorLed) {
+          this.rgbService.updateColor(comb.shortCut, finalLedColor);
         }
       }
     });

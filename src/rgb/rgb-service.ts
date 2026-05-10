@@ -8,10 +8,8 @@ import {Native, OpenRgbNativeModule, RgbColor} from '@/native/native-model';
 export class RgbService implements RgbServiceI {
   private readonly leds = new Map<string, LedState>();
   private deviceId: number | null = null;
-  private __state: ConnectionState = ConnectionState.INITING;
+  private privateState: ConnectionState = ConnectionState.INITING;
   private readonly RECONNECT_TIMEOUT = 5000;
-  private readonly OFF: RgbColor = {red: 0, green: 0, blue: 0};
-  private readonly ON: RgbColor = {red: 255, green: 0, blue: 0};
 
   constructor(
     private readonly configService: ConfigService,
@@ -21,9 +19,13 @@ export class RgbService implements RgbServiceI {
   }
 
 
-  public updateColors(comb: string, hl: boolean): void {
+  public updateColor(comb: string, color: RgbColor): void {
     if (this.state === ConnectionState.NOT_AVAILABLE) {
       this.logger.verbose('Skipping led settings, cause it\'s off');
+      return;
+    }
+    if (this.state === ConnectionState.INITING) {
+      this.logger.warn('Skipping setting led key since its still initing');
       return;
     }
 
@@ -33,7 +35,7 @@ export class RgbService implements RgbServiceI {
       this.logger.error(`key "${key}" not in keymap`);
       return;
     }
-    state.color = hl ? this.ON : this.OFF;
+    state.color = color;
 
     if (this.state === ConnectionState.CONNECTED) {
       try {
@@ -66,17 +68,19 @@ export class RgbService implements RgbServiceI {
       }
       this.deviceId = keyboard.deviceId;
       this.leds.clear();
+      const {offLed} = this.configService.getOpenRgb()!;
       keyboard.leds.forEach((led, i) => {
-        this.leds.set(this.encodeKey(led.name), {ledIndex: i, color: this.OFF});
+        this.leds.set(this.encodeKey(led.name), {ledIndex: i, color: offLed!});
       });
-      this.logger.debug(`Subscribed to disconnect event`);
+      this.logger.debug('Subscribed to disconnect event');
       this.native.rgbRegisterDCEvent(() =>  void this.onRgbDisconnect());
       this.native.rgbSetCustomMode(this.deviceId!);
       this.native.rgbUpdateAllLeds(this.deviceId!, this.colorsArray);
       this.state = ConnectionState.CONNECTED;
       return true;
     } catch (error) {
-      this.logger.error(`Unable to init keyboard: ${error?.message ?? error}. Retriny in ${this.RECONNECT_TIMEOUT}ms`, error.stack);
+      this.logger.error(`Unable to initialize OpenRGB service: ${error?.message ?? error}.`
+        + ` Retrying initialization in ${this.RECONNECT_TIMEOUT}ms`, error.stack);
       this.state = ConnectionState.NOT_AVAILABLE;
       setTimeout(() => void this.setup(), this.RECONNECT_TIMEOUT);
       return false;
@@ -84,7 +88,8 @@ export class RgbService implements RgbServiceI {
   }
 
   private get colorsArray(): RgbColor[] {
-    const colors = Array<RgbColor>(this.leds.size).fill(this.OFF);
+    const {offLed} = this.configService.getOpenRgb()!;
+    const colors = Array<RgbColor>(this.leds.size).fill(offLed!);
     for (const state of this.leds.values()) {
       colors[state.ledIndex] = state.color;
     }
@@ -92,7 +97,7 @@ export class RgbService implements RgbServiceI {
   }
 
   get state(): ConnectionState {
-    return this.__state;
+    return this.privateState;
   }
 
   set state(state: ConnectionState) {
@@ -100,16 +105,16 @@ export class RgbService implements RgbServiceI {
       this.logger.error('Lost connection to openRGB');
     } else if (state === ConnectionState.CONNECTED) {
       this.logger.debug('Connected to OpenRGB');
-    } else if (this.state == ConnectionState.NOT_AVAILABLE) {
+    } else if (this.state === ConnectionState.NOT_AVAILABLE) {
       this.logger.debug('Stopping openRGB service');
     }
-    this.__state = state;
+    this.privateState = state;
   }
 
   private async onRgbDisconnect(): Promise<void> {
     try {
       this.state = ConnectionState.CONNECTING;
-      await await new Promise(r => {
+      await new Promise(r => {
         setTimeout(r, this.RECONNECT_TIMEOUT);
       });
       this.logger.debug('Trying to reconnect to OpenRGB');
