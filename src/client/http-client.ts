@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import {Inject, Injectable, Logger} from '@nestjs/common';
 import {Agent, request} from 'https';
 import {ConfigService} from '@/config/config-service';

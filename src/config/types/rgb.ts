@@ -6,15 +6,15 @@ const rgbColorSchema = z.object({
   blue: z.number().gte(0).lte(255),
 });
 
-const rgbColorSchemaOn = rgbColorSchema
+const rgbColorOnSchema = rgbColorSchema
   .describe('RGB color for the keyboard Key when this shorcut is run')
   .default({red: 0, green: 255, blue: 0}).optional();
 
-const rgbColorSchemaOff = rgbColorSchema
+const rgbColorOffSchema = rgbColorSchema
   .describe('RGB color for the keyboard Key when this shorcut is not running')
   .default({red: 0, green: 0, blue: 0}).optional();
 
-const rgbColorSchemaError = rgbColorSchema
+const rgbColorErrorSchema = rgbColorSchema
   .describe('RGB color for the keyboard Key when the shortcut has finished running but was resulted with error')
   .default({red: 255, green: 0, blue: 0}).optional();
 
@@ -26,9 +26,9 @@ const rgbSchema = z.object({
     .default('RPC')
     .describe('Name of this client when connecting to openrg')
     .optional(),
-  onLed: rgbColorSchemaOn,
-  offLed: rgbColorSchemaOff,
-  errorLed: rgbColorSchemaOff,
+  onLed: rgbColorOnSchema,
+  offLed: rgbColorOffSchema,
+  errorLed: rgbColorOffSchema,
   serverPort: z.number()
     .default(6742)
     .describe('Port of the openrgb server')
@@ -63,8 +63,8 @@ export type {
 };
 
 export {
-  rgbColorSchemaOn,
-  rgbColorSchemaOff,
-  rgbColorSchemaError,
+  rgbColorOnSchema,
+  rgbColorOffSchema,
+  rgbColorErrorSchema,
   rgbSchema,
 };

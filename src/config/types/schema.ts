@@ -94,9 +94,9 @@ import {
 } from '@/config/types/root';
 import {
   rgbSchema,
-  rgbColorSchemaOff,
-  rgbColorSchemaOn,
-  rgbColorSchemaError,
+  rgbColorOffSchema,
+  rgbColorOnSchema,
+  rgbColorErrorSchema,
 } from '@/config/types/rgb';
 import {exceptionLocalCommandSchema} from '@/config/types/local/exception-local-command';
 
@@ -106,9 +106,9 @@ import {exceptionLocalCommandSchema} from '@/config/types/local/exception-local-
 
 export {
   rgbSchema,
-  rgbColorSchemaOff,
-  rgbColorSchemaOn,
-  rgbColorSchemaError,
+  rgbColorOffSchema,
+  rgbColorOnSchema,
+  rgbColorErrorSchema,
   exceptionLocalCommandSchema,
   shortcutsSchema,
   keyboardLayoutValueSchema,
