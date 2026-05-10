@@ -50,6 +50,7 @@ static SOCKET   gSocket = INVALID_SOCKET;
 static uint32_t gProto  = 0;
 static std::atomic<uint64_t> gMonitorGen{0};
 static std::atomic<bool>     gExpectingDisconnect{false};
+static std::atomic<bool>     gConnected{false};  // true only after full handshake
 
 // ── Wire utilities ─────────────────────────────────────────────────────────────
 //
@@ -269,6 +270,11 @@ static void rgbRegisterDCEvent(const Napi::CallbackInfo& info) {
 
   std::thread([tsfn, myGen]() mutable {
     while (gMonitorGen == myGen) {
+      // Only poll when a full handshake has completed
+      if (!gConnected) {
+        Sleep(200);
+        continue;
+      }
       SOCKET sock = gSocket;
       if (sock == INVALID_SOCKET) {
         Sleep(200);
@@ -285,13 +291,14 @@ static void rgbRegisterDCEvent(const Napi::CallbackInfo& info) {
       char buf[1];
       int n = ::recv(sock, buf, 1, MSG_PEEK);
       if (n == 0 || n == SOCKET_ERROR) {
+        gConnected = false;  // mark disconnected before waiting / firing callback
         if (!gExpectingDisconnect && gMonitorGen == myGen) {
           tsfn.BlockingCall([](Napi::Env e, Napi::Function fn) {
             fn.Call(e.Undefined(), {});
           });
         }
-        // Wait for reconnect to swap in a new socket, then resume monitoring it
-        while (gMonitorGen == myGen && (gSocket == sock || gSocket == INVALID_SOCKET)) {
+        // Wait until a new successful connection is fully established
+        while (gMonitorGen == myGen && !gConnected) {
           Sleep(100);
         }
       }
@@ -305,6 +312,7 @@ static void rgbRegisterDCEvent(const Napi::CallbackInfo& info) {
 static void doConnect(const std::string& host, uint32_t port,
                       const std::string& clientName) {
   gExpectingDisconnect = false;
+  gConnected = false;
   if (gSocket != INVALID_SOCKET) {
     closesocket(gSocket);
     gSocket = INVALID_SOCKET;
@@ -368,6 +376,8 @@ static void doConnect(const std::string& host, uint32_t port,
     sendPacket(0, CMD_CLIENT_NAME,
                reinterpret_cast<const uint8_t*>(nameBody.data()),
                static_cast<uint32_t>(nameBody.size()));
+
+    gConnected = true;  // handshake complete – monitor may now poll this socket
   } catch (...) {
     closesocket(gSocket);
     gSocket = INVALID_SOCKET;
@@ -540,6 +550,7 @@ static void rgbUpdateSingleLed(const Napi::CallbackInfo& info) {
 static void rgbDisconnect(const Napi::CallbackInfo&) {
   if (gSocket != INVALID_SOCKET) {
     gExpectingDisconnect = true;
+    gConnected = false;
     ++gMonitorGen;  // invalidate any running monitor so it doesn't fire the callback
     shutdown(gSocket, SD_SEND);
     char drain[256];
