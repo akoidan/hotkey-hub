@@ -203,7 +203,6 @@ static RgbDevice parseDevice(const std::vector<uint8_t>& body, uint32_t proto,
   r.skip(4);  // data_size
   r.skip(4);  // type (uint32_t device-type enum)
   dev.name = r.readStr();
-  fprintf(stderr, "parseDevice id=%u name=%s proto=%u bufLen=%zu\n", deviceId, dev.name.c_str(), proto, body.size());
 
   r.section = "strings";
   if (proto >= 1) r.readStr();  // vendor
@@ -212,7 +211,6 @@ static RgbDevice parseDevice(const std::vector<uint8_t>& body, uint32_t proto,
   r.section = "modes";
   uint16_t numModes = r.read<uint16_t>();
   r.skip(4);  // active_mode (int32_t)
-  fprintf(stderr, "  numModes=%u pos=%zu\n", numModes, r.pos);
   for (uint16_t m = 0; m < numModes; ++m) {
     r.section = "mode[" + std::to_string(m) + "]";
     r.readStr();
@@ -227,7 +225,6 @@ static RgbDevice parseDevice(const std::vector<uint8_t>& body, uint32_t proto,
 
   r.section = "zones";
   uint16_t numZones = r.read<uint16_t>();
-  fprintf(stderr, "  numZones=%u pos=%zu\n", numZones, r.pos);
   for (uint16_t z = 0; z < numZones; ++z) {
     r.section = "zone[" + std::to_string(z) + "]";
     r.readStr();
@@ -238,7 +235,6 @@ static RgbDevice parseDevice(const std::vector<uint8_t>& body, uint32_t proto,
 
   r.section = "leds";
   uint16_t numLeds = r.read<uint16_t>();
-  fprintf(stderr, "  numLeds=%u pos=%zu\n", numLeds, r.pos);
   dev.leds.resize(numLeds);
   for (uint16_t i = 0; i < numLeds; ++i) {
     r.section = "led[" + std::to_string(i) + "]";
