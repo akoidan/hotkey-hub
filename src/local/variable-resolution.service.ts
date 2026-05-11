@@ -1,6 +1,6 @@
 import {Inject, Injectable, Logger} from '@nestjs/common';
 import {ConfigService} from '@/config/config-service';
-import {type JsonSchema, type VariablesDefinition} from '@/config/types/local/macro-local-command';
+import type {JsonSchema, VariablesDefinition} from '@/config/types/local/macro-local-command';
 import {variableRegex, VariableValue} from '@/config/types/variables';
 import {EvaluateService} from '@/local/evaluate-serivce';
 import {SemaphorService} from '@/semaphor/semaphor-service';
@@ -10,7 +10,6 @@ import Ajv from 'ajv';
 
 @Injectable()
 export class VariableResolutionService {
-
   private readonly ajvDefaults = new Ajv({strict: false, useDefaults: true});
   private readonly defaultsCache = new WeakMap<JsonSchema, ReturnType<typeof this.ajvDefaults.compile>>();
   constructor(
@@ -48,7 +47,7 @@ export class VariableResolutionService {
     //   return value;
     // }
     // we need to modify variable to match it with macro definition
-    const variables: Record<string, unknown> | undefined = structuredClone(variablesIN) as Record<string, unknown>;
+    const variables: Record<string, unknown> | undefined = structuredClone(variablesIN)!;
     for (const varDef in definition) {
       const schema = definition[varDef]! as JsonSchema;
       // TODO key! is not correct requied might only be on toip lvel

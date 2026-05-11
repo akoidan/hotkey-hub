@@ -85,4 +85,10 @@ describe('Config service — JSON Schema variable validation', () => {
     const service = testModule.get<ConfigService>(ConfigService);
     await expect(service.parseConfig()).resolves.not.toThrow(/unknown keyword: "x-optional"/);
   });
+
+  it('Should reject macro definition with unknown key', async () => {
+    const testModule = await getTestModule('macro-unknown-key.jsonc');
+    const service = testModule.get<ConfigService>(ConfigService);
+    await expect(service.parseConfig()).rejects.toThrow(/Unrecognized key.*requiredVariables3/);
+  });
 });
