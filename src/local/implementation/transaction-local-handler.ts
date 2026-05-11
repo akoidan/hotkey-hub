@@ -19,7 +19,7 @@ export class TransactionLocalHandler extends BaseLocalHandler {
   }
 
   canHandle(command: UnknownCommand): command is TransactionLocalCommand {
-    return (command as TransactionLocalCommand).transaction !== undefined;
+    return 'transaction' in command;
   }
 
 

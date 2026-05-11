@@ -20,7 +20,7 @@ export class CommandLocalHandler extends BaseLocalHandler {
   }
 
   canHandle(command: RemoteCommand): command is RemoteCommand {
-    return Boolean(command.performOnRemote);
+    return 'performOnRemote' in command;
   }
 
   public async execute(

@@ -47,7 +47,7 @@ describe('Variable Service', () => {
   it('should replace macro variables', async () => {
     const testModule = await getTestModule('config-fixture.jsonc');
     const variableService = testModule.get<VariableResolutionService>(VariableResolutionService);
-    const res = variableService.replaceMacroVariables({
+    const res = variableService.replaceMacroVariables(null, {
       'transaction': {
         $ref: 'destination'
       },
@@ -56,8 +56,8 @@ describe('Variable Service', () => {
           'destination': {
             $ref: 'destination'
           },
-          'focusWid':  {
-            $ref: "focusWid"
+          'focusWid': {
+            $ref: 'focusWid'
           }
         },
         {
@@ -116,7 +116,7 @@ describe('Variable Service', () => {
   it('should replace object macro variables', async () => {
     const testModule = await getTestModule('config-fixture.jsonc');
     const variableService = testModule.get<VariableResolutionService>(VariableResolutionService);
-    const res = variableService.replaceMacroVariables({
+    const res = variableService.replaceMacroVariables(null, {
       'transaction': {
         $ref: 'destination'
       },

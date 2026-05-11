@@ -16,7 +16,7 @@ export class ShuffleLocalHandler extends BaseLocalHandler {
   }
 
   canHandle(command: UnknownCommand): command is ShuffleLocalCommand {
-    return Boolean((command as ShuffleLocalCommand).shuffle);
+    return 'shuffle' in (command as ShuffleLocalCommand);
   }
 
   private shuffleArray<T>(arr: T[]): T[] {

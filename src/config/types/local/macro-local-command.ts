@@ -7,7 +7,9 @@ import {unknownCommandSchema} from '@/config/types/commands';
 
 
 function validateType(val: any, type: VariableType): boolean {
-  // Handle primitive types
+  if (Array.isArray(type)) {
+    return type.some((itemType: any) => validateType(val, itemType));
+  }
   if (type === 'any') {
     return true;
   }
@@ -26,7 +28,7 @@ function validateType(val: any, type: VariableType): boolean {
   }
 
   // Handle object type
-  if (typeof val !== 'object' || val === null || Array.isArray(val)) {
+  if (typeof val !== 'object' || val === null) {
     return false;
   }
 
@@ -39,7 +41,7 @@ function validateType(val: any, type: VariableType): boolean {
   return true;
 }
 
-const macroLocalCommandVariablesSchema = z.record(
+const macroCallLocalCommandVariablesSchema = z.record(
   z.string(),
   z.union([z.any(), variableValueSchema])
 ).optional().describe(
@@ -47,7 +49,7 @@ const macroLocalCommandVariablesSchema = z.record(
   'Values can be strings or numbers and must match the types defined in the macro\'s variables section.'
 );
 
-const macroLocalCommandSchema = z.object({
+const macroCallLocalCommandSchema = z.object({
   macro: z.string().describe('Name of the macro to execute, which must match a key defined in the macros section. ' +
     'Macros help reduce configuration repetition by reusing command sequences.').superRefine((macroName, ctx) => {
     const macroList = new Set(Object.keys(schemaRootCache.data.macros ?? {}));
@@ -60,7 +62,7 @@ const macroLocalCommandSchema = z.object({
       });
     }
   }),
-  variables: macroLocalCommandVariablesSchema,
+  variables: macroCallLocalCommandVariablesSchema,
 })
   .strict()
   .merge(delayCommandsSchema)
@@ -111,7 +113,8 @@ const macroLocalCommandSchema = z.object({
         ctx.addIssue({
           code: 'custom',
           path: ['variables'],
-          message: `macro ${command.macro} requires variable ${key} but only ${JSON.stringify(command.variables)} were passed`,
+          message: `macro ${command.macro} requires variable ${key} but only ${JSON.stringify(command.variables)} were passed.`
+            + 'If this variable is optional, set optional: true',
         });
       }
     }
@@ -121,31 +124,36 @@ const macroLocalCommandSchema = z.object({
 
 
 // First, define the primitive types
-const macroPrimitiveVariableTypeSchema = z.union([
+const macroDefinitionPrimitiveVariableTypeSchema = z.union([
   z.literal('string'),
   z.literal('number'),
   z.literal('boolean'),
+  z.literal('undefined'),
   z.literal('any'),
 ]);
 
+const macroDefinitionUnionTypeSchema = z.array(macroDefinitionPrimitiveVariableTypeSchema);
+
 // Then define the array type (recursive)
-const macroArrayVariableTypeSchema: z.ZodType<ArrayVariableType> = z.lazy(() =>
+const macroDefinitionArrayVariableTypeSchema: z.ZodType<ArrayVariableType> = z.lazy(() =>
   z.union([
-    z.string().refine(s => s.endsWith('[]') && macroPrimitiveVariableTypeSchema.safeParse(s.slice(0, -2)).success, {
+    z.string().refine(s => s.endsWith('[]') && macroDefinitionPrimitiveVariableTypeSchema.safeParse(s.slice(0, -2)).success, {
       message: 'Array type must be a primitive type followed by []',
     }),
-    z.record(z.string(), macroVariableTypeSchema),
+    z.record(z.string(), macroDefinitionVariableTypeSchema),
   ]));
 
+
 // Then define the object type (recursive)
-const macroObjectVariableTypeSchema: z.ZodType<ObjectVariableType> = z.lazy(() =>
-  z.record(z.string(), macroVariableTypeSchema));
+const macroDefinitionObjectVariableTypeSchema: z.ZodType<ObjectVariableType> = z.lazy(() =>
+  z.record(z.string(), macroDefinitionVariableTypeSchema));
 
 // Finally, combine them into one schema
-const macroVariableTypeSchema = z.union([
-  macroPrimitiveVariableTypeSchema,
-  macroObjectVariableTypeSchema,
-  macroArrayVariableTypeSchema,
+const macroDefinitionVariableTypeSchema = z.union([
+  macroDefinitionPrimitiveVariableTypeSchema,
+  macroDefinitionObjectVariableTypeSchema,
+  macroDefinitionArrayVariableTypeSchema,
+  macroDefinitionUnionTypeSchema,
 ]).describe('To validate the type, or cast from env variables');
 
 // eslint-disable-next-line
@@ -153,14 +161,14 @@ interface VariableTypeMap {
   [key: string]: VariableType;
 }
 // TypeScript types for better type inference
-type PrimitiveVariableType = 'string' | 'number' | 'boolean' | 'any';
+type PrimitiveVariableType = 'string' | 'number' | 'boolean' | 'undefined' | 'any';
 type ArrayVariableType = string | VariableTypeMap;
 type ObjectVariableType = VariableTypeMap;
 // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-type VariableType = PrimitiveVariableType | ArrayVariableType | ObjectVariableType;
+type VariableType = PrimitiveVariableType | ArrayVariableType | ObjectVariableType | PrimitiveVariableType[];
 
-const macroVariableValueSchema = z.object({
-  type: macroVariableTypeSchema,
+const macroDefinitionVariableValueSchema = z.object({
+  type: macroDefinitionVariableTypeSchema,
   optional: z.boolean().optional().describe('If set to true, the key is be removed is var is not passed'),
   default: z.any().optional().describe('Default value if value is not passed. Optional should be set to true'),
 })
@@ -173,14 +181,14 @@ const macroVariableValueSchema = z.object({
     }
   ).describe('Variable description for macro');
 
-const macroVariablesDescriptionSchema = z.record(z.string(), macroVariableValueSchema)
+const macroDefinitionVariablesDescriptionSchema = z.record(z.string(), macroDefinitionVariableValueSchema)
   .optional()
   .describe('Set of variables descriptors for macro');
 
 
 const macroDefinitionSchema = z.lazy(() => z.object({
   commands: z.array(unknownCommandSchema).describe('Set of commands for this macro'),
-  variables: macroVariablesDescriptionSchema,
+  variables: macroDefinitionVariablesDescriptionSchema,
 }).strict())
   .describe('A reusable command sequence that can accept variables. Similar to a function that runs a predefined set of commands.');
 
@@ -188,10 +196,10 @@ const macrosListSchema = z.record(z.string(), macroDefinitionSchema)
   .optional()
   .describe('A map of macros where a key is the macro name and value is its body');
 
-type MacroLocalCommand = z.infer<typeof macroLocalCommandSchema>
+type MacroLocalCommand = z.infer<typeof macroCallLocalCommandSchema>
 type MacroList = z.infer<typeof macrosListSchema>
 
-type VariablesDefinition = z.infer<typeof macroVariablesDescriptionSchema>
+type VariablesDefinition = z.infer<typeof macroDefinitionVariablesDescriptionSchema>
 
 export type {
   VariablesDefinition,
@@ -200,14 +208,15 @@ export type {
 };
 
 export {
-  macroLocalCommandSchema,
-  macroLocalCommandVariablesSchema,
-  macroPrimitiveVariableTypeSchema,
-  macroArrayVariableTypeSchema,
-  macroObjectVariableTypeSchema,
-  macroVariableTypeSchema,
-  macroVariableValueSchema,
-  macroVariablesDescriptionSchema,
+  macroDefinitionUnionTypeSchema,
+  macroCallLocalCommandSchema,
+  macroCallLocalCommandVariablesSchema,
+  macroDefinitionPrimitiveVariableTypeSchema,
+  macroDefinitionArrayVariableTypeSchema,
+  macroDefinitionObjectVariableTypeSchema,
+  macroDefinitionVariableTypeSchema,
+  macroDefinitionVariableValueSchema,
+  macroDefinitionVariablesDescriptionSchema,
   macroDefinitionSchema,
   macrosListSchema,
 };

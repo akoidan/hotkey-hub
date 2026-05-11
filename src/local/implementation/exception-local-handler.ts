@@ -14,7 +14,7 @@ export class ExceptionLocalHandler extends BaseLocalHandler {
   }
 
   canHandle(command: UnknownCommand): command is ExceptionLocalCommand {
-    return (command as ExceptionLocalCommand).try !== undefined;
+    return 'try' in command;
   }
 
   async execute(

@@ -30,7 +30,12 @@ export abstract class BaseLocalHandler {
   ): Promise<void> {
     if (this.canHandle(input)) {
       this.logger.verbose(`Running ${JSON.stringify(input)}`);
-      await this.execute(input, combDelayAfter, combDelayBefore, tId);
+      try {
+        await this.execute(input, combDelayAfter, combDelayBefore, tId);
+      } catch (e) {
+        this.logger.verbose(`Failed to run ${JSON.stringify(input)}`);
+        throw e;
+      }
     } else if (this.next) {
       await this.next.handle(input, combDelayAfter, combDelayBefore, tId);
     } else {

@@ -17,7 +17,7 @@ export class ExpressionLocalHandler extends BaseLocalHandler {
   }
 
   canHandle(command: UnknownCommand): command is ExpressionLocalCommand {
-    return Boolean((command as ExpressionLocalCommand).expression);
+    return 'expression' in command;
   }
 
   /* eslint-disable */

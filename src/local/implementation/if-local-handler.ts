@@ -17,7 +17,7 @@ export class IfLocalHandler extends BaseLocalHandler {
   }
 
   canHandle(command: UnknownCommand): command is IfLocalCommand {
-    return (command as IfLocalCommand).if !== undefined;
+    return 'if' in  (command as IfLocalCommand);
   }
 
   async execute(

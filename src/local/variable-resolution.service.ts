@@ -1,39 +1,53 @@
-import {Injectable, Logger} from '@nestjs/common';
+import {Inject, Injectable, Logger} from '@nestjs/common';
 import {ConfigService} from '@/config/config-service';
 import type {VariablesDefinition} from '@/config/types/local/macro-local-command';
 import {variableRegex, VariableValue} from '@/config/types/variables';
 import {EvaluateService} from '@/local/evaluate-serivce';
+import {SemaphorService} from '@/semaphor/semaphor-service';
+import {AsyncLocalStorage} from 'async_hooks';
+import {ASYNC_PROVIDER} from '@/asyncstore/async-storage-const';
 
 @Injectable()
 export class VariableResolutionService {
   constructor(
     private readonly configService: ConfigService,
     private readonly evaluateService: EvaluateService,
+    @Inject(ASYNC_PROVIDER)
+    private readonly asyncLocalStorage: AsyncLocalStorage<Map<string, any>>,
     private readonly logger: Logger,
   ) {
   }
 
-  replaceMacroVariables<T=unknown>(
-    command: T,
-    values: Record<string, unknown> | undefined,
-    definition: VariablesDefinition,
-    key: string|null = null
+  replaceMacroVariables<T = unknown>(
+    key: string | null,
+    value: T,
+    variablesIN: Record<string, unknown> | undefined,
+    definition: VariablesDefinition
   ): T {
-    if (!values) {
-      return command;
+    if (!variablesIN) {
+      return value;
     }
-    if (Array.isArray(command)) {
+    // we need to modify variable to match it with macro definition
+    const variables = structuredClone(variablesIN) as Record<string, unknown>;
+    for (const varDef in definition) {
+      if (!(varDef in variables) && definition[varDef].type === 'any') {
+        // define key, in case we didnt pass variable (in config)
+        // so we dont have exception on missing variable
+        variables[varDef] = undefined;
+      }
+    }
+    if (Array.isArray(value)) {
       // thread each array element as the whole object
       // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-      return command.map(item => this.replaceMacroVariables(item, values, definition)) as any;
-    } else if (typeof command === 'object' && !(command as VariableValue).$ref) {
+      return value.map(item => this.replaceMacroVariables(null, item, variables, definition)) as any;
+    } else if (typeof value === 'object' && !(value as VariableValue).$ref) {
       const result: Record<string, unknown> = {};
-      for (const [innerKey, value] of Object.entries(command as object)) {
-        result[innerKey] = this.replaceMacroVariables(value as VariableValue, values, definition, innerKey);
+      for (const [innerKey, innerValue] of Object.entries(value as object)) {
+        result[innerKey] = this.replaceMacroVariables(innerKey, innerValue as VariableValue, variables, definition);
       }
       return result as T;
     }
-    return this.replaceMacroPrimitive(command, values ,definition, key!);
+    return this.replaceMacroPrimitive(key!, value, variables ,definition);
   }
 
   private extractVariableName(variable: unknown): { varName: string|undefined, varExpress: string|undefined} {
@@ -52,25 +66,25 @@ export class VariableResolutionService {
   }
 
   private replaceMacroPrimitive<T>(
-    command: T,
-    values: Record<string, unknown>,
+    key: string,
+    value: T,
+    variables: Record<string, unknown>,
     definition: VariablesDefinition,
-    key: string
   ): T {
     let varName: string|undefined;
     let varExpress: string|undefined;
-    const exactValue = typeof command === 'string' && key === 'if' && definition?.[command];
+    const exactValue = typeof value === 'string' && key === 'if' && definition?.[value];
     if (exactValue) {
-      ({varName, varExpress} = this.extratVarNameInner(command));
+      ({varName, varExpress} = this.extratVarNameInner(value));
     } else {
-      ({varName, varExpress} = this.extractVariableName(command))!;
+      ({varName, varExpress} = this.extractVariableName(value))!;
     }
     if (!varName || !definition?.[varName]) {
-      return command;
+      return value;
     }
-    if (Object.hasOwn(values, varName)) {
-      this.logger.verbose(`Replaced variable ${varName} to ${JSON.stringify(values[varName])} for ${JSON.stringify(command)}`);
-      const res =  this.evaluateService.evaluateVariable(varName, varExpress!, values[varName]);
+    if (Object.hasOwn(variables, varName)) {
+      this.logger.verbose(`Replaced variable ${varName} to ${JSON.stringify(variables[varName])} for ${JSON.stringify(value)}`);
+      const res =  this.evaluateService.evaluateVariable(varName, varExpress!, variables[varName]);
       if (exactValue && typeof res === 'string') {
         return `"${res}"` as T;
       }
@@ -78,13 +92,13 @@ export class VariableResolutionService {
     }
     if (definition[varName]!.optional) {
       if (definition[varName]!.default) {
-        this.logger.verbose(`Putting default ${varName}=${definition[varName]!.default} from ${JSON.stringify(command)}`);
+        this.logger.verbose(`Putting default ${varName}=${definition[varName]!.default} from ${JSON.stringify(value)}`);
         return definition[varName]!.default as T;
       }
-      this.logger.verbose(`Omitting variable ${varName} from ${JSON.stringify(command)} since it's optional`);
-      return command;
+      this.logger.verbose(`Omitting variable ${varName} from ${JSON.stringify(value)} since it's optional`);
+      return value;
     }
-    throw Error(`Unable to resolve macros variable ${varName} when running ${JSON.stringify(command)}`);
+    throw Error(`Unable to resolve macros variable ${varName} when running ${JSON.stringify(value)}`);
   }
 
 
@@ -129,6 +143,7 @@ export class VariableResolutionService {
     if (varName in globalVars) { // if object has the key, even if it's null or undefined
       return this.evaluateService.evaluateVariable<T>(varName, varExpress!, globalVars[varName]) as unknown as T;
     }
-    throw Error(`Unknown environment variable ${(value as VariableValue)?.$ref ?? JSON.stringify(value)}`);
+    const id = this.asyncLocalStorage.getStore()!.get(SemaphorService.COMB_KEY) as string;
+    throw Error(`Unable to replace env variable ${(value as VariableValue)?.$ref ?? JSON.stringify(value)} for ${id}`);
   }
 }

@@ -17,7 +17,7 @@ export class LoopLocalHandler extends BaseLocalHandler {
   }
 
   canHandle(command: UnknownCommand): command is LoopLocalCommand {
-    return Boolean((command as LoopLocalCommand).loop);
+    return 'loop' in (command as LoopLocalCommand);
   }
 
   async execute(
