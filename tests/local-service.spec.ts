@@ -15,22 +15,24 @@ import {SemaphorModule} from '../src/semaphor/semaphor.module';
 import {DelayService} from '../src/local/delay.service';
 import {localProviders} from '../src/local/local.module';
 import {RgbService} from '../src/rgb/rgb-service';
-import {RgbServiceI} from '../src/rgb/rgb-model';
+import {KeyState, RgbServiceI} from '../src/rgb/rgb-model';
 import {ConfigPathClass, ENV} from '../src/config/types/config-path';
 import process from 'node:process';
 import {ReloadLocalHandler} from '../src/local/implementation/reload-local-handler';
 import {EvaluateService} from '../src/local/evaluate-serivce';
 import {getInfoProviders} from '../src/get-info/get-info-module';
 import {SAVE_TIMEOUT} from "../src/config/config-model";
+import {BehaviourEnum} from '../src/config/types/shortcut';
 
 const globalEnv = {};
 
 async function getTestModule(configFilePath: string): Promise<TestingModule> {
   const rgbStub: RgbServiceI = new class {
-    public async updateColors(comb: string, hl: boolean): Promise<void> {
+    public updateColor(comb: string, hl: KeyState): void {
     }
 
-    public async setup(): Promise<void> {
+    public async setup(): Promise<boolean> {
+      return false
     }
   }
   const testModule = await Test.createTestingModule({
@@ -781,6 +783,66 @@ describe('Logic service', () => {
         height: 600
       }
     });
+  });
+
+  it('should not execute command when pause fires while blocked on destination mutex', async () => {
+    // vibe coded tests to checkk if pausable command that has infinitive loop
+    // can be bugged when other commands stack on top of this one and we press unpause
+    // but the infinitive loop can be still ran, when abortController is not handled properly
+    const testModule = await getTestModule('config-fixture.jsonc');
+    const shortCutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
+    const configService = testModule.get<ConfigService>(ConfigService);
+    const clientService = testModule.get<ClientService>(ClientService);
+    await configService.parseConfig();
+
+    // First call holds the mutex (blocker shortcut); any further call would be the bug
+    let releaseMutex!: () => void;
+    clientService.keyboard.keyPress = jest.fn()
+      .mockImplementationOnce(() => new Promise<void>(resolve => { releaseMutex = resolve; }))
+      .mockResolvedValue(undefined);
+    const spyKeyPress = jest.spyOn(clientService.keyboard, 'keyPress');
+
+    const pausableShortcut = {
+      commands: [{
+        destination: 'this',
+        performOnRemote: 'keyPress' as const,
+        variables: {key: 'a'},
+      }],
+      behaviour: BehaviourEnum.pausable,
+      delayAfter: 0,
+      delayBefore: 0,
+      name: 'pausable-mutex-test',
+      shortCut: 'Alt+P',
+    };
+
+    // Run a separate stacking shortcut first — it acquires the mutex and holds it
+    // because its keyPress mock blocks until we call releaseMutex()
+    const blockerPromise = shortCutService.runShortcut({
+      commands: [{destination: 'this', performOnRemote: 'keyPress' as const, variables: {key: 'b'}}],
+      delayAfter: 0,
+      delayBefore: 0,
+      name: 'blocker',
+      shortCut: 'Alt+B',
+    });
+
+    // Wait for the blocker to enter keyPress and hold the mutex
+    await new Promise(resolve => setTimeout(resolve, 10));
+
+    // First press of pausable shortcut — blocks at startTransaction waiting for the mutex
+    const pausablePromise = shortCutService.runShortcut(pausableShortcut);
+
+    // Wait for it to reach and block inside startTransaction
+    await new Promise(resolve => setTimeout(resolve, 10));
+
+    // Second press (pause) — fires abort on the pausable shortcut
+    await shortCutService.runShortcut(pausableShortcut);
+
+    // Release the blocker mutex — bug: pausable shortcut proceeds to keyPress despite abort
+    releaseMutex();
+    await Promise.all([blockerPromise, pausablePromise]);
+
+    // keyPress should be called exactly once (by the blocker), not by the aborted pausable
+    expect(spyKeyPress).toHaveBeenCalledTimes(1);
   });
 
 });

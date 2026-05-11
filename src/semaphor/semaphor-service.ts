@@ -7,16 +7,17 @@ import {ConfigCombination} from '@/config/config-model';
 
 @Injectable()
 export class SemaphorService {
-  // eslint-disable-next-line @typescript-eslint/naming-convention
   public static readonly COMB_KEY = 'comb';
-  // eslint-disable-next-line @typescript-eslint/naming-convention
   public static readonly COMB_KEYSTROKE = 'keystroke';
-  // eslint-disable-next-line @typescript-eslint/naming-convention
   public static readonly COMB_SHORTCUT = 'shorcut';
-  // eslint-disable-next-line @typescript-eslint/naming-convention
   public static readonly ABORT_CONTROLLER = 'abort-controller';
 
-  private readonly transactionGroups: TransactionGroups = {};
+
+  /**
+   * Per-destination mutex queue. Head runs; all others block in startTransaction.
+   * Each entry stores the resolve of the next waiter. FinishTransaction on the head unblocks the next one in line.
+   */
+  private readonly transactionGroupsQueue: TransactionGroups = {};
 
 
   constructor(
@@ -29,7 +30,7 @@ export class SemaphorService {
   public async runOperation(shortCut: ConfigCombination, cb: (controller: AbortController) => Promise<void>): Promise<void> {
     const parts = shortCut.shortCut.split('+');
     const randomValue = `${parts[parts.length - 1]}=${this.getNewTransactionId()}`;
-    this.transactionGroups[randomValue] = [];
+    this.transactionGroupsQueue[randomValue] = [];
     await this.asyncLocalStorage.run(new Map(), async() => {
       const controller =  new AbortController();
       this.asyncLocalStorage.getStore()!.set(SemaphorService.COMB_KEY, randomValue);
@@ -91,14 +92,29 @@ export class SemaphorService {
 
   public finishTransaction(transactionGroup: string, transactionId: string): void {
     this.logger.verbose(`Finishing transactions on ${transactionGroup}: ${transactionId}`);
-    const currentState = this.transactionGroups[transactionGroup];
-    if (currentState[0].transactionId !== transactionId) {
-      throw Error(`Invalid state for current id of queue[0] = ${currentState[0].transactionId}`);
+    const currentState = this.transactionGroupsQueue[transactionGroup];
+    const i = currentState.findIndex(a => a.transactionId === transactionId);
+    if (i < 0) {
+      throw Error(`Can't find info about Tx=${transactionId} in the transactionGroups`);
     }
-    const elements = currentState.shift();
-    if (elements!.resolve) {
-      this.logger.verbose(`Releaseing ${elements!.resolveFrom}`);
-      elements!.resolve();
+    if (i === 0) {
+      // Probably this transaction is finished, abort cannot be fired from startTransaction
+      // Since first transaction doesnt wait for other transaction
+      // Before: T1 -> T2 -> T3 -> T4
+      // After: T2 -> T3 -> T4 (t2 is resolved from T1)
+      const elements = currentState.shift();
+      if (elements!.resolve) {
+        this.logger.verbose(`Releaseing ${elements!.resolveFrom}`);
+        elements!.resolve();
+      }
+    } else {
+      // probably abort fired from T2, I dont think other cases possible
+      // Since 2nd transaction cannot be finished (since it has to wait until 1st finishes in order to run)
+      // Before: T1 -> T2 -> T3 -> T4, drop T3
+      // After: T1 -> T2 -> T4
+      currentState[i - 1].resolve = currentState[i].resolve;
+      currentState[i - 1].resolveFrom = currentState[i].resolveFrom;
+      currentState.splice(i, 1);
     }
   }
 
@@ -107,11 +123,13 @@ export class SemaphorService {
   }
 
   public async startTransaction(trasactionGroup: string, transactionId: string): Promise<void> {
-    let currentState = this.transactionGroups[trasactionGroup];
+    let currentState = this.transactionGroupsQueue[trasactionGroup];
     if (!currentState) {
       // eslint-disable-next-line no-multi-assign
-      currentState = this.transactionGroups[trasactionGroup] = [];
+      currentState = this.transactionGroupsQueue[trasactionGroup] = [];
     }
+    const controller: AbortController = this.asyncLocalStorage.getStore()!.get(SemaphorService.ABORT_CONTROLLER) as AbortController;
+    const combKey  = this.asyncLocalStorage.getStore()!.get(SemaphorService.COMB_KEY) as string;
     if (currentState.length > 0) {
       if (currentState[0].transactionId === transactionId) {
         this.logger.verbose(`Continuing inside transaction ${transactionId}`);
@@ -120,11 +138,21 @@ export class SemaphorService {
 
       const txId = currentState[currentState.length - 1]!.transactionId;
       this.logger.log(`Created a new transaction ${clc.yellow(transactionId)} but waiting ${clc.yellow(txId)} to finish`);
-      await new Promise<void>(resolve => {
+
+      let abortHandler :(() => void)|null = null;
+
+      await new Promise<void>((resolve, reject) => {
         currentState[currentState.length - 1].resolve = resolve;
         currentState[currentState.length - 1].resolveFrom = transactionId;
+        abortHandler = (): void => {
+          this.logger.debug(`Aborting current operation ${combKey}`);
+          reject(Error(controller.signal.reason as string));
+        };
+        controller.signal.addEventListener('abort', abortHandler, {once: true});
         currentState.push({transactionId, resolve: null, resolveFrom: null}); // push to queue this new transaction so others won't come before this one
       });
+      controller.signal.removeEventListener('abort', abortHandler!);
+
       this.logger.verbose(`Lock released. Starting new transaction ${transactionId}`);
     } else {
       this.logger.verbose(`Starting new transaction ${transactionId} in ${trasactionGroup}`);

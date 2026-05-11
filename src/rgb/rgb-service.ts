@@ -1,126 +1,159 @@
-import {Injectable, Logger} from '@nestjs/common';
-import {Client} from 'openrgb-sdk';
-import ClientType from 'openrgb-sdk/types/client';
+import {Inject, Injectable, Logger} from '@nestjs/common';
 import {ConfigService} from '@/config/config-service';
-import {RgbServiceI} from '@/rgb/rgb-model';
-import {RgbData} from '@/config/types/root';
+import {ConnectionState, KeyState, LedState, RgbServiceI} from '@/rgb/rgb-model';
+import {Native, OpenRgbNativeModule, RgbColor} from '@/native/native-model';
 
-
-interface Color {
-  red: number;
-  green: number;
-  blue: number;
-}
 
 @Injectable()
 export class RgbService implements RgbServiceI {
-  private colors: Color[] | null = null;
-  private client: ClientType | null = null;
-  private keyMap: Record<string, number> = {};
+  private readonly leds = new Map<string, LedState>();
   private deviceId: number | null = null;
+  private privateState: ConnectionState = ConnectionState.INITING;
+  private readonly RECONNECT_TIMEOUT = 5000;
 
   constructor(
     private readonly configService: ConfigService,
+    @Inject(Native) private readonly native: OpenRgbNativeModule,
     private readonly logger: Logger,
   ) {
   }
 
-  public async updateColors(comb: string, hl: boolean): Promise<void> {
-    if (this.deviceId === null) {
+  public updateColor(comb: string, keyState: KeyState): void {
+    if (this.state === ConnectionState.NOT_AVAILABLE) {
+      this.logger.verbose('Skipping led settings, cause it\'s off');
       return;
     }
-    const keys = comb.split('+');
-    const key = keys[keys.length - 1].toLowerCase();
-    if (this.keyMap[key] === undefined) { // escape is 0
-      this.logger.error(`key ${key} is not present in keymap ${JSON.stringify(this.keyMap)}`);
+    if (this.state === ConnectionState.INITING) {
+      this.logger.warn('Skipping setting led key since its still initing');
       return;
     }
-    if (hl) {
-      this.colors![this.keyMap[key]] = {
-        red: 255,
-        green: 0,
-        blue: 0,
-      };
-    } else {
-      this.colors![this.keyMap[key]] = {
-        red: 0,
-        green: 0,
-        blue: 0,
-      };
+
+    const key = comb.split('+').at(-1)!.toLowerCase();
+    const state = this.leds.get(key);
+    if (!state) {
+      this.logger.error(`key "${key}" not in keymap`);
+      return;
     }
-    try {
-      if (!this.client!.isConnected) {
-        this.logger.debug('Connecting to OpenRGB...');
-        await this.client!.connect();
+
+    state.color = this.getColor(keyState);
+
+    if (this.state === ConnectionState.CONNECTED) {
+      try {
+        this.native.rgbUpdateSingleLed(this.deviceId!, state.ledIndex, state.color);
+      } catch (error) {
+        this.logger.error(`Error while setting led ${error}`);
+        this.state = ConnectionState.NOT_AVAILABLE;  // block further sends; DC event triggers reconnect
       }
-      this.client!.updateSingleLed(this.deviceId, this.keyMap[key], this.colors![this.keyMap[key]!]!);
-    } catch (error) {
-      this.logger.error(`Unable to update leds because of ${error.message ?? error}, launching setup again`, error.stack);
-      await this.setup();
     }
   }
 
-  public async setLeds(rgb: NonNullable<RgbData>): Promise<void> {
-    this.logger.verbose('Connecting to OpenRGB...');
-    await this.client!.connect();
-    this.logger.verbose('Connected to OpenRGB...');
-    const controllerData = await this.client!.getAllControllerData();
-    const keyboard = controllerData.find(dev => dev.name === rgb.deviceName);
-    const availableDevices = controllerData.map(dev => dev.name).join('", "');
-    this.logger.debug(`Available RGB devices: ${availableDevices}. Our device is ${keyboard?.deviceId}`);
-    if (!keyboard) {
-      throw new Error(`"Unable to find device with name "${rgb.deviceName}"`);
-    }
-
-    this.deviceId = keyboard.deviceId as number;
-    await this.client!.updateMode(this.deviceId!, 'Direct', {});
-    keyboard.leds.forEach((led, index: number) => {
-      // Strip 'Key: ' prefix and convert to uppercase
-      this.keyMap[this.encodeKey(led)] = index;
-    });
-    this.colors = Array<Color>(keyboard.colors.length).fill({red: 0, green: 0, blue: 0});
-    // this hack is required because otherwise TCP socket error would be throws to unhandled error
-    this.client!.disconnect();
-    if (process.platform === 'linux') {
-      // bug of opoenrgb client, disconnect, should be async with await, but it's not, so we have to wait
-      // somehow only reproducable on linux only
-      this.logger.verbose('Awating 1000ms to reconnect to openrg');
-      // eslint-disable-next-line
-      await new Promise(resolve => setTimeout(resolve, 1000));
-    }
-    await this.client!.connect();
-    // remove this hack when openrgb-sdk is fixed
-    this.logger.debug('Setting keyboard colors...');
-    //doesnt work
-    //      this.client!.updateLeds(this.deviceId!, this.colors);
-    for (let i = 0; i < this.colors.length; i++) {
-      this.client!.updateSingleLed(this.deviceId!, i, this.colors[i]);
-    }
-  }
-
-  public async setup(): Promise<void> {
+  // eslint-disable-next-line max-statements
+  public async setup(): Promise<boolean> {
     const rgb = this.configService.getOpenRgb();
     if (!rgb) {
-      this.logger.debug('Openrgb is not defined, returning');
-      return;
+      this.state = ConnectionState.NOT_AVAILABLE;
+      this.logger.debug('OpenRGB not configured, skipping');
+      return false;
     }
-    this.client = new Client(rgb.clientName!, rgb.serverPort!, rgb.serverAddr!);
-
     try {
-      await this.setLeds(rgb);
+      this.logger.verbose('Connecting to OpenRGB...');
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      await this.native.rgbConnect(rgb.serverAddr!, rgb.serverPort!, rgb.clientName!);
+
+      const devices = await this.native.rgbGetDevices();
+      const keyboard = devices.find(dev => dev.name === rgb.deviceName);
+      this.logger.debug(`RGB devices: ${devices.map(d => d.name).join(', ')}. Using: ${keyboard?.name ?? 'none'}`);
+      if (!keyboard) {
+        throw new Error(`Device "${rgb.deviceName}" not found`);
+      }
+      this.deviceId = keyboard.deviceId;
+      this.leds.clear();;
+      const offColor = this.getColor(KeyState.OFF);
+      keyboard.leds.forEach((led, i) => {
+        this.leds.set(this.encodeKey(led.name), {ledIndex: i, color: offColor});
+      });
+      this.logger.debug('Subscribed to disconnect event');
+      this.native.rgbRegisterDCEvent(() =>  void this.onRgbDisconnect());
+      this.native.rgbSetCustomMode(this.deviceId!);
+      this.native.rgbUpdateAllLeds(this.deviceId!, this.colorsArray);
+      this.state = ConnectionState.CONNECTED;
+      return true;
     } catch (error) {
-      this.logger.error(`Unable to init keyboard because of ${error?.message ?? error}`, error.stack);
+      this.logger.error(`Unable to initialize OpenRGB service: ${error?.message ?? error}.`
+        + ` Retrying initialization in ${this.RECONNECT_TIMEOUT}ms`, error.stack);
+      this.state = ConnectionState.NOT_AVAILABLE;
+      setTimeout(() => void this.setup(), this.RECONNECT_TIMEOUT);
+      return false;
     }
   }
 
-  private encodeKey(led: { name: string; value: { red: any; green: any; blue: any } }): string {
-    // mapping for HyperX Alloy keyboard
+  private getColor(keyState: KeyState): RgbColor {
+    const {offLed, onLed, errorLed} = this.configService.getOpenRgb()!;
+    const map: Record<KeyState, string | RgbColor> = {
+      [KeyState.OFF]: offLed!,
+      [KeyState.ON]: onLed!,
+      [KeyState.ERROR]: errorLed!,
+    };
+    const color = map[keyState];
+    if (typeof color !== 'string') {
+      return color;
+    }
+    const hex = color.replace('#', '');
+    return {
+      red: parseInt(hex.slice(0, 2), 16),
+      green: parseInt(hex.slice(2, 4), 16),
+      blue: parseInt(hex.slice(4, 6), 16),
+    };
+  }
+
+  private get colorsArray(): RgbColor[] {
+    const colors = Array<RgbColor>(this.leds.size).fill(this.getColor(KeyState.OFF));
+    for (const state of this.leds.values()) {
+      colors[state.ledIndex] = state.color;
+    }
+    return colors;
+  }
+
+  get state(): ConnectionState {
+    return this.privateState;
+  }
+
+  set state(state: ConnectionState) {
+    if (state === ConnectionState.CONNECTING) {
+      this.logger.error('Lost connection to openRGB');
+    } else if (state === ConnectionState.CONNECTED) {
+      this.logger.debug('Connected to OpenRGB');
+    } else if (this.state === ConnectionState.NOT_AVAILABLE) {
+      this.logger.debug('Stopping openRGB service');
+    }
+    this.privateState = state;
+  }
+
+  private async onRgbDisconnect(): Promise<void> {
+    try {
+      this.state = ConnectionState.CONNECTING;
+      await new Promise(r => {
+        setTimeout(r, this.RECONNECT_TIMEOUT);
+      });
+      this.logger.debug('Trying to reconnect to OpenRGB');
+      const rgb = this.configService.getOpenRgb()!;
+      // will triggger onDC which will call this function
+      await this.native.rgbConnect(rgb.serverAddr!, rgb.serverPort!, rgb.clientName!);
+      this.native.rgbSetCustomMode(this.deviceId!);
+      this.native.rgbUpdateAllLeds(this.deviceId!, this.colorsArray);
+      this.state = ConnectionState.CONNECTED;
+    } catch (e) {
+      this.logger.error(`Unable to reconnect to OpenRGB: ${e}, retrying in ${this.RECONNECT_TIMEOUT}`);
+    }
+  }
+
+
+  private encodeKey(ledName: string): string {
     const {keyMapFn} = this.configService.getOpenRgb()!;
     if (keyMapFn) {
       // eslint-disable-next-line @typescript-eslint/no-implied-eval,no-new-func
-      const f = new Function('x', `return (${keyMapFn});`);
-      return f(led.name) as string;
+      return (new Function('x', `return (${keyMapFn});`))(ledName) as string;
     }
-    return led.name;
+    return ledName;
   }
 }

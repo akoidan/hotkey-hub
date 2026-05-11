@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import {Inject, Injectable, Logger} from '@nestjs/common';
 import {Agent, request} from 'https';
 import {ConfigService} from '@/config/config-service';
@@ -32,6 +33,9 @@ export class FetchClient {
   ): Promise<[string, number]> {
     const ips = this.config.getIps();
     let host = ips[client];
+    if (!host) {
+      throw Error(`Can't execute ${url}, unknown host ${client}`);
+    }
     let port: number;
     if (host.includes(':')) {
       [host] = host.split(':');

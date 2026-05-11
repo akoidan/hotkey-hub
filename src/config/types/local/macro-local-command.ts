@@ -32,7 +32,7 @@ function validateType(val: any, type: VariableType): boolean {
 
   // Recursively validate object properties
   for (const [k, t] of Object.entries(type)) {
-    if (!(k in val) || !validateType(val[k], t as VariableType)) {
+    if (!validateType(val[k], t as VariableType)) {
       return false;
     }
   }

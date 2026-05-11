@@ -4,8 +4,6 @@ interface ConfigPath {
   setConfigPaths(config?: string, variable?: string): void;
 
   variablesFilePath: string;
-
-  configProvided: boolean;
 }
 
 

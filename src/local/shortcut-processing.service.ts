@@ -6,6 +6,7 @@ import {SemaphorService} from '@/semaphor/semaphor-service';
 import {RgbService} from '@/rgb/rgb-service';
 import {IterationDescription, ProcessStatus} from '@/local/local-model';
 import {ABORTED_BY_USER} from '@/client/client-model';
+import {KeyState} from '@/rgb/rgb-model';
 
 @Injectable()
 export class ShortcutProcessingService {
@@ -24,8 +25,9 @@ export class ShortcutProcessingService {
       const id = this.semaphoreService.getCurrentOperationId();
       const behaviour = typeof comb.behaviour === 'object' ? comb.behaviour.type : comb.behaviour;
       const groupWith = (comb.behaviour as BehaviourObject)?.groupWith ?? comb.shortCut;
+      let finalLedColor = KeyState.OFF;
       try {
-        await this.rgbService.updateColors(comb.shortCut, true);
+        this.rgbService.updateColor(comb.shortCut, KeyState.ON);
         if (!this.iterationsInProgress[groupWith]) {
           this.iterationsInProgress[groupWith] = [];
         }
@@ -36,6 +38,9 @@ export class ShortcutProcessingService {
         } else { // comb.behaviour === 'stackable'
           await this.runLoop(comb, id, groupWith, controller);
         }
+      } catch (e) {
+        finalLedColor = KeyState.ERROR!;
+        throw e;
       } finally {
         const index = this.iterationsInProgress[groupWith].findIndex(proc => proc.id === id);
         if (index >= 0) {
@@ -44,8 +49,11 @@ export class ShortcutProcessingService {
         } else {
           this.logger.verbose(`Operation ${id} was used for termination, thus deletion from all iterationsInProgress is omited`);
         }
-        if (this.iterationsInProgress[groupWith].filter(proc => proc.shortCut.shortCut === comb.shortCut).length === 0) {
-          await this.rgbService.updateColors(comb.shortCut, false);
+        const currentOps = this.iterationsInProgress[groupWith].filter(proc => proc.shortCut.shortCut === comb.shortCut);
+        // do not turn off led if there are still operations in progres
+        // unless current operation is errored
+        if (currentOps.length === 0 || finalLedColor === KeyState.ERROR) {
+          this.rgbService.updateColor(comb.shortCut, finalLedColor);
         }
       }
     });

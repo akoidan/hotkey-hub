@@ -3,13 +3,14 @@ import {ConfigModule} from '@/config/config-module';
 import {ClientModule} from '@/client/client-module';
 import {LocalModule} from '@/local/local.module';
 import {CERT_DIR} from '@/client/client-model';
-import {CONFIG_FILE, CONFIG_PROVIDED, VARIABLES_FILE} from '@/config/config-model';
-import {AppConfig, LOG_LEVEL, VERSION_INJ} from '@/app/app-model';
+import {CONFIG_FILE, VARIABLES_FILE} from '@/config/config-model';
+import {LOG_LEVEL, VERSION_INJ, YargsConfig} from '@/app/app-model';
 import {StartService} from '@/app/start.service';
 import {AppController} from '@/app/app.controller';
+import {NativeModule} from '@/native/native-module';
 
 @Module({
-  imports: [ConfigModule, ClientModule, LocalModule],
+  imports: [ConfigModule, ClientModule, LocalModule, NativeModule],
   providers: [Logger, StartService],
   controllers: [AppController],
   exports: [],
@@ -24,11 +25,11 @@ export class AppModule implements OnModuleInit {
     await this.appService.init();
   }
 
-  static forRoot(args: AppConfig): DynamicModule {
+  static forRoot(args: YargsConfig): DynamicModule {
     return {
       module: AppModule,
       global: true,
-      exports: [CERT_DIR, VARIABLES_FILE, CONFIG_FILE, LOG_LEVEL, VERSION_INJ, CONFIG_PROVIDED],
+      exports: [CERT_DIR, VARIABLES_FILE, CONFIG_FILE, LOG_LEVEL, VERSION_INJ],
       providers: [
         {
           provide: VERSION_INJ,
@@ -36,7 +37,6 @@ export class AppModule implements OnModuleInit {
           useValue: require('../../package.json').version,
         },
         {provide: LOG_LEVEL, useValue: args.logLevel},
-        {provide: CONFIG_PROVIDED, useValue: args.configProvided},
         {provide: CERT_DIR, useValue: args.certDir},
         {provide: VARIABLES_FILE, useValue: args.variablesFile},
         {provide: CONFIG_FILE, useValue: args.configFile},

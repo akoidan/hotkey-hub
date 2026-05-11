@@ -5,6 +5,7 @@ dist
 /config.jsonc
 /variables.jsonc
 yarn-error.log
+.claude
 certs
 /hotkey-hub
 examples

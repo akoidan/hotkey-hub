@@ -177,7 +177,7 @@ Every loop of commands is separated by `-`. `=` means that this is the meaning o
 - `POST:201 lenovo` Means a post request to destination `lenovo` is finished with HTTP status 201, where `lenovo` is a name from `ips` section in config.
 - `/keyboard/key-press` url which is post request was made to
 - `{"keys":["3"],"holdKeys":[]}` json payload of POST request
-- `=>>>` response body which is empty. Nothing after `=>>>` is printed
+- `=>>> void` response body which is empty. (`void` = no Body)
 
 ## Development documentation
 Check [CONTRIBUTING.md](CONTRIBUTING.md)

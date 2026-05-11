@@ -22,7 +22,7 @@ asyncLocalStorage.run(
       if (args.configProvided) {
         body.configFile = args.configFile;
       }
-      if (args.variablesFile) {
+      if (args.variablesProvided) {
         body.variablesFile = args.variablesFile;
       }
       if (Object.keys(body).length === 0) {
@@ -32,26 +32,10 @@ asyncLocalStorage.run(
       logger.log(`Applied new configuration ${JSON.stringify(body)} to already running hotkey-hub at port ${args.apiPort}`);
     }
 
-    function procesError(err: unknown): void {
-      logger.fatal(err as (string | Error), (err as Error)?.stack);
-      if (process.platform === 'win32') {
-        // Wait for user input before exiting
-        process.stdin.setRawMode(true);
-        process.stdin.resume();
-        process.stdin.setEncoding('utf8');
-        logger.log('Press any key to exit...');
-        process.stdin.once('data', () => {
-          process.exit(1);
-        });
-      } else {
-        process.exit(1);
-      }
-    }
-
-    (async function startApp(): Promise<void> {
+    async function startApp(): Promise<void> {
       // eslint-disable-next-line
       const packageJson: string = require('../package.json').version;
-      const args = await parseArgs();
+      const args = await parseArgs(logger);
       logger.setLogLevel(args.logLevel as LogLevel);
       const portOpen = await isPortOpen(args.apiPort);
       if (args.apiServer && portOpen) {
@@ -62,13 +46,40 @@ asyncLocalStorage.run(
         logger.log(`Started hotkey-hub ${clc.bold.green(packageJson)} initilaziation`);
         const app = await NestFactory.create(AppModule.forRoot(args), {logger});
         logger.log(`Starting hotkey-hub daemon api at port ${args.apiPort}`);
-        await app.listen(args.apiPort, '127.0.0.1');
+        try {
+          await app.listen(args.apiPort, '127.0.0.1');
+        } catch (err) {
+          await app.close();
+          throw err;
+        }
       } else if (portOpen) {
         await sendCommandToPort(args);
       } else {
         logger.log(`Started hotkey-hub v${clc.bold.green(packageJson)} initilaziation`);
         await NestFactory.createApplicationContext(AppModule.forRoot(args), {logger});
       }
-    })().catch(procesError);
+    }
+
+    function procesError(err: unknown): void {
+      logger.fatal(err as (string | Error), (err as Error)?.stack);
+      if (process.platform === 'win32') {
+        process.stdin.setRawMode(true);
+        process.stdin.resume();
+        process.stdin.setEncoding('utf8');
+        logger.log('Press R to reload or any other key to exit...');
+        process.stdin.once('data', (key: string) => {
+          process.stdin.removeAllListeners('data');
+          if (key.toLowerCase().includes('r')) {
+            startApp().catch(procesError);
+          } else {
+            process.exit(1);
+          }
+        });
+      } else {
+        process.exit(1);
+      }
+    }
+
+    startApp().catch(procesError);
   }
 );

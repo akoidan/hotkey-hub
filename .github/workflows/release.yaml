@@ -45,6 +45,17 @@ jobs:
         with:
           package-manager-cache: false
           node-version: 24
+
+      - name: Set IS_RELEASE environment
+        run: |
+          TAG=${{ github.event.release.tag_name }}
+          VERSION=$(jq -r '.version' package.json)
+          if [[ "$VERSION" == *"-"* ]]; then
+            echo "IS_RELEASE=false" >> $GITHUB_ENV
+            echo "Ommiting releasing beta/alpha version to AUR"
+          else
+            echo "IS_RELEASE=true" >> $GITHUB_ENV
+          fi
       - name: Restore node_modules cache
         id: cache-node
         # DO not create cache on release, only on master
@@ -99,11 +110,14 @@ jobs:
             --include-after-body=<(echo '</article>') \
             -o docs/index.html
 
-      - uses: actions/configure-pages@v5
+      - if: env.IS_RELEASE == 'true' # do not upload github pages if this is ReleaseCandidate
+        uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
+        if: env.IS_RELEASE == 'true'
         with:
           path: ./docs
       - uses: actions/deploy-pages@v4
+        if: env.IS_RELEASE == 'true'
   linux:
     runs-on: ubuntu-22.04
     permissions: write-all
