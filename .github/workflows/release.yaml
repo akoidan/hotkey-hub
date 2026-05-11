@@ -180,7 +180,7 @@ jobs:
 
       - name: Publish to AUR
         if: env.IS_RELEASE == 'true'
-        uses: KSXGitHub/github-actions-deploy-aur@v4.1.1
+        uses: KSXGitHub/github-actions-deploy-aur@v4.1.3
         with:
           pkgname: hotkey-hub
           pkgbuild: ./packages/arch/PKGBUILD
