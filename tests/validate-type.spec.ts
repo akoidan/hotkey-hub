@@ -138,6 +138,9 @@ describe('macroDefinitionVariableValueSchema — rejects old format', () => {
   it('rejects old "optional" field', () => {
     expect(parse({type: 'string', optional: true}).success).toBe(false);
   });
+  it('rejects unknown keyword (typo like type2)', () => {
+    expect(parse({type2: 'number'}).success).toBe(false);
+  });
   it('rejects old "any" TS type string', () => {
     expect(parse({type: 'any'}).success).toBe(false);
   });

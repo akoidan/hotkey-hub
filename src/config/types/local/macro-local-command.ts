@@ -11,6 +11,12 @@ export type JsonSchema = Record<string, unknown>;
 const ajv = new Ajv({strict: false});
 const validatorCache = new WeakMap<JsonSchema, ReturnType<typeof ajv.compile>>();
 
+const ajvDefaults = new Ajv({strict: false, useDefaults: true});
+const defaultsCache = new WeakMap<JsonSchema, ReturnType<typeof ajvDefaults.compile>>();
+
+const ajvMeta = new Ajv({strictSchema: true});
+ajvMeta.addKeyword({keyword: 'x-optional', schemaType: 'boolean'});
+
 export function validateType(val: unknown, schema: JsonSchema): boolean {
   let validate = validatorCache.get(schema);
   if (!validate) {
@@ -22,6 +28,21 @@ export function validateType(val: unknown, schema: JsonSchema): boolean {
     validatorCache.set(schema, validate);
   }
   return validate(val) as boolean;
+}
+
+export function applySchemaDefaults(val: unknown, schema: JsonSchema): unknown {
+  let validate = defaultsCache.get(schema);
+  if (!validate) {
+    try {
+      validate = ajvDefaults.compile(schema);
+    } catch {
+      return val;
+    }
+    defaultsCache.set(schema, validate);
+  }
+  const cloned = structuredClone(val);
+  validate(cloned);
+  return cloned;
 }
 
 export function isOptional(schema: JsonSchema): boolean {
@@ -120,7 +141,7 @@ const macroDefinitionVariableValueSchema = z.record(z.string(), z.any())
       return;
     }
     try {
-      ajv.compile(schema);
+      ajvMeta.compile(schema);
     } catch (e: unknown) {
       ctx.addIssue({
         code: 'custom',

@@ -54,3 +54,35 @@ describe('Config service', () => {
     );
   })
 });
+
+describe('Config service — JSON Schema variable validation', () => {
+  it('Should reject macro variable definition with unknown JSON Schema keyword', async () => {
+    const testModule = await getTestModule('macro-invalid-json-schema.jsonc');
+    const service = testModule.get<ConfigService>(ConfigService);
+    await expect(service.parseConfig()).rejects.toThrow(/Invalid JSON Schema/);
+  });
+
+  it('Should reject value whose type does not match the variable JSON Schema', async () => {
+    const testModule = await getTestModule('macro-type-mismatch.jsonc');
+    const service = testModule.get<ConfigService>(ConfigService);
+    await expect(service.parseConfig()).rejects.toThrow(/Type mismatch for variable count/);
+  });
+
+  it('Should reject missing required variable (no x-optional, no default)', async () => {
+    const testModule = await getTestModule('macro-required-var-missing.jsonc');
+    const service = testModule.get<ConfigService>(ConfigService);
+    await expect(service.parseConfig()).rejects.toThrow(/requires variable requiredKey/);
+  });
+
+  it('Should accept macro call that omits an x-optional variable', async () => {
+    const testModule = await getTestModule('macro-optional-var.jsonc');
+    const service = testModule.get<ConfigService>(ConfigService);
+    await expect(service.parseConfig()).resolves.not.toThrow();
+  });
+
+  it('Should accept macro call that omits variables that have a default value', async () => {
+    const testModule = await getTestModule('macro-default-var.jsonc');
+    const service = testModule.get<ConfigService>(ConfigService);
+    await expect(service.parseConfig()).resolves.not.toThrow();
+  });
+});

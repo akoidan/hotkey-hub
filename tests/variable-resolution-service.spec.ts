@@ -149,4 +149,162 @@ describe('Variable Service', () => {
       ]
     });
   });
+
+
+
+  it('should resolve optional variable to undefined when not passed', async () => {
+    const testModule = await getTestModule('config-fixture.jsonc');
+    const variableService = testModule.get<VariableResolutionService>(VariableResolutionService);
+    const res = variableService.replaceMacroVariables(null, {
+      'destination': 'this',
+      'performOnRemote': 'keyPress',
+      'variables': {
+        'key': { $ref: 'optKey' }
+      }
+    }, {}, {
+      'optKey': { 'x-optional': true, type: 'string' }
+    });
+    expect(res).toEqual({
+      'destination': 'this',
+      'performOnRemote': 'keyPress',
+      'variables': {
+        'key': undefined
+      }
+    });
+  });
+
+  it('should substitute default value when variable is not passed', async () => {
+    const testModule = await getTestModule('config-fixture.jsonc');
+    const variableService = testModule.get<VariableResolutionService>(VariableResolutionService);
+    const res = variableService.replaceMacroVariables(null, {
+      'destination': 'this',
+      'delayAfter': { $ref: 'delay' },
+      'performOnRemote': 'keyPress',
+      'variables': {
+        'key': { $ref: 'key' }
+      }
+    }, {
+      'key': 'f1'
+    }, {
+      'key': { type: 'string' },
+      'delay': { type: 'number', default: 500 }
+    });
+    expect(res).toEqual({
+      'destination': 'this',
+      'delayAfter': 500,
+      'performOnRemote': 'keyPress',
+      'variables': {
+        'key': 'f1'
+      }
+    });
+  });
+
+  it('should substitute falsy default (0) correctly', async () => {
+    const testModule = await getTestModule('config-fixture.jsonc');
+    const variableService = testModule.get<VariableResolutionService>(VariableResolutionService);
+    const res = variableService.replaceMacroVariables(null, {
+      'count': { $ref: 'count' }
+    }, {}, {
+      'count': { type: 'number', default: 0 }
+    });
+    expect(res).toEqual({ 'count': 0 });
+  });
+
+  it('macro calling macro — outer default propagates to inner variable', async () => {
+    const testModule = await getTestModule('config-fixture.jsonc');
+    const variableService = testModule.get<VariableResolutionService>(VariableResolutionService);
+    // outerDelay has a default; the inner macro call references it via $ref
+    const res = variableService.replaceMacroVariables(null, {
+      'macro': 'innerMacro',
+      'variables': {
+        'innerDelay': { $ref: 'outerDelay' }
+      }
+    }, {}, {
+      'outerDelay': { type: 'number', default: 100 }
+    });
+    expect(res).toEqual({
+      'macro': 'innerMacro',
+      'variables': {
+        'innerDelay': 100
+      }
+    });
+  });
+
+  it('macro calling macro — explicitly passed value overrides outer default', async () => {
+    const testModule = await getTestModule('config-fixture.jsonc');
+    const variableService = testModule.get<VariableResolutionService>(VariableResolutionService);
+    const res = variableService.replaceMacroVariables(null, {
+      'macro': 'innerMacro',
+      'variables': {
+        'innerDelay': { $ref: 'outerDelay' }
+      }
+    }, {
+      'outerDelay': 999
+    }, {
+      'outerDelay': { type: 'number', default: 100 }
+    });
+    expect(res).toEqual({
+      'macro': 'innerMacro',
+      'variables': {
+        'innerDelay': 999
+      }
+    });
+  });
+
+  it('macro calling macro — outer x-optional not passed, inner variable becomes undefined', async () => {
+    const testModule = await getTestModule('config-fixture.jsonc');
+    const variableService = testModule.get<VariableResolutionService>(VariableResolutionService);
+    const res = variableService.replaceMacroVariables(null, {
+      'macro': 'innerMacro',
+      'variables': {
+        'innerKey': { $ref: 'outerKey' }
+      }
+    }, {}, {
+      'outerKey': { 'x-optional': true, type: 'string' }
+    });
+    expect(res).toEqual({
+      'macro': 'innerMacro',
+      'variables': {
+        'innerKey': undefined
+      }
+    });
+  });
+
+  it('macro calling macro — required outer variable not passed throws', async () => {
+    const testModule = await getTestModule('config-fixture.jsonc');
+    const variableService = testModule.get<VariableResolutionService>(VariableResolutionService);
+    expect(() => variableService.replaceMacroVariables(null, {
+      'macro': 'innerMacro',
+      'variables': {
+        'innerKey': { $ref: 'outerRequired' }
+      }
+    }, {}, {
+      'outerRequired': { type: 'string' }
+    })).toThrow(/Unable to resolve macros variable outerRequired/);
+  });
+
+  it('should fill nested schema defaults into a partially passed variable', async() => {
+    const testModule = await getTestModule('config-fixture.jsonc');
+    const variableService = testModule.get<VariableResolutionService>(VariableResolutionService);
+    // opts is passed as a partial object {key: 'tab'}; delay is absent but has a default
+    // inside the schema's properties — the nested default should be filled in
+    const res = variableService.replaceMacroVariables(null, {
+      destination: 'this',
+      variables: {opts: {$ref: 'opts'}},
+    }, {
+      opts: {key: 'tab'},
+    }, {
+      opts: {
+        type: 'object',
+        properties: {
+          key: {type: 'string'},
+          delay: {type: 'number', default: 100},
+        },
+      },
+    });
+    expect(res).toEqual({
+      destination: 'this',
+      variables: {opts: {key: 'tab', delay: 100}},
+    });
+  });
 });
