@@ -4,7 +4,7 @@ const expressionSchema = z.string().superRefine((expr, ctx) => {
   try {
     // eslint-disable-next-line
     new Function(`return (${expr});`);
-  } catch (e) {
+  } catch (e: any) {
     ctx.addIssue({
       code: 'custom',
       path: [],

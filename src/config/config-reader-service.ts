@@ -33,7 +33,7 @@ export class ConfigReaderService {
     this.logger.debug(`Loading variable config from ${this.configsPathService.variablesFilePath}`);
     try {
       return await fs.readFile(this.configsPathService.variablesFilePath, 'utf8');
-    } catch (error) {
+    } catch (error: any) {
       // eslint-disable-next-line max-len
       this.logger.warn(`Unable to load variables because of ${error?.message ?? error}`);
       return null;

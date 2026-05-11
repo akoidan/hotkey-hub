@@ -116,7 +116,7 @@ export class ConfigService implements ConfigProvider {
   private async validateWithErrorHandling<T>(schema: ZodSchema, data: any, context: string): Promise<T> {
     try {
       return await schema.parseAsync(data) as T;
-    } catch (error) {
+    } catch (error: any) {
       if (error instanceof ZodError) {
         throw new Error(`[${context}] ${this.formatZodError(error)}`, {
           cause: error,
@@ -228,7 +228,7 @@ export class ConfigService implements ConfigProvider {
       this.variablesSaveTimeoutId = null;
       try {
         await this.configReader.saveVariablesConfigString(this.variables);
-      } catch(e) {
+      } catch(e: any) {
         this.logger.error(`Unable to save variables because ${e?.message || e}`, e.stack);
       }
     }, this.saveTimeout); // I hope save to disk a file takes less than 1s,

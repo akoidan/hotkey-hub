@@ -33,7 +33,7 @@ async function promtConfigIfMissing(appArgs: string[], logger: ConsoleLogger, re
     let varFile: string;
     try {
       varFile = await fs.readFile(res.variablesFile, 'utf8');
-    } catch (e) {
+    } catch (e: any) {
       logger.warn(`Unable to parse variables file because of ${e?.message || e}`);
       return {...res, configProvided, variablesProvided};
     }
@@ -152,7 +152,7 @@ async function postLocalhost(body: unknown, urlPath: string, port: number): Prom
           try {
             const bodyObj = JSON.parse(responseData) as Error;
             reject(new Error(`Unable to apply new configuration. ${bodyObj.message}`));
-          } catch (e) {
+          } catch (e: any) {
             reject(new Error(`Unable to apply new configuration. Unkown error ${responseData}`));
           }
         }

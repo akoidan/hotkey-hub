@@ -3,7 +3,7 @@ import {UnknownCommand} from '@/config/types/commands';
 
 @Injectable()
 export abstract class BaseLocalHandler {
-  protected startChain: BaseLocalHandler;
+  protected startChain: BaseLocalHandler = null!;
   protected abstract readonly logger: Logger;
   private next: BaseLocalHandler | null = null;
 
@@ -32,7 +32,7 @@ export abstract class BaseLocalHandler {
       this.logger.verbose(`Running ${JSON.stringify(input)}`);
       try {
         await this.execute(input, combDelayAfter, combDelayBefore, tId);
-      } catch (e) {
+      } catch (e: any) {
         this.logger.verbose(`Failed to run ${JSON.stringify(input)}`);
         throw e;
       }

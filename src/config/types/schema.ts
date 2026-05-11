@@ -83,13 +83,8 @@ import {
 } from '@/config/types/get-commands/get-process-commands-schema';
 import {getInfoCommandSchema, pingCommandSchema} from '@/config/types/get-commands/get-commands';
 import {
-  macroDefinitionArrayVariableTypeSchema,
   macroCallLocalCommandSchema,
-  macroDefinitionUnionTypeSchema,
   macroCallLocalCommandVariablesSchema,
-  macroDefinitionObjectVariableTypeSchema,
-  macroDefinitionPrimitiveVariableTypeSchema,
-  macroDefinitionVariableTypeSchema,
 } from '@/config/types/local/macro-local-command';
 import {
   configSchema,
@@ -109,7 +104,6 @@ import {exceptionLocalCommandSchema} from '@/config/types/local/exception-local-
  */
 
 export {
-  macroDefinitionUnionTypeSchema,
   rgbSchema,
   hexColorSchema,
   rgbColorOffSchema,
@@ -124,10 +118,6 @@ export {
   mouseClickRemoteCommandVariablesSchema,
   mouseClickRemoteCommandSchema,
   setKeyboardLayoutRemoteCommandSchema,
-  macroDefinitionPrimitiveVariableTypeSchema,
-  macroDefinitionArrayVariableTypeSchema,
-  macroDefinitionObjectVariableTypeSchema,
-  macroDefinitionVariableTypeSchema,
   getWindowsIdByMutliplePidsCommandSchema,
   getWindowsIdByMultiplePidsCommandVariablesSchema,
   getWindowsIdByPidCommandVariablesSchema,

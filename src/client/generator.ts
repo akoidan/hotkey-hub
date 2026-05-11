@@ -671,7 +671,7 @@ async function main(): Promise<void> {
 
   try {
     await generator.generate();
-  } catch (error) {
+  } catch (error: any) {
     console.error('Generation failed:', error);
     process.exit(1);
   }

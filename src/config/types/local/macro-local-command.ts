@@ -4,41 +4,28 @@ import {schemaRootCache} from '@/config/types/cache';
 import {type VariableValue, variableValueSchema} from '@/config/types/variables';
 import {delayCommandsSchema} from '@/config/types/remote/base-remote-command';
 import {unknownCommandSchema} from '@/config/types/commands';
+import Ajv from 'ajv';
 
+export type JsonSchema = Record<string, unknown>;
 
-function validateType(val: any, type: VariableType): boolean {
-  if (Array.isArray(type)) {
-    return type.some((itemType: any) => validateType(val, itemType));
-  }
-  if (type === 'any') {
-    return true;
-  }
-  if (val === undefined) {
-    return false;
-  }
-  if (typeof type === 'string') {
-    if (type.endsWith('[]')) {
-      // Handle array type (e.g., 'string[]')
-      if (!Array.isArray(val)) {return false;}
-      const elementType = type.slice(0, -2) as PrimitiveVariableType;
-      return val.every((item: any) => typeof item === elementType || elementType === 'any');
-    }
-    // Handle primitive type
-    return typeof val === type || type === 'any';
-  }
+const ajv = new Ajv({strict: false});
+const validatorCache = new WeakMap<JsonSchema, ReturnType<typeof ajv.compile>>();
 
-  // Handle object type
-  if (typeof val !== 'object' || val === null) {
-    return false;
-  }
-
-  // Recursively validate object properties
-  for (const [k, t] of Object.entries(type)) {
-    if (!validateType(val[k], t as VariableType)) {
+export function validateType(val: unknown, schema: JsonSchema): boolean {
+  let validate = validatorCache.get(schema);
+  if (!validate) {
+    try {
+      validate = ajv.compile(schema);
+    } catch {
       return false;
     }
+    validatorCache.set(schema, validate);
   }
-  return true;
+  return validate(val) as boolean;
+}
+
+export function isOptional(schema: JsonSchema): boolean {
+  return schema['x-optional'] === true || 'default' in schema;
 }
 
 const macroCallLocalCommandVariablesSchema = z.record(
@@ -46,7 +33,7 @@ const macroCallLocalCommandVariablesSchema = z.record(
   z.union([z.any(), variableValueSchema])
 ).optional().describe(
   'Variables to pass to the macro. Object where keys are variable names and values are their values. ' +
-  'Values can be strings or numbers and must match the types defined in the macro\'s variables section.'
+  'Values must match the JSON Schema defined in the macro\'s variables section.'
 );
 
 const macroCallLocalCommandSchema = z.object({
@@ -96,25 +83,26 @@ const macroCallLocalCommandSchema = z.object({
         isVariable = true;
       }
 
+      const schema = value as JsonSchema;
+
       if (command.variables?.[key] && !isVariable) {
         const variableValue: unknown = command.variables[key];
-        const expectedType: VariableType = value!.type;
-        if (!validateType(variableValue, expectedType)) {
+        if (!validateType(variableValue, schema)) {
           ctx.addIssue({
             code: 'custom',
             path: ['variables'],
             message: `Type mismatch for variable ${key}. ` +
-              `Expected type: ${JSON.stringify(expectedType)}, ` +
+              `Expected JSON Schema: ${JSON.stringify(schema)}, ` +
               `got value: ${JSON.stringify(variableValue)}`,
           });
         }
       }
-      if (!value!.optional && !command.variables?.[key]) {
+      if (!isOptional(schema) && !command.variables?.[key]) {
         ctx.addIssue({
           code: 'custom',
           path: ['variables'],
-          message: `macro ${command.macro} requires variable ${key} but only ${JSON.stringify(command.variables)} were passed.`
-            + 'If this variable is optional, set optional: true',
+          message: `macro ${command.macro} requires variable ${key} but only ${JSON.stringify(command.variables)} were passed. ` +
+            'If this variable is optional, add "x-optional": true or set a "default" value in its schema.',
         });
       }
     }
@@ -122,69 +110,36 @@ const macroCallLocalCommandSchema = z.object({
     'Similar to a function call, macros can accept parameters through variables. ' +
     'This helps avoid duplicating complex command sequences and makes configurations more maintainable.');
 
-
-// First, define the primitive types
-const macroDefinitionPrimitiveVariableTypeSchema = z.union([
-  z.literal('string'),
-  z.literal('number'),
-  z.literal('boolean'),
-  z.literal('undefined'),
-  z.literal('any'),
-]);
-
-const macroDefinitionUnionTypeSchema = z.array(macroDefinitionPrimitiveVariableTypeSchema);
-
-// Then define the array type (recursive)
-const macroDefinitionArrayVariableTypeSchema: z.ZodType<ArrayVariableType> = z.lazy(() =>
-  z.union([
-    z.string().refine(s => s.endsWith('[]') && macroDefinitionPrimitiveVariableTypeSchema.safeParse(s.slice(0, -2)).success, {
-      message: 'Array type must be a primitive type followed by []',
-    }),
-    z.record(z.string(), macroDefinitionVariableTypeSchema),
-  ]));
-
-
-// Then define the object type (recursive)
-const macroDefinitionObjectVariableTypeSchema: z.ZodType<ObjectVariableType> = z.lazy(() =>
-  z.record(z.string(), macroDefinitionVariableTypeSchema));
-
-// Finally, combine them into one schema
-const macroDefinitionVariableTypeSchema = z.union([
-  macroDefinitionPrimitiveVariableTypeSchema,
-  macroDefinitionObjectVariableTypeSchema,
-  macroDefinitionArrayVariableTypeSchema,
-  macroDefinitionUnionTypeSchema,
-]).describe('To validate the type, or cast from env variables');
-
-// eslint-disable-next-line
-interface VariableTypeMap {
-  [key: string]: VariableType;
-}
-// TypeScript types for better type inference
-type PrimitiveVariableType = 'string' | 'number' | 'boolean' | 'undefined' | 'any';
-type ArrayVariableType = string | VariableTypeMap;
-type ObjectVariableType = VariableTypeMap;
-// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-type VariableType = PrimitiveVariableType | ArrayVariableType | ObjectVariableType | PrimitiveVariableType[];
-
-const macroDefinitionVariableValueSchema = z.object({
-  type: macroDefinitionVariableTypeSchema,
-  optional: z.boolean().optional().describe('If set to true, the key is be removed is var is not passed'),
-  default: z.any().optional().describe('Default value if value is not passed. Optional should be set to true'),
-})
-  .strict()
-  .refine(
-    (v) => v.default === undefined || v.optional,
-    {
-      message: '`optional` must be true when `default` is provided',
-      path: ['optional'],
+const macroDefinitionVariableValueSchema = z.record(z.string(), z.any())
+  .superRefine((schema, ctx) => {
+    if ('optional' in schema) {
+      ctx.addIssue({
+        code: 'custom',
+        message: '"optional" is not supported. Use "x-optional": true or add a "default" value.',
+      });
+      return;
     }
-  ).describe('Variable description for macro');
+    try {
+      ajv.compile(schema);
+    } catch (e: unknown) {
+      ctx.addIssue({
+        code: 'custom',
+        message: `Invalid JSON Schema: ${e instanceof Error ? e.message : String(e)}`,
+      });
+    }
+  })
+  .describe(
+    'JSON Schema for the variable value. ' +
+    'Supports standard JSON Schema: {"type": "string"}, {"type": "number"}, ' +
+    '{"type": "object", "properties": {...}}, {"type": "array", "items": {...}}, ' +
+    '{"anyOf": [...]}, {} (any value). ' +
+    'Use "default" to provide a default value (also marks the variable as optional). ' +
+    'Use "x-optional": true to mark as optional without a default value.'
+  );
 
 const macroDefinitionVariablesDescriptionSchema = z.record(z.string(), macroDefinitionVariableValueSchema)
   .optional()
-  .describe('Set of variables descriptors for macro');
-
+  .describe('Set of variable JSON Schema descriptors for macro');
 
 const macroDefinitionSchema = z.lazy(() => z.object({
   commands: z.array(unknownCommandSchema).describe('Set of commands for this macro'),
@@ -198,7 +153,6 @@ const macrosListSchema = z.record(z.string(), macroDefinitionSchema)
 
 type MacroLocalCommand = z.infer<typeof macroCallLocalCommandSchema>
 type MacroList = z.infer<typeof macrosListSchema>
-
 type VariablesDefinition = z.infer<typeof macroDefinitionVariablesDescriptionSchema>
 
 export type {
@@ -208,13 +162,8 @@ export type {
 };
 
 export {
-  macroDefinitionUnionTypeSchema,
   macroCallLocalCommandSchema,
   macroCallLocalCommandVariablesSchema,
-  macroDefinitionPrimitiveVariableTypeSchema,
-  macroDefinitionArrayVariableTypeSchema,
-  macroDefinitionObjectVariableTypeSchema,
-  macroDefinitionVariableTypeSchema,
   macroDefinitionVariableValueSchema,
   macroDefinitionVariablesDescriptionSchema,
   macroDefinitionSchema,

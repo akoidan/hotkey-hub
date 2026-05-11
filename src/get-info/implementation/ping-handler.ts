@@ -13,7 +13,7 @@ export class PingHandler extends GetInfoHandler {
     try {
       await this.clientService.app.ping(destination);
       return true;
-    } catch (e) {
+    } catch (e: any) {
       this.logger.error(`Unable ping ${destination}, because of ${e?.message || e}`, e.stack);
       return false;
     }

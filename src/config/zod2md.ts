@@ -1,6 +1,6 @@
 import {convertSchemas, formatModelsAsMarkdown, loadZodSchemas, type NamedModel, type Ref} from 'zod2md';
 import {promises as fs} from 'fs';
-import type {ZodUnion} from 'zod/src/v4/classic/schemas';
+import type {ZodUnion} from 'zod/v4';
 
 const order = ['config', 'ips', 'shortcut', 'unknownCommand'];
 const seen = new Set<string>();

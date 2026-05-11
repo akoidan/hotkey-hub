@@ -1,6 +1,6 @@
 import {Inject, Injectable, Logger} from '@nestjs/common';
 import {ConfigService} from '@/config/config-service';
-import type {VariablesDefinition} from '@/config/types/local/macro-local-command';
+import {isOptional, type JsonSchema, type VariablesDefinition} from '@/config/types/local/macro-local-command';
 import {variableRegex, VariableValue} from '@/config/types/variables';
 import {EvaluateService} from '@/local/evaluate-serivce';
 import {SemaphorService} from '@/semaphor/semaphor-service';
@@ -30,7 +30,8 @@ export class VariableResolutionService {
     // we need to modify variable to match it with macro definition
     const variables = structuredClone(variablesIN) as Record<string, unknown>;
     for (const varDef in definition) {
-      if (!(varDef in variables) && definition[varDef].type === 'any') {
+      const schema = definition[varDef]! as JsonSchema;
+      if (!(varDef in variables) && isOptional(schema) && !('default' in schema)) {
         // define key, in case we didnt pass variable (in config)
         // so we dont have exception on missing variable
         variables[varDef] = undefined;
@@ -90,10 +91,12 @@ export class VariableResolutionService {
       }
       return res as T;
     }
-    if (definition[varName]!.optional) {
-      if (definition[varName]!.default) {
-        this.logger.verbose(`Putting default ${varName}=${definition[varName]!.default} from ${JSON.stringify(value)}`);
-        return definition[varName]!.default as T;
+    const varSchema = definition[varName]! as JsonSchema;
+    if (isOptional(varSchema)) {
+      const defaultVal = varSchema.default;
+      if ('default' in varSchema) {
+        this.logger.verbose(`Putting default ${varName}=${JSON.stringify(defaultVal)} from ${JSON.stringify(value)}`);
+        return defaultVal as T;
       }
       this.logger.verbose(`Omitting variable ${varName} from ${JSON.stringify(value)} since it's optional`);
       return value;

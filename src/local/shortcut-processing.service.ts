@@ -38,7 +38,7 @@ export class ShortcutProcessingService {
         } else { // comb.behaviour === 'stackable'
           await this.runLoop(comb, id, groupWith, controller);
         }
-      } catch (e) {
+      } catch (e: any) {
         finalLedColor = KeyState.ERROR!;
         throw e;
       } finally {
@@ -112,7 +112,7 @@ export class ShortcutProcessingService {
           }
         );
       }
-    } catch (e) {
+    } catch (e: any) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       if (e.message?.includes(ABORTED_BY_USER)) {
         this.logger.log(`${clc.bold.green(comb.shortCut)} pressed. Stopped current executin for ${clc.bold.green(comb.name)}`);

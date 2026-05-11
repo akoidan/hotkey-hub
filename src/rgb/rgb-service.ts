@@ -40,7 +40,7 @@ export class RgbService implements RgbServiceI {
     if (this.state === ConnectionState.CONNECTED) {
       try {
         this.native.rgbUpdateSingleLed(this.deviceId!, state.ledIndex, state.color);
-      } catch (error) {
+      } catch (error: any) {
         this.logger.error(`Error while setting led ${error}`);
         this.state = ConnectionState.NOT_AVAILABLE;  // block further sends; DC event triggers reconnect
       }
@@ -78,7 +78,7 @@ export class RgbService implements RgbServiceI {
       this.native.rgbUpdateAllLeds(this.deviceId!, this.colorsArray);
       this.state = ConnectionState.CONNECTED;
       return true;
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(`Unable to initialize OpenRGB service: ${error?.message ?? error}.`
         + ` Retrying initialization in ${this.RECONNECT_TIMEOUT}ms`, error.stack);
       this.state = ConnectionState.NOT_AVAILABLE;
@@ -142,7 +142,7 @@ export class RgbService implements RgbServiceI {
       this.native.rgbSetCustomMode(this.deviceId!);
       this.native.rgbUpdateAllLeds(this.deviceId!, this.colorsArray);
       this.state = ConnectionState.CONNECTED;
-    } catch (e) {
+    } catch (e: any) {
       this.logger.error(`Unable to reconnect to OpenRGB: ${e}, retrying in ${this.RECONNECT_TIMEOUT}`);
     }
   }
