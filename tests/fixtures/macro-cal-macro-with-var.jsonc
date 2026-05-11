@@ -1,0 +1,57 @@
+{
+  "ips": {
+    "this": "127.0.0.1"
+  },
+  "macros": {
+    "testMacro2": {
+      "commands": [
+        {
+          "destination": "this",
+          "performOnRemote": "keyPress",
+          "variables": {
+            "key": {
+              "$ref": "destination2"
+            }
+          }
+        }
+      ],
+      "variables": {
+        "destination2": { "type": "string", "default": {"$ref": "PASSWORD"} },
+      },
+      // requiredVariables3 is not a valid macro definition key — should be rejected
+      "requiredVariables": ["destination2"]
+    },
+    "testMacro": {
+      "commands": [
+        {
+          "macro": "testMacro2",
+          "variables": {
+            "destination2": {
+              "$ref": "destination"
+            }
+          }
+        }
+      ],
+      "variables": {
+        "destination": { "type": "string" },
+        "wid": { "type": "number" }
+      },
+      // requiredVariables3 is not a valid macro definition key — should be rejected
+      "requiredVariables": ["destination"]
+    }
+  },
+  "combinations": [
+    {
+      "name": "test",
+      "shortCut": "Alt+z",
+      "commands": [
+        {
+          "macro": "testMacro",
+          "variables": {
+            "destination": "this"
+          }
+        }
+      ]
+    }
+  ]
+}

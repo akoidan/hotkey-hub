@@ -97,4 +97,11 @@ describe('Config service — JSON Schema variable validation', () => {
     const service = testModule.get<ConfigService>(ConfigService);
     await expect(service.parseConfig()).rejects.toThrow(/at macros\.testMacro\.commands\.0/);
   });
+
+  it('Exceptions should contain trace', async () => {
+    const testModule = await getTestModule('macro-cal-macro-with-var.jsonc');
+    const service = testModule.get<ConfigService>(ConfigService);
+    await expect(service.parseConfig()).resolves.not.toThrow();
+  });
+
 });

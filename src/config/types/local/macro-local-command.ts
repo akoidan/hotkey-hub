@@ -4,6 +4,9 @@ import {schemaRootCache} from '@/config/types/cache';
 import {type VariableValue, variableValueSchema} from '@/config/types/variables';
 import {delayCommandsSchema} from '@/config/types/remote/base-remote-command';
 import {unknownCommandSchema} from '@/config/types/commands';
+import {Ajv} from 'ajv';
+
+const ajv = new Ajv({strict: true, strictSchema: true});
 
 const macroCallLocalCommandVariablesSchema = z.record(
   z.string(),
@@ -65,7 +68,7 @@ const macroCallLocalCommandSchema = z.object({
 
       if (command.variables?.[key] && !isVariable) {
         const variableValue: unknown = command.variables[key];
-        const hasIssue = !schemaRootCache.getSchema(schema)(variableValue);
+        const hasIssue = ajv.compile(schema)(variableValue);
         if (hasIssue) {
           ctx.addIssue({
             code: 'custom',
@@ -99,7 +102,7 @@ const macroDefinitionVariableValueSchema = z.record(z.string(), z.any())
       return;
     }
     try {
-      schemaRootCache.getSchema(schema);
+      ajv.compile(schema);
     } catch (e: unknown) {
       ctx.addIssue({
         code: 'custom',

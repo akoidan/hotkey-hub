@@ -6,11 +6,11 @@ import {EvaluateService} from '@/local/evaluate-serivce';
 import {SemaphorService} from '@/semaphor/semaphor-service';
 import {AsyncLocalStorage} from 'async_hooks';
 import {ASYNC_PROVIDER} from '@/asyncstore/async-storage-const';
-import {AJV, schemaRootCache} from '@/config/types/cache';
+import {Ajv} from 'ajv';
 
 @Injectable()
 export class VariableResolutionService {
-  // private readonly defaultsCache = new WeakMap<JsonSchema, ReturnType<AJV['compile']>>();
+  private readonly ajvDefaults = new Ajv({strict: false, useDefaults: true});
   constructor(
     private readonly configService: ConfigService,
     private readonly evaluateService: EvaluateService,
@@ -21,9 +21,11 @@ export class VariableResolutionService {
   }
 
   applySchemaDefaults(val: unknown, schema: JsonSchema): unknown {
-    let validate = schemaRootCache.getSchema(schema);
+    // const validate = this.ajvDefaults.compile(schema);
     const cloned = structuredClone(val);
-    validate(cloned);
+    // if (!validate(cloned)) {
+    //   throw new Error('Unable to apply defaults to value ' + JSON.stringify(val) + ' with schema ' + JSON.stringify(schema));
+    // };
     return cloned;
   }
 
