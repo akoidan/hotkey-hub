@@ -1,0 +1,38 @@
+{
+  "ips": {
+    "this": "127.0.0.1"
+  },
+  "macros": {
+    "withOptional": {
+      "commands": [
+        {
+          "destination": "this",
+          "performOnRemote": "keyPress",
+          "variables": {
+            "key": "f1"
+          }
+        }
+      ],
+      "variables": {
+        "requiredKey": { "type": "string" },
+        // x-optional marks this variable as not required — caller may omit it
+        "optionalKey": { "x-optional": true, "type": "string" }
+      }
+    }
+  },
+  "combinations": [
+    {
+      "name": "test",
+      "shortCut": "Alt+z",
+      "commands": [
+        {
+          "macro": "withOptional",
+          "variables": {
+            "requiredKey": "hello"
+            // optionalKey intentionally omitted — should succeed
+          }
+        }
+      ]
+    }
+  ]
+}

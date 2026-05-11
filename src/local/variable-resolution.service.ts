@@ -1,14 +1,18 @@
 import {Inject, Injectable, Logger} from '@nestjs/common';
 import {ConfigService} from '@/config/config-service';
-import {applySchemaDefaults, isOptional, type JsonSchema, type VariablesDefinition} from '@/config/types/local/macro-local-command';
+import {type JsonSchema, type VariablesDefinition} from '@/config/types/local/macro-local-command';
 import {variableRegex, VariableValue} from '@/config/types/variables';
 import {EvaluateService} from '@/local/evaluate-serivce';
 import {SemaphorService} from '@/semaphor/semaphor-service';
 import {AsyncLocalStorage} from 'async_hooks';
 import {ASYNC_PROVIDER} from '@/asyncstore/async-storage-const';
+import Ajv from 'ajv';
 
 @Injectable()
 export class VariableResolutionService {
+
+  private readonly ajvDefaults = new Ajv({strict: false, useDefaults: true});
+  private readonly defaultsCache = new WeakMap<JsonSchema, ReturnType<typeof this.ajvDefaults.compile>>();
   constructor(
     private readonly configService: ConfigService,
     private readonly evaluateService: EvaluateService,
@@ -18,20 +22,37 @@ export class VariableResolutionService {
   ) {
   }
 
+  applySchemaDefaults(val: unknown, schema: JsonSchema): unknown {
+    let validate = this.defaultsCache.get(schema);
+    if (!validate) {
+      try {
+        validate = this.ajvDefaults.compile(schema);
+      } catch {
+        return val;
+      }
+      this.defaultsCache.set(schema, validate);
+    }
+    const cloned = structuredClone(val);
+    validate(cloned);
+    return cloned;
+  }
+
   replaceMacroVariables<T = unknown>(
     key: string | null,
     value: T,
     variablesIN: Record<string, unknown> | undefined,
-    definition: VariablesDefinition
+    definition: VariablesDefinition,
+    requiredVariables: string[],
   ): T {
-    if (!variablesIN) {
-      return value;
-    }
+    // if (!variablesIN) {
+    //   return value;
+    // }
     // we need to modify variable to match it with macro definition
-    const variables = structuredClone(variablesIN) as Record<string, unknown>;
+    const variables: Record<string, unknown> | undefined = structuredClone(variablesIN) as Record<string, unknown>;
     for (const varDef in definition) {
       const schema = definition[varDef]! as JsonSchema;
-      if (!(varDef in variables) && isOptional(schema) && !('default' in schema)) {
+      // TODO key! is not correct requied might only be on toip lvel
+      if (!(varDef in variables) && !requiredVariables.includes(varDef!) && !('default' in schema)) {
         // define key, in case we didnt pass variable (in config)
         // so we dont have exception on missing variable
         variables[varDef] = undefined;
@@ -40,15 +61,15 @@ export class VariableResolutionService {
     if (Array.isArray(value)) {
       // thread each array element as the whole object
       // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-      return value.map(item => this.replaceMacroVariables(null, item, variables, definition)) as any;
+      return value.map(item => this.replaceMacroVariables(null, item, variables, definition, requiredVariables)) as any;
     } else if (typeof value === 'object' && !(value as VariableValue).$ref) {
       const result: Record<string, unknown> = {};
       for (const [innerKey, innerValue] of Object.entries(value as object)) {
-        result[innerKey] = this.replaceMacroVariables(innerKey, innerValue as VariableValue, variables, definition);
+        result[innerKey] = this.replaceMacroVariables(innerKey, innerValue as VariableValue, variables, definition, requiredVariables);
       }
       return result as T;
     }
-    return this.replaceMacroPrimitive(key!, value, variables ,definition);
+    return this.replaceMacroPrimitive(key!, value, variables ,definition, requiredVariables);
   }
 
   private replaceMacroPrimitive<T>(
@@ -56,6 +77,7 @@ export class VariableResolutionService {
     value: T,
     variables: Record<string, unknown>,
     definition: VariablesDefinition,
+    requiredVariables: string[],
   ): T {
     let varName: string|undefined;
     let varExpress: string|undefined;
@@ -71,18 +93,17 @@ export class VariableResolutionService {
     const varSchema = definition[varName]! as JsonSchema;
     if (Object.hasOwn(variables, varName)) {
       this.logger.verbose(`Replaced variable ${varName} to ${JSON.stringify(variables[varName])} for ${JSON.stringify(value)}`);
-      const withDefaults = applySchemaDefaults(variables[varName], varSchema);
+      const withDefaults = this.applySchemaDefaults(variables[varName], varSchema);
       const res = this.evaluateService.evaluateVariable(varName, varExpress!, withDefaults);
       if (exactValue && typeof res === 'string') {
         return `"${res}"` as T;
       }
       return res as T;
     }
-    if (isOptional(varSchema)) {
-      const defaultVal = varSchema.default;
+    if (!requiredVariables.includes(varName)) {
       if ('default' in varSchema) {
-        this.logger.verbose(`Putting default ${varName}=${JSON.stringify(defaultVal)} from ${JSON.stringify(value)}`);
-        return defaultVal as T;
+        this.logger.verbose(`Putting default ${varName}=${JSON.stringify(varSchema.default)} from ${JSON.stringify(value)}`);
+        return varSchema.default as T;
       }
       this.logger.verbose(`Omitting variable ${varName} from ${JSON.stringify(value)} since it's optional`);
       return value;

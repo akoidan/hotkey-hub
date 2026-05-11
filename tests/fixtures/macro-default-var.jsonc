@@ -1,0 +1,40 @@
+{
+  "ips": {
+    "this": "127.0.0.1"
+  },
+  "macros": {
+    "withDefault": {
+      "commands": [
+        {
+          "destination": "this",
+          "performOnRemote": "keyPress",
+          "variables": {
+            "key": "f1"
+          }
+        }
+      ],
+      "variables": {
+        "requiredKey": { "type": "string" },
+        // default implies the variable is optional; caller may omit it
+        "keyWithDefault": { "type": "string", "default": "enter" },
+        // default: 0 — falsy default value should still be treated as optional
+        "countWithDefault": { "type": "number", "default": 0 }
+      }
+    }
+  },
+  "combinations": [
+    {
+      "name": "test",
+      "shortCut": "Alt+z",
+      "commands": [
+        {
+          "macro": "withDefault",
+          "variables": {
+            "requiredKey": "hello"
+            // keyWithDefault and countWithDefault intentionally omitted — should succeed
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -50,7 +50,8 @@ export class MacroLocalHandler extends BaseLocalHandler {
                 null,
                 macroDefinition.commands[i],
                 input.variables,
-                macroDefinition.variables
+                macroDefinition.variables,
+                macroDefinition.requiredVariables!,
               );
               const delayA = ((preparedCommand as Delay).delayAfter as number | undefined) ?? combDelayAfter;
               const delayB = ((preparedCommand as Delay).delayBefore as number | undefined) ?? combDelayBefore;

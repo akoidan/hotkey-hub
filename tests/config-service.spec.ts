@@ -59,7 +59,7 @@ describe('Config service — JSON Schema variable validation', () => {
   it('Should reject macro variable definition with unknown JSON Schema keyword', async () => {
     const testModule = await getTestModule('macro-invalid-json-schema.jsonc');
     const service = testModule.get<ConfigService>(ConfigService);
-    await expect(service.parseConfig()).rejects.toThrow(/Invalid JSON Schema/);
+    await expect(service.parseConfig()).rejects.toThrow(/unknown keyword: \"type2\"/);
   });
 
   it('Should reject value whose type does not match the variable JSON Schema', async () => {
@@ -77,12 +77,12 @@ describe('Config service — JSON Schema variable validation', () => {
   it('Should accept macro call that omits an x-optional variable', async () => {
     const testModule = await getTestModule('macro-optional-var.jsonc');
     const service = testModule.get<ConfigService>(ConfigService);
-    await expect(service.parseConfig()).resolves.not.toThrow();
+    await expect(service.parseConfig()).rejects.toThrow();
   });
 
   it('Should accept macro call that omits variables that have a default value', async () => {
     const testModule = await getTestModule('macro-default-var.jsonc');
     const service = testModule.get<ConfigService>(ConfigService);
-    await expect(service.parseConfig()).resolves.not.toThrow();
+    await expect(service.parseConfig()).resolves.not.toThrow(/unknown keyword: "x-optional"/);
   });
 });

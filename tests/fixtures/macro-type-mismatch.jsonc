@@ -1,0 +1,38 @@
+{
+  "ips": {
+    "this": "127.0.0.1"
+  },
+  "macros": {
+    "typedMacro": {
+      "commands": [
+        {
+          "destination": "this",
+          "performOnRemote": "keyPress",
+          "variables": {
+            "key": { "$ref": "count" }
+          }
+        }
+      ],
+      "variables": {
+        "count": { "type": "number" },
+        "label": { "type": "string" }
+      }
+    }
+  },
+  "combinations": [
+    {
+      "name": "test",
+      "shortCut": "Alt+z",
+      "commands": [
+        {
+          "macro": "typedMacro",
+          "variables": {
+            // "notANumber" is a string, but count expects a number
+            "count": "notANumber",
+            "label": "ok"
+          }
+        }
+      ]
+    }
+  ]
+}

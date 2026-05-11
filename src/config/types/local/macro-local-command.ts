@@ -4,50 +4,6 @@ import {schemaRootCache} from '@/config/types/cache';
 import {type VariableValue, variableValueSchema} from '@/config/types/variables';
 import {delayCommandsSchema} from '@/config/types/remote/base-remote-command';
 import {unknownCommandSchema} from '@/config/types/commands';
-import Ajv from 'ajv';
-
-export type JsonSchema = Record<string, unknown>;
-
-const ajv = new Ajv({strict: false});
-const validatorCache = new WeakMap<JsonSchema, ReturnType<typeof ajv.compile>>();
-
-const ajvDefaults = new Ajv({strict: false, useDefaults: true});
-const defaultsCache = new WeakMap<JsonSchema, ReturnType<typeof ajvDefaults.compile>>();
-
-const ajvMeta = new Ajv({strictSchema: true});
-ajvMeta.addKeyword({keyword: 'x-optional', schemaType: 'boolean'});
-
-export function validateType(val: unknown, schema: JsonSchema): boolean {
-  let validate = validatorCache.get(schema);
-  if (!validate) {
-    try {
-      validate = ajv.compile(schema);
-    } catch {
-      return false;
-    }
-    validatorCache.set(schema, validate);
-  }
-  return validate(val) as boolean;
-}
-
-export function applySchemaDefaults(val: unknown, schema: JsonSchema): unknown {
-  let validate = defaultsCache.get(schema);
-  if (!validate) {
-    try {
-      validate = ajvDefaults.compile(schema);
-    } catch {
-      return val;
-    }
-    defaultsCache.set(schema, validate);
-  }
-  const cloned = structuredClone(val);
-  validate(cloned);
-  return cloned;
-}
-
-export function isOptional(schema: JsonSchema): boolean {
-  return schema['x-optional'] === true || 'default' in schema;
-}
 
 const macroCallLocalCommandVariablesSchema = z.record(
   z.string(),
@@ -98,6 +54,7 @@ const macroCallLocalCommandSchema = z.object({
     if (!variables) {
       return;
     }
+    const requiredVariables = definedMacros[command.macro]?.requiredVariables;
     for (const [key, value] of Object.entries(variables)) {
       let isVariable = false;
       if ((command.variables?.[key] as VariableValue)?.$ref) {
@@ -108,7 +65,8 @@ const macroCallLocalCommandSchema = z.object({
 
       if (command.variables?.[key] && !isVariable) {
         const variableValue: unknown = command.variables[key];
-        if (!validateType(variableValue, schema)) {
+        const hasIssue = !schemaRootCache.getSchema(schema)(variableValue);
+        if (hasIssue) {
           ctx.addIssue({
             code: 'custom',
             path: ['variables'],
@@ -118,7 +76,7 @@ const macroCallLocalCommandSchema = z.object({
           });
         }
       }
-      if (!isOptional(schema) && !command.variables?.[key]) {
+      if (requiredVariables?.includes(key) && !command.variables?.[key]) {
         ctx.addIssue({
           code: 'custom',
           path: ['variables'],
@@ -141,7 +99,7 @@ const macroDefinitionVariableValueSchema = z.record(z.string(), z.any())
       return;
     }
     try {
-      ajvMeta.compile(schema);
+      schemaRootCache.getSchema(schema);
     } catch (e: unknown) {
       ctx.addIssue({
         code: 'custom',
@@ -165,6 +123,7 @@ const macroDefinitionVariablesDescriptionSchema = z.record(z.string(), macroDefi
 const macroDefinitionSchema = z.lazy(() => z.object({
   commands: z.array(unknownCommandSchema).describe('Set of commands for this macro'),
   variables: macroDefinitionVariablesDescriptionSchema,
+  requiredVariables: z.array(z.string()).default([]).optional().describe('List of required variables'),
 }).strict())
   .describe('A reusable command sequence that can accept variables. Similar to a function that runs a predefined set of commands.');
 
@@ -175,8 +134,10 @@ const macrosListSchema = z.record(z.string(), macroDefinitionSchema)
 type MacroLocalCommand = z.infer<typeof macroCallLocalCommandSchema>
 type MacroList = z.infer<typeof macrosListSchema>
 type VariablesDefinition = z.infer<typeof macroDefinitionVariablesDescriptionSchema>
+type JsonSchema = Record<string, any>;
 
 export type {
+  JsonSchema,
   VariablesDefinition,
   MacroLocalCommand,
   MacroList,
