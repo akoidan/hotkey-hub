@@ -91,4 +91,10 @@ describe('Config service — JSON Schema variable validation', () => {
     const service = testModule.get<ConfigService>(ConfigService);
     await expect(service.parseConfig()).rejects.toThrow(/Unrecognized key.*requiredVariables3/);
   });
+
+  it('Exceptions should contain trace', async () => {
+    const testModule = await getTestModule('macro-exception-should-contain-stack.jsonc');
+    const service = testModule.get<ConfigService>(ConfigService);
+    await expect(service.parseConfig()).rejects.toThrow(/at macros\.testMacro\.commands\.0/);
+  });
 });

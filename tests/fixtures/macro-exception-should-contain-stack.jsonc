@@ -1,0 +1,36 @@
+{
+  "ips": {
+    "this": "127.0.0.1"
+  },
+  "macros": {
+    "testMacro": {
+      "commands": [
+        {
+          "destination": "this",
+          "performOnRemote": "keyPress",
+        }
+      ],
+      "variables": {
+        "destination": { "type": "string" },
+        "wid": { "type": "number" }
+      },
+      // requiredVariables3 is not a valid macro definition key — should be rejected
+      "requiredVariables3": ["destination", "wid"]
+    }
+  },
+  "combinations": [
+    {
+      "name": "test",
+      "shortCut": "Alt+z",
+      "commands": [
+        {
+          "macro": "testMacro",
+          "variables": {
+            "destination": "this",
+            "wid": 1
+          }
+        }
+      ]
+    }
+  ]
+}

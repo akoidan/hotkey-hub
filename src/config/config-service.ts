@@ -40,36 +40,40 @@ export class ConfigService implements ConfigProvider {
   private collectAllErrors(
     issue: ZodError | ZodIssue | ZodIssue[],
     errors: ZodErrorCollected[],
-    currentPath: (string | number)[] = []
+    contextPath: (string | number)[] = []
   ): void {
     if (Array.isArray(issue)) {
       for (const subIssue of issue) {
-        this.collectAllErrors(subIssue, errors, currentPath);
+        this.collectAllErrors(subIssue, errors, contextPath);
       }
-    } else if (issue instanceof ZodError) {
+      return;
+    }
+    if (issue instanceof ZodError) {
       for (const subIssue of issue.issues) {
-        this.collectAllErrors(subIssue, errors, currentPath);
+        this.collectAllErrors(subIssue, errors, contextPath);
       }
-    } else if ((issue as ZodIssue).code === 'invalid_union') {
-      const unionIssue = issue as ZodIssue & { errors: ZodError[] };
-      for (const unionError of unionIssue.errors) {
-        this.collectAllErrors(unionError, errors, currentPath);
-      }
+      return;
     }
     const zodIssue = issue as ZodIssue;
-    if (zodIssue.path) {
-      currentPath = [...(zodIssue.path as (string | number)[])];
+    if (zodIssue.code === 'invalid_union') {
+      const unionIssue = zodIssue as ZodIssue & { errors: ZodError[] };
+      const unionContextPath = [...contextPath, ...(unionIssue.path as (string | number)[])];
+      for (const unionError of unionIssue.errors) {
+        this.collectAllErrors(unionError, errors, unionContextPath);
+      }
+      return;
     }
-    this.extractIssue(issue as ZodIssue, errors);
+    this.extractIssue(zodIssue, errors, contextPath);
   }
 
-  private extractIssue(zodIssue: ZodIssue, errors: ZodErrorCollected[]): void {
-    if (zodIssue.message && zodIssue.path?.length > 0 && zodIssue.message !== 'Invalid input') {
+  private extractIssue(zodIssue: ZodIssue, errors: ZodErrorCollected[], contextPath: (string | number)[] = []): void {
+    const fullPath = [...contextPath, ...zodIssue.path];
+    if (zodIssue.message && fullPath.length > 0 && zodIssue.message !== 'Invalid input') {
       const errorObj: ZodErrorCollected = {
-        path: zodIssue.path.join('.'),
+        path: fullPath.join('.'),
         message: zodIssue.message,
       };
-      if ((zodIssue as ZodIssue).code === 'invalid_type') {
+      if (zodIssue.code === 'invalid_type') {
         const typeIssue = zodIssue as ZodIssue & { expected?: string[], received?: string };
         if (typeIssue.expected) {
           errorObj.expected = typeIssue.expected;
