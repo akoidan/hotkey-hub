@@ -205,6 +205,9 @@ function readCombinations(filePath: string): Array<{name?: string; shortCut?: st
   return config?.combinations ?? [];
 }
 
+// jest requires describe and all test cases to be described synchronously from the top level
+// no async code is allowed, the only exception with es2022 top level await, which jest doesnt support
+// all described only accept sync code (no promise) and it(async () => {}) should be defined from top syncrhonously
 const files = fs.existsSync(configDir) ? fs.readdirSync(configDir).filter(f => f.endsWith('.jsonc')) : [];
 
 describe('Private config files', () => {
