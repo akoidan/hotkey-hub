@@ -265,10 +265,11 @@ describe('Private config files', () => {
             if (!isPausable) {
               fail(`shortcut with infinitive loop is not pausable`);
             };
-            setTimeout(async () => {
-              await shortcutService.runShortcut(shortcut);
-            }, 400);
-            await shortcutService.runShortcut(shortcut);
+            let promiseResolve;
+            setTimeout(() => {
+              promiseResolve = shortcutService.runShortcut(shortcut);
+            }, 100);
+            await Promise.all([shortcutService.runShortcut(shortcut), promiseResolve]);
           } else {
             await shortcutService.runShortcut(shortcut);
           }
