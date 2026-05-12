@@ -30,7 +30,7 @@ import type {Shortcut} from '../src/config/types/shortcut';
 import {INativeModule, Native} from '../src/native/native-model';
 import {parse} from 'jsonc-parser';
 import path from 'path';
-import {readFile,readdir, access} from 'fs/promises';
+import {access, readdir, readFile} from 'fs/promises';
 
 
 const globalEnv = {};
@@ -44,8 +44,12 @@ global.setTimeout = jest.fn((callback, delay) => {
 }) as any;
 
 const rgbStub: RgbServiceI = new class {
-  public updateColor(_comb: string, _hl: KeyState): void {}
-  public async setup(): Promise<boolean> { return false; }
+  public updateColor(_comb: string, _hl: KeyState): void {
+  }
+
+  public async setup(): Promise<boolean> {
+    return false;
+  }
 };
 
 const nativeStub: INativeModule = {
@@ -180,7 +184,8 @@ async function getTestModule(configFilePath: string): Promise<TestingModule> {
           configFilePath,
           variablesFilePath,
           macroFilePath: null!,
-          setConfigPaths(_config?: string, _macro?: string, _variable?: string) {},
+          setConfigPaths(_config?: string, _macro?: string, _variable?: string) {
+          },
         },
       },
       ConfigService,
@@ -193,10 +198,10 @@ async function getTestModule(configFilePath: string): Promise<TestingModule> {
   return testModule;
 }
 
-async function readCombinations(filePath: string): Promise<Array<{name?: string; shortCut?: string}>> {
+async function readCombinations(filePath: string): Promise<Array<{ name?: string; shortCut?: string }>> {
   try {
     const content = await readFile(filePath, 'utf-8');
-    const config = parse(content) as {combinations?: Array<{name?: string; shortCut?: string}>};
+    const config = parse(content) as { combinations?: Array<{ name?: string; shortCut?: string }> };
     return config?.combinations ?? [];
   } catch {
     return [];
@@ -213,38 +218,41 @@ async function directoryExists(path: string): Promise<boolean> {
   }
 }
 
-describe('Private config files', async () => {
-  const files = await directoryExists(configDir) ? (await readdir(configDir)).filter(f => f.endsWith('.jsonc')) : [];
-  if (files.length === 0) {
-    it.skip('no config files found', () => {});
-  }
+describe('Private config files', () => {
+
+  let files: string[] = [];
+
+  beforeAll(async () => {     // ? Async hook
+    files = await directoryExists(configDir) ?
+      (await readdir(configDir)).filter(f => f.endsWith('.jsonc')) : [];
+    if (files.length === 0) {
+      it.skip('no config files found', () => {
+      });
+    }
+  });
+
 
   for (const file of files) {
-    describe(file, () => {
+    describe(file, async () => {
+      const combinations = await readCombinations(path.join(configDir, file));
+      let testModule: TestingModule = await getTestModule(path.join(configDir, file));
+      await testModule.get<ConfigService>(ConfigService).parseConfig();
 
-      describe('shortcuts', async () => {
-        const combinations = await readCombinations(path.join(configDir, file));
+      if (combinations.length === 0) {
+        it.skip('no shortcuts', () => {});
+      }
+      for (const combo of combinations) {
+        const label = [combo.shortCut, combo.name].filter(Boolean).join(': ');
+        test.concurrent(label, async () => {
 
-        if (combinations.length === 0) {
-          it.skip('no shortcuts', () => {});
-        }
-
-        let testModule: TestingModule = await getTestModule(path.join(configDir, file));
-        await testModule.get<ConfigService>(ConfigService).parseConfig();
-
-        for (const combo of combinations) {
-          const label = [combo.shortCut, combo.name].filter(Boolean).join(': ');
-          test.concurrent(label, async () => {
-
-            const service = testModule.get<ConfigService>(ConfigService);
-            const shortcutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
-            const shortcut = service.getCombinations().find((s: Shortcut) => s.shortCut === combo.shortCut);
-            if (shortcut) {
-              await shortcutService.runShortcut(shortcut);
-            }
-          });
-        }
-      });
+          const service = testModule.get<ConfigService>(ConfigService);
+          const shortcutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
+          const shortcut = service.getCombinations().find((s: Shortcut) => s.shortCut === combo.shortCut);
+          if (shortcut) {
+            await shortcutService.runShortcut(shortcut);
+          }
+        });
+      }
     });
   }
 });
