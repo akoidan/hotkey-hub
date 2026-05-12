@@ -10,7 +10,7 @@
     "cmake:debug": "cmake-js build --debug",
     "nest": "nest build",
     "build": "npm-run-all -s clean cmake nest esbuild native",
-    "test": "jest --coverage  --detectOpenHandles --testTimeout=10000",
+    "test": "jest --coverage  --detectOpenHandles",
     "openapi-client": "ts-node src/client/generator.ts openapi.json",
     "schema:json": "node -r tsconfig-paths/register -r ts-node/register src/config/generate-schema.ts",
     "schema:doc": "ts-node src/config/zod2md.ts",

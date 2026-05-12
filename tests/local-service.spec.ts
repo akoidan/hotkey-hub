@@ -23,6 +23,7 @@ import {EvaluateService} from '../src/local/evaluate-serivce';
 import {getInfoProviders} from '../src/get-info/get-info-module';
 import {SAVE_TIMEOUT} from "../src/config/config-model";
 import {BehaviourEnum} from '../src/config/types/shortcut';
+import {SET_TIMEOUT_TOKEN} from '@/local/local-model';
 
 const globalEnv = {};
 
@@ -44,6 +45,9 @@ async function getTestModule(configFilePath: string): Promise<TestingModule> {
       ShortcutProcessingService,
       EvaluateService,
       DelayService,
+      {provide: SET_TIMEOUT_TOKEN, useValue: (cb: any, originTimeout: number) => {
+          setTimeout(cb, 0);
+      }},
       {
         provide: SAVE_TIMEOUT,
         useValue: -1, // do not save config at at

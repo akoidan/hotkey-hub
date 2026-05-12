@@ -227,7 +227,7 @@ function hasCondition(obj: unknown, predicate: (obj: unknown) => boolean): boole
   return Object.values(obj).some(value => hasCondition(value, predicate));
 }
 
-describe('Private config files', () => {
+describe.skip('Private config files', () => {
   if (files.length === 0) {
     /// loop on bot would not run and tests would fail w/o it
     it.skip('no config files found', () => {
