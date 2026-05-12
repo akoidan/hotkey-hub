@@ -30,7 +30,8 @@ import type {Shortcut} from '../src/config/types/shortcut';
 import {INativeModule, Native} from '../src/native/native-model';
 import {parse} from 'jsonc-parser';
 import path from 'path';
-import fs from 'fs';
+import {readFile,readdir, access} from 'fs/promises';
+
 
 const globalEnv = {};
 const configDir = path.join(__dirname, '..', 'examples', 'config');
@@ -192,9 +193,9 @@ async function getTestModule(configFilePath: string): Promise<TestingModule> {
   return testModule;
 }
 
-function readCombinations(filePath: string): Array<{name?: string; shortCut?: string}> {
+async function readCombinations(filePath: string): Promise<Array<{name?: string; shortCut?: string}>> {
   try {
-    const content = fs.readFileSync(filePath, 'utf-8');
+    const content = await readFile(filePath, 'utf-8');
     const config = parse(content) as {combinations?: Array<{name?: string; shortCut?: string}>};
     return config?.combinations ?? [];
   } catch {
@@ -202,42 +203,39 @@ function readCombinations(filePath: string): Array<{name?: string; shortCut?: st
   }
 }
 
-const files = fs.existsSync(configDir) ? fs.readdirSync(configDir).filter(f => f.endsWith('.jsonc')) : [];
 
-describe('Private config files', () => {
+async function directoryExists(path: string): Promise<boolean> {
+  try {
+    await access(path);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+describe('Private config files', async () => {
+  const files = await directoryExists(configDir) ? (await readdir(configDir)).filter(f => f.endsWith('.jsonc')) : [];
   if (files.length === 0) {
     it.skip('no config files found', () => {});
   }
 
   for (const file of files) {
     describe(file, () => {
-      let testModule: TestingModule;
-      let parseError: Error | null = null;
 
-      beforeAll(async () => {
-        try {
-          testModule = await getTestModule(path.join(configDir, file));
-          await testModule.get<ConfigService>(ConfigService).parseConfig();
-        } catch (e) {
-          parseError = e as Error;
-        }
-      });
-
-      it('should parse config', () => {
-        if (parseError) throw parseError;
-      });
-
-      describe('shortcuts', () => {
-        const combinations = readCombinations(path.join(configDir, file));
+      describe('shortcuts', async () => {
+        const combinations = await readCombinations(path.join(configDir, file));
 
         if (combinations.length === 0) {
           it.skip('no shortcuts', () => {});
         }
 
+        let testModule: TestingModule = await getTestModule(path.join(configDir, file));
+        await testModule.get<ConfigService>(ConfigService).parseConfig();
+
         for (const combo of combinations) {
           const label = [combo.shortCut, combo.name].filter(Boolean).join(': ');
-          it(label, async () => {
-            if (parseError) return;
+          test.concurrent(label, async () => {
+
             const service = testModule.get<ConfigService>(ConfigService);
             const shortcutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
             const shortcut = service.getCombinations().find((s: Shortcut) => s.shortCut === combo.shortCut);
