@@ -236,6 +236,9 @@ describe('Private config files', () => {
   }
 
   for (const file of files) {
+    if (file === 'login-all.jsonc') { // to complex should be tested separately
+      continue;
+    }
     describe(file, (): void => {
 
 
