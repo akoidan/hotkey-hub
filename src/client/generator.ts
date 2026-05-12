@@ -50,7 +50,7 @@ interface PropertyInfo {
 
 class OpenApiGenerator {
   private readonly config: GeneratorConfig;
-  private api: OpenAPI3;
+  private api: OpenAPI3 = null!;
   private readonly generatedTypes = new Set<string>();
   private readonly generatedServices: GeneratedService[] = [];
   private readonly generatedDtos: GeneratedDto[] = [];

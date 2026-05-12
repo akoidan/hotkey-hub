@@ -38,6 +38,7 @@ export class VariableResolutionService {
     // }
     // we need to modify variable to match it with macro definition
     const variables: Record<string, unknown> | undefined = structuredClone(variablesIN)!;
+    // eslint-disable-next-line guard-for-in
     for (const varDef in definition) {
       const schema = definition[varDef]! as JsonSchema;
       // TODO key! is not correct requied might only be on toip lvel

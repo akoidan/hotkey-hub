@@ -16,6 +16,51 @@ const macroCallLocalCommandVariablesSchema = z.record(
   'Values must match the JSON Schema defined in the macro\'s variables section.'
 );
 
+function refineMacroCommandVariables(
+  command: MacroLocalCommand,
+  key: string,
+  value: Record<string, any>,
+  ctx: z.RefinementCtx,
+  requiredVariables: (string[])|undefined
+): void {
+  let isVariable = false;
+  if ((command.variables?.[key] as VariableValue)?.$ref) {
+    isVariable = true;
+  }
+
+  const schema = value as JsonSchema;
+
+  if (command.variables?.[key] && !isVariable) {
+    const variableValue: unknown = command.variables[key];
+    let error: null | string = null;
+    try {
+      const valid = ajv.compile(schema)(variableValue);
+      if (!valid) {
+        error = 'Invalid value';
+      }
+    } catch (e: any) {
+      error = (e as Error)?.message ?? 'Invalid value';
+    }
+    if (error) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['variables'],
+        message: `Type mismatch for variable ${key}. ` +
+          `Expected JSON Schema: ${JSON.stringify(schema)}, ` +
+          `got value: ${JSON.stringify(variableValue)}. Error: ${error}`,
+      });
+    }
+  }
+  if (requiredVariables?.includes(key) && !command.variables?.[key]) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['variables'],
+      message: `macro ${command.macro} requires variable ${key} but only ${JSON.stringify(command.variables)} were passed. ` +
+        'If this variable is optional, add "x-optional": true or set a "default" value in its schema.',
+    });
+  }
+}
+
 const macroCallLocalCommandSchema = z.object({
   macro: z.string().describe('Name of the macro to execute, which must match a key defined in the macros section. ' +
     'Macros help reduce configuration repetition by reusing command sequences.').superRefine((macroName, ctx) => {
@@ -57,44 +102,8 @@ const macroCallLocalCommandSchema = z.object({
     if (!variables) {
       return;
     }
-    const requiredVariables = definedMacros[command.macro]?.requiredVariables;
     for (const [key, value] of Object.entries(variables)) {
-      let isVariable = false;
-      if ((command.variables?.[key] as VariableValue)?.$ref) {
-        isVariable = true;
-      }
-
-      const schema = value as JsonSchema;
-
-      if (command.variables?.[key] && !isVariable) {
-        const variableValue: unknown = command.variables[key];
-        let error : null|string = null;
-        try {
-          let valid = ajv.compile(schema)(variableValue);
-          if (!valid) {
-            error = 'Invalid value'
-          }
-        } catch (e: any) {
-          error = e.message ?? 'Invalid value'
-        }
-        if (error) {
-          ctx.addIssue({
-            code: 'custom',
-            path: ['variables'],
-            message: `Type mismatch for variable ${key}. ` +
-              `Expected JSON Schema: ${JSON.stringify(schema)}, ` +
-              `got value: ${JSON.stringify(variableValue)}. Error: ${error}`,
-          });
-        }
-      }
-      if (requiredVariables?.includes(key) && !command.variables?.[key]) {
-        ctx.addIssue({
-          code: 'custom',
-          path: ['variables'],
-          message: `macro ${command.macro} requires variable ${key} but only ${JSON.stringify(command.variables)} were passed. ` +
-            'If this variable is optional, add "x-optional": true or set a "default" value in its schema.',
-        });
-      }
+      refineMacroCommandVariables(command, key, value, ctx, definedMacros[command.macro]?.requiredVariables);
     }
   }).describe('Executes a predefined macro, which is a reusable sequence of commands. ' +
     'Similar to a function call, macros can accept parameters through variables. ' +
