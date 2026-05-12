@@ -68,7 +68,7 @@ export class ConfigService implements ConfigProvider {
 
   private extractIssue(zodIssue: ZodIssue, errors: ZodErrorCollected[], contextPath: (string | number)[] = []): void {
     const fullPath = [...contextPath, ...zodIssue.path];
-    if (zodIssue.message && fullPath.length > 0 && zodIssue.message !== 'Invalid input') {
+    if (zodIssue.message && zodIssue.message !== 'Invalid input') {
       const errorObj: ZodErrorCollected = {
         path: fullPath.join('.'),
         message: zodIssue.message,
@@ -93,19 +93,19 @@ export class ConfigService implements ConfigProvider {
     if (errors.length > 0) {
       // Format the first error in detail
       const [firstError] = errors;
-      let errorMessage = `${firstError.message} at ${firstError.path}`;
+      const location = firstError.path ? ` at ${firstError.path}` : '';
+      let errorMessage = `${firstError.message}${location}`;
 
       if (firstError.expected && firstError.received) {
         /* eslint-disable-next-line @typescript-eslint/restrict-template-expressions */
         errorMessage += ` (expected ${firstError.expected}, received ${firstError.received})`;
       }
 
-      // If there are more errors, mention them briefly
       if (errors.length > 1) {
-        const otherErrors = errors.slice(1, 4); // Show up to 3 more errors
+        const otherErrors = errors.slice(1, 4);
         const more = errors.length - 1 > otherErrors.length ? ` and ${errors.length - 1 - otherErrors.length} more` : '';
         const moreString = more ? `\n... ${more} errors not shown` : '';
-        const otherErrorMessages = otherErrors.map(e => `- ${e.path}: ${e.message}`).join('\n');
+        const otherErrorMessages = otherErrors.map(e => e.path ? `- ${e.path}: ${e.message}` : `- ${e.message}`).join('\n');
         errorMessage += `\nOther issues:\n${otherErrorMessages}${moreString}`;
       }
 
