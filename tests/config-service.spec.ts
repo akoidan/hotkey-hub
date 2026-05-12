@@ -5,8 +5,7 @@ import {ConfigService} from '../src/config/config-service';
 import {ConfigReaderService} from '../src/config/config-reader-service';
 import path from 'path';
 import {ConfigPathClass, ENV} from '../src/config/types/config-path';
-import {EvaluateService} from '../src/local/evaluate-serivce';
-import {SAVE_TIMEOUT} from "../src/config/config-model";
+import {SAVE_TIMEOUT} from '../src/config/config-model';
 
 const globalEnv = {};
 

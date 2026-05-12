@@ -97,7 +97,7 @@ const macroDefinitionVariableValueSchema = z.record(z.string(), z.any())
     if ('optional' in schema) {
       ctx.addIssue({
         code: 'custom',
-        message: '"optional" is not supported. Use "x-optional": true or add a "default" value.',
+        message: '"optional" is not supported. Use required: ["keyA", "keyB"]',
       });
       return;
     }
