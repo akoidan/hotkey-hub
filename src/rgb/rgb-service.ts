@@ -89,15 +89,12 @@ export class RgbService implements RgbServiceI {
 
   private getColor(keyState: KeyState): RgbColor {
     const {offLed, onLed, errorLed} = this.configService.getOpenRgb()!;
-    const map: Record<KeyState, string | RgbColor> = {
+    const map: Record<KeyState, string> = {
       [KeyState.OFF]: offLed!,
       [KeyState.ON]: onLed!,
       [KeyState.ERROR]: errorLed!,
     };
     const color = map[keyState];
-    if (typeof color !== 'string') {
-      return color;
-    }
     const hex = color.replace('#', '');
     return {
       red: parseInt(hex.slice(0, 2), 16),
