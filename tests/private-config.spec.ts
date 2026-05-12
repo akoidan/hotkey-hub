@@ -36,6 +36,12 @@ const globalEnv = {};
 const configDir = path.join(__dirname, '..', 'examples', 'config');
 const variablesFilePath = path.join(__dirname, '..', 'examples', 'variables-example.jsonc');
 
+// Mock setTimeout to speed up tests
+const originalSetTimeout = global.setTimeout;
+global.setTimeout = jest.fn((callback, delay) => {
+  return originalSetTimeout(callback, 1); // Always use 1ms delay
+}) as any;
+
 const rgbStub: RgbServiceI = new class {
   public updateColor(_comb: string, _hl: KeyState): void {}
   public async setup(): Promise<boolean> { return false; }
@@ -198,7 +204,7 @@ function readCombinations(filePath: string): Array<{name?: string; shortCut?: st
 
 const files = fs.existsSync(configDir) ? fs.readdirSync(configDir).filter(f => f.endsWith('.jsonc')) : [];
 
-describe.skip('Private config files', () => {
+describe('Private config files', () => {
   if (files.length === 0) {
     it.skip('no config files found', () => {});
   }
