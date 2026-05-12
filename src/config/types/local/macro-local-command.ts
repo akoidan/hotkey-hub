@@ -68,14 +68,22 @@ const macroCallLocalCommandSchema = z.object({
 
       if (command.variables?.[key] && !isVariable) {
         const variableValue: unknown = command.variables[key];
-        const hasIssue = !ajv.compile(schema)(variableValue);
-        if (hasIssue) {
+        let error : null|string = null;
+        try {
+          let valid = ajv.compile(schema)(variableValue);
+          if (!valid) {
+            error = 'Invalid value'
+          }
+        } catch (e: any) {
+          error = e.message ?? 'Invalid value'
+        }
+        if (error) {
           ctx.addIssue({
             code: 'custom',
             path: ['variables'],
             message: `Type mismatch for variable ${key}. ` +
               `Expected JSON Schema: ${JSON.stringify(schema)}, ` +
-              `got value: ${JSON.stringify(variableValue)}`,
+              `got value: ${JSON.stringify(variableValue)}. Error: ${error}`,
           });
         }
       }
