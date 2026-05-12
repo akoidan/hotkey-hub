@@ -30,8 +30,7 @@ import type {Shortcut} from '../src/config/types/shortcut';
 import {INativeModule, Native} from '../src/native/native-model';
 import {parse} from 'jsonc-parser';
 import path from 'path';
-import {access, readdir, readFile} from 'fs/promises';
-
+import fs from 'fs';
 
 const globalEnv = {};
 const configDir = path.join(__dirname, '..', 'examples', 'config');
@@ -198,45 +197,30 @@ async function getTestModule(configFilePath: string): Promise<TestingModule> {
   return testModule;
 }
 
-async function readCombinations(filePath: string): Promise<Array<{ name?: string; shortCut?: string }>> {
-  try {
-    const content = await readFile(filePath, 'utf-8');
-    const config = parse(content) as { combinations?: Array<{ name?: string; shortCut?: string }> };
-    return config?.combinations ?? [];
-  } catch {
-    return [];
-  }
-}
 
 
-async function directoryExists(path: string): Promise<boolean> {
-  try {
-    await access(path);
-    return true;
-  } catch {
-    return false;
-  }
+function readCombinations(filePath: string): Array<{name?: string; shortCut?: string}> {
+  const content = fs.readFileSync(filePath, 'utf-8');
+  const config = parse(content) as { combinations?: Array<{ name?: string; shortCut?: string }> };
+  return config?.combinations ?? [];
 }
+
+const files = fs.existsSync(configDir) ? fs.readdirSync(configDir).filter(f => f.endsWith('.jsonc')) : [];
 
 describe('Private config files', () => {
-
-  let files: string[] = [];
-
-  beforeAll(async () => {     // ? Async hook
-    files = await directoryExists(configDir) ?
-      (await readdir(configDir)).filter(f => f.endsWith('.jsonc')) : [];
-    if (files.length === 0) {
-      it.skip('no config files found', () => {
-      });
-    }
-  });
-
+  if (files.length === 0) {
+    /// loop on bot would not run and tests would fail w/o it
+    it.skip('no config files found', () => {void 0;});
+  }
 
   for (const file of files) {
-    describe(file, async () => {
-      const combinations = await readCombinations(path.join(configDir, file));
-      let testModule: TestingModule = await getTestModule(path.join(configDir, file));
-      await testModule.get<ConfigService>(ConfigService).parseConfig();
+    describe(file, (): void => {
+      let testModule: TestingModule;
+      beforeAll(async() => {
+        testModule = await getTestModule(path.join(configDir, file));
+        await testModule.get<ConfigService>(ConfigService).parseConfig();
+      })
+      const combinations = readCombinations(path.join(configDir, file));
 
       if (combinations.length === 0) {
         it.skip('no shortcuts', () => {});
