@@ -4,6 +4,7 @@ import {RandomService} from '@/random/random-service';
 import {ASYNC_PROVIDER} from '@/asyncstore/async-storage-const';
 import {AsyncLocalStorage} from 'async_hooks';
 import {SemaphorService} from '@/semaphor/semaphor-service';
+import {SET_TIMEOUT_TOKEN} from '@/local/local-model';
 
 @Injectable()
 export class DelayService {
@@ -13,6 +14,8 @@ export class DelayService {
     private readonly logger: Logger,
     @Inject(ASYNC_PROVIDER)
     private readonly asyncLocalStorage: AsyncLocalStorage<Map<string, any>>,
+    @Inject(SET_TIMEOUT_TOKEN)
+    private readonly setTimeoutLocal: typeof setTimeout,
   ) {
   }
 
@@ -46,7 +49,7 @@ export class DelayService {
     const combKey  = this.asyncLocalStorage.getStore()!.get(SemaphorService.COMB_KEY) as string;
     this.logger.debug(`Sleeping ${type} ${name} for ${combDelay}ms`);
     return new Promise<void>((resolve, reject) => {
-      const id = setTimeout(() => {
+      const id = this.setTimeoutLocal(() => {
         this.logger.verbose(`Sleep ${combDelay}ms done`);
         // eslint-disable-next-line @typescript-eslint/no-use-before-define
         controller.signal.removeEventListener('abort', abortHandler);

@@ -27,6 +27,7 @@ import {GetLocalHandler} from '@/local/get-local-handler';
 import {GetInfoModule} from '@/get-info/get-info-module';
 import {ExceptionLocalHandler} from '@/local/implementation/exception-local-handler';
 import {AsyncStorageModule} from '@/asyncstore/async-storage.module';
+import {SET_TIMEOUT_TOKEN} from '@/local/local-model';
 
 
 const localHandlers =[
@@ -80,6 +81,10 @@ const localProviders: Provider[] = [
     EvaluateService,
     CommandLocalHandler,
     ...localProviders,
+    {
+      provide: SET_TIMEOUT_TOKEN,
+      useValue: setTimeout,
+    },
   ],
   exports: [KeybindingService],
 })

@@ -30,6 +30,8 @@ import {INativeModule, Native} from '../src/native/native-model';
 import {parse} from 'jsonc-parser';
 import path from 'path';
 import fs from 'fs';
+import {BehaviourEnum, BehaviourObject} from '@/config/types/shortcut';
+import {SET_TIMEOUT_TOKEN} from '@/local/local-model';
 
 const globalEnv = {};
 const configDir = path.join(__dirname, '..', 'examples', 'config');
@@ -173,6 +175,9 @@ async function getTestModule(configFilePath: string): Promise<TestingModule> {
       VariableResolutionService,
       CommandLocalHandler,
       {provide: SAVE_TIMEOUT, useValue: -1},
+      {provide: SET_TIMEOUT_TOKEN, useValue: (cb: any, originTimeout: number) => {
+        setTimeout(cb, 1);
+      }},
       {provide: RgbService, useValue: rgbStub},
       {provide: Native, useValue: nativeStub},
       {provide: ClientService, useValue: clientMock},
@@ -208,6 +213,25 @@ function readCombinations(filePath: string): Array<{ name?: string; shortCut?: s
 // all described only accept sync code (no promise) and it(async () => {}) should be defined from top syncrhonously
 const files = fs.existsSync(configDir) ? fs.readdirSync(configDir).filter(f => f.endsWith('.jsonc')) : [];
 
+
+function hasCondition(obj: unknown, predicate: (obj: unknown) => boolean): boolean {
+  if (obj === null || typeof obj !== 'object') {
+    return false;
+  }
+
+  if (Array.isArray(obj)) {
+    return obj.some(item => hasCondition(item, predicate));
+  }
+
+  // Check current object for "loop": -1
+  if (predicate(obj)) {
+    return true;
+  }
+
+  // Recursively check all nested objects
+  return Object.values(obj).some(value => hasCondition(value, predicate));
+}
+
 describe('Private config files', () => {
   if (files.length === 0) {
     /// loop on bot would not run and tests would fail w/o it
@@ -233,16 +257,26 @@ describe('Private config files', () => {
         });
       }
       for (let i = 0; i < combinations.length; i++) {
-        console.log('it works 4')
         test.concurrent(`#${i} ${combinations[i].shortCut} => ${combinations[i].name}`, async () => {
-          console.log('it works 5')
           let testModule: TestingModule;
           testModule = await getTestModule(path.join(configDir, file));
           await testModule.get<ConfigService>(ConfigService).parseConfig();
           const service = testModule.get<ConfigService>(ConfigService);
           const shortcutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
-          const shortcut = service.getCombinations()[i];
-          await shortcutService.runShortcut(shortcut);
+          const shortcut = (service.getCombinations())[i];
+          if (hasCondition(shortcut, (obj: any) => ('loop' in obj && obj.loop === -1))) {
+            const isPausable = shortcut.behaviour === BehaviourEnum.pausable
+              || (shortcut?.behaviour as BehaviourObject)?.type === BehaviourEnum.pausable;
+            if (!isPausable) {
+              fail(`shortcut with infinitive loop is not pausable`);
+            };
+            setTimeout(async () => {
+              await shortcutService.runShortcut(shortcut);
+            }, 400);
+            await shortcutService.runShortcut(shortcut);
+          } else {
+            await shortcutService.runShortcut(shortcut);
+          }
         });
       }
     })
