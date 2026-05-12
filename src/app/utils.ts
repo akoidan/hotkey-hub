@@ -37,7 +37,7 @@ async function promtConfigIfMissing(appArgs: string[], logger: ConsoleLogger, re
       logger.warn(`Unable to parse variables file because of ${e?.message || e}`);
       return {...res, configProvided, variablesProvided};
     }
-    const varFileContent: Variables = parse(varFile) as Variables;
+    const varFileContent: Variables = (parse(varFile) as Variables ?? {});
     if (Array.isArray(varFileContent.configPath) && varFileContent.configPath.length > 1) {
       logger.log('--config-file option was not provided, adding select options');
       const response = await prompts({
