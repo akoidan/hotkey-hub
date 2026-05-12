@@ -228,16 +228,12 @@ describe('Private config files', () => {
       if (combinations.length === 0) {
         it.skip('no shortcuts', () => {});
       }
-      for (const combo of combinations) {
-        const label = [combo.shortCut, combo.name].filter(Boolean).join(': ');
-        test.concurrent(label, async () => {
-
+      for (let i = 0; i<combinations.length; i++) {
+        test.concurrent(`#${i} ${combinations[i].shortCut} => ${combinations[i].name}`, async () => {
           const service = testModule.get<ConfigService>(ConfigService);
           const shortcutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
-          const shortcut = service.getCombinations().find((s: Shortcut) => s.shortCut === combo.shortCut);
-          if (shortcut) {
-            await shortcutService.runShortcut(shortcut);
-          }
+          const shortcut = service.getCombinations()[i];
+          await shortcutService.runShortcut(shortcut);
         });
       }
     });
