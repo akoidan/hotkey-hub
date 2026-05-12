@@ -104,4 +104,10 @@ describe('Config service — JSON Schema variable validation', () => {
     await expect(service.parseConfig()).resolves.not.toThrow();
   });
 
+  it('Should accept macro call passing partial object where missing property has nested default', async () => {
+    const testModule = await getTestModule('macro-nested-default-var.jsonc');
+    const service = testModule.get<ConfigService>(ConfigService);
+    await expect(service.parseConfig()).resolves.not.toThrow();
+  });
+
 });

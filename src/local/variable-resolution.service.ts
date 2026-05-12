@@ -21,11 +21,8 @@ export class VariableResolutionService {
   }
 
   applySchemaDefaults(val: unknown, schema: JsonSchema): unknown {
-    // const validate = this.ajvDefaults.compile(schema);
     const cloned = structuredClone(val);
-    // if (!validate(cloned)) {
-    //   throw new Error('Unable to apply defaults to value ' + JSON.stringify(val) + ' with schema ' + JSON.stringify(schema));
-    // };
+    this.ajvDefaults.compile(schema)(cloned);
     return cloned;
   }
 

@@ -68,7 +68,7 @@ const macroCallLocalCommandSchema = z.object({
 
       if (command.variables?.[key] && !isVariable) {
         const variableValue: unknown = command.variables[key];
-        const hasIssue = ajv.compile(schema)(variableValue);
+        const hasIssue = !ajv.compile(schema)(variableValue);
         if (hasIssue) {
           ctx.addIssue({
             code: 'custom',

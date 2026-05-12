@@ -1,0 +1,42 @@
+{
+  "ips": {
+    "this": "127.0.0.1"
+  },
+  "macros": {
+    "withNestedDefault": {
+      "commands": [
+        {
+          "destination": "this",
+          "performOnRemote": "keyPress",
+          "variables": {
+            "key": "tab"
+          }
+        }
+      ],
+      "variables": {
+        "opts": {
+          "type": "object",
+          "properties": {
+            "key": { "type": "string" },
+            "delay": { "type": "number", "default": 100 }
+          }
+        }
+      }
+    }
+  },
+  "combinations": [
+    {
+      "name": "test",
+      "shortCut": "Alt+z",
+      "commands": [
+        {
+          "macro": "withNestedDefault",
+          // opts is passed without delay — delay should be filled from nested default at runtime
+          "variables": {
+            "opts": { "key": "tab" }
+          }
+        }
+      ]
+    }
+  ]
+}

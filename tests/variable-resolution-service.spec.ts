@@ -139,8 +139,9 @@ describe('Variable Service', () => {
       },
     }, {
       this: {
-        type: {
-          bd: 'string',
+        type: 'object',
+        properties: {
+          bd: {type: 'string'},
         },
       },
     }, []);
