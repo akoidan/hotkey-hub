@@ -218,14 +218,13 @@ describe('Private config files', () => {
 
   for (const file of files) {
     describe(file, (): void => {
-      let testModule: TestingModule;
 
-      console.log('work 1')
-      beforeAll(async () => {
-        console.log('work 2')
-        testModule = await getTestModule(path.join(configDir, file));
-        await testModule.get<ConfigService>(ConfigService).parseConfig();
-      })
+
+      // console.log('work 1')
+      // beforeAll(async () => {
+      //   console.log('work 2')
+      //
+      // })
 
 
       const combinations = readCombinations(path.join(configDir, file));
@@ -237,6 +236,9 @@ describe('Private config files', () => {
         console.log('it works 4')
         test.concurrent(`#${i} ${combinations[i].shortCut} => ${combinations[i].name}`, async () => {
           console.log('it works 5')
+          let testModule: TestingModule;
+          testModule = await getTestModule(path.join(configDir, file));
+          await testModule.get<ConfigService>(ConfigService).parseConfig();
           const service = testModule.get<ConfigService>(ConfigService);
           const shortcutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
           const shortcut = service.getCombinations()[i];
