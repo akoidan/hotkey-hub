@@ -26,7 +26,6 @@ import {SemaphorModule} from '../src/semaphor/semaphor.module';
 import {ConfigPathClass, ENV} from '../src/config/types/config-path';
 import {SAVE_TIMEOUT} from '../src/config/config-model';
 import type {KeyState, RgbServiceI} from '../src/rgb/rgb-model';
-import type {Shortcut} from '../src/config/types/shortcut';
 import {INativeModule, Native} from '../src/native/native-model';
 import {parse} from 'jsonc-parser';
 import path from 'path';
@@ -198,8 +197,7 @@ async function getTestModule(configFilePath: string): Promise<TestingModule> {
 }
 
 
-
-function readCombinations(filePath: string): Array<{name?: string; shortCut?: string}> {
+function readCombinations(filePath: string): Array<{ name?: string; shortCut?: string }> {
   const content = fs.readFileSync(filePath, 'utf-8');
   const config = parse(content) as { combinations?: Array<{ name?: string; shortCut?: string }> };
   return config?.combinations ?? [];
@@ -213,29 +211,38 @@ const files = fs.existsSync(configDir) ? fs.readdirSync(configDir).filter(f => f
 describe('Private config files', () => {
   if (files.length === 0) {
     /// loop on bot would not run and tests would fail w/o it
-    it.skip('no config files found', () => {void 0;});
+    it.skip('no config files found', () => {
+      void 0;
+    });
   }
 
   for (const file of files) {
     describe(file, (): void => {
       let testModule: TestingModule;
-      beforeAll(async() => {
+
+      console.log('work 1')
+      beforeAll(async () => {
+        console.log('work 2')
         testModule = await getTestModule(path.join(configDir, file));
         await testModule.get<ConfigService>(ConfigService).parseConfig();
       })
-      const combinations = readCombinations(path.join(configDir, file));
 
+
+      const combinations = readCombinations(path.join(configDir, file));
       if (combinations.length === 0) {
-        it.skip('no shortcuts', () => {});
+        it.skip('no shortcuts', () => {
+        });
       }
-      for (let i = 0; i<combinations.length; i++) {
+      for (let i = 0; i < combinations.length; i++) {
+        console.log('it works 4')
         test.concurrent(`#${i} ${combinations[i].shortCut} => ${combinations[i].name}`, async () => {
+          console.log('it works 5')
           const service = testModule.get<ConfigService>(ConfigService);
           const shortcutService = testModule.get<ShortcutProcessingService>(ShortcutProcessingService);
           const shortcut = service.getCombinations()[i];
           await shortcutService.runShortcut(shortcut);
         });
       }
-    });
+    })
   }
 });
