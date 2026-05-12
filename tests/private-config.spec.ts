@@ -37,11 +37,6 @@ const globalEnv = {};
 const configDir = path.join(__dirname, '..', 'examples', 'config');
 const variablesFilePath = path.join(__dirname, '..', 'examples', 'variables-example.jsonc');
 
-// Mock setTimeout to speed up tests
-const originalSetTimeout = global.setTimeout;
-global.setTimeout = jest.fn((callback, delay) => {
-  return originalSetTimeout(callback, 1); // Always use 1ms delay
-}) as any;
 
 const rgbStub: RgbServiceI = new class {
   public updateColor(_comb: string, _hl: KeyState): void {
@@ -176,7 +171,7 @@ async function getTestModule(configFilePath: string): Promise<TestingModule> {
       CommandLocalHandler,
       {provide: SAVE_TIMEOUT, useValue: -1},
       {provide: SET_TIMEOUT_TOKEN, useValue: (cb: any, originTimeout: number) => {
-        setTimeout(cb, 1);
+        setTimeout(cb, 0);
       }},
       {provide: RgbService, useValue: rgbStub},
       {provide: Native, useValue: nativeStub},
