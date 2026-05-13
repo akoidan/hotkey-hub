@@ -79,7 +79,7 @@ For .cc (c++) you can use CLion for syntaxt support and debugging. However Clion
 2. Add a new configuration.
 3. Toolchain: Use VisualStudio for Windows and gcc for Linux
 4. Generator: Select 
- - **ninja** generator for **Linux** and
+ - **ninja** generator for **Linux**
  - **Visual Studio 17 2020** generator for **Windows**
 5. Build directory: Select `build`
 6. CMake options: Add the following options (change the path to project path). It should be absolute path.
