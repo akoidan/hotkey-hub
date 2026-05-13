@@ -157,7 +157,7 @@ export class FetchClient {
       if ((statusCode as unknown as number) !== 204 && result) {
         try {
           return JSON.parse(result) as T;
-        } catch (error) {
+        } catch (error: any) {
           throw new Error(`Failed to parse ${result}`);
         }
       }

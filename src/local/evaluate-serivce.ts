@@ -16,6 +16,12 @@ export class EvaluateService {
   }
 
   public evaluateExpression(expr: Expression) {
+    if (expr === undefined) {
+      return undefined
+    }
+    if (typeof expr !== 'string') {
+      throw Error(`Cannot evaluate ${JSON.stringify(expr)}, it must be a string`);
+    }
     const variables = this.configService.getVariables();
     const reserved = new Set(['this', 'arguments', 'eval', 'function', 'return', 'var', 'let', 'const']);
 

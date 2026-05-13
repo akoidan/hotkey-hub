@@ -1,0 +1,35 @@
+{
+  "ips": {
+    "this": "127.0.0.1"
+  },
+  "macros": {
+    "requiresVar": {
+      "commands": [
+        {
+          "destination": "this",
+          "performOnRemote": "keyPress",
+          "variables": {
+            "key": { "$ref": "requiredKey" }
+          }
+        }
+      ],
+      "variables": {
+        "requiredKey": { "type": "string" }
+      },
+      "requiredVariables": ["requiredKey"]
+    }
+  },
+  "combinations": [
+    {
+      "name": "test",
+      "shortCut": "Alt+z",
+      "commands": [
+        {
+          // requiredKey is required (no x-optional, no default) but not passed at all
+          "macro": "requiresVar",
+          "variables": {}
+        }
+      ]
+    }
+  ]
+}

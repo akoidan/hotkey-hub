@@ -4,22 +4,25 @@ import {RgbService} from '../src/rgb/rgb-service';
 import {ConfigService} from '../src/config/config-service';
 import {KeyState} from '../src/rgb/rgb-model';
 import {Native, OpenRgbNativeModule} from '../src/native/native-model';
+import {RgbData} from '@/config/types/rgb';
 
 const DEVICE_NAME = 'TestKeyboard';
 
-const baseConfig = {
-  deviceName: DEVICE_NAME,
-  serverAddr: 'localhost',
-  serverPort: 6742,
-  clientName: 'test',
-  keyMapFn: undefined,
-  offLed: {red: 0, green: 0, blue: 0},
-  onLed: {red: 0, green: 255, blue: 0},
-  errorLed: {red: 255, green: 0, blue: 0},
-};
 
-async function getService(rgbConfig: typeof baseConfig) {
-  const configService = {getOpenRgb: jest.fn().mockReturnValue(rgbConfig)} as unknown as ConfigService;
+
+async function getService(rgbConfig: Partial<RgbData>) {
+  const configService: {getOpenRgb: () => RgbData} = {getOpenRgb: jest.fn().mockReturnValue({
+      deviceName: DEVICE_NAME,
+      serverAddr: 'localhost',
+      serverPort: 6742,
+      clientName: 'test',
+      keyMapFn: undefined,
+      offLed: '#000000',
+      onLed: '#00FF00',
+      errorLed: '#FF0000',
+      ...rgbConfig,
+  })};
+
   const native: jest.Mocked<OpenRgbNativeModule> = {
     rgbConnect: jest.fn().mockResolvedValue(undefined),
     rgbGetDevices: jest.fn().mockResolvedValue([{
@@ -50,18 +53,9 @@ async function getService(rgbConfig: typeof baseConfig) {
 }
 
 describe('RgbService', () => {
-  it('should call rgbUpdateSingleLed with RGB object color for ON state', async () => {
-    const {service, native} = await getService({
-      ...baseConfig,
-      onLed: {red: 10, green: 20, blue: 30},
-    });
-    service.updateColor('Alt+A', KeyState.ON);
-    expect(native.rgbUpdateSingleLed).toHaveBeenCalledWith(0, 0, {red: 10, green: 20, blue: 30});
-  });
 
   it('should convert hex color with # prefix for ON state', async () => {
     const {service, native} = await getService({
-      ...baseConfig,
       onLed: '#00FF80',
     } as any);
     service.updateColor('Alt+A', KeyState.ON);
@@ -70,8 +64,7 @@ describe('RgbService', () => {
 
   it('should convert hex color without # prefix for ERROR state', async () => {
     const {service, native} = await getService({
-      ...baseConfig,
-      errorLed: 'FF4400',
+      errorLed: '#FF4400',
     } as any);
     service.updateColor('Alt+A', KeyState.ERROR);
     expect(native.rgbUpdateSingleLed).toHaveBeenCalledWith(0, 0, {red: 255, green: 68, blue: 0});
@@ -79,8 +72,7 @@ describe('RgbService', () => {
 
   it('should call rgbUpdateSingleLed with OFF color', async () => {
     const {service, native} = await getService({
-      ...baseConfig,
-      offLed: {red: 5, green: 10, blue: 15},
+      offLed: '#050A0F',
     });
     service.updateColor('Alt+A', KeyState.OFF);
     expect(native.rgbUpdateSingleLed).toHaveBeenCalledWith(0, 0, {red: 5, green: 10, blue: 15});

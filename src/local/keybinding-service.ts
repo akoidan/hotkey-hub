@@ -59,7 +59,7 @@ export class KeybindingService {
       try {
         const name = this.registerShorCut(comb);
         allNewShortcuts.add(name);
-      } catch (e) {
+      } catch (e: any) {
         throw new Error(`Unable to register ${comb.shortCut} because ${e.message}`);
       }
     }

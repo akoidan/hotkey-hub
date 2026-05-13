@@ -1,0 +1,36 @@
+{
+  "ips": {
+    "this": "127.0.0.1"
+  },
+  "macros": {
+    "badSchema": {
+      "commands": [
+        {
+          "destination": "this",
+          "performOnRemote": "keyPress",
+          "variables": {
+            "key": { "$ref": "myVar" }
+          }
+        }
+      ],
+      "variables": {
+        // type2 is not a valid JSON Schema keyword — should be rejected by strict schema validation
+        "myVar": { "type2": "string" }
+      }
+    }
+  },
+  "combinations": [
+    {
+      "name": "test",
+      "shortCut": "Alt+z",
+      "commands": [
+        {
+          "macro": "badSchema",
+          "variables": {
+            "myVar": "f1"
+          }
+        }
+      ]
+    }
+  ]
+}

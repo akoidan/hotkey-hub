@@ -40,36 +40,40 @@ export class ConfigService implements ConfigProvider {
   private collectAllErrors(
     issue: ZodError | ZodIssue | ZodIssue[],
     errors: ZodErrorCollected[],
-    currentPath: (string | number)[] = []
+    contextPath: (string | number)[] = []
   ): void {
     if (Array.isArray(issue)) {
       for (const subIssue of issue) {
-        this.collectAllErrors(subIssue, errors, currentPath);
+        this.collectAllErrors(subIssue, errors, contextPath);
       }
-    } else if (issue instanceof ZodError) {
+      return;
+    }
+    if (issue instanceof ZodError) {
       for (const subIssue of issue.issues) {
-        this.collectAllErrors(subIssue, errors, currentPath);
+        this.collectAllErrors(subIssue, errors, contextPath);
       }
-    } else if ((issue as ZodIssue).code === 'invalid_union') {
-      const unionIssue = issue as ZodIssue & { errors: ZodError[] };
-      for (const unionError of unionIssue.errors) {
-        this.collectAllErrors(unionError, errors, currentPath);
-      }
+      return;
     }
     const zodIssue = issue as ZodIssue;
-    if (zodIssue.path) {
-      currentPath = [...(zodIssue.path as (string | number)[])];
+    if (zodIssue.code === 'invalid_union') {
+      const unionIssue = zodIssue as ZodIssue & { errors: ZodError[] };
+      const unionContextPath = [...contextPath, ...(unionIssue.path as (string | number)[])];
+      for (const unionError of unionIssue.errors) {
+        this.collectAllErrors(unionError, errors, unionContextPath);
+      }
+      return;
     }
-    this.extractIssue(issue as ZodIssue, errors);
+    this.extractIssue(zodIssue, errors, contextPath);
   }
 
-  private extractIssue(zodIssue: ZodIssue, errors: ZodErrorCollected[]): void {
-    if (zodIssue.message && zodIssue.path?.length > 0 && zodIssue.message !== 'Invalid input') {
+  private extractIssue(zodIssue: ZodIssue, errors: ZodErrorCollected[], contextPath: (string | number)[] = []): void {
+    const fullPath = [...contextPath, ...zodIssue.path];
+    if (zodIssue.message && zodIssue.message !== 'Invalid input') {
       const errorObj: ZodErrorCollected = {
-        path: zodIssue.path.join('.'),
+        path: fullPath.join('.'),
         message: zodIssue.message,
       };
-      if ((zodIssue as ZodIssue).code === 'invalid_type') {
+      if (zodIssue.code === 'invalid_type') {
         const typeIssue = zodIssue as ZodIssue & { expected?: string[], received?: string };
         if (typeIssue.expected) {
           errorObj.expected = typeIssue.expected;
@@ -89,19 +93,19 @@ export class ConfigService implements ConfigProvider {
     if (errors.length > 0) {
       // Format the first error in detail
       const [firstError] = errors;
-      let errorMessage = `${firstError.message} at ${firstError.path}`;
+      const location = firstError.path ? ` at ${firstError.path}` : '';
+      let errorMessage = `${firstError.message}${location}`;
 
       if (firstError.expected && firstError.received) {
         /* eslint-disable-next-line @typescript-eslint/restrict-template-expressions */
         errorMessage += ` (expected ${firstError.expected}, received ${firstError.received})`;
       }
 
-      // If there are more errors, mention them briefly
       if (errors.length > 1) {
-        const otherErrors = errors.slice(1, 4); // Show up to 3 more errors
+        const otherErrors = errors.slice(1, 4);
         const more = errors.length - 1 > otherErrors.length ? ` and ${errors.length - 1 - otherErrors.length} more` : '';
         const moreString = more ? `\n... ${more} errors not shown` : '';
-        const otherErrorMessages = otherErrors.map(e => `- ${e.path}: ${e.message}`).join('\n');
+        const otherErrorMessages = otherErrors.map(e => e.path ? `- ${e.path}: ${e.message}` : `- ${e.message}`).join('\n');
         errorMessage += `\nOther issues:\n${otherErrorMessages}${moreString}`;
       }
 
@@ -116,7 +120,7 @@ export class ConfigService implements ConfigProvider {
   private async validateWithErrorHandling<T>(schema: ZodSchema, data: any, context: string): Promise<T> {
     try {
       return await schema.parseAsync(data) as T;
-    } catch (error) {
+    } catch (error: any) {
       if (error instanceof ZodError) {
         throw new Error(`[${context}] ${this.formatZodError(error)}`, {
           cause: error,
@@ -228,7 +232,7 @@ export class ConfigService implements ConfigProvider {
       this.variablesSaveTimeoutId = null;
       try {
         await this.configReader.saveVariablesConfigString(this.variables);
-      } catch(e) {
+      } catch(e: any) {
         this.logger.error(`Unable to save variables because ${e?.message || e}`, e.stack);
       }
     }, this.saveTimeout); // I hope save to disk a file takes less than 1s,

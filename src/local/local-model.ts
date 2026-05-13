@@ -18,6 +18,8 @@ interface IterationDescription {
   controller: AbortController;
 }
 
+const SET_TIMEOUT_TOKEN = 'SET_TIMEOUT';
+
 export type {IterationThread, IterationDescription};
 
-export {ProcessStatus};
+export {ProcessStatus, SET_TIMEOUT_TOKEN};

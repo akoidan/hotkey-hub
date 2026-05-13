@@ -23,10 +23,10 @@ import {
   macroDefinitionSchema,
   type MacroList,
   type MacroLocalCommand,
-  macroLocalCommandSchema,
+  macroCallLocalCommandSchema,
   macrosListSchema,
-  macroVariablesDescriptionSchema,
-  macroVariableValueSchema,
+  macroDefinitionVariablesDescriptionSchema,
+  macroDefinitionVariableValueSchema,
 } from '@/config/types/local/macro-local-command';
 
 import {type ReloadConfigLocalCommand, reloadConfigLocalCommandSchema} from '@/config/types/local/relocal-config-local-command';
@@ -35,7 +35,7 @@ import {exceptionLocalCommandSchema} from '@/config/types/local/exception-local-
 // Define localCommandSchema as union of all local command schemas
 const localCommandSchema = z.lazy(
   () => z.union([
-    macroLocalCommandSchema,
+    macroCallLocalCommandSchema,
     expressionLocalCommandSchema,
     transactionLocalCommandSchema,
     threadsLocalCommandSchema,
@@ -66,8 +66,8 @@ export {
   reloadConfigLocalCommandSchema,
 
   // Other schemas
-  macroVariableValueSchema,
-  macroVariablesDescriptionSchema,
+  macroDefinitionVariableValueSchema,
+  macroDefinitionVariablesDescriptionSchema,
   macroDefinitionSchema,
   macrosListSchema,
   threadLocalSchema,

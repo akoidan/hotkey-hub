@@ -21,7 +21,7 @@ export class MacroLocalHandler extends BaseLocalHandler {
   }
 
   canHandle(command: UnknownCommand): command is MacroLocalCommand {
-    return Boolean((command as MacroLocalCommand).macro);
+    return 'macro' in (command as MacroLocalCommand);
   }
 
   public async execute(
@@ -30,8 +30,8 @@ export class MacroLocalHandler extends BaseLocalHandler {
     combDelayBefore: number | undefined,
     tId: string | undefined | null,
   ): Promise<void> {
-    const executable = this.configService.getMacros()[input.macro];
-    if (!executable) {
+    const macroDefinition = this.configService.getMacros()[input.macro];
+    if (!macroDefinition) {
       throw new Error(`Macro ${input.macro} not found.`);
     }
         await this.semaphoreService.spawnPromiseChild(
@@ -42,14 +42,16 @@ export class MacroLocalHandler extends BaseLocalHandler {
           // but would be await after any commands in this macro has run yet as expected, this is why on top we are not passing it
           await this.delayService.awaitDelay(input.delayBefore as number, undefined, 'before', 'macro');
         }
-        for (let i = 0; i < executable.commands.length; i++) {
+        for (let i = 0; i < macroDefinition.commands.length; i++) {
           await this.semaphoreService.spawnPromiseChild(
             `c=${String(i)}`,
             async() => {
               const preparedCommand = this.variableService.replaceMacroVariables(
-                executable.commands[i],
+                null,
+                macroDefinition.commands[i],
                 input.variables,
-                executable.variables
+                macroDefinition.variables,
+                macroDefinition.requiredVariables!,
               );
               const delayA = ((preparedCommand as Delay).delayAfter as number | undefined) ?? combDelayAfter;
               const delayB = ((preparedCommand as Delay).delayBefore as number | undefined) ?? combDelayBefore;

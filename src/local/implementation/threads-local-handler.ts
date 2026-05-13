@@ -14,7 +14,7 @@ export class ThreadsLocalHandler extends BaseLocalHandler {
   }
 
   canHandle(command: UnknownCommand): command is ThreadsLocalCommand {
-    return Boolean((command as ThreadsLocalCommand).threads);
+    return 'threads' in (command as ThreadsLocalCommand);
   }
 
   async execute(

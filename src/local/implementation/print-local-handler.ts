@@ -15,7 +15,7 @@ export class PrintLocalHandler extends BaseLocalHandler {
   }
 
   canHandle(command: UnknownCommand): command is PrintLocalCommand {
-    return Boolean((command as PrintLocalCommand).print);
+    return 'print' in command;
   }
 
   // eslint-disable-next-line @typescript-eslint/require-await

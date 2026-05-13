@@ -14,7 +14,7 @@ export class ExceptionLocalHandler extends BaseLocalHandler {
   }
 
   canHandle(command: UnknownCommand): command is ExceptionLocalCommand {
-    return (command as ExceptionLocalCommand).try !== undefined;
+    return 'try' in command;
   }
 
   async execute(
@@ -30,7 +30,7 @@ export class ExceptionLocalHandler extends BaseLocalHandler {
           await this.startChain.handle(cmd.try[i], undefined, undefined, tId);
         });
       }
-    } catch (e) {
+    } catch (e: any) {
       this.logger.error(`Try block failed with error ${e.message || e}`, (e as Error).stack);
       if (cmd.catch) {
         this.logger.debug('Spawing catch block ');

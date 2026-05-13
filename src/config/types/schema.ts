@@ -49,8 +49,8 @@ import {
   loopLocalCommandSchema,
   macroDefinitionSchema,
   macrosListSchema,
-  macroVariablesDescriptionSchema,
-  macroVariableValueSchema,
+  macroDefinitionVariablesDescriptionSchema,
+  macroDefinitionVariableValueSchema,
   printLocalCommandSchema,
   reloadConfigLocalCommandSchema,
   shuffleLocalCommandSchema,
@@ -83,10 +83,8 @@ import {
 } from '@/config/types/get-commands/get-process-commands-schema';
 import {getInfoCommandSchema, pingCommandSchema} from '@/config/types/get-commands/get-commands';
 import {
-  macroArrayVariableTypeSchema, macroLocalCommandSchema, macroLocalCommandVariablesSchema,
-  macroObjectVariableTypeSchema,
-  macroPrimitiveVariableTypeSchema,
-  macroVariableTypeSchema,
+  macroCallLocalCommandSchema,
+  macroCallLocalCommandVariablesSchema,
 } from '@/config/types/local/macro-local-command';
 import {
   configSchema,
@@ -94,10 +92,6 @@ import {
 } from '@/config/types/root';
 import {
   rgbSchema,
-  rgbColorOffSchema,
-  rgbColorOnSchema,
-  rgbColorErrorSchema,
-  hexColorSchema,
 } from '@/config/types/rgb';
 import {exceptionLocalCommandSchema} from '@/config/types/local/exception-local-command';
 
@@ -107,23 +101,15 @@ import {exceptionLocalCommandSchema} from '@/config/types/local/exception-local-
 
 export {
   rgbSchema,
-  hexColorSchema,
-  rgbColorOffSchema,
-  rgbColorOnSchema,
-  rgbColorErrorSchema,
   exceptionLocalCommandSchema,
   shortcutsSchema,
   keyboardLayoutValueSchema,
-  macroLocalCommandVariablesSchema,
+  macroCallLocalCommandVariablesSchema,
   keyboardLayoutCommandVariableSchema,
   getWindowCommandSchema,
   mouseClickRemoteCommandVariablesSchema,
   mouseClickRemoteCommandSchema,
   setKeyboardLayoutRemoteCommandSchema,
-  macroPrimitiveVariableTypeSchema,
-  macroArrayVariableTypeSchema,
-  macroObjectVariableTypeSchema,
-  macroVariableTypeSchema,
   getWindowsIdByMutliplePidsCommandSchema,
   getWindowsIdByMultiplePidsCommandVariablesSchema,
   getWindowsIdByPidCommandVariablesSchema,
@@ -160,7 +146,7 @@ export {
   shortcutSchema,
   loopLocalCommandSchema,
   variablesSchema,
-  macroVariableValueSchema,
+  macroDefinitionVariableValueSchema,
   keyPressRemoteCommandSchema,
   leftMouseClickRemoteCommandSchema,
   mouseMoveClickRemoteCommandSchema,
@@ -173,14 +159,14 @@ export {
   remoteCommandSchema,
   keySchema,
   threadsLocalCommandSchema,
-  macroLocalCommandSchema,
+  macroCallLocalCommandSchema,
   unknownCommandSchema,
   mouseMoveRemoteCommandSchema,
   setWindowBoundsRemoteCommandSchema,
   expressionLocalCommandSchema,
   threadLocalSchema,
   transactionLocalCommandSchema,
-  macroVariablesDescriptionSchema,
+  macroDefinitionVariablesDescriptionSchema,
   macroDefinitionSchema,
   macrosListSchema,
   reloadConfigLocalCommandSchema,

@@ -30,7 +30,7 @@ export class CertService {
     try {
       this.logger.debug(`Checking if certificates files exists ${JSON.stringify(fileList)}`);
       await Promise.all(fileList.map(async(file) => access(file)));
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(`Cannot find/load certificate files ${JSON.stringify(fileList)}`);
       throw error;
     }

@@ -18,7 +18,7 @@ export class GetLocalHandler extends BaseLocalHandler {
   }
 
   canHandle(command: GetInfoRemoteCommand): command is GetInfoRemoteCommand {
-    return Boolean(command.get);
+    return 'get' in (command as GetInfoRemoteCommand);
   }
 
   public async execute(input: GetInfoRemoteCommand): Promise<void> {
