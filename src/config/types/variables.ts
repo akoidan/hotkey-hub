@@ -2,7 +2,10 @@ import {z, type ZodObject, type ZodTypeAny} from 'zod';
 import {type DelayData, globalDelaySchema} from '@/config/types/delays';
 
 
-const variablesSchema = z.object({delay: globalDelaySchema.optional()}).catchall(z.any())
+const variablesSchema = z.object({delay: globalDelaySchema.optional()})
+  .catchall(z.any())
+  .optional()
+  .default({})
   .describe('Variable definitions for configuration.' +
     ' Values can be any type (numeric strings auto-convert to integers). Use {$ref: "varName"} to reference.');
 
