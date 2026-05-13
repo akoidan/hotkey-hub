@@ -1,13 +1,15 @@
 import {z, type ZodObject, type ZodTypeAny} from 'zod';
-import type {DelayData} from '@/config/types/delays';
+import {type DelayData, globalDelaySchema} from '@/config/types/delays';
 
-const variablesSchema = z.record(z.string(), z.any())
+
+const variablesSchema = z.object({delay: globalDelaySchema.optional()}).catchall(z.any())
   .describe('Variable definitions for configuration.' +
     ' Values can be any type (numeric strings auto-convert to integers). Use {$ref: "varName"} to reference.');
 
 const variableRegex = /^(?<variable>[a-zA-Z_$][\w$]*)(?:\[[^\]]+\]|\.[a-zA-Z_$][\w$]*)*$/u;
 
 /* eslint-disable */
+
 // horrible code ;(
 function unpack(inner: any, options: any) {
   if (inner.description) {
@@ -25,7 +27,7 @@ function unpack(inner: any, options: any) {
     options.union = true;
     return inner;
   }
-  if (inner.type == 'number' || inner.type == 'string'|| inner.type == 'boolean' || inner.type == 'array' || inner.type == 'object' || inner.type == 'enum') {
+  if (inner.type == 'number' || inner.type == 'string' || inner.type == 'boolean' || inner.type == 'array' || inner.type == 'object' || inner.type == 'enum') {
     return inner;
   }
   throw new Error('Unknown type: ' + inner.type);
@@ -55,6 +57,7 @@ function makeVariableUnion(schema: ZodObject<Record<string, ZodTypeAny>>): ZodOb
   /* eslint-enable */
   return z.object(newShape).strict();
 }
+
 /* eslint-enable */
 
 const variableValueSchema = z.object({
@@ -66,7 +69,7 @@ const variableValueSchema = z.object({
     '2. A matching environment variable\n' +
     '3. A variable created during execution (e.g., from assignId or expression commands)');
 
-type Variables =  {delays: DelayData, configPath: string[]} & z.infer<typeof variablesSchema>;
+type Variables = { delays: DelayData, configPath: string[] } & z.infer<typeof variablesSchema>;
 type VariableValue = z.infer<typeof variableValueSchema>
 
 export {variablesSchema, variableValueSchema, variableRegex, makeVariableUnion};

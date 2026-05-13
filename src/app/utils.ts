@@ -33,8 +33,11 @@ async function promtConfigIfMissing(appArgs: string[], logger: ConsoleLogger, re
     let varFile: string;
     try {
       varFile = await fs.readFile(res.variablesFile, 'utf8');
+      if (varFile === '') {
+        throw Error('its empty');
+      }
     } catch (e: any) {
-      logger.warn(`Unable to parse variables file because of ${e?.message || e}`);
+      logger.warn(`Unable to parse variables file because ${e?.message || e}`);
       return {...res, configProvided, variablesProvided};
     }
     const varFileContent: Variables = (parse(varFile) as Variables ?? {});

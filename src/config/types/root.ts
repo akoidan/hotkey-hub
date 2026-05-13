@@ -3,6 +3,7 @@ import {macrosListSchema} from '@/config/types/local/macro-local-command';
 import {globalDelaySchema} from '@/config/types/delays';
 import {shortcutsSchema} from '@/config/types/shortcut';
 import {rgbSchema} from '@/config/types/rgb';
+import {variablesSchema} from '@/config/types/variables';
 
 const ipsSchema = z.record(z.string(), z.string())
   .describe('Maps PC names to IP addresses or host names. If port is omited default is used' +
@@ -19,11 +20,11 @@ const configSchema = z.object({
       .describe('HTTPS port for secure client PC connections. ' +
           'Must be accessible and not blocked by firewalls. Default is 5000 if not specified.'),
   rgb: rgbSchema,
+  variables: variablesSchema,
   name: z.string()
       .optional()
       .describe('Name of this schema to print in logs'),
   combinations: shortcutsSchema,
-  delays: globalDelaySchema,
   macros: macrosListSchema,
 }).strict()
     .describe('Root configuration schema that defines the entire setup including remote PCs, shortcuts, RGB settings, and macros. ' +
