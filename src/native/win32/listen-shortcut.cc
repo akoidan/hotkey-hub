@@ -172,7 +172,9 @@ void printerThread() {
     UnregisterHotKey(hwnd, pair.first);
   }
   DestroyWindow(hwnd);
-  UnregisterClassW(CLASS_NAME, GetModuleHandle(NULL));
+  if (!UnregisterClassW(CLASS_NAME, GetModuleHandle(NULL))) {
+    LOG_THREAD("UnregisterClassW failed. Error: " << GetLastError());
+  }
   gHwnd = NULL;
 }
 

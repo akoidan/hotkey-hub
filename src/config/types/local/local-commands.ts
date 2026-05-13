@@ -46,7 +46,7 @@ const localCommandSchema = z.lazy(
     printLocalCommandSchema,
     reloadConfigLocalCommandSchema,
   ])
-).describe('A local command that would be executed on this machine');
+).describe('Allows to control flow (if/loops/thread) for other commands');
 
 // Define unknownCommandSchema as union of remote, get-info, and local
 
