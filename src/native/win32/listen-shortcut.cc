@@ -29,7 +29,6 @@ struct RegistrationRequest {
   bool pending = true;
   bool success = false;
   int hotkeyId = -1;
-  std::string errorMessage; // Added field for error message
 };
 
 static std::thread *gPrinterThread = nullptr;
@@ -37,7 +36,7 @@ static std::atomic<bool> gThreadRunning{false};
 static std::atomic<int> gNextHotkeyId{1};
 static std::map<int, Napi::ThreadSafeFunction> gCallbacks;
 static HWND gHwnd = NULL;
-static std::string gInitError;
+static std::string gLastError;
 
 // Synchronization
 static std::mutex gMutex;
@@ -73,8 +72,8 @@ void printerThread() {
 
   if (!RegisterClassW(&wc)) {
     DWORD error = GetLastError();
-    gInitError = "Failed to register window class. Error code: " + std::to_string(error);
-    LOG_ERROR(gInitError);
+    gLastError = "Failed to register window class. Error code: " + std::to_string(error);
+    LOG_ERROR(gLastError);
     return;
   }
 
@@ -93,8 +92,8 @@ void printerThread() {
 
   if (hwnd == NULL) {
     DWORD error = GetLastError();
-    gInitError = "Failed to create window. Error code: " + std::to_string(error);
-    LOG_ERROR(gInitError);
+    gLastError = "Failed to create window. Error code: " + std::to_string(error);
+    LOG_ERROR(gLastError);
     return;
   }
 
@@ -134,12 +133,11 @@ void printerThread() {
           if (!success) {
             DWORD error = GetLastError();
             if (error == ERROR_HOTKEY_ALREADY_REGISTERED) {
-              gCurrentRequest->errorMessage = "Hotkey is already registered by another application";
+              gLastError = "Hotkey is already registered by another application";
             } else {
-              gCurrentRequest->errorMessage =
-                  "Failed to register hotkey. Error code: " + std::to_string(error);
+              gLastError = "Failed to register hotkey. Error code: " + std::to_string(error);
             }
-            LOG_ERROR(gCurrentRequest->errorMessage);
+            LOG_ERROR(gLastError);
           } else {
             LOG_THREAD("Hotkey " << hotkeyId << " registered successfully");
             gCallbacks[hotkeyId] = std::move(gCurrentRequest->callback);
@@ -151,9 +149,8 @@ void printerThread() {
           success = UnregisterHotKey(hwnd, hotkeyId);
           if (!success) {
             DWORD error = GetLastError();
-            gCurrentRequest->errorMessage =
-                "Failed to unregister hotkey. Error code: " + std::to_string(error);
-            LOG_ERROR(gCurrentRequest->errorMessage);
+            gLastError = "Failed to unregister hotkey. Error code: " + std::to_string(error);
+            LOG_ERROR(gLastError);
           } else {
             LOG_THREAD("Successfully unregistered hotkey " << hotkeyId);
           }
@@ -226,7 +223,7 @@ Napi::Value registerHotkey(const Napi::CallbackInfo &info) {
   while (!gHwnd) {
     waiter++;
     if (waiter >= 300) {
-      throw Napi::TypeError::New(env, gInitError.empty() ? "Failed to create hotkey capturing window for over 3 seconds" : gInitError);
+      throw Napi::TypeError::New(env, gLastError.empty() ? "Failed to create hotkey capturing window for over 3 seconds" : gLastError);
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
@@ -276,7 +273,7 @@ Napi::Value registerHotkey(const Napi::CallbackInfo &info) {
   // Return result
   if (!request.success) {
     request.callback.Release();
-    throw Napi::Error::New(env, request.errorMessage.empty() ? "Failed to register hotkey" : request.errorMessage);
+    throw Napi::Error::New(env, gLastError.empty() ? "Failed to register hotkey" : gLastError);
   }
 
   return Napi::Number::New(env, request.hotkeyId);
