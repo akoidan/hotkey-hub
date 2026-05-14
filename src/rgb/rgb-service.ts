@@ -127,9 +127,9 @@ export class RgbService implements RgbServiceI {
     if (state === ConnectionState.CONNECTING) {
       this.logger.error('Lost connection to openRGB');
     } else if (state === ConnectionState.CONNECTED) {
-      this.logger.debug('Connected to OpenRGB');
+      this.logger.log('Connected to OpenRGB');
     } else if (this.state === ConnectionState.NOT_AVAILABLE) {
-      this.logger.debug('Stopping openRGB service');
+      this.logger.log('Stopping openRGB service');
     }
     this.privateState = state;
   }
