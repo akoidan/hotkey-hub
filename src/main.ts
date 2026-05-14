@@ -6,7 +6,7 @@ import {asyncLocalStorage} from '@/asyncstore/async-storage-value';
 import {SemaphorService} from '@/semaphor/semaphor-service';
 import type {AppConfig, ReloadRequest} from '@/app/app-model';
 import {isPortOpen, parseArgs, postLocalhost} from '@/app/utils';
-import type {LogLevel} from '@nestjs/common';
+import type {INestApplication, LogLevel} from '@nestjs/common';
 import clc from 'cli-color';
 
 asyncLocalStorage.run(

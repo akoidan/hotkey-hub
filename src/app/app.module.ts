@@ -1,4 +1,4 @@
-import {DynamicModule, Logger, Module, OnModuleInit} from '@nestjs/common';
+import {DynamicModule, Logger, Module, OnModuleDestroy, OnModuleInit} from '@nestjs/common';
 import {ConfigModule} from '@/config/config-module';
 import {ClientModule} from '@/client/client-module';
 import {LocalModule} from '@/local/local.module';
@@ -15,10 +15,14 @@ import {NativeModule} from '@/native/native-module';
   controllers: [AppController],
   exports: [],
 })
-export class AppModule implements OnModuleInit {
+export class AppModule implements OnModuleInit, OnModuleDestroy {
   constructor(
     private readonly appService: StartService,
   ) {
+  }
+
+  async onModuleDestroy(): Promise<void> {
+    await this.appService.destroy();
   }
 
   async onModuleInit(): Promise<void> {

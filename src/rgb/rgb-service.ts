@@ -49,6 +49,9 @@ export class RgbService implements RgbServiceI {
 
   // eslint-disable-next-line max-statements
   public async setup(): Promise<boolean> {
+    if (this.state === ConnectionState.NOT_AVAILABLE) {
+      return false;
+    }
     const rgb = this.configService.getOpenRgb();
     if (!rgb) {
       this.state = ConnectionState.NOT_AVAILABLE;
@@ -85,6 +88,11 @@ export class RgbService implements RgbServiceI {
       setTimeout(() => void this.setup(), this.RECONNECT_TIMEOUT);
       return false;
     }
+  }
+
+  teardown(): void {
+    this.state = ConnectionState.NOT_AVAILABLE;
+    this.native.rgbDisconnect();
   }
 
   private getColor(keyState: KeyState): RgbColor {

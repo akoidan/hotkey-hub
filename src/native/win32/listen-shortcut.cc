@@ -102,8 +102,7 @@ void printerThread() {
 
   // Message loop with registration handling
   MSG msg = {};
-  while (gThreadRunning) {
-    // Wait for registration request or messages
+  while (gThreadRunning) { // Wait for registration request or messages
     {
       std::unique_lock<std::mutex> lock(gMutex);
       while (!gCurrentRequest && gThreadRunning) {

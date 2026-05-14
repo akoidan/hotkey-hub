@@ -52,6 +52,12 @@ export class KeybindingService {
     throw new Error(`Unsupported client version ${clientVersion}, expected ${major}.x.x`);
   }
 
+  async unregisterShortcuts(): Promise<void> {
+    for (const key in this.callbacks) {
+      this.native.unregisterHotkey(this.callbacks[key].id);
+    };
+  }
+
   async registerShortcuts(): Promise<void> {
     await this.pingClients();
     const allNewShortcuts = new Set<string>();

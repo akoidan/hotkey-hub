@@ -1,4 +1,4 @@
-import {Logger, Module, OnModuleInit} from '@nestjs/common';
+import {Logger, Module, OnModuleDestroy, OnModuleInit} from '@nestjs/common';
 import {ConfigModule} from '@/config/config-module';
 import {RgbService} from '@/rgb/rgb-service';
 import {NativeModule} from '@/native/native-module';
@@ -11,7 +11,7 @@ import {NativeModule} from '@/native/native-module';
   ],
   exports: [RgbService],
 })
-export class RgbModule implements OnModuleInit {
+export class RgbModule implements OnModuleInit, OnModuleDestroy {
   constructor(
     private readonly logger: Logger,
     private readonly rgbService: RgbService,
@@ -21,5 +21,9 @@ export class RgbModule implements OnModuleInit {
   public onModuleInit(): void {
     // this should not throw, and process asyncrhoously
     void this.rgbService.setup();
+  }
+
+  public onModuleDestroy(): void {
+    this.rgbService.teardown();
   }
 }
