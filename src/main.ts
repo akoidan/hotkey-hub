@@ -47,13 +47,13 @@ asyncLocalStorage.run(
       } else {
         logger.log(`Started hotkey-hub ${clc.bold.green(packageJson)} initilaziation`);
         const app = await NestFactory.create(AppModule.forRoot(args), {logger});
-        logger.log(`Starting hotkey-hub daemon api at port ${args.apiPort}`);
         try {
           await app.init(); // app Init creates http context and other trash
           // which we dont need. BUT it allows app.close() and shutdownhooks
           // createAppContext doesn't call onDestoy if startup fails.
           // thus leaves hanging resources like rgbsocket opened or hotkey shorcuts being listened
           if (args.apiServer) {
+            logger.log(`Starting hotkey-hub daemon api at port ${args.apiPort}`);
             await app.listen(args.apiPort, '127.0.0.1');
           }
         } catch (e: any) {
