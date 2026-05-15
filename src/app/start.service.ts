@@ -19,9 +19,9 @@ export class StartService {
   ) {
   }
 
-  async destroy(): Promise<void> {
+  destroy(): void {
     this.logger.debug('Destroying app...');
-    await this.keybindingService.unregisterShortcuts();
+    this.keybindingService.unregisterShortcuts();
     this.native.setWindowTitle('Hotkey-hub');
   }
 

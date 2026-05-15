@@ -21,8 +21,8 @@ export class AppModule implements OnModuleInit, OnModuleDestroy {
   ) {
   }
 
-  async onModuleDestroy(): Promise<void> {
-    await this.appService.destroy();
+  onModuleDestroy(): void {
+    this.appService.destroy();
   }
 
   async onModuleInit(): Promise<void> {
