@@ -72,9 +72,14 @@ void printerThread() {
 
   if (!RegisterClassW(&wc)) {
     DWORD error = GetLastError();
-    gLastError = "Failed to register window class. Error code: " + std::to_string(error);
-    LOG_ERROR(gLastError);
-    return;
+    if (error != ERROR_CLASS_ALREADY_EXISTS) {
+      gLastError = "Failed to register window class. Error code: " + std::to_string(error);
+      LOG_ERROR(gLastError);
+      gThreadRunning = false;
+      return;
+    }
+    // Class left over from a previous run that didn't unregister cleanly — reuse it.
+    LOG_THREAD("Window class already registered, reusing existing registration");
   }
 
   // Create hidden window
@@ -94,6 +99,7 @@ void printerThread() {
     DWORD error = GetLastError();
     gLastError = "Failed to create window. Error code: " + std::to_string(error);
     LOG_ERROR(gLastError);
+    gThreadRunning = false;
     return;
   }
 
@@ -214,12 +220,20 @@ Napi::Value registerHotkey(const Napi::CallbackInfo &info) {
   }
 
   if (!gThreadRunning) {
+    if (gPrinterThread) {
+      gPrinterThread->join();
+      delete gPrinterThread;
+      gPrinterThread = nullptr;
+    }
     gThreadRunning = true;
     gPrinterThread = new std::thread(printerThread);
   }
 
   int waiter = 0;
   while (!gHwnd) {
+    if (!gThreadRunning) {
+      throw Napi::TypeError::New(env, gLastError.empty() ? "Failed to start hotkey thread" : gLastError);
+    }
     waiter++;
     if (waiter >= 300) {
       throw Napi::TypeError::New(env, gLastError.empty() ? "Failed to create hotkey capturing window for over 3 seconds" : gLastError);
