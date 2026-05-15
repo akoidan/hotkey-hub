@@ -29,7 +29,6 @@ struct RegistrationRequest {
   bool pending = true;
   bool success = false;
   int hotkeyId = -1;
-  std::string errorMessage; // Added field for error message
 };
 
 static std::thread *gPrinterThread = nullptr;
@@ -37,6 +36,7 @@ static std::atomic<bool> gThreadRunning{false};
 static std::atomic<int> gNextHotkeyId{1};
 static std::map<int, Napi::ThreadSafeFunction> gCallbacks;
 static HWND gHwnd = NULL;
+static std::string gLastError;
 
 // Synchronization
 static std::mutex gMutex;
@@ -71,8 +71,15 @@ void printerThread() {
   wc.lpszClassName = CLASS_NAME;
 
   if (!RegisterClassW(&wc)) {
-    LOG_THREAD("Failed to register window class. Error: " << GetLastError());
-    return;
+    DWORD error = GetLastError();
+    if (error != ERROR_CLASS_ALREADY_EXISTS) {
+      gLastError = "Failed to register window class. Error code: " + std::to_string(error);
+      LOG_ERROR(gLastError);
+      gThreadRunning = false;
+      return;
+    }
+    // Class left over from a previous run that didn't unregister cleanly — reuse it.
+    LOG_THREAD("Window class already registered, reusing existing registration");
   }
 
   // Create hidden window
@@ -89,7 +96,10 @@ void printerThread() {
   );
 
   if (hwnd == NULL) {
-    LOG_THREAD("Failed to create window. Error: " << GetLastError());
+    DWORD error = GetLastError();
+    gLastError = "Failed to create window. Error code: " + std::to_string(error);
+    LOG_ERROR(gLastError);
+    gThreadRunning = false;
     return;
   }
 
@@ -98,8 +108,7 @@ void printerThread() {
 
   // Message loop with registration handling
   MSG msg = {};
-  while (gThreadRunning) {
-    // Wait for registration request or messages
+  while (gThreadRunning) { // Wait for registration request or messages
     {
       std::unique_lock<std::mutex> lock(gMutex);
       while (!gCurrentRequest && gThreadRunning) {
@@ -129,12 +138,11 @@ void printerThread() {
           if (!success) {
             DWORD error = GetLastError();
             if (error == ERROR_HOTKEY_ALREADY_REGISTERED) {
-              gCurrentRequest->errorMessage = "Hotkey is already registered by another application";
+              gLastError = "Hotkey is already registered by another application";
             } else {
-              gCurrentRequest->errorMessage =
-                  "Failed to register hotkey. Error code: " + std::to_string(error);
+              gLastError = "Failed to register hotkey. Error code: " + std::to_string(error);
             }
-            LOG_THREAD(gCurrentRequest->errorMessage);
+            LOG_ERROR(gLastError);
           } else {
             LOG_THREAD("Hotkey " << hotkeyId << " registered successfully");
             gCallbacks[hotkeyId] = std::move(gCurrentRequest->callback);
@@ -146,9 +154,8 @@ void printerThread() {
           success = UnregisterHotKey(hwnd, hotkeyId);
           if (!success) {
             DWORD error = GetLastError();
-            gCurrentRequest->errorMessage =
-                "Failed to unregister hotkey. Error code: " + std::to_string(error);
-            LOG_THREAD(gCurrentRequest->errorMessage);
+            gLastError = "Failed to unregister hotkey. Error code: " + std::to_string(error);
+            LOG_ERROR(gLastError);
           } else {
             LOG_THREAD("Successfully unregistered hotkey " << hotkeyId);
           }
@@ -172,7 +179,9 @@ void printerThread() {
     UnregisterHotKey(hwnd, pair.first);
   }
   DestroyWindow(hwnd);
-  UnregisterClassW(CLASS_NAME, GetModuleHandle(NULL));
+  if (!UnregisterClassW(CLASS_NAME, GetModuleHandle(NULL))) {
+    LOG_ERROR("UnregisterClassW failed. Error: " << GetLastError());
+  }
   gHwnd = NULL;
 }
 
@@ -211,15 +220,23 @@ Napi::Value registerHotkey(const Napi::CallbackInfo &info) {
   }
 
   if (!gThreadRunning) {
+    if (gPrinterThread) {
+      gPrinterThread->join();
+      delete gPrinterThread;
+      gPrinterThread = nullptr;
+    }
     gThreadRunning = true;
     gPrinterThread = new std::thread(printerThread);
   }
 
   int waiter = 0;
   while (!gHwnd) {
+    if (!gThreadRunning) {
+      throw Napi::TypeError::New(env, gLastError.empty() ? "Failed to start hotkey thread" : gLastError);
+    }
     waiter++;
     if (waiter >= 300) {
-       throw Napi::TypeError::New(env, "Failed to create hotkey capturing window for over 3seconds");
+      throw Napi::TypeError::New(env, gLastError.empty() ? "Failed to create hotkey capturing window for over 3 seconds" : gLastError);
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
@@ -269,7 +286,7 @@ Napi::Value registerHotkey(const Napi::CallbackInfo &info) {
   // Return result
   if (!request.success) {
     request.callback.Release();
-    throw Napi::Error::New(env, request.errorMessage.empty() ? "Failed to register hotkey" : request.errorMessage);
+    throw Napi::Error::New(env, gLastError.empty() ? "Failed to register hotkey" : gLastError);
   }
 
   return Napi::Number::New(env, request.hotkeyId);

@@ -5,7 +5,6 @@ interface ShortcutDescription {
   shortcut: Shortcut;
 }
 
-
 interface ReloadRequest {
   configFile?: string;
   variablesFile?: string;

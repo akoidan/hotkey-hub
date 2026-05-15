@@ -52,6 +52,13 @@ export class KeybindingService {
     throw new Error(`Unsupported client version ${clientVersion}, expected ${major}.x.x`);
   }
 
+  unregisterShortcuts(): void {
+    // eslint-disable-next-line guard-for-in
+    for (const key in this.callbacks) {
+      this.native.unregisterHotkey(this.callbacks[key].id);
+    };
+  }
+
   async registerShortcuts(): Promise<void> {
     await this.pingClients();
     const allNewShortcuts = new Set<string>();

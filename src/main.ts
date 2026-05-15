@@ -42,21 +42,24 @@ asyncLocalStorage.run(
         throw Error(`Hotkey is already running at port ${args.apiPort}`);
       }
 
-      if (args.apiServer) {
-        logger.log(`Started hotkey-hub ${clc.bold.green(packageJson)} initilaziation`);
-        const app = await NestFactory.create(AppModule.forRoot(args), {logger});
-        logger.log(`Starting hotkey-hub daemon api at port ${args.apiPort}`);
-        try {
-          await app.listen(args.apiPort, '127.0.0.1');
-        } catch (err) {
-          await app.close();
-          throw err;
-        }
-      } else if (portOpen) {
+      if (portOpen) {
         await sendCommandToPort(args);
       } else {
-        logger.log(`Started hotkey-hub v${clc.bold.green(packageJson)} initilaziation`);
-        await NestFactory.createApplicationContext(AppModule.forRoot(args), {logger});
+        logger.log(`Started hotkey-hub ${clc.bold.green(packageJson)} initilaziation`);
+        const app = await NestFactory.create(AppModule.forRoot(args), {logger});
+        try {
+          await app.init(); // app Init creates http context and other trash
+          // which we dont need. BUT it allows app.close() and shutdownhooks
+          // createAppContext doesn't call onDestoy if startup fails.
+          // thus leaves hanging resources like rgbsocket opened or hotkey shorcuts being listened
+          if (args.apiServer) {
+            logger.log(`Starting hotkey-hub daemon api at port ${args.apiPort}`);
+            await app.listen(args.apiPort, '127.0.0.1');
+          }
+        } catch (e: any) {
+          await app.close();
+          throw e;
+        }
       }
     }
 

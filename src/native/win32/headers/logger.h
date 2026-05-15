@@ -23,6 +23,8 @@ namespace AnsiColor {
   const char *const Time = "\x1b[38;5;100m"; // clc.xterm(100) - timestamp (dark gold)
   const char *const Label = "\x1b[38;5;2m"; // clc.xterm(2) - label
   const char *const Message = "\x1b[38;5;7m"; // clc.xterm(7) - message
+  const char *const ErrorLabel = "\x1b[1;91m"; // clc.bold.redBright - error label
+  const char *const Error = "\x1b[31m"; // clc.red - error message
 }
 
 #define LOG_TIME() do { \
@@ -50,5 +52,12 @@ namespace AnsiColor {
   LOG_TIME(); \
   std::cout << AnsiColor::Label << "twin: " \
             << AnsiColor::Message << msg \
+            << AnsiColor::Reset << std::endl; \
+}
+
+#define LOG_ERROR(msg) { \
+  LOG_TIME(); \
+  std::cerr << AnsiColor::ErrorLabel << "erro: " \
+            << AnsiColor::Error << msg \
             << AnsiColor::Reset << std::endl; \
 }

@@ -160,7 +160,7 @@ export class ConfigService implements ConfigProvider {
 
   public async parseConfig(): Promise<void> {
     this.logger.debug('parsing config');
-    const variables = await this.validateVariableConf();
+    let variables = await this.validateVariableConf();
     this.logger.debug('Validating global config');
     const configString = await this.configReader.loadConfigString();
     const parsedNoDefault = parse(configString) as ConfigData;
@@ -168,8 +168,10 @@ export class ConfigService implements ConfigProvider {
     const configData = await this.validateWithErrorHandling<ConfigData>(configSchema, parsedNoDefault, 'main confg');
     schemaRootCache.data = null!;
     this.configData = configData;
+    if (this.configData.variables) {
+      variables = {...variables, ...this.configData.variables};
+    }
     this.variables = variables;
-    this.setVariable('delays', configData.delays);
     if (!variables.configPath) {
       variables.configPath = [];
     }

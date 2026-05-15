@@ -49,6 +49,9 @@ export class RgbService implements RgbServiceI {
 
   // eslint-disable-next-line max-statements
   public async setup(): Promise<boolean> {
+    if (this.state === ConnectionState.NOT_AVAILABLE) {
+      return false;
+    }
     const rgb = this.configService.getOpenRgb();
     if (!rgb) {
       this.state = ConnectionState.NOT_AVAILABLE;
@@ -87,6 +90,11 @@ export class RgbService implements RgbServiceI {
     }
   }
 
+  teardown(): void {
+    this.state = ConnectionState.NOT_AVAILABLE;
+    this.native.rgbDisconnect();
+  }
+
   private getColor(keyState: KeyState): RgbColor {
     const {offLed, onLed, errorLed} = this.configService.getOpenRgb()!;
     const map: Record<KeyState, string> = {
@@ -119,9 +127,9 @@ export class RgbService implements RgbServiceI {
     if (state === ConnectionState.CONNECTING) {
       this.logger.error('Lost connection to openRGB');
     } else if (state === ConnectionState.CONNECTED) {
-      this.logger.debug('Connected to OpenRGB');
+      this.logger.log('Connected to OpenRGB');
     } else if (this.state === ConnectionState.NOT_AVAILABLE) {
-      this.logger.debug('Stopping openRGB service');
+      this.logger.log('Stopping openRGB service');
     }
     this.privateState = state;
   }
