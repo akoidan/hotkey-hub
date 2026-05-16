@@ -29,6 +29,7 @@ const promptQuestionSchema = z.object({
     'autocompleteMultiselect',
   ]).describe('Type of prompt to display.'),
   name: z.string()
+    .optional()
     .describe('Key under which the answer is stored in the returned response object.'),
   message: z.string().optional()
     .describe('Prompt message displayed to the user.'),
