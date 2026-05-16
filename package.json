@@ -19,8 +19,7 @@
     "lint": "eslint --ext .ts --max-warnings=0 src",
     "esbuild": "node esbuild.config.js",
     "autoformat": "eslint --ext .ts --max-warnings=0 --fix src",
-    "native": "node native.js"
-  },
+    "native": "node native.js"},
   "devDependencies": {
     "@apidevtools/swagger-parser": "^12.1.0",
     "@nestjs/cli": "^10.4.9",
