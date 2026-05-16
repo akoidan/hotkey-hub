@@ -29,8 +29,7 @@ const promptQuestionSchema = z.object({
     'autocompleteMultiselect',
   ]).describe('Type of prompt to display.'),
   name: z.string()
-    .optional()
-    .describe('Key under which the answer is stored in the returned response object.'),
+    .describe('Variable name to asssign stored result'),
   message: z.string().optional()
     .describe('Prompt message displayed to the user.'),
   initial: z.union([z.string(), z.number(), z.boolean()]).optional()
@@ -84,7 +83,6 @@ const promptQuestionSchema = z.object({
 
 const promptLocalCommandSchema = z.object({
   prompt: promptQuestionSchema,
-  assignVariable: z.string().describe('Assign result to a variable.'),
 }).strict().describe('Prompts the user in the CLI of this app for input and assigns the result to a variable.');
 
 type PromptLocalCommand = z.infer<typeof promptLocalCommandSchema>;

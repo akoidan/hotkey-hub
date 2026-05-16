@@ -57,7 +57,10 @@ export class PromptLocalHandler extends BaseLocalHandler {
       throw Error(`Aborting current operation ${combKey}`);
     }
     controller.signal.removeEventListener('abort', abortHandler);
-    this.configService.setVariable(comb.assignVariable, res);
+    // eslint-disable-next-line guard-for-in
+    for (const k in res) {
+      this.configService.setVariable(k, res[k]);
+    }
   }
 }
 

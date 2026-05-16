@@ -1,4 +1,5 @@
 import {z} from 'zod';
+import {variableValueSchema} from '@/config/types/variables';
 
 const expressionSchema = z.string().superRefine((expr, ctx) => {
   try {
@@ -14,8 +15,8 @@ const expressionSchema = z.string().superRefine((expr, ctx) => {
 }).describe('JS like expression that evaluates to some values. E.g. x*2.');
 
 const expressionLocalCommandSchema = z.object({
-  assignVariable: z.string().describe('Name of the variable to store the expression result. ' +
-    'This variable can be referenced in subsequent commands using {{variableName}} syntax.'),
+  assignVariable: z.union([variableValueSchema, z.string().describe('Name of the variable to store the expression result. ' +
+    'This variable can be referenced in subsequent commands using {{variableName}} syntax.')]),
   expression: expressionSchema,
 }).strict()
   .describe('Allows to create/assign a variable by expression.');

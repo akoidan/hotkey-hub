@@ -221,6 +221,9 @@ export class ConfigService implements ConfigProvider {
   }
 
   public setVariable(name: string, value: unknown): void {
+    if (typeof name !== 'string') {
+      throw new Error(`Unable to assign variable ${JSON.stringify(name)} to value ${JSON.stringify(value)}, cause key is not a string`);
+    }
     this.variables[name] = value;
     this.logger.debug(`Settings variable ${name}=${JSON.stringify(value)}`);
     if (this.saveTimeout < 0) {

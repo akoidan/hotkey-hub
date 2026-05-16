@@ -29,7 +29,8 @@ export class TransactionLocalHandler extends BaseLocalHandler {
     combDelayBefore: number | undefined,
     transactionId: string | undefined |null,
   ): Promise<void> {
-    const preparedInput = this.variableService.replaceVariables(input);
+    const preparedInput =  structuredClone(input);
+    preparedInput.transaction = this.variableService.getValue(input.transaction);
     if (preparedInput.transaction === null) {
       await this.runCommands(preparedInput, null, combDelayBefore, combDelayAfter);
       return;
