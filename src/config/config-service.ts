@@ -222,6 +222,7 @@ export class ConfigService implements ConfigProvider {
 
   public setVariable(name: string, value: unknown): void {
     this.variables[name] = value;
+    this.logger.debug(`Settings variable ${name}=${JSON.stringify(value)}`);
     if (this.saveTimeout < 0) {
       return; // do not perform save on tests
     }

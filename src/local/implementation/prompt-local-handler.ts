@@ -2,9 +2,8 @@ import {Inject, Injectable, Logger} from '@nestjs/common';
 import {BaseLocalHandler} from '@/local/base-local-handler';
 import {UnknownCommand} from '@/config/types/commands';
 import {SemaphorService} from '@/semaphor/semaphor-service';
-import {EvaluateService} from '@/local/evaluate-serivce';
 import {PromptLocalCommand} from '@/config/types/local/prompt-local-command';
-import prompts from 'prompts';
+import prompts, {PromptObject} from 'prompts';
 import {ASYNC_PROVIDER} from '@/asyncstore/async-storage-const';
 import {AsyncLocalStorage} from 'async_hooks';
 import {PROCESS_TOKEN} from '@/local/local-model';
@@ -29,26 +28,34 @@ export class PromptLocalHandler extends BaseLocalHandler {
 
   async execute(
     comb: PromptLocalCommand,
-    combDelayAfter: undefined | number,
-    combDelayBefore: undefined | number,
-    tId: string | undefined | null,
   ): Promise<void> {
     const controller: AbortController = this.asyncLocalStorage.getStore()!.get(SemaphorService.ABORT_CONTROLLER) as AbortController;
-    const combKey  = this.asyncLocalStorage.getStore()!.get(SemaphorService.COMB_KEY) as string;
-
+    const combKey = this.asyncLocalStorage.getStore()!.get(SemaphorService.COMB_KEY) as string;
 
     const abortHandler = (): void => {
-      this.logger.debug(`Aborting current operation ${combKey}`);
-      // this.process.stdin.pause();
-      this.process.stdin.emit('end');
+      this.logger.debug(`Aborting prompt ${combKey}`);
+      this.process.stdin.emit('keypress', '', {name: 'abort'});
     };
 
     controller.signal.addEventListener('abort', abortHandler, {once: true});
-    const res = await prompts({
+    let stop = false;
+    const promptIn: PromptObject = {
+      ...comb.prompt as PromptObject<any>,
       stdin: this.process.stdin,
       stdout: this.process.stdout,
-      ...comb
-    } as any);
+      onState: ({aborted}: {aborted: boolean  }) => {
+        stop = aborted;
+      },
+    };
+    const res = await prompts(promptIn, {
+      onCancel: () => {
+        this.logger.debug(`On cancel called for prompt ${combKey}`);
+        stop = true;
+      },
+    });
+    if (stop) {
+      throw Error(`Aborting current operation ${combKey}`);
+    }
     controller.signal.removeEventListener('abort', abortHandler);
     this.configService.setVariable(comb.assignVariable, res)
 
