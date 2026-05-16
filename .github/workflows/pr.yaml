@@ -61,6 +61,13 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
+      - name: Checkout other repo
+        uses: actions/checkout@v4
+        with:
+          repository: akoidan/hotkey-example-configs
+          token: ${{ secrets.HOTKEY_EXAMPLE_CONFIG }}
+          path: examples
+
       - uses: actions/setup-node@v6
         with:
           package-manager-cache: false
@@ -77,6 +84,8 @@ jobs:
         if: steps.cache-node.outputs.cache-hit != 'true'
         run: yarn install --frozen-lockfile
       - name: Tests
+        env:
+          RUN_PRIVATE_TEST: true
         run: yarn test
   win32:
     runs-on: windows-2022

@@ -5,6 +5,7 @@ import {BaseLocalHandler} from '@/local/base-local-handler';
 import {ExpressionLocalCommand} from '@/config/types/local/local-commands';
 import {UnknownCommand} from '@/config/types/commands';
 import {EvaluateService} from '@/local/evaluate-serivce';
+import {VariableResolutionService} from '@/local/variable-resolution.service';
 
 @Injectable()
 export class ExpressionLocalHandler extends BaseLocalHandler {
@@ -12,6 +13,7 @@ export class ExpressionLocalHandler extends BaseLocalHandler {
     protected readonly logger: Logger,
     private readonly configService: ConfigService,
     private readonly evaluateService: EvaluateService,
+    private readonly variableService: VariableResolutionService,
   ) {
     super();
   }
@@ -25,9 +27,10 @@ export class ExpressionLocalHandler extends BaseLocalHandler {
     command: ExpressionLocalCommand
   ): Promise<void> {
     const result = this.evaluateService.evaluateExpression(command.expression);
-    this.logger.debug(`Assigning ${result} to ${command.assignVariable} from evaluating ${command.expression}`);
-    if (command.assignVariable.includes('.')) {
-      const varPath = command.assignVariable.split('.')
+    const varToAssign = this.variableService.getValue(command.assignVariable);
+    this.logger.debug(`Assigning ${result} to ${varToAssign} from evaluating ${command.expression}`);
+    if (varToAssign.includes('.')) {
+      const varPath = varToAssign.split('.')
       const mainVariable = varPath[0];
       const mainValue = this.configService.getVariables()[varPath[0]];
       let nextVal = mainValue;
@@ -37,9 +40,9 @@ export class ExpressionLocalHandler extends BaseLocalHandler {
       nextVal[varPath[varPath.length - 1]] = result;
       this.configService.setVariable(mainVariable, mainValue);
     } else {
-      this.configService.setVariable(command.assignVariable, result);
+      this.configService.setVariable(varToAssign, result);
     }
-    this.logger.debug(`${clc.bold.green(command.assignVariable)}=${clc.yellow(JSON.stringify(result))}`);
+    this.logger.debug(`${clc.bold.green(varToAssign)}=${clc.yellow(JSON.stringify(result))}`);
   }
 
   /* eslint-enable */

@@ -19,7 +19,8 @@ interface IterationDescription {
 }
 
 const SET_TIMEOUT_TOKEN = 'SET_TIMEOUT';
+const PROCESS_TOKEN = 'PROCESS';
 
 export type {IterationThread, IterationDescription};
 
-export {ProcessStatus, SET_TIMEOUT_TOKEN};
+export {ProcessStatus, SET_TIMEOUT_TOKEN, PROCESS_TOKEN};

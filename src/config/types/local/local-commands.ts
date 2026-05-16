@@ -31,6 +31,7 @@ import {
 
 import {type ReloadConfigLocalCommand, reloadConfigLocalCommandSchema} from '@/config/types/local/relocal-config-local-command';
 import {exceptionLocalCommandSchema} from '@/config/types/local/exception-local-command';
+import {promptLocalCommandSchema} from '@/config/types/local/prompt-local-command';
 
 // Define localCommandSchema as union of all local command schemas
 const localCommandSchema = z.lazy(
@@ -45,6 +46,7 @@ const localCommandSchema = z.lazy(
     shuffleLocalCommandSchema,
     printLocalCommandSchema,
     reloadConfigLocalCommandSchema,
+    promptLocalCommandSchema,
   ])
 ).describe('Allows to control flow (if/loops/thread) for other commands');
 
@@ -64,7 +66,7 @@ export {
   shuffleLocalCommandSchema,
   printLocalCommandSchema,
   reloadConfigLocalCommandSchema,
-
+  promptLocalCommandSchema,
   // Other schemas
   macroDefinitionVariableValueSchema,
   macroDefinitionVariablesDescriptionSchema,
