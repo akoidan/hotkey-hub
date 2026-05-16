@@ -198,11 +198,9 @@ jobs:
           url="https://github.com/akoidan/hotkey-hub"
           tag="${{ github.event.release.tag_name }}"
 
-                  
           wget -q "${url}/releases/download/${tag}/hotkey-hub.elf"
           wget -q "${url}/releases/download/${tag}/CONFIG.md"
           wget -q "${url}/releases/download/${tag}/json-schema.json"
-          wget -q "${url}/releases/download/${tag}/macros-schema.json"
   
           VERSION=$(jq -r '.version' ./package.json)
           rootdir=$(pwd)
@@ -213,7 +211,6 @@ jobs:
           install -D -m 755 "${rootdir}/hotkey-hub.elf" "${pkgdir}/usr/bin/hotkey-hub"
           install -D -m 644 "${rootdir}/CONFIG.md" "${pkgdir}/usr/share/hotkey-hub/CONFIG.md"
           install -D -m 644 "${rootdir}/json-schema.json" "${pkgdir}/usr/share/hotkey-hub/json-schema.json"
-          install -D -m 644 "${rootdir}/macros-schema.json" "${pkgdir}/usr/share/hotkey-hub/macros-schema.json"
           install -D -m 644 "${rootdir}/packages/hotkey-hub.service" "${pkgdir}/usr/lib/systemd/user/hotkey-hub.service"
           install -D -m 644 "${rootdir}/packages/config.jsonc" "${pkgdir}/usr/share/hotkey-hub/config-example.jsonc"
           
