@@ -27,7 +27,8 @@ import {GetLocalHandler} from '@/local/get-local-handler';
 import {GetInfoModule} from '@/get-info/get-info-module';
 import {ExceptionLocalHandler} from '@/local/implementation/exception-local-handler';
 import {AsyncStorageModule} from '@/asyncstore/async-storage.module';
-import {SET_TIMEOUT_TOKEN} from '@/local/local-model';
+import {PROCESS_TOKEN, SET_TIMEOUT_TOKEN} from '@/local/local-model';
+import {PromptLocalHandler} from '@/local/implementation/prompt-local-handler';
 
 
 const localHandlers =[
@@ -43,6 +44,7 @@ const localHandlers =[
   GetLocalHandler,
   ExceptionLocalHandler,
   CommandLocalHandler,
+  PromptLocalHandler,
 ];
 
 const localProviders: Provider[] = [
@@ -81,6 +83,10 @@ const localProviders: Provider[] = [
     EvaluateService,
     CommandLocalHandler,
     ...localProviders,
+    {
+      provide: PROCESS_TOKEN,
+      useValue: process,
+    },
     {
       provide: SET_TIMEOUT_TOKEN,
       useValue: setTimeout,

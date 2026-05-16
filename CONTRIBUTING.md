@@ -124,3 +124,13 @@ There are Node.js tests only in this project.
 ```bash
 yarn test
 ```
+
+# Development rules
+
+
+## Architecture
+
+
+## Abort cntroller
+Every async operation should support AbortController, so can properly react to pausable/restartable commands
+
