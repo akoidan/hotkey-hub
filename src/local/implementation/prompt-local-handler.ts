@@ -39,12 +39,16 @@ export class PromptLocalHandler extends BaseLocalHandler {
 
     const abortHandler = (): void => {
       this.logger.debug(`Aborting current operation ${combKey}`);
-      this.process.stdin.pause();
+      // this.process.stdin.pause();
       this.process.stdin.emit('end');
     };
 
     controller.signal.addEventListener('abort', abortHandler, {once: true});
-    const res = await prompts(comb.prompt as any);
+    const res = await prompts({
+      stdin: this.process.stdin,
+      stdout: this.process.stdout,
+      ...comb
+    } as any);
     controller.signal.removeEventListener('abort', abortHandler);
     this.configService.setVariable(comb.assignVariable, res)
 
