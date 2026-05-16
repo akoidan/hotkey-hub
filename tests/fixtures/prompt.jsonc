@@ -1,0 +1,21 @@
+{
+  "name": "Test Prompt",
+  "ips": {
+
+  },
+  "combinations": [
+    {
+      "name": "test",
+      "shortCut": "alt+2",
+      "behaviour": "pausable",
+      "commands": [{
+        "prompt": {
+          "type": "number",
+          "name": "age",
+          "message": "How old are you?"
+        },
+        "assignVariable": "test"
+      }]
+    }
+  ]
+}

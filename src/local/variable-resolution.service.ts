@@ -11,6 +11,7 @@ import {Ajv} from 'ajv';
 @Injectable()
 export class VariableResolutionService {
   private readonly ajvDefaults = new Ajv({strict: false, useDefaults: true});
+
   constructor(
     private readonly configService: ConfigService,
     private readonly evaluateService: EvaluateService,
@@ -20,13 +21,19 @@ export class VariableResolutionService {
   ) {
   }
 
-  applySchemaDefaults(val: unknown, schema: JsonSchema): unknown {
-    const cloned = structuredClone(val);
-    this.ajvDefaults.compile(schema)(cloned);
-    return cloned;
+  public replaceVariables<T extends object>(obj: T): T {
+    const result: Partial<T> = {};
+    for (const [key, value] of Object.entries(obj) as [keyof T, T[keyof T]][]) {
+      if (key === 'variables') {
+        result[key] = this.replaceVarsReqursively(value);
+      } else {
+        result[key] = this.getValue(value);
+      }
+    }
+    return result as T;
   }
 
-  replaceMacroVariables<T = unknown>(
+  public replaceMacroVariables<T = unknown>(
     key: string | null,
     value: T,
     variablesIN: Record<string, unknown> | undefined,
@@ -59,7 +66,7 @@ export class VariableResolutionService {
       }
       return result as T;
     }
-    return this.replaceMacroPrimitive(key!, value, variables ,definition, requiredVariables);
+    return this.replaceMacroPrimitive(key!, value, variables, definition, requiredVariables);
   }
 
   private replaceMacroPrimitive<T>(
@@ -69,8 +76,8 @@ export class VariableResolutionService {
     definition: VariablesDefinition,
     requiredVariables: string[],
   ): T {
-    let varName: string|undefined;
-    let varExpress: string|undefined;
+    let varName: string | undefined;
+    let varExpress: string | undefined;
     const exactValue = typeof value === 'string' && key === 'if' && definition?.[value];
     if (exactValue) {
       ({varName, varExpress} = this.extratVarNameInner(value));
@@ -101,19 +108,6 @@ export class VariableResolutionService {
     throw Error(`Unable to resolve macros variable ${varName} when running ${JSON.stringify(value)}`);
   }
 
-
-  replaceVariables<T extends object>(obj: T): T {
-    const result: Partial<T> = {};
-    for (const [key, value] of Object.entries(obj) as [keyof T, T[keyof T]][]) {
-      if (key === 'variables') {
-        result[key] = this.replaceVarsReqursively(value);
-      } else {
-        result[key] = this.getValue(value);
-      }
-    }
-    return result as T;
-  }
-
   private replaceVarsReqursively<T>(objVars: T): T {
     if (Array.isArray(objVars)) {
       // thread each array element as the whole object
@@ -130,36 +124,42 @@ export class VariableResolutionService {
     return this.getValue<T>(objVars);
   }
 
-  private getValue<T>(value: T): T {
+  public getValue<T>(value: T): Exclude<T, {'$ref': any}> {
     const {varName, varExpress} = this.extractVariableName(value);
     if (!varName) {
-      return value;
+      return value as Exclude<T, {'$ref': any}>;
     }
     const globalVars = this.configService.getGlobalVars();
     const scriptVars = this.configService.getVariables();
     if (varName in scriptVars) { // if object has the key, even if it's null or undefined
-      return this.evaluateService.evaluateVariable<T>(varName, varExpress!, scriptVars[varName]) as unknown as T;
+      return this.evaluateService.evaluateVariable<T>(varName, varExpress!, scriptVars[varName]) as unknown as Exclude<T, {'$ref': any}>;
     }
     if (varName in globalVars) { // if object has the key, even if it's null or undefined
-      return this.evaluateService.evaluateVariable<T>(varName, varExpress!, globalVars[varName]) as unknown as T;
+      return this.evaluateService.evaluateVariable<T>(varName, varExpress!, globalVars[varName]) as unknown as Exclude<T, {'$ref': any}>;
     }
     const id = this.asyncLocalStorage.getStore()!.get(SemaphorService.COMB_KEY) as string;
     throw Error(`Unable to replace env variable ${(value as VariableValue)?.$ref ?? JSON.stringify(value)} for ${id}`);
   }
 
 
-  private extractVariableName(variable: unknown): { varName: string|undefined, varExpress: string|undefined} {
+  private extractVariableName(variable: unknown): { varName: string | undefined, varExpress: string | undefined } {
     if (variable && (variable as VariableValue).$ref) {
       return this.extratVarNameInner((variable as VariableValue).$ref);
     }
-    return  {varName: undefined, varExpress: undefined} ;
+    return {varName: undefined, varExpress: undefined};
   }
 
-  private extratVarNameInner(expression: string): { varName: string|undefined, varExpress: string|undefined} {
+  private extratVarNameInner(expression: string): { varName: string | undefined, varExpress: string | undefined } {
     const name = variableRegex.exec(expression);
     if (!name) {
       throw Error(`Illegal varname ${expression}`);
     }
     return {varName: name.groups!.variable, varExpress: expression};
+  }
+
+  private applySchemaDefaults(val: unknown, schema: JsonSchema): unknown {
+    const cloned = structuredClone(val);
+    this.ajvDefaults.compile(schema)(cloned);
+    return cloned;
   }
 }

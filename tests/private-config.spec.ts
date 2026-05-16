@@ -31,7 +31,7 @@ import {parse} from 'jsonc-parser';
 import path from 'path';
 import fs from 'fs';
 import {BehaviourEnum, BehaviourObject} from '@/config/types/shortcut';
-import {SET_TIMEOUT_TOKEN} from '@/local/local-model';
+import {PROCESS_TOKEN, SET_TIMEOUT_TOKEN} from '@/local/local-model';
 
 
 if (process.env.RUN_PRIVATE_TEST) {
@@ -173,6 +173,7 @@ if (process.env.RUN_PRIVATE_TEST) {
         VariableResolutionService,
         CommandLocalHandler,
         {provide: SAVE_TIMEOUT, useValue: -1},
+        {provide: PROCESS_TOKEN, useValue: {stdin: {}, stdout: {}}},
         {provide: SET_TIMEOUT_TOKEN, useValue: (cb: any, originTimeout: number) => {
             setTimeout(cb, 0);
           }},
