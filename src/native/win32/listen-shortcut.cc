@@ -103,6 +103,12 @@ void printerThread() {
     return;
   }
 
+  // Bind this window to the current module's windowProc. When the window class
+  // is reused from a previous SEA DLL load (ERROR_CLASS_ALREADY_EXISTS above),
+  // the class still carries the old DLL's windowProc, which reads stale
+  // gCallbacks. SetWindowLongPtr overrides the proc for this window only.
+  SetWindowLongPtr(hwnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(windowProc));
+
   gHwnd = hwnd;
   LOG_THREAD("Window created: " << std::hex << hwnd << std::dec);
 
