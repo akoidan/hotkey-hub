@@ -59,7 +59,7 @@ export class PromptLocalHandler extends BaseLocalHandler {
     controller.signal.removeEventListener('abort', abortHandler);
     // eslint-disable-next-line guard-for-in
     for (const k in res) {
-      this.configService.setVariable(k, res[k]);
+      this.configService.setVariable(k, res[k], true);
     }
   }
 }

@@ -21,7 +21,7 @@ export class PrintLocalHandler extends BaseLocalHandler {
   // eslint-disable-next-line @typescript-eslint/require-await
   async execute(comb: PrintLocalCommand): Promise<void> {
     const result: unknown = this.evaluateService.evaluateExpression(comb.print);
-    this.logger.log(`${clc.yellow(comb.print)}=${clc.bold.green(result)}`);
+    this.logger.log(result);
   }
 }
 
