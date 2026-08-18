@@ -110,3 +110,22 @@ describe('Config service — JSON Schema variable validation', () => {
   });
 
 });
+
+describe('Config service — nested delay defaults', () => {
+  it('Should apply per-field delay defaults when config and variables omit "delays" entirely', async () => {
+    const testModule = await getTestModule('no-variables-config-fixture.jsonc');
+    const service = testModule.get<ConfigService>(ConfigService);
+    await service.parseConfig();
+    expect(service.getDelays()).toEqual({
+      beforeCommand: 0,
+      httpRequest: 6000,
+      httpRequestInit: 3000,
+      afterCommand: 0,
+      standardDeviation: 0,
+      commandDeviation: 0,
+      randomHugeDelayDeviation: 0,
+      randomHugeDelay: 0,
+      randomHugeDelayChance: 0,
+    });
+  });
+});
