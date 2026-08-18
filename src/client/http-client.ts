@@ -6,7 +6,7 @@ import clc from 'cli-color';
 import {SemaphorService} from '@/semaphor/semaphor-service';
 import {ASYNC_PROVIDER} from '@/asyncstore/async-storage-const';
 import {AsyncLocalStorage} from 'async_hooks';
-import {CustomError, RequestOptions, TIMEOUT} from '@/client/client-model';
+import {CustomError, RequestOptions} from '@/client/client-model';
 
 
 @Injectable()
@@ -16,8 +16,6 @@ export class FetchClient {
     private readonly config: ConfigService,
     private readonly agent: Agent,
     private readonly semaphorService: SemaphorService,
-    @Inject(TIMEOUT)
-    private readonly timeout: number,
     @Inject(ASYNC_PROVIDER)
     private readonly asyncLocalStorage: AsyncLocalStorage<Map<string, any>>,
   ) {
@@ -131,7 +129,7 @@ export class FetchClient {
         httpController.abort();
         reject!(Error(controller.signal.reason as string));
       };
-      const realTimeout = options.timeout ?? this.timeout;
+      const realTimeout = options.timeout ?? this.config.getDelays().httpRequest;
       const [result, statusCode] = await Promise.race([
         this.executeRequest(method, client, url, payloadstr, httpController),
         new Promise<never>((_, innerReject) => {

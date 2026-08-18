@@ -105,7 +105,7 @@ export class TransactionLocalHandler extends BaseLocalHandler {
         `transaction ${tId}`
       );
     }
-        for (let i = 0; i < preparedInput.commands.length; i++) {
+    for (let i = 0; i < preparedInput.commands.length; i++) {
       const delayA = ((preparedInput as Delay).delayAfter as number | undefined) ?? combDelayAfter;
       const delayB = ((preparedInput as Delay).delayBefore as number | undefined) ?? combDelayBefore;
       const transactionPromise = this.semaphoreService.spawnPromiseChild(

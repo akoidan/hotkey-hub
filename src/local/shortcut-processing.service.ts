@@ -40,6 +40,11 @@ export class ShortcutProcessingService {
         }
       } catch (e: any) {
         finalLedColor = KeyState.ERROR!;
+        // if thread handler has multiple operations in progress
+        // (e.g. thread with 2 infinitive loops for easier reproduce)
+        // when first loop throws, we6000m have to aborts 2nd loop as well
+        // also if first loop throw it should NOT have subsribers on abort controller
+        this.semaphoreService.getAbortController().abort(e);
         throw e;
       } finally {
         const index = this.iterationsInProgress[groupWith].findIndex(proc => proc.id === id);

@@ -1,6 +1,5 @@
 import {ConfigService} from '@/config/config-service';
 import {Injectable, Logger} from '@nestjs/common';
-import clc from 'cli-color';
 import {BaseLocalHandler} from '@/local/base-local-handler';
 import {ExpressionLocalCommand} from '@/config/types/local/local-commands';
 import {UnknownCommand} from '@/config/types/commands';
@@ -38,11 +37,10 @@ export class ExpressionLocalHandler extends BaseLocalHandler {
         nextVal = nextVal[varPath[i]]
       }
       nextVal[varPath[varPath.length - 1]] = result;
-      this.configService.setVariable(mainVariable, mainValue);
+      this.configService.setVariable(mainVariable, mainValue, true);
     } else {
-      this.configService.setVariable(varToAssign, result);
+      this.configService.setVariable(varToAssign, result, true);
     }
-    this.logger.debug(`${clc.bold.green(varToAssign)}=${clc.yellow(JSON.stringify(result))}`);
   }
 
   /* eslint-enable */
