@@ -1,5 +1,4 @@
-const CERT_DIR = 'CERT_DIR';
-const TIMEOUT = 'TIMEOUT';
+const CERT_DIR = 'CERT_DIR';;
 
 interface CustomError extends Error {
   statusCode?: number;
@@ -19,4 +18,4 @@ interface ApiOptions {
 const ABORTED_BY_USER = 'Request is aborted by user';
 
 export type {CustomError, RequestOptions, ApiOptions};
-export {CERT_DIR, TIMEOUT, ABORTED_BY_USER};
+export {CERT_DIR, ABORTED_BY_USER};

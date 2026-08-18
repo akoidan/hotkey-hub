@@ -6,6 +6,11 @@ const globalDelaySchema = z.object({
     .describe('Base delay (in milliseconds) before each command. Can be randomized using standardDeviation.')
     .optional(),
 
+  httpRequest: z.number()
+    .default(6000)
+    .describe('Timeout (in milliseconds) for HTTP request. If timeout is exceeded, request will fail and command will be terminated.')
+    .optional(),
+
   afterCommand: z.number()
     .default(0)
     .describe('Base delay (in milliseconds) after each command. Can be randomized using standardDeviation.')

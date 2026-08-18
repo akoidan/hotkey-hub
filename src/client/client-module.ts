@@ -9,7 +9,6 @@ import {MonitorService} from '@/client/services/monitor.service';
 import {MouseService} from '@/client/services/mouse.service';
 import {ProcessService} from '@/client/services/process.service';
 import {WindowService} from '@/client/services/window.service';
-import {TIMEOUT} from '@/client/client-model';
 import {Agent} from 'https';
 import {AsyncStorageModule} from '@/asyncstore/async-storage.module';
 import {AppService} from '@/client/services/app.service';
@@ -28,10 +27,6 @@ import {AppService} from '@/client/services/app.service';
     MonitorService,
     MouseService,
     ProcessService,
-    {
-      provide: TIMEOUT,
-      useValue: 6000,
-    },
     {
       provide: Agent,
       inject: [CertService],
