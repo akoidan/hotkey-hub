@@ -1,6 +1,5 @@
 import {ConfigService} from '@/config/config-service';
 import {Injectable, Logger} from '@nestjs/common';
-import clc from 'cli-color';
 import {BaseLocalHandler} from '@/local/base-local-handler';
 import {ExpressionLocalCommand} from '@/config/types/local/local-commands';
 import {UnknownCommand} from '@/config/types/commands';
